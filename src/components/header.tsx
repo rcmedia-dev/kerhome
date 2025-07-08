@@ -1,106 +1,127 @@
 'use client'
 
-import { useState } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
-import { Menu, UserCircle, X } from 'lucide-react'
-import Link from 'next/link'
-import { AuthDialog } from './login-modal'
-import { Session } from '@supabase/supabase-js'
-import React from 'react'
-import { createClient } from '@/utils/supabase/client'
+import { useAuth } from './auth-context';
+import { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Menu, UserCircle, X } from 'lucide-react';
+import Link from 'next/link';
+import { AuthDialog } from './login-modal';
+import React from 'react';
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from './ui/select'
+} from './ui/select';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-} from './ui/dropdown-menu'
-import { Avatar, AvatarImage } from './ui/avatar'
-import { DropdownMenuArrow } from '@radix-ui/react-dropdown-menu'
+} from './ui/dropdown-menu';
+import { Avatar, AvatarImage } from './ui/avatar';
+import { DropdownMenuArrow } from '@radix-ui/react-dropdown-menu';
+import { signOut } from '@/lib/supabase-auth';
 
-interface HeaderProps {
-  session: Session | null
-}
+export default function Header() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { user, setUser } = useAuth();
+  const pathname = usePathname();
+  const router = useRouter();
 
-export default function Header({ session }: HeaderProps) {
-  const [menuOpen, setMenuOpen] = useState(false)
-  const pathname = usePathname()
-  const router = useRouter()
-  const supabase = createClient()
+  // Referência para o AuthDialog
+  const authDialogRef = React.useRef<{ open: () => void }>(null);
 
-  const navLinks = [
-    { id: 'inicio', label: 'ÍNICIO', href: '/' },
-    { id: 'alugar', label: 'PARA ALUGAR', href: '/alugar' },
-    { id: 'comprar', label: 'PARA COMPRAR', href: '/comprar' },
-    { id: 'noticias', label: 'NOTÍCIAS', href: '#' },
-    { id: 'contacto', label: 'CONTACTO', href: '/contato' },
-  ]
+  // Função para abrir o AuthDialog
+  const handleCadastrarImovelClick = (e: React.MouseEvent) => {
+    if (!user) {
+      e.preventDefault();
+      if (authDialogRef.current) authDialogRef.current.open();
+    }
+  };
 
   const linkClass = (href: string) =>
     `text-sm font-medium transition ease-in-out ${
       pathname === href ? 'text-purple-700' : 'text-gray-700 hover:text-purple-700'
-    }`
+    }`;
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push('/')
-    router.refresh()
-  }
+    try {
+      await signOut();
+    } catch (e) {
+      // Ignora erro de logout
+    }
+    setUser(null);
+    router.push('/');
+    router.refresh();
+  };
 
-  function UserDropdown() {
-    const user = session!.user
-    const avatarUrl = user.user_metadata?.avatar_url as string | undefined
-
+  function UserDropdown({ mobile }: { mobile?: boolean } = {}) {
+    const avatarUrl = user?.avatar_url;
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           {avatarUrl ? (
-            <Avatar className="cursor-pointer">
+            <Avatar className={mobile ? 'cursor-pointer w-full' : 'cursor-pointer'}>
               <AvatarImage src={avatarUrl} alt="Avatar" />
             </Avatar>
           ) : (
-            <div className="bg-purple-700 rounded-lg px-4 py-3 hover:bg-purple-800 flex items-center gap-2 cursor-pointer">
-              <UserCircle className='text-white'/>
-              <span className='font-semibold text-white'>
-               Meu Perfil
-              </span>
+            <div
+              className={`${mobile ? 'w-full' : ''} flex justify-center px-5 py-3 border-2 border-purple-700 text-purple-700 bg-white hover:bg-purple-50 text-sm font-semibold rounded-full transition items-center gap-2 outline-none focus:ring-2 focus:ring-purple-300 cursor-pointer`}
+              style={{ minWidth: 0 }}
+              tabIndex={0}
+              role="button"
+              aria-haspopup="menu"
+              aria-expanded="false"
+            >
+              <UserCircle className='text-purple-700'/>
+              <span>Meu Perfil</span>
             </div>
           )}
         </DropdownMenuTrigger>
-
-        <DropdownMenuContent align="end" className="w-44">
+        <DropdownMenuContent align="end" className="w-56 rounded-2xl shadow-2xl border border-gray-100 bg-white p-2 mt-2 animate-fade-in">
           <DropdownMenuArrow className="fill-white" />
-          <DropdownMenuItem onClick={() => router.push('/dashboard')}>
+          <div className="px-4 py-3 border-b border-gray-100 mb-2 flex items-center gap-3">
+            {avatarUrl ? (
+              <Avatar className="w-10 h-10">
+                <AvatarImage src={avatarUrl} alt="Avatar" />
+              </Avatar>
+            ) : (
+              <UserCircle className="w-10 h-10 text-purple-700" />
+            )}
+            <div>
+              <div className="font-semibold text-gray-900 text-sm">{user?.first_name || 'Usuário'}</div>
+              <div className="text-xs text-gray-500">{user?.email}</div>
+            </div>
+          </div>
+          <DropdownMenuItem onClick={() => router.push('/dashboard')} className="rounded-lg px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-700 font-medium cursor-pointer">
             Dashboard
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout}>Sair</DropdownMenuItem>
+          <DropdownMenuItem onClick={handleLogout} className="rounded-lg px-4 py-2 text-red-600 hover:bg-red-50 font-medium cursor-pointer">
+            Sair
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-    )
+    );
   }
 
   function SearchBar() {
-    const [q, setQ] = React.useState('')
-    const [estado, setEstado] = React.useState('')
-    const [cidade, setCidade] = React.useState('')
-    const router = useRouter()
+    const [q, setQ] = React.useState('');
+    const [estado, setEstado] = React.useState('');
+    const [cidade, setCidade] = React.useState('');
+    const router = useRouter();
 
     const handleSubmit = (e: React.FormEvent) => {
-      e.preventDefault()
-      const params = new URLSearchParams()
-      if (q) params.append('q', q)
-      if (estado) params.append('status', estado)
-      if (cidade) params.append('cidade', cidade)
-      router.push(`/results?${params.toString()}`)
-    }
+      e.preventDefault();
+      const params = new URLSearchParams();
+      if (q) params.append('q', q);
+      if (estado) params.append('status', estado);
+      if (cidade) params.append('cidade', cidade);
+      router.push(`/results?${params.toString()}`);
+    };
 
     return (
       <section className="flex justify-center items-center py-5 bg-purple-700 px-4">
@@ -146,8 +167,16 @@ export default function Header({ session }: HeaderProps) {
           </button>
         </form>
       </section>
-    )
+    );
   }
+
+  const navLinks: { id: string; label: string; href: string }[] = [
+    { id: 'inicio', label: 'ÍNICIO', href: '/' },
+    { id: 'alugar', label: 'PARA ALUGAR', href: '/alugar' },
+    { id: 'comprar', label: 'PARA COMPRAR', href: '/comprar' },
+    { id: 'noticias', label: 'NOTÍCIAS', href: '#' },
+    { id: 'contacto', label: 'CONTACTO', href: '/contato' },
+  ];
 
   return (
     <header>
@@ -171,16 +200,18 @@ export default function Header({ session }: HeaderProps) {
             ))}
           </ul>
           <div className="flex items-center gap-3">
-            {session?.user ? (
+            <Link href="/dashboard/cadastrar-imovel">
+              <button
+                className="px-5 py-3 bg-purple-700 hover:bg-purple-800 text-sm font-semibold text-white rounded-full"
+                onClick={handleCadastrarImovelClick}
+              >
+                Cadastrar Imóvel
+              </button>
+            </Link>
+            {!user && <AuthDialog ref={authDialogRef} />}
+            {user ? (
               <UserDropdown />
-            ) : (
-              <>
-                <button className="px-5 py-3 bg-purple-700 hover:bg-purple-800 text-sm font-semibold text-white rounded-full">
-                  Cadastrar Imóvel
-                </button>
-                <AuthDialog />
-              </>
-            )}
+            ) : null}
           </div>
         </nav>
       </div>
@@ -195,15 +226,19 @@ export default function Header({ session }: HeaderProps) {
             ))}
           </ul>
           <div className="flex flex-col gap-3">
-            {session?.user ? (
-              <UserDropdown />
+            <Link href="/dashboard/cadastrar-imovel">
+              <button className="w-full px-5 py-3 bg-purple-700 hover:bg-purple-800 text-sm font-semibold text-white rounded-full">
+                Cadastrar Imóvel
+              </button>
+            </Link>
+            {user ? (
+              <div className="w-full">
+                <UserDropdown mobile />
+              </div>
             ) : (
-              <>
-                <button className="px-5 py-3 bg-purple-700 hover:bg-purple-800 text-sm font-semibold text-white rounded-full">
-                  Cadastrar Imóvel
-                </button>
+              <div className="w-full">
                 <AuthDialog />
-              </>
+              </div>
             )}
           </div>
         </div>
@@ -211,5 +246,5 @@ export default function Header({ session }: HeaderProps) {
 
       <SearchBar />
     </header>
-  )
+  );
 }

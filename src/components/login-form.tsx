@@ -4,6 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { login } from '@/app/login/actions';
 import { useFormStatus } from 'react-dom';
+import { useAuth } from './auth-context';
 
 interface Props {
   onSuccess: () => void;
@@ -11,6 +12,32 @@ interface Props {
 }
 
 export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
+  const [error, setError] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(false);
+  const { setUser } = useAuth();
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(null);
+    setLoading(true);
+    const formData = new FormData(event.currentTarget);
+    const result = await login(formData);
+    setLoading(false);
+    if (result.success) {
+      setUser({
+        id: result.session.user.id,
+        email: result.session.user.email,
+        first_name: result.profile?.first_name,
+        last_name: result.profile?.last_name,
+        avatar_url: result.profile?.avatar_url,
+        role: result.profile?.role,
+      });
+      onSuccess(); // Fecha o modal
+    } else {
+      setError(result.error || 'Erro ao fazer login');
+    }
+  }
+
   return (
     <div className="p-6 bg-white rounded-lg w-full max-w-md">
       <div className="flex justify-center mb-4">
@@ -22,7 +49,7 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
         <p className="text-gray-500 text-sm">Acesse sua conta para continuar</p>
       </div>
 
-      <form className="space-y-5" action={login}>
+      <form className="space-y-5" onSubmit={handleSubmit}>
         {/* Email */}
         <div className="relative">
           <input
@@ -59,8 +86,41 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
           </label>
         </div>
 
+        {/* Error message */}
+        {error && (
+          <div className="text-red-600 text-sm text-center">{error}</div>
+        )}
+
         {/* Submit */}
-        <SubmitButton />
+        <button
+          type="submit"
+          disabled={loading}
+          className={`w-full text-white rounded-lg py-4 flex justify-center items-center transition ${loading ? 'bg-purple-400 cursor-not-allowed' : 'bg-purple-700 hover:bg-purple-800'}`}
+        >
+          {loading && (
+            <svg
+              className="animate-spin h-5 w-5 mr-3 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              />
+            </svg>
+          )}
+          {loading ? 'Entrando…' : 'Entrar'}
+        </button>
       </form>
 
       {/* Bottom Actions */}
@@ -81,45 +141,5 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
       </div>
     </div>
   );
-}
-
-// SubmitButton.tsx
-export function SubmitButton() {
-  const { pending } = useFormStatus()
-
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className={`w-full text-white rounded-lg py-4 flex justify-center items-center transition
-        ${pending
-          ? 'bg-purple-400 cursor-not-allowed'
-          : 'bg-purple-700 hover:bg-purple-800'}`}
-    >
-      {pending && (
-        <svg
-          className="animate-spin h-5 w-5 mr-3 text-white"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          />
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-          />
-        </svg>
-      )}
-      {pending ? 'Entrando…' : 'Entrar'}
-    </button>
-  )
 }
 

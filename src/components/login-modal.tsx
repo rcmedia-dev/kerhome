@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -10,9 +10,14 @@ import {
 import { CustomSignInForm } from './login-form';
 import { CustomSignUpForm } from './signup-form';
 
-export function AuthDialog() {
+export const AuthDialog = forwardRef(function AuthDialog(props, ref) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+
+  useImperativeHandle(ref, () => ({
+    open: () => setIsOpen(true),
+    close: () => setIsOpen(false),
+  }));
 
   const handleSuccess = () => {
     setIsOpen(false);
@@ -42,4 +47,4 @@ export function AuthDialog() {
       </DialogContent>
     </Dialog>
   );
-}
+});

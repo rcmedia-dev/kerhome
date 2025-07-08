@@ -1,23 +1,25 @@
 'use server';
 
+import { supabaseServer } from "../supabase-server";
 import { Property } from "../types/property";
 
-// Buscar lista de imóveis
+// Buscar lista de imóveis do Supabase
 export async function getProperties(limit: number = 50): Promise<Property[]> {
-  const res = await fetch(`http://localhost:3000/api/properties?limit=${limit}`, {
-    cache: 'no-store',
-  });
-
-  if (!res.ok) throw new Error('Erro ao buscar imóveis');
-  return res.json();
+  const { data, error } = await supabaseServer
+    .from("properties")
+    .select("*")
+    .limit(limit);
+  if (error) throw new Error(error.message);
+  return data as Property[];
 }
 
-// Buscar imóvel por ID
-export async function getPropertyById(id: number): Promise<Property> {
-  const res = await fetch(`http://localhost:3000/api/properties/${id}`, {
-    cache: 'no-store',
-  });
-
-  if (!res.ok) throw new Error('Erro ao buscar o imóvel');
-  return res.json();
+// Buscar imóvel por ID do Supabase
+export async function getPropertyById(id: string): Promise<Property | null> {
+  const { data, error } = await supabaseServer
+    .from("properties")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) return null;
+  return data as Property;
 }

@@ -4,10 +4,11 @@ import { BedDouble, MapPin, Ruler, Tag } from "lucide-react";
 import Link from "next/link";
 
 type PropertiesShowCaseProps = {
-    property: Property[]
+    property: Property[];
+    inline?: boolean;
 }
 
-export default function PropertiesShowcase({ property }: PropertiesShowCaseProps) {
+export default function PropertiesShowcase({ property, inline }: PropertiesShowCaseProps) {
   return (
     <section className="flex flex-col justify-center py-10 px-4 sm:px-6 lg:px-10 bg-white">
       <div className="flex flex-col justify-center items-center text-center mb-10">
@@ -19,13 +20,20 @@ export default function PropertiesShowcase({ property }: PropertiesShowCaseProps
         </p>
       </div>
 
-      <div className=" mx-auto">
-        <div className="flex flex-wrap justify-center gap-8">
-          {property.map((property) => (
-            <PropertyCard key={property.title} property={property} />
-          ))}
-        </div>
-
+      <div className="mx-auto">
+        {inline ? (
+          <div className="flex gap-6">
+            {property.map((property) => (
+              <PropertyCard key={property.title} property={property} />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 justify-center">
+            {property.map((property) => (
+              <PropertyCard key={property.title} property={property} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
@@ -33,7 +41,14 @@ export default function PropertiesShowcase({ property }: PropertiesShowCaseProps
 
 export function PropertyCard({ property }: { property: Property }) {
   return (
-    <div className="w-[300px] bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 h-full flex flex-col">
+    <div className="w-[300px] bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 h-full flex flex-col relative">
+      {/* Badge de status */}
+      {property.status === 'para comprar' && (
+        <span className="absolute top-3 left-3 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow z-10">À venda</span>
+      )}
+      {property.status === 'para alugar' && (
+        <span className="absolute top-3 left-3 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow z-10">Para alugar</span>
+      )}
       {/* Imagem */}
       <div className="relative h-56 w-full">
         <Image
@@ -65,6 +80,17 @@ export function PropertyCard({ property }: { property: Property }) {
             </div>
           </div>
 
+          {/* Pequeno bloco extra de info */}
+          <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <span>{property.tipo || property.status}</span>
+            {property.bathrooms !== undefined && (
+              <span>{property.bathrooms} Banheiro{property.bathrooms > 1 ? 's' : ''}</span>
+            )}
+            {property.garagens !== undefined && property.garagens > 0 && (
+              <span>{property.garagens} Garagem{property.garagens > 1 ? 's' : ''}</span>
+            )}
+          </div>
+
           <div className="flex items-center gap-2 text-orange-500 font-bold">
             <Tag className="w-5 h-5" />
             <span>{property.price}</span>
@@ -73,7 +99,7 @@ export function PropertyCard({ property }: { property: Property }) {
 
         {/* Botão alinhado ao final */}
         <div>
-          <Link href={`/comprar/${property.id}`} className="flex justify-center cursor-pointer w-full mt-2 bg-purple-700 hover:bg-purple-800 text-white py-2 rounded-lg font-medium transition">
+          <Link href={`/${property.status === 'para comprar' ? 'comprar' : 'alugar'}/${property.id}`} className="flex justify-center cursor-pointer w-full mt-2 bg-purple-700 hover:bg-purple-800 text-white py-2 rounded-lg font-medium transition">
             Ver detalhes
           </Link>
         </div>
