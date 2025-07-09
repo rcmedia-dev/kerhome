@@ -4,7 +4,7 @@ import { useSearchParams, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PropertyCard } from "@/components/property-showcase";
 import { Property } from "@/lib/types/property";
-import { getProperties } from '@/lib/mock-api';
+import { getProperties } from "@/lib/actions/get-properties";
 
 export default function CompararDoisPage() {
   const searchParams = useSearchParams();

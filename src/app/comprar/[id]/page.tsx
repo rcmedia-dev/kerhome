@@ -474,7 +474,7 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
   );
 }
 
-export function ContactForm() {
+function ContactForm() {
   return (
     <form className="space-y-5">
       <div className="relative">

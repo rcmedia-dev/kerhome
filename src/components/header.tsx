@@ -63,24 +63,25 @@ export default function Header() {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          {avatarUrl ? (
-            <Avatar className={mobile ? 'cursor-pointer w-full' : 'cursor-pointer'}>
-              <AvatarImage src={avatarUrl} alt="Avatar" />
-            </Avatar>
-          ) : (
-            <div
-              className={`${mobile ? 'w-full' : ''} flex justify-center px-5 py-3 border-2 border-purple-700 text-purple-700 bg-white hover:bg-purple-50 text-sm font-semibold rounded-full transition items-center gap-2 outline-none focus:ring-2 focus:ring-purple-300 cursor-pointer`}
-              style={{ minWidth: 0 }}
-              tabIndex={0}
-              role="button"
-              aria-haspopup="menu"
-              aria-expanded="false"
-            >
-              <UserCircle className='text-purple-700'/>
-              <span>Meu Perfil</span>
-            </div>
-          )}
+          <button
+            className={`${mobile ? 'w-full' : ''} flex justify-center px-5 py-3 border-2 border-purple-700 text-purple-700 bg-white hover:bg-purple-50 text-sm font-semibold rounded-full transition items-center gap-2 outline-none focus:ring-2 focus:ring-purple-300 cursor-pointer`}
+            style={{ minWidth: 0 }}
+            tabIndex={0}
+            role="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            {avatarUrl ? (
+              <Avatar className="w-6 h-6">
+                <AvatarImage src={avatarUrl} alt="Avatar" />
+              </Avatar>
+            ) : (
+              <UserCircle className="w-6 h-6 text-purple-700" />
+            )}
+            <span>Meu Perfil</span>
+          </button>
         </DropdownMenuTrigger>
+
         <DropdownMenuContent align="end" className="w-56 rounded-2xl shadow-2xl border border-gray-100 bg-white p-2 mt-2 animate-fade-in">
           <DropdownMenuArrow className="fill-white" />
           <div className="px-4 py-3 border-b border-gray-100 mb-2 flex items-center gap-3">

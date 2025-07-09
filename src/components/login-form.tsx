@@ -3,7 +3,6 @@
 import React from 'react';
 import Image from 'next/image';
 import { login } from '@/app/login/actions';
-import { useFormStatus } from 'react-dom';
 import { useAuth } from './auth-context';
 
 interface Props {
@@ -23,19 +22,20 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
     const formData = new FormData(event.currentTarget);
     const result = await login(formData);
     setLoading(false);
-    if (result.success) {
-      setUser({
-        id: result.session.user.id,
-        email: result.session.user.email,
-        first_name: result.profile?.first_name,
-        last_name: result.profile?.last_name,
-        avatar_url: result.profile?.avatar_url,
-        role: result.profile?.role,
-      });
-      onSuccess(); // Fecha o modal
-    } else {
-      setError(result.error || 'Erro ao fazer login');
-    }
+    if (result.success && result.session) {
+    setUser({
+      id: result.session.user.id,
+      email: result.session.user.email,
+      first_name: result.profile?.first_name,
+      last_name: result.profile?.last_name,
+      avatar_url: result.profile?.avatar_url,
+      role: result.profile?.role,
+    });
+    onSuccess(); // Fecha o modal
+  } else {
+    setError(result.error || 'Erro ao fazer login');
+  }
+
   }
 
   return (

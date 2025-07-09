@@ -4,7 +4,7 @@ import { getSession, onAuthStateChange } from "@/lib/supabase-auth";
 
 export type AuthUser = {
   id: string;
-  email: string;
+  email?: string;
   first_name?: string;
   last_name?: string;
   avatar_url?: string;

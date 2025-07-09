@@ -471,7 +471,7 @@ function AgentSection() {
   );
 }
 
-export function ContactForm() {
+function ContactForm() {
   return (
     <form className="space-y-5">
       <div className="relative">

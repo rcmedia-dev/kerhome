@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const titles = ['Apartamento Moderno', 'Vivenda de Luxo', 'Casa Rústica', 'Penthouse Vista Mar'];
 const locations = ['Luanda - Talatona', 'Benfica', 'Kilamba', 'Huambo - Centro'];
@@ -16,13 +16,13 @@ function generateProperties(limit: number) {
   }));
 }
 
-export async function GET(
-  _req: Request,
-  { params }: { params: { id: string } }
-) {
-  const id = parseInt(params.id);
-  const properties = generateProperties(50); // mesmo dataset do outro endpoint
-  const property = properties.find((p) => p.id === id);
+export async function GET(req: NextRequest) {
+  const url = new URL(req.url);
+  const id = url.pathname.split('/').pop(); // pega o último segmento da URL
+  const parsedId = parseInt(id || '');
+
+  const properties = generateProperties(50);
+  const property = properties.find((p) => p.id === parsedId);
 
   if (!property) {
     return NextResponse.json({ error: 'Imóvel não encontrado' }, { status: 404 });
