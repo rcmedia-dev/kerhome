@@ -3,16 +3,16 @@
 import { useSearchParams, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PropertyCard } from "@/components/property-showcase";
-import { Property } from "@/lib/types/property";
 import { getProperties } from "@/lib/actions/get-properties";
+import { PropertyResponse } from "@/lib/types/property";
 
 export default function CompararDoisPage() {
   const searchParams = useSearchParams();
   const params = useParams();
   const baseId = searchParams.get("base");
   const compareId = params.id;
-  const [base, setBase] = useState<Property | null>(null);
-  const [compare, setCompare] = useState<Property | null>(null);
+  const [base, setBase] = useState<PropertyResponse | null>(null);
+  const [compare, setCompare] = useState<PropertyResponse | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -55,7 +55,7 @@ export default function CompararDoisPage() {
         <div className="flex flex-col gap-2">
           {[
             ["Título", base.title, compare.title],
-            ["Localização", base.location, compare.location],
+            ["Localização", base.endereco, compare.endereco],
             ["Quartos", base.bedrooms, compare.bedrooms],
             ["Tamanho", base.size, compare.size],
             ["Preço", base.price, compare.price],

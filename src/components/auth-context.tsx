@@ -1,14 +1,24 @@
-"use client";
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { getSession, onAuthStateChange } from "@/lib/supabase-auth";
+'use client';
+
+import { PlanoAgente } from '@/lib/types/plan';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export type AuthUser = {
   id: string;
-  email?: string;
-  first_name?: string;
-  last_name?: string;
-  avatar_url?: string;
-  role?: string;
+  email?: string | null;
+  primeiro_nome?: string | null;
+  ultimo_nome?: string | null;
+  username?: string | null;
+  telefone?: string | null;
+  empresa?: string | null;
+  licenca?: string | null;
+  website?: string | null;
+  facebook?: string | null;
+  linkedin?: string | null;
+  instagram?: string | null;
+  youtube?: string | null;
+  sobre_mim?: string | null;
+  pacote_agente?: PlanoAgente | null;
 };
 
 export type AuthContextType = {
@@ -19,7 +29,6 @@ export type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  // Inicializa do localStorage para evitar flicker/logout em navegação client-side
   const [user, setUserState] = useState<AuthUser | null>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('kerhome_user');
@@ -29,66 +38,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
-    // Sempre tenta restaurar sessão do Supabase
-    getSession().then(({ data }) => {
-      const session = data?.session;
-      if (session?.user) {
-        const u = session.user;
-        setUserState({
-          id: u.id,
-          email: u.email!,
-          first_name: u.user_metadata?.first_name,
-          last_name: u.user_metadata?.last_name,
-          avatar_url: u.user_metadata?.avatar_url,
-          role: u.role || "free",
-        });
-      }
-    });
-    // Escuta mudanças de autenticação
-    const { data: listener } = onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        const u = session.user;
-        setUserState({
-          id: u.id,
-          email: u.email!,
-          first_name: u.user_metadata?.first_name,
-          last_name: u.user_metadata?.last_name,
-          avatar_url: u.user_metadata?.avatar_url,
-          role: u.role || "free",
-        });
-      } else {
-        // Só faz logout se não houver usuário no localStorage
-        if (typeof window !== 'undefined') {
-          const stored = localStorage.getItem('kerhome_user');
-          if (!stored) setUserState(null);
-        } else {
-          setUserState(null);
-        }
-      }
-    });
-    return () => {
-      listener?.subscription.unsubscribe();
-    };
-  }, []);
-
-  // Persistência no localStorage
-  useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       if (user) {
-        localStorage.setItem("kerhome_user", JSON.stringify(user));
+        localStorage.setItem('kerhome_user', JSON.stringify(user));
       } else {
-        localStorage.removeItem("kerhome_user");
+        localStorage.removeItem('kerhome_user');
       }
     }
   }, [user]);
 
   const setUser = (user: AuthUser | null) => {
     setUserState(user);
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       if (user) {
-        localStorage.setItem("kerhome_user", JSON.stringify(user));
+        localStorage.setItem('kerhome_user', JSON.stringify(user));
       } else {
-        localStorage.removeItem("kerhome_user");
+        localStorage.removeItem('kerhome_user');
       }
     }
   };
@@ -102,6 +67,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
   return ctx;
 }

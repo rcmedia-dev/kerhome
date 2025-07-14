@@ -1,10 +1,10 @@
 import { getProperties } from '@/lib/actions/get-properties';
-import { Property } from "@/lib/types/property";
 import { PropertyCard } from "@/components/property-showcase";
+import { PropertyResponse } from '@/lib/types/property';
 
 // Página com 20 propriedades fictícias
 export default async function PropertiesPage() {
-  const properties: Property[] = (await getProperties()).filter(
+  const properties: PropertyResponse[] = (await getProperties()).filter(
     (p) => p.status === "para alugar"
   );
   if (!properties || properties.length < 1) {

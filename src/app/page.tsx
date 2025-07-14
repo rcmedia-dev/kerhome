@@ -3,12 +3,11 @@ import PropertiesShowcase from '@/components/property-showcase';
 import ActionCardsSection from '@/components/actions-card';
 import FeaturedCarousel from '@/components/featured-houses';
 import TopAgentsSection from '@/components/top-agent';
-import { Property } from '@/lib/types/property';
 import { getProperties } from '@/lib/actions/get-properties';
-import Lottie from 'lottie-react';
+import { PropertyResponse } from '@/lib/types/property';
 
 export default async function HomePage(){
-  const properties: Property[] = await getProperties();
+  const properties: PropertyResponse[] = await getProperties();
   if (!properties || properties.length < 1) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">

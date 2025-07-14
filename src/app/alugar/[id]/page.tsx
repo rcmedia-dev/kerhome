@@ -3,18 +3,17 @@
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { MapPin, BedDouble, Ruler, Tag } from "lucide-react";
-import { Property } from "@/lib/types/property";
 import { getPropertyById } from '@/lib/actions/get-properties';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
-
-
+import { PropertyResponse } from "@/lib/types/property";
+import { PropertyFilterSidebar } from "@/components/sidebar-filtro";
 
 
 
 export default function PropertyPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params);
-  const [property, setProperty] = useState<Property | null>(null);
+  const [property, setProperty] = useState<PropertyResponse | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -37,7 +36,7 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
           allowFullScreen
           referrerPolicy="no-referrer-when-downgrade"
           src={`https://www.google.com/maps?q=${encodeURIComponent(
-            property.location
+            property.endereco ?? ''
           )}&output=embed`}
         ></iframe>
       </div>
@@ -101,7 +100,7 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
               <p className="text-3xl font-extrabold text-orange-500 mt-6 flex items-center gap-2">
                 {property.price && (
                   <>
-                    <Tag className="w-6 h-6" /> {property.price} {property.unidadepreco && <span className="text-base font-normal">{property.unidadepreco}</span>}
+                    <Tag className="w-6 h-6" /> {property.price} {property.unidade_preco && <span className="text-base font-normal">{property.unidade_preco}</span>}
                   </>
                 )}
               </p>
@@ -136,8 +135,8 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
             <div className="pt-2">
               <h3 className="font-semibold text-gray-700 mb-2">Detalhes Técnicos</h3>
               <ul className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm text-gray-600">
-                {typeof property.areaterreno !== 'undefined' && (
-                  <li><span className="font-medium">Área do Terreno:</span> {property.areaterreno}</li>
+                {typeof property.area_terreno !== 'undefined' && (
+                  <li><span className="font-medium">Área do Terreno:</span> {property.area_terreno}</li>
                 )}
                 {property.size && (
                   <li><span className="font-medium">Tamanho:</span> {property.size}</li>
@@ -192,8 +191,8 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
                     {property.propertyid && (
                       <li><span className="font-semibold">ID:</span> {property.propertyid}</li>
                     )}
-                    {typeof property.areaterreno !== 'undefined' && (
-                      <li><span className="font-semibold">Área do Terreno:</span> {property.areaterreno}</li>
+                    {typeof property.area_terreno !== 'undefined' && (
+                      <li><span className="font-semibold">Área do Terreno:</span> {property.area_terreno}</li>
                     )}
                     {property.size && (
                       <li><span className="font-semibold">Tamanho:</span> {property.size}</li>
@@ -205,29 +204,53 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
                       <li><span className="font-semibold">Status:</span> {property.status}</li>
                     )}
                     {property.price && (
-                      <li><span className="font-semibold">Preço:</span> {property.price} {property.unidadepreco && <span className="text-base font-normal">{property.unidadepreco}</span>}</li>
+                      <li><span className="font-semibold">Preço:</span> {property.price} {property.unidade_preco && <span className="text-base font-normal">{property.unidade_preco}</span>}</li>
                     )}
                   </ul>
                   {/* Características */}
-                  {property.caracteristicas && property.caracteristicas.length > 0 && (
+                  {property.caracteristicas && Array.isArray(property.caracteristicas) && property.caracteristicas.length > 0
+ && (
                     <div className="pt-2">
                       <h3 className="font-semibold text-gray-700 mb-2">Características</h3>
                       <ul className="flex flex-wrap gap-2">
-                        {property.caracteristicas.map((c, i) => (
-                          <li key={i} className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-xs font-medium border border-purple-100">{c}</li>
-                        ))}
+                        {Array.isArray(property.caracteristicas) &&
+                          property.caracteristicas
+                            .filter((c): c is string => typeof c === 'string')
+                            .map((c, i) => (
+                              <li
+                                key={i}
+                                className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-xs font-medium border border-purple-100"
+                              >
+                                {c}
+                              </li>
+                            ))}
                       </ul>
+
                     </div>
                   )}
                   {/* Detalhes Adicionais */}
-                  {property.detalhesadicionais && property.detalhesadicionais.length > 0 && (
+                  {property.detalhesadicionais &&  Array.isArray(property.detalhesadicionais) && property.detalhesadicionais.length > 0 && (
                     <div className="pt-2">
                       <h3 className="font-semibold text-gray-700 mb-2">Detalhes Adicionais</h3>
                       <ul className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm text-gray-600">
-                        {property.detalhesadicionais.map((d: { titulo: string; valor: string }, i: number) => (
-                          <li key={i}><span className="font-medium">{d.titulo}:</span> {d.valor}</li>
-                        ))}
+                        {Array.isArray(property.detalhesadicionais) &&
+                          property.detalhesadicionais
+                            .filter(
+                              (d): d is { titulo: string; valor: string } =>
+                                typeof d === 'object' &&
+                                d !== null &&
+                                'titulo' in d &&
+                                'valor' in d &&
+                                typeof (d as any).titulo === 'string' &&
+                                typeof (d as any).valor === 'string'
+                            )
+                            .map((d, i) => (
+                              <li key={i}>
+                                <span className="font-medium">{d.titulo}:</span> {d.valor}
+                              </li>
+                            ))}
                       </ul>
+
                     </div>
                   )}
                 </div>
@@ -264,7 +287,7 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
             {/* Endereço */}
             <div className="space-y-4">
               <h2 className="text-2xl font-bold text-gray-800">Endereço</h2>
-              <p className="text-gray-600">{property.location}</p>
+              <p className="text-gray-600">{property.endereco}</p>
             </div>
 
             {/* Formulário de contato + Agente juntos */}
@@ -311,49 +334,7 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
           {/* Sidebar Filtro + Info */}
           <div className="hidden md:block md:col-span-1 sticky top-24 self-start order-none md:order-last space-y-6">
             {/* Filtro de imóveis */}
-            <div className="bg-white border shadow-md rounded-2xl p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800">
-                Filtrar imóveis
-              </h3>
-              <select className="w-full border px-3 py-2 rounded-md text-sm">
-                <option>Status</option>
-                <option>Para alugar</option>
-                <option>Para comprar</option>
-              </select>
-              <input
-                type="text"
-                placeholder="Tipo de imóvel"
-                className="w-full border px-3 py-2 rounded-md text-sm"
-              />
-              <input
-                type="number"
-                placeholder="Nº de banhos"
-                className="w-full border px-3 py-2 rounded-md text-sm"
-              />
-              <input
-                type="number"
-                placeholder="Nº de quartos"
-                className="w-full border px-3 py-2 rounded-md text-sm"
-              />
-              <input
-                type="number"
-                placeholder="Nº de garagens"
-                className="w-full border px-3 py-2 rounded-md text-sm"
-              />
-              <input
-                type="number"
-                placeholder="Preço máximo"
-                className="w-full border px-3 py-2 rounded-md text-sm"
-              />
-              <input
-                type="text"
-                placeholder="Tamanho mínimo (m²)"
-                className="w-full border px-3 py-2 rounded-md text-sm"
-              />
-              <button className="w-full bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600 transition">
-                Buscar
-              </button>
-            </div>
+            <PropertyFilterSidebar />
 
             {/* Cidades disponíveis */}
             <div className="bg-white border shadow-md rounded-2xl p-6 space-y-2">

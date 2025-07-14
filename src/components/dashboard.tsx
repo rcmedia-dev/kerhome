@@ -1,33 +1,41 @@
-"use client";
+'use client';
 
-
-import { useAuth } from "./auth-context";
-import { BarChart3, Eye, Heart, Home, Package, Search, Settings, Star, Upload, User } from "lucide-react";
-import { useState, useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./ui/card";
-import { MinhasPropriedades, Favoritas, Analytics, NovaPropriedade, ConfiguracoesConta } from './dashboard-tabs-content';
+import { useAuth } from './auth-context';
+import { BarChart3, Eye, Heart, Home, Package, Settings, Star, Upload, User } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
+import { MinhasPropriedades, Favoritas, Analytics, NovaPropriedade } from './dashboard-tabs-content';
 import { Dialog, DialogTrigger } from './ui/dialog';
 import { getUserProperties } from '@/lib/actions/get-user-properties';
 import { getUserFavorites } from '@/lib/actions/get-user-favorites';
 import { getUserInvoices } from '@/lib/actions/get-user-invoices';
+import { ConfiguracoesConta } from './account-setting';
+import { getUserPlan } from '@/lib/actions/get-user-plan';
+import { PlanoCard } from './plano-card';
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('properties');
 
-
   const [propertyCount, setPropertyCount] = useState<number>(0);
   const [favoriteCount, setFavoriteCount] = useState<number>(0);
   const [invoiceCount, setInvoiceCount] = useState<number>(0);
-  // Visualizações: placeholder
-  const [viewsCount] = useState<number>(0);
+  const viewsCount = 0; // Placeholder
 
   useEffect(() => {
     if (!user?.id) return;
-    getUserProperties(user.id).then(props => setPropertyCount(props.length || 0));
-    getUserFavorites(user.id).then(favs => setFavoriteCount(favs.length || 0));
-    getUserInvoices(user.id).then(invs => setInvoiceCount(invs.length || 0));
+    getUserProperties(user.id).then(props => setPropertyCount(props?.length || 0));
+    getUserFavorites(user.id).then(favs => setFavoriteCount(favs?.length || 0));
+    getUserInvoices(user.id).then(invs => setInvoiceCount(invs?.length || 0));
+
   }, [user?.id]);
+
+  if (!user) return null; // Evita erro se não estiver autenticado
+
+  const displayName =
+    user.primeiro_nome?.trim() ||
+    user.email?.split('@')[0] ||
+    'Usuário';
 
   const stats = [
     { label: 'Propriedades', value: propertyCount, icon: Home },
@@ -43,13 +51,6 @@ export default function Dashboard() {
     { id: 'settings', label: 'Configurações da Conta', icon: Settings },
   ];
 
-  const packageInfo = [
-    { label: 'Plano', value: user?.role ?? '—', icon: Package, color: 'text-yellow-500' },
-    { label: 'Listagens', value: '50', icon: Home, color: 'text-green-500' },
-    { label: 'Restante', value: '35', icon: Eye, color: 'text-blue-500' },
-    { label: 'Destaques', value: '10', icon: Star, color: 'text-purple-500' }
-  ];
-
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
@@ -57,7 +58,7 @@ export default function Dashboard() {
           <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
               <CardTitle className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
-                Bem-vindo, {user?.first_name && user.first_name.trim() !== '' ? user.first_name : user?.email?.split('@')[0]}
+                Bem-vindo, {displayName}
               </CardTitle>
               <CardDescription className="text-gray-500 text-sm sm:text-base">
                 Gerencie suas propriedades com elegância
@@ -77,43 +78,21 @@ export default function Dashboard() {
             </Dialog>
           </CardHeader>
         </Card>
-        {/* GRID PRINCIPAL RESPONSIVO */}
+
         <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6">
-          {/* COLUNA LATERAL - PERFIL E MENUS */}
+          {/* COLUNA LATERAL */}
           <div className="lg:col-span-4 flex flex-col gap-6 order-1">
             <Card className="shadow-md">
               <CardHeader className="text-center pb-2">
                 <div className="relative inline-block">
-                  {user?.avatar_url ? (
-                    <img
-                      src={user.avatar_url}
-                      alt="Avatar"
-                      className="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full object-cover ring-4 ring-purple-500/50"
-                    />
-                  ) : (
+                  {/* Avatar (imagem ou iniciais) */}
                     <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full bg-purple-700 flex items-center justify-center text-white text-2xl sm:text-3xl font-bold ring-4 ring-purple-500/50">
-                      {(() => {
-                        const fn = user?.first_name;
-                        const ln = user?.last_name;
-                        if (fn && ln) {
-                          return (
-                            fn[0]?.toUpperCase() + ln[0]?.toUpperCase()
-                          );
-                        }
-                        return (
-                          fn?.[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? ''
-                        );
-                      })()}
+                      {user.primeiro_nome?.[0]?.toUpperCase() ?? user.email?.[0]?.toUpperCase()}
                     </div>
-                  )}
                   <div className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full border-2 border-white" />
                 </div>
-                <CardTitle className="text-lg sm:text-xl text-gray-800 mt-4">
-                  {user?.first_name && user.first_name.trim() !== '' ? user.first_name : user?.email?.split('@')[0]}
-                </CardTitle>
-                <CardDescription className="text-gray-500 text-xs sm:text-base">
-                  {user?.role ?? 'Usuário'}
-                </CardDescription>
+                <CardTitle className="text-lg sm:text-xl text-gray-800 mt-4">{displayName}</CardTitle>
+                <CardDescription className="text-gray-500 text-xs sm:text-base">{user?.sobre_mim ?? 'Usuário'}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-2 sm:gap-4">
@@ -129,6 +108,8 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Menu lateral */}
             <Card className="shadow-md">
               <CardHeader>
                 <CardTitle className="text-gray-800 flex items-center text-base sm:text-lg">
@@ -149,7 +130,7 @@ export default function Dashboard() {
                       <item.icon className="w-5 h-5 text-purple-700" />
                       <span className="text-gray-800 text-sm sm:text-base">{item.label}</span>
                     </div>
-                    {item.badge && (
+                    {item.badge !== undefined && (
                       <span className="px-2 py-0.5 bg-orange-500 text-white text-xs font-semibold rounded">
                         {item.badge}
                       </span>
@@ -158,7 +139,8 @@ export default function Dashboard() {
                 ))}
               </CardContent>
             </Card>
-            {/* Renderizar conteúdo das tabs logo abaixo do card de tabs no mobile */}
+
+            {/* Conteúdo das tabs no mobile */}
             <div className="block lg:hidden">
               {activeTab === 'properties' && <MinhasPropriedades />}
               {activeTab === 'favorites' && <Favoritas />}
@@ -166,33 +148,11 @@ export default function Dashboard() {
               {activeTab === 'add' && <NovaPropriedade />}
               {activeTab === 'settings' && <ConfiguracoesConta />}
             </div>
-            <Card className="shadow-md">
-              <CardHeader>
-                <CardTitle className="text-gray-800 flex items-center text-base sm:text-lg">
-                  <Package className="w-5 h-5 mr-2 text-purple-700" />
-                  Plano Atual
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {packageInfo.map((info, i) => (
-                  <div key={i} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                    <div className="flex items-center space-x-2">
-                      <info.icon className={`w-4 h-4 ${info.color}`} />
-                      <span className="text-gray-600 text-xs sm:text-base">{info.label}</span>
-                    </div>
-                    <span className="text-gray-800 font-semibold text-xs sm:text-base">{info.value}</span>
-                  </div>
-                ))}
-                <button
-                  className="w-full mt-4 flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg animate-pulse text-sm sm:text-base"
-                  onClick={() => window.location.href = '/planos'}
-                >
-                  <Star className="w-4 h-4 mr-2" />
-                  Upgrade Plan
-                </button>
-              </CardContent>
-            </Card>
-            {/* Card motivacional para upgrade */}
+
+            {/* Plano atual */}
+            <PlanoCard userId={user.id} />
+
+            {/* Card motivacional */}
             <Card className="shadow border border-orange-100 mt-4 bg-orange-50/60">
               <CardHeader>
                 <CardTitle className="text-orange-600 text-base sm:text-lg font-bold flex items-center gap-2">
@@ -212,7 +172,8 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </div>
-          {/* CONTEÚDO PRINCIPAL - só desktop */}
+
+          {/* CONTEÚDO PRINCIPAL - DESKTOP */}
           <div className="hidden lg:block lg:col-span-8 order-2 mt-6 lg:mt-0">
             {activeTab === 'properties' && <MinhasPropriedades />}
             {activeTab === 'favorites' && <Favoritas />}

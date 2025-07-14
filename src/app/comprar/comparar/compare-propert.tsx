@@ -3,15 +3,15 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PropertyCard } from "@/components/property-showcase";
-import { Property } from "@/lib/types/property";
 import { getProperties } from '@/lib/actions/get-properties';
 import Link from "next/link";
+import { PropertyResponse } from "@/lib/types/property";
 
 export default function CompararPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
-  const [property, setProperty] = useState<Property | null>(null);
-  const [similar, setSimilar] = useState<Property[]>([]);
+  const [property, setProperty] = useState<PropertyResponse | null>(null);
+  const [similar, setSimilar] = useState<PropertyResponse[]>([]);
 
   useEffect(() => {
     async function fetchData() {

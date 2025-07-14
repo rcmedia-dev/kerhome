@@ -1,16 +1,20 @@
-import { getSupabaseClient } from '@/lib/supabase';
-import { Property } from '@/lib/types/property';
+'use server'
 
-export async function getUserProperties(userId: string): Promise<Property[]> {
-  const supabase = getSupabaseClient();
-  const { data, error } = await supabase
-    .from('properties')
-    .select('*')
-    .eq('owner_id', userId)
-    .order('created_at', { ascending: false });
-  if (error) {
-    console.error('Erro ao buscar propriedades do usuário:', error.message);
+import prisma from '../prisma';
+import { PropertyResponse } from '../types/property';
+
+export async function getUserProperties(userId: string): Promise<PropertyResponse[]> {
+  try {
+    const properties = await prisma.property.findMany({
+      where: { ownerId: userId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    console.log('Propriedades:', properties);
+    return properties
+  } catch (error) {
+    console.error('Erro ao buscar propriedades do usuário:', error);
     return [];
   }
-  return data as Property[];
 }
+

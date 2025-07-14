@@ -1,10 +1,11 @@
-import { Property } from "@/lib/types/property";
+
 import Image from 'next/image';
 import { BedDouble, MapPin, Ruler, Tag } from "lucide-react";
 import Link from "next/link";
+import { PropertyResponse } from '@/lib/types/property';
 
 type PropertiesShowCaseProps = {
-    property: Property[];
+    property: PropertyResponse[];
     inline?: boolean;
 }
 
@@ -39,7 +40,7 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
   );
 }
 
-export function PropertyCard({ property }: { property: Property }) {
+export function PropertyCard({ property }: { property: PropertyResponse }) {
   return (
     <div className="w-[300px] bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 h-full flex flex-col relative">
       {/* Badge de status */}
@@ -52,7 +53,7 @@ export function PropertyCard({ property }: { property: Property }) {
       {/* Imagem */}
       <div className="relative h-56 w-full">
         <Image
-          src={property.image}
+          src={property.gallery[0]}
           alt={property.title}
           fill
           className="object-cover"
@@ -64,7 +65,7 @@ export function PropertyCard({ property }: { property: Property }) {
         <div className="space-y-2 flex-1">
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <MapPin className="w-4 h-4" />
-            <span>{property.location}</span>
+            <span>{property.endereco}</span>
           </div>
 
           <h3 className="text-xl font-semibold text-gray-900">
@@ -84,11 +85,14 @@ export function PropertyCard({ property }: { property: Property }) {
           <div className="flex justify-between text-xs text-gray-500 mt-1">
             <span>{property.tipo || property.status}</span>
             {property.bathrooms !== undefined && (
-              <span>{property.bathrooms} Banheiro{property.bathrooms > 1 ? 's' : ''}</span>
+              <span>
+                {property.bathrooms ?? 0} Banheiro{(property.bathrooms ?? 0) > 1 ? 's' : ''}
+              </span>
             )}
-            {property.garagens !== undefined && property.garagens > 0 && (
+           {property.garagens != null && property.garagens > 0 && (
               <span>{property.garagens} Garagem{property.garagens > 1 ? 's' : ''}</span>
             )}
+
           </div>
 
           <div className="flex items-center gap-2 text-orange-500 font-bold">

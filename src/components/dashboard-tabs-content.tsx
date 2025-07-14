@@ -1,15 +1,16 @@
 
 import React, { useEffect, useState } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./ui/card";
-import { Settings } from 'lucide-react';
 import { PropertyCard } from './property-showcase';
-import { Property } from '@/lib/types/property';
 import { useAuth } from './auth-context';
 import { getUserProperties } from '@/lib/actions/get-user-properties';
+import { PropertyResponse } from '@/lib/types/property';
+import { getUserInvoices } from '@/lib/actions/get-user-invoices';
+import { CheckCircle2 } from 'lucide-react';
+import { Fatura } from '@/lib/types/faturas';
 
 export function MinhasPropriedades() {
   const { user } = useAuth();
-  const [properties, setProperties] = useState<Property[]>([]);
+  const [properties, setProperties] = useState<PropertyResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -49,15 +50,69 @@ export function Favoritas() {
 }
 
 
-
 export function Analytics() {
+  const [faturas, setFaturas] = useState<Fatura[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    async function fetchFaturas() {
+      if (!user?.id) return;
+
+      const data = await getUserInvoices(user.id);
+      setFaturas(data);
+      setLoading(false);
+    }
+
+    fetchFaturas();
+  }, [user]);
+
   return (
     <div className="bg-white rounded-xl shadow p-6 mb-6 text-center text-gray-500">
-      <h2 className="text-xl font-bold mb-4 text-gray-800">Faturas</h2>
-      <div>Nenhuma fatura encontrada.</div>
+      <h2 className="text-xl font-bold mb-4 text-gray-800">Minhas Faturas</h2>
+
+      {loading ? (
+        <div>Carregando faturas...</div>
+      ) : faturas.length === 0 ? (
+        <div>Nenhuma fatura encontrada.</div>
+      ) : (
+        <table className="w-full text-left text-sm text-gray-700">
+          <thead>
+            <tr className="border-b font-semibold">
+              <th className="p-2">Serviço</th>
+              <th className="p-2">Valor</th>
+              <th className="p-2">Status</th>
+              <th className="p-2">Data</th>
+            </tr>
+          </thead>
+          <tbody>
+            {faturas.map((fatura) => (
+              <tr key={fatura.id} className="border-b hover:bg-gray-50">
+                <td className="p-2">{fatura.servico}</td>
+                <td className="p-2">{fatura.valor.toLocaleString()} Kz</td>
+                <td className="p-2 capitalize">
+                  {fatura.status === 'pago' ? (
+                    <span className="text-green-600 font-medium flex items-center gap-1">
+                      <CheckCircle2 className="w-4 h-4" />
+                      Pago
+                    </span>
+                  ) : (
+                    <span className="text-yellow-600 font-medium">Pendente</span>
+                  )}
+                </td>
+                <td className="p-2">
+                  {new Date(fatura.criadoEm).toLocaleDateString()}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
+
+
 
 export function NovaPropriedade() {
   return (
@@ -65,40 +120,5 @@ export function NovaPropriedade() {
       <h2 className="text-xl font-bold mb-4 text-gray-800">Nova Propriedade</h2>
       <div className="text-gray-700">Formulário para adicionar nova propriedade.</div>
     </div>
-  );
-}
-
-export function ConfiguracoesConta() {
-  return (
-    <Card className="shadow-md mt-6">
-      <CardHeader>
-        <CardTitle className="text-2xl flex items-center text-gray-800">
-          <Settings className="w-6 h-6 mr-3 text-purple-700" />
-          Configurações da Conta
-        </CardTitle>
-        <CardDescription className="text-gray-500">
-          Gerencie suas informações pessoais e profissionais
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {['Primeiro Nome', 'Último Nome', 'Email', 'Telefone', 'Empresa', 'Licença', 'Website', 'Facebook', 'LinkedIn', 'Instagram', 'YouTube'].map(label => (
-              <div key={label}>
-                <label className="block text-sm font-medium text-gray-700">{label}</label>
-                <input className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2 focus:border-purple-500 focus:ring-purple-500" />
-              </div>
-            ))}
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700">Sobre Mim</label>
-              <textarea rows={4} className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2 focus:border-purple-500 focus:ring-purple-500" />
-            </div>
-          </div>
-          <button type="submit" className="bg-purple-700 text-white px-4 py-2 rounded-md hover:bg-purple-800">
-            Atualizar Perfil
-          </button>
-        </form>
-      </CardContent>
-    </Card>
   );
 }

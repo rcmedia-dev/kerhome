@@ -1,50 +1,32 @@
-'use client'
+'use client';
 
-import React from 'react'
-import Image from 'next/image'
-import { signup } from '@/app/login/actions'
-import { getSupabaseClient } from '@/lib/supabase';
-import { useFormStatus } from 'react-dom'
-import { useAuth } from './auth-context'
+import React from 'react';
+import Image from 'next/image';
+import { useAuth } from './auth-context';
+import { signup } from '@/lib/actions/signup-action';
 
 interface Props {
-  onSuccess: () => void
-  onSwitchToSignIn: () => void
+  onSuccess: () => void;
+  onSwitchToSignIn: () => void;
 }
 
 export function CustomSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
-  const [error, setError] = React.useState<string | null>(null)
-  const [loading, setLoading] = React.useState(false)
-  const { setUser } = useAuth()
+  const [error, setError] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(false);
+  const { setUser } = useAuth();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
     setLoading(true);
+
     const formData = new FormData(event.currentTarget);
     const result = await signup(formData);
+
     setLoading(false);
+
     if (result && result.success && result.user) {
-      setUser({
-        ...result.user,
-        email: result.user.email || '',
-      });
-      // Após cadastro, opcionalmente, você pode criar um perfil na tabela 'profiles' do Supabase:
-      try {
-        const supabase = getSupabaseClient();
-        await supabase.from('profiles').insert([
-          {
-            id: result.user.id,
-            email: result.user.email,
-            first_name: result.user.first_name,
-            last_name: result.user.last_name,
-            avatar_url: result.user.avatar_url || null,
-            role: result.user.role || 'free',
-          },
-        ]);
-      } catch (e) {
-        // Não bloqueia o fluxo se der erro ao criar perfil
-      }
+      setUser(result.user);
       onSuccess(); // Fecha o modal
     } else {
       setError(result?.error || 'Erro ao criar conta');
@@ -173,49 +155,12 @@ export function CustomSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
 
         <button
           type="button"
-          onClick={() => {/* ação de ajuda, ex: abrir modal ou redirecionar */}}
+          onClick={() => {/* ação de ajuda futura */}}
           className="block text-sm text-gray-500 hover:underline w-full text-center"
         >
           Precisa de ajuda? <span className="text-orange-500">Fale conosco</span>
         </button>
       </div>
     </div>
-  )
-}
-
-
-export function SubmitButton({ text, loadingText }: { text: string; loadingText: string }) {
-  const { pending } = useFormStatus()
-
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className={`w-full text-white rounded-lg py-4 flex justify-center items-center transition
-        ${pending
-          ? 'bg-purple-400 cursor-not-allowed'
-          : 'bg-purple-700 hover:bg-purple-800'}`}
-    >
-      {pending && (
-        <svg
-          className="animate-spin h-5 w-5 mr-3 text-white"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            className="opacity-25"
-            cx="12" cy="12" r="10"
-            stroke="currentColor" strokeWidth="4"
-          />
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-          />
-        </svg>
-      )}
-      {pending ? loadingText : text}
-    </button>
-  )
+  );
 }

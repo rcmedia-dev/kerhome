@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Plus } from 'lucide-react';
 import { getSupabaseClient } from '@/lib/supabase';
 import { useAuth } from '@/components/auth-context';
+import { createProperty } from '@/lib/actions/create-property';
 
 
 const caracteristicasList = [
@@ -137,29 +138,28 @@ export default function CadastrarImovelPage() {
           if (result.url) galleryUrls.push(result.url);
         }
       }
-      console.log('User:', user);
-      // Monta o objeto do imóvel conforme o modelo do banco
-      const property = {
-        owner_id: user.id,
+
+     const result = await createProperty({
+        ownerId: user.id,
         title: titulo,
         description: descricao,
         tipo,
         status,
         rotulo,
-        price: preco ? preco : null,
+        price: parseNumber(preco) ?? undefined,
         unidade_preco: unidadePreco,
-        preco_antes: precoAntes ? precoAntes : null,
-        preco_depois: precoDepois ? precoDepois : null,
+        preco_antes: parseNumber(precoAntes) ?? undefined,
+        preco_depois: parseNumber(precoDepois) ?? undefined,
         preco_chamada: precoChamada,
         caracteristicas,
-        size: size,
-        area_terreno: areaTerreno ? Number(areaTerreno) : undefined,
-        bedrooms: bedrooms ? Number(bedrooms) : 0,
-        bathrooms: bathrooms ? Number(bathrooms) : undefined,
-        garagens: garagens ? Number(garagens) : undefined,
+        size,
+        area_terreno: areaTerreno ? parseFloat(areaTerreno) : undefined,
+        bedrooms: bedrooms ? parseInt(bedrooms) : undefined,
+        bathrooms: bathrooms ? parseInt(bathrooms) : undefined,
+        garagens: garagens ? parseInt(garagens) : undefined,
         garagemtamanho: garagemTamanho,
-        anoconstrucao: anoConstrucao,
-        propertyid: propertyId,
+        anoconstrucao: anoConstrucao ? parseInt(anoConstrucao) : undefined,
+        propertyid: propertyId || undefined,
         detalhesadicionais: detalhesAdicionais,
         endereco,
         bairro,
@@ -168,11 +168,11 @@ export default function CadastrarImovelPage() {
         pais,
         notaprivada: notaPrivada,
         gallery: galleryUrls,
-        image: galleryUrls[0] || null,
-      };
-      const { error } = await supabase.from('properties').insert([property]);
-      if (error) {
-        setError('Erro ao cadastrar imóvel: ' + error.message);
+        image: galleryUrls[0] || undefined,
+      });
+      
+      if (!result.success) {
+        setError(result.error || 'Erro ao cadastrar imóvel.');
         return;
       }
       setSuccess(true);

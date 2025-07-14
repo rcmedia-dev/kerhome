@@ -1,6 +1,6 @@
 'use client'
 
-import { Property } from "@/lib/types/property";
+import { PropertyResponse } from "@/lib/types/property";
 import useEmblaCarousel from "embla-carousel-react";
 import { BedDouble, Ruler, Tag } from "lucide-react";
 import Image from 'next/image';
@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useCallback, useEffect } from "react";
 
 type HeroCarouselProps = {
-    property: Property[]
+    property: PropertyResponse[]
 }
 
 export default function HeroCarousel( {property}: HeroCarouselProps) {
@@ -36,7 +36,7 @@ export default function HeroCarousel( {property}: HeroCarouselProps) {
               key={i}
             >
               <Image
-                src={property.image}
+                src={property.gallery[0]}
                 alt={property.title}
                 fill
                 className="object-cover"
@@ -50,7 +50,7 @@ export default function HeroCarousel( {property}: HeroCarouselProps) {
                     {property.title}
                   </h2>
                   <p className="text-xs md:text-sm text-gray-100 mt-2 mb-4">
-                    {property.location}
+                    {property.endereco}
                   </p>
 
                   <div className="flex flex-wrap justify-center gap-4 text-xs md:text-sm mb-4">

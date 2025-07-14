@@ -1,14 +1,14 @@
 'use client'
 
-import { Property } from "@/lib/types/property";
 import useEmblaCarousel from "embla-carousel-react";
 import Image from 'next/image';
 import { BedDouble, MapPin, Ruler, Tag } from "lucide-react";
 import { useCallback, useEffect } from "react";
+import { PropertyResponse } from "@/lib/types/property";
 
 
 type FeaturedCarouselProps = {
-    property: Property[]
+    property: PropertyResponse[]
 }
 
 export default function FeaturedCarousel({ property }: FeaturedCarouselProps) {
@@ -41,7 +41,7 @@ export default function FeaturedCarousel({ property }: FeaturedCarouselProps) {
                 className="embla__slide relative flex-shrink-0 w-[85%] md:w-[50%] lg:w-[33%] h-[400px] rounded-xl overflow-hidden shadow-md mx-2"
               >
                 <Image
-                  src={property.image}
+                  src={property.gallery[0]}
                   alt={property.title}
                   fill
                   className="object-cover"
@@ -50,7 +50,7 @@ export default function FeaturedCarousel({ property }: FeaturedCarouselProps) {
                 <div className="absolute bottom-0 w-full p-6 bg-gradient-to-t from-black/60 via-black/30 to-transparent text-white">
                   <h3 className="text-xl font-semibold">{property.title}</h3>
                   <p className="text-sm flex items-center gap-1">
-                    <MapPin className="w-4 h-4" /> {property.location}
+                    <MapPin className="w-4 h-4" /> {property.endereco}
                   </p>
                   <div className="flex gap-4 text-sm mt-2">
                     <span className="flex items-center gap-1">

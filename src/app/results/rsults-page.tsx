@@ -1,32 +1,52 @@
 'use client';
 
-
 import { useEffect, useState } from 'react';
-import { PropertyCard } from "@/components/property-showcase";
-import { Property } from "@/lib/types/property";
 import { useSearchParams } from 'next/navigation';
 import Lottie from 'lottie-react';
 import animationData from '@/../public/animation/not_found_animation.json';
 import { searchProperties } from '@/lib/actions/search-properties';
+import { PropertyResponse } from '@/lib/types/property';
+import { PropertyCard } from "@/components/property-showcase";
 
 export function PropriedadesPage() {
   const searchParams = useSearchParams();
+
+  // Captura dos parâmetros da URL
   const q = searchParams.get('q')?.toLowerCase() || '';
-  const statusParam = searchParams.get('status');
-  const status = statusParam || undefined;
-  const [properties, setProperties] = useState<Property[]>([]);
+  const status = searchParams.get('status') || undefined;
+  const tipo = searchParams.get('tipo') || undefined;
+  const banhos = searchParams.get('banhos') ? Number(searchParams.get('banhos')) : undefined;
+  const quartos = searchParams.get('quartos') ? Number(searchParams.get('quartos')) : undefined;
+  const garagens = searchParams.get('garagens') ? Number(searchParams.get('garagens')) : undefined;
+  const preco = searchParams.get('preco') ? Number(searchParams.get('preco')) : undefined;
+  const tamanho = searchParams.get('tamanho') ? Number(searchParams.get('tamanho')) : undefined;
+
+  const [properties, setProperties] = useState<PropertyResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       setLoading(true);
-      const props = await searchProperties({ q, status });
+
+      const props = await searchProperties({
+        q,
+        status,
+        tipo,
+        banhos,
+        quartos,
+        garagens,
+        preco,
+        tamanho,
+      });
+
       setProperties(props);
       setLoading(false);
     }
-    load();
-  }, [q, status]);
 
+    load();
+  }, [q, status, tipo, banhos, quartos, garagens, preco, tamanho]);
+
+  // Estado: Nenhum imóvel encontrado
   if (!loading && properties.length === 0) {
     return (
       <section className="max-w-7xl mx-auto px-4 py-10 flex flex-col items-center justify-center min-h-[60vh] text-center">
@@ -40,15 +60,17 @@ export function PropriedadesPage() {
     );
   }
 
+  // Estado: Resultados encontrados
   return (
     <section className="max-w-7xl mx-auto px-4 py-10">
       <h1 className="text-2xl font-bold mb-4">Resultados da Pesquisa</h1>
+      
       {loading ? (
-        <p>Carregando...</p>
+        <p className="text-gray-600">Carregando imóveis...</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {properties.map((p) => (
-            <PropertyCard key={p.title} property={p} />
+            <PropertyCard key={p.id || p.title} property={p} />
           ))}
         </div>
       )}

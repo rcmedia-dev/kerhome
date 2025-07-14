@@ -2,8 +2,8 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { login } from '@/app/login/actions';
 import { useAuth } from './auth-context';
+import { login } from '@/lib/actions/login-action';
 
 interface Props {
   onSuccess: () => void;
@@ -19,23 +19,34 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
     event.preventDefault();
     setError(null);
     setLoading(true);
+
     const formData = new FormData(event.currentTarget);
     const result = await login(formData);
-    setLoading(false);
-    if (result.success && result.session) {
-    setUser({
-      id: result.session.user.id,
-      email: result.session.user.email,
-      first_name: result.profile?.first_name,
-      last_name: result.profile?.last_name,
-      avatar_url: result.profile?.avatar_url,
-      role: result.profile?.role,
-    });
-    onSuccess(); // Fecha o modal
-  } else {
-    setError(result.error || 'Erro ao fazer login');
-  }
 
+    setLoading(false);
+
+    if (result.success && result.user) {
+      setUser({
+        id: result.user.id,
+        email: result.user.email,
+        primeiro_nome: result.user.primeiro_nome,
+        ultimo_nome: result.user.ultimo_nome,
+        username: result.user.username,
+        telefone: result.user.telefone,
+        empresa: result.user.empresa,
+        licenca: result.user.licenca,
+        website: result.user.website,
+        facebook: result.user.facebook,
+        linkedin: result.user.linkedin,
+        instagram: result.user.instagram,
+        youtube: result.user.youtube,
+        sobre_mim: result.user.sobre_mim,
+        pacote_agente: result.user.pacote_agente,
+      });
+      onSuccess(); // Fecha o modal ou redireciona
+    } else {
+      setError(result.error || 'Erro ao fazer login');
+    }
   }
 
   return (
@@ -50,7 +61,6 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
       </div>
 
       <form className="space-y-5" onSubmit={handleSubmit}>
-        {/* Email */}
         <div className="relative">
           <input
             id="email"
@@ -68,7 +78,6 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
           </label>
         </div>
 
-        {/* Password */}
         <div className="relative">
           <input
             id="password"
@@ -86,12 +95,10 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
           </label>
         </div>
 
-        {/* Error message */}
         {error && (
           <div className="text-red-600 text-sm text-center">{error}</div>
         )}
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
@@ -123,7 +130,6 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
         </button>
       </form>
 
-      {/* Bottom Actions */}
       <div className="mt-6 text-center space-y-2">
         <button
           onClick={onSwitchToSignUp}
@@ -132,14 +138,10 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
           Não tem uma conta? <span className="text-purple-700 font-semibold">Criar agora</span>
         </button>
 
-        <a
-          href="#"
-          className="block text-sm text-gray-500 hover:underline"
-        >
+        <a href="#" className="block text-sm text-gray-500 hover:underline">
           Esqueceu a senha? <span className="text-orange-500">Recuperar senha</span>
         </a>
       </div>
     </div>
   );
 }
-
