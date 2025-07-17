@@ -1,5 +1,5 @@
+import { PropertyCard } from '@/components/property-card';
 import { getProperties } from '@/lib/actions/get-properties';
-import { PropertyCard } from "@/components/property-showcase";
 import { PropertyResponse } from '@/lib/types/property';
 
 // Página com 20 propriedades fictícias

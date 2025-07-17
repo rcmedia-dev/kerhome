@@ -5,6 +5,7 @@ import "./globals.css"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { AuthProvider } from "@/components/auth-context"
+import FloatingChat from "@/components/floating-chat"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,8 @@ export default function RootLayout({
         <AuthProvider>
           <Header />
           {children}
+           {/* Coloca IDs válidos reais de usuário aqui */}
+          <FloatingChat />
           <Footer />
         </AuthProvider>
       </body>

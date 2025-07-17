@@ -8,12 +8,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { PropertyResponse } from "@/lib/types/property";
 import { PropertyFilterSidebar } from "@/components/sidebar-filtro";
+import { CidadesDisponiveis } from "@/components/cidades-disponiveis";
+import { ImoveisDestaque } from "@/components/imoveis-destaque";
+import AgentSection from "@/components/agent-section";
+import ContactForm from "@/components/contact-form";
+import { useAuth } from "@/components/auth-context";
 
 
 
 export default function PropertyPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params);
   const [property, setProperty] = useState<PropertyResponse | null>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     async function fetchData() {
@@ -293,40 +299,13 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
             {/* Formulário de contato + Agente juntos */}
             <div className="bg-white rounded-2xl p-8 shadow-xl border flex flex-col md:flex-row gap-8 items-center md:items-start">
               {/* Card do Agente */}
-              <div className="flex flex-col items-center text-center md:w-1/3 w-full">
-                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-purple-600 mb-3">
-                  <Image
-                    src="/people/1.jpg"
-                    alt="Agente"
-                    width={80}
-                    height={80}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-                <p className="text-lg font-semibold text-gray-900">
-                  <Link href="/agente" className="hover:underline text-purple-700 cursor-pointer">
-                    Maria Silva
-                  </Link>
-                </p>
-                <p className="text-sm text-purple-700 font-medium">
-                  Agente de Imóveis
-                </p>
-                <p className="text-xs text-gray-500 mb-4">
-                  maria.silva@kerhome.com
-                </p>
-                <a
-                  href="/agente"
-                  className="w-full bg-purple-700 text-white py-2 rounded-lg font-semibold hover:bg-purple-800 transition block text-center"
-                >
-                  Ver outras propriedades
-                </a>
-              </div>
+              <AgentSection ownerId={property.id} />
               {/* Formulário de contato */}
               <div className="flex-1 w-full">
                 <h3 className="text-lg font-semibold mb-4 text-gray-800 text-left md:text-center">
                   Entrar em contato
                 </h3>
-                <ContactForm />
+                <ContactForm userIdLogado={user?.id} adminId={property.ownerId}/>
               </div>
             </div>
           </div>
@@ -337,50 +316,10 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
             <PropertyFilterSidebar />
 
             {/* Cidades disponíveis */}
-            <div className="bg-white border shadow-md rounded-2xl p-6 space-y-2">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                Cidades com imóveis
-              </h3>
-              <ul className="text-sm text-gray-700 space-y-1">
-                <li>Luanda (12)</li>
-                <li>Benguela (8)</li>
-                <li>Lubango (5)</li>
-                <li>Huambo (4)</li>
-              </ul>
-            </div>
+            <CidadesDisponiveis />
 
             {/* Imóveis em destaque */}
-            <div className="bg-white border shadow-md rounded-2xl p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                Imóveis em destaque
-              </h3>
-              <div className="space-y-4">
-                {[1, 2, 3, 4].map((i) => (
-                  <a
-                    href="#"
-                    key={i}
-                    className="block border border-orange-500 rounded-lg overflow-hidden shadow hover:shadow-md transition"
-                  >
-                    <Image
-                      src="/house.jpg"
-                      alt="Destaque"
-                      width={300}
-                      height={200}
-                      className="w-full h-32 object-cover"
-                    />
-                    <div className="p-3">
-                      <h4 className="text-sm font-semibold text-gray-800">
-                        Apartamento em Talatona
-                      </h4>
-                      <p className="text-xs text-gray-500">Luanda</p>
-                      <p className="text-sm font-bold text-orange-500 mt-1">
-                        60.000.000 Kz
-                      </p>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </div>
+            <ImoveisDestaque />
 
             {/* Corretores em destaque */}
             <div className="bg-white border shadow-md rounded-2xl p-6">
@@ -413,111 +352,5 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
         </div>
       </div>
     </section>
-  );
-}
-
-function AgentSection() {
-  return (
-    <div className="bg-white border shadow-md rounded-2xl p-6 flex flex-col items-center text-center">
-      <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-purple-600 mb-3">
-        <Image
-          src="/people/1.jpg"
-          alt="Agente"
-          width={80}
-          height={80}
-          className="object-cover w-full h-full"
-        />
-      </div>
-      <p className="text-lg font-semibold text-gray-900">
-        <a
-          href="/agente"
-          className="hover:underline text-purple-700 cursor-pointer"
-        >
-          Maria Silva
-        </a>
-      </p>
-      <p className="text-sm text-purple-700 font-medium">
-        Agente de Imóveis
-      </p>
-      <p className="text-xs text-gray-500 mb-4">
-        maria.silva@kerhome.com
-      </p>
-      <a
-        href="/agente"
-        className="w-full bg-purple-700 text-white py-2 rounded-lg font-semibold hover:bg-purple-800 transition block text-center"
-      >
-        Ver outras propriedades
-      </a>
-    </div>
-  );
-}
-
-function ContactForm() {
-  return (
-    <form className="space-y-5">
-      <div className="relative">
-        <input
-          type="text"
-          id="name"
-          placeholder=" "
-          required
-          className="peer w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
-        />
-        <label
-          htmlFor="name"
-          className="absolute left-4 top-3 text-gray-500 text-sm transition-all \
-            peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base \
-            peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm \
-            peer-focus:text-orange-500"
-        >
-          Nome
-        </label>
-      </div>
-
-      <div className="relative">
-        <input
-          type="email"
-          id="email"
-          placeholder=" "
-          required
-          className="peer w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
-        />
-        <label
-          htmlFor="email"
-          className="absolute left-4 top-3 text-gray-500 text-sm transition-all \
-            peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base \
-            peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm \
-            peer-focus:text-orange-500"
-        >
-          Email
-        </label>
-      </div>
-
-      <div className="relative">
-        <textarea
-          id="message"
-          placeholder=" "
-          required
-          rows={4}
-          className="peer w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
-        />
-        <label
-          htmlFor="message"
-          className="absolute left-4 top-3 text-gray-500 text-sm transition-all \
-            peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base \
-            peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm \
-            peer-focus:text-orange-500"
-        >
-          Mensagem
-        </label>
-      </div>
-
-      <button
-        type="submit"
-        className="w-full py-3 text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 rounded-lg shadow transition"
-      >
-        Enviar
-      </button>
-    </form>
   );
 }

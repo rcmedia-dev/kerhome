@@ -1,12 +1,13 @@
 
 import React, { useEffect, useState } from 'react';
-import { PropertyCard } from './property-showcase';
 import { useAuth } from './auth-context';
 import { getUserProperties } from '@/lib/actions/get-user-properties';
 import { PropertyResponse } from '@/lib/types/property';
 import { getUserInvoices } from '@/lib/actions/get-user-invoices';
 import { CheckCircle2 } from 'lucide-react';
 import { Fatura } from '@/lib/types/faturas';
+import { PropertyCard } from './property-card';
+import { getImoveisFavoritos } from '@/lib/actions/get-favorited-imoveis';
 
 export function MinhasPropriedades() {
   const { user } = useAuth();
@@ -41,13 +42,42 @@ export function MinhasPropriedades() {
 }
 
 export function Favoritas() {
+  const { user } = useAuth();
+  const [favoritos, setFavoritos] = useState<PropertyResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      if (!user?.id) return;
+
+      setLoading(true);
+      const data = await getImoveisFavoritos(user.id);
+      setFavoritos(data);
+      setLoading(false);
+    }
+
+    fetchData();
+  }, [user?.id]);
+
   return (
-    <div className="bg-white rounded-xl shadow p-6 mb-6 text-center text-gray-500">
+    <div className="bg-white rounded-xl shadow p-6 mb-6">
       <h2 className="text-xl font-bold mb-4 text-gray-800">Imóveis Guardados</h2>
-      <div>Nenhum imóvel favorito.</div>
+
+      {loading ? (
+        <div className="text-center text-gray-500">Carregando...</div>
+      ) : favoritos.length === 0 ? (
+        <div className="text-center text-gray-500">Nenhum imóvel favorito.</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {favoritos.map((property) => (
+            <PropertyCard key={property.id} property={property} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
+
 
 
 export function Analytics() {

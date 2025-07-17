@@ -10,7 +10,6 @@ import { getUserProperties } from '@/lib/actions/get-user-properties';
 import { getUserFavorites } from '@/lib/actions/get-user-favorites';
 import { getUserInvoices } from '@/lib/actions/get-user-invoices';
 import { ConfiguracoesConta } from './account-setting';
-import { getUserPlan } from '@/lib/actions/get-user-plan';
 import { PlanoCard } from './plano-card';
 
 export default function Dashboard() {

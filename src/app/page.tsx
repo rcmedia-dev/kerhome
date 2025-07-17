@@ -7,7 +7,7 @@ import { getProperties } from '@/lib/actions/get-properties';
 import { PropertyResponse } from '@/lib/types/property';
 
 export default async function HomePage(){
-  const properties: PropertyResponse[] = await getProperties();
+  const properties: PropertyResponse[] = await getProperties(4);
   if (!properties || properties.length < 1) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
