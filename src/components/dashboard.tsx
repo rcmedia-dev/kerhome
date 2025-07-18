@@ -4,7 +4,7 @@ import { useAuth } from './auth-context';
 import { BarChart3, Eye, Heart, Home, Package, Settings, Star, Upload, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
-import { MinhasPropriedades, Favoritas, Analytics, NovaPropriedade } from './dashboard-tabs-content';
+import { MinhasPropriedades, Favoritas, Analytics} from './dashboard-tabs-content';
 import { Dialog, DialogTrigger } from './ui/dialog';
 import { getUserProperties } from '@/lib/actions/get-user-properties';
 import { getUserFavorites } from '@/lib/actions/get-user-favorites';
@@ -144,7 +144,6 @@ export default function Dashboard() {
               {activeTab === 'properties' && <MinhasPropriedades />}
               {activeTab === 'favorites' && <Favoritas />}
               {activeTab === 'invoices' && <Analytics />}
-              {activeTab === 'add' && <NovaPropriedade />}
               {activeTab === 'settings' && <ConfiguracoesConta />}
             </div>
 
@@ -177,7 +176,6 @@ export default function Dashboard() {
             {activeTab === 'properties' && <MinhasPropriedades />}
             {activeTab === 'favorites' && <Favoritas />}
             {activeTab === 'invoices' && <Analytics />}
-            {activeTab === 'add' && <NovaPropriedade />}
             {activeTab === 'settings' && <ConfiguracoesConta />}
           </div>
         </div>

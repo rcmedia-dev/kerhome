@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getUserPlan } from '@/lib/actions/get-user-plan';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Package, Home, Eye, Star } from 'lucide-react';
 
@@ -17,9 +16,23 @@ export function PlanoCard({ userId }: PlanoCardProps) {
     destaques: boolean;
   } | null>(null);
 
+  // Dados mockados
+  const mockPlano = {
+    nome: 'Premium Mensal',
+    limite: 10,
+    restante: 4,
+    destaques: true,
+  };
+
   useEffect(() => {
     if (!userId) return;
-    getUserPlan(userId).then(setPlan);
+
+    // Simula carregamento
+    const timer = setTimeout(() => {
+      setPlan(mockPlano);
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, [userId]);
 
   return (

@@ -1,75 +1,17 @@
 'use server';
 
-import prisma from '@/lib/prisma';
+import { PlanoAgente } from "../types/agent";
 
-export type Plano = 'Básico' | 'Professional' | 'Super Corretor';
 
-const planoConfig = {
-  Básico: {
-    limite: 10,
-    destaques: false,
-    destaquesPermitidos: 1,
-    valor: 0,
-  },
-  Professional: {
-    limite: 100,
-    destaques: true,
-    destaquesPermitidos: 5,
-    valor: 5000,
-  },
-  'Super Corretor': {
-    limite: 9999,
-    destaques: true,
-    destaquesPermitidos: 9999,
-    valor: 10000,
-  },
-};
+export async function updateUserPlan(userId: string, plan: PlanoAgente): Promise<{ success: boolean; error?: string }> {
+  console.log(`Simulando atualização de plano para o usuário ${userId} para o plano ${plan}`);
 
-export async function updateUserPlan(userId: string, newPlan: Plano) {
-  const config = planoConfig[newPlan];
+  // Simula atraso de rede
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  try {
-    const planoExistente = await prisma.planoAgente.findUnique({
-      where: { userId },
-    });
+  // Simula uma atualização bem-sucedida
+  return { success: true };
 
-    if (!planoExistente) {
-      await prisma.planoAgente.create({
-        data: {
-          nome: newPlan,
-          limite: config.limite,
-          restante: config.limite,
-          destaques: config.destaques,
-          destaquesPermitidos: config.destaquesPermitidos,
-          userId,
-        },
-      });
-    } else {
-      await prisma.planoAgente.update({
-        where: { userId },
-        data: {
-          nome: newPlan,
-          limite: config.limite,
-          restante: config.limite,
-          destaques: config.destaques,
-          destaquesPermitidos: config.destaquesPermitidos,
-        },
-      });
-    }
-
-    // Adicionar fatura com o nome do plano como "servico"
-    await prisma.fatura.create({
-      data: {
-        userId,
-        valor: config.valor,
-        status: config.valor ? 'pago' : 'pendente',
-        servico: `Plano ${newPlan}`, // ← aqui está o nome do serviço
-      },
-    });
-
-    return { success: true };
-  } catch (error: any) {
-    console.error('Erro ao atualizar plano:', error.message);
-    return { success: false, error: error.message };
-  }
+  // Para simular erro, comente acima e descomente abaixo:
+  // return { success: false, error: "Falha ao atualizar o plano" };
 }

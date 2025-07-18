@@ -5,7 +5,6 @@ import { Card } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth-context";
 import { updateUserPlan } from "@/lib/actions/update-user-plan";
-import { Plano } from "@/lib/types/plan";
 
 // Mapeia nomes visuais para o enum real
 const planoVisualMap: Record<Plano, string> = {

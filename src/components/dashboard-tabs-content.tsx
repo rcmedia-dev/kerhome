@@ -1,27 +1,25 @@
 
 import React, { useEffect, useState } from 'react';
 import { useAuth } from './auth-context';
-import { getUserProperties } from '@/lib/actions/get-user-properties';
 import { PropertyResponse } from '@/lib/types/property';
-import { getUserInvoices } from '@/lib/actions/get-user-invoices';
 import { CheckCircle2 } from 'lucide-react';
-import { Fatura } from '@/lib/types/faturas';
 import { PropertyCard } from './property-card';
-import { getImoveisFavoritos } from '@/lib/actions/get-favorited-imoveis';
+import { mockProperties } from '@/lib/mockups/properties-mockup';
+
 
 export function MinhasPropriedades() {
-  const { user } = useAuth();
   const [properties, setProperties] = useState<PropertyResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user?.id) return;
-    setLoading(true);
-    getUserProperties(user.id).then(props => {
-      setProperties(props);
+    // Simula chamada de API
+    const timer = setTimeout(() => {
+      setProperties(mockProperties);
       setLoading(false);
-    });
-  }, [user?.id]);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="bg-white rounded-xl shadow p-6 mb-6">
@@ -41,23 +39,20 @@ export function MinhasPropriedades() {
   );
 }
 
+
 export function Favoritas() {
-  const { user } = useAuth();
   const [favoritos, setFavoritos] = useState<PropertyResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchData() {
-      if (!user?.id) return;
-
-      setLoading(true);
-      const data = await getImoveisFavoritos(user.id);
-      setFavoritos(data);
+    // Simula carregamento de favoritos
+    const timer = setTimeout(() => {
+      setFavoritos(mockProperties);
       setLoading(false);
-    }
+    }, 1000);
 
-    fetchData();
-  }, [user?.id]);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="bg-white rounded-xl shadow p-6 mb-6">
@@ -79,6 +74,31 @@ export function Favoritas() {
 }
 
 
+type Fatura = {
+  id: string;
+  servico: string;
+  valor: number;
+  status: 'pago' | 'pendente';
+  criadoEm: string;
+};
+
+// Faturas de exemplo (mock)
+const mockFaturas: Fatura[] = [
+  {
+    id: 'ft1',
+    servico: 'Publicação de imóvel premium',
+    valor: 25000,
+    status: 'pago',
+    criadoEm: '2025-07-01T12:00:00Z',
+  },
+  {
+    id: 'ft2',
+    servico: 'Renovação de anúncio',
+    valor: 10000,
+    status: 'pendente',
+    criadoEm: '2025-07-10T12:00:00Z',
+  },
+];
 
 export function Analytics() {
   const [faturas, setFaturas] = useState<Fatura[]>([]);
@@ -86,15 +106,15 @@ export function Analytics() {
   const { user } = useAuth();
 
   useEffect(() => {
-    async function fetchFaturas() {
-      if (!user?.id) return;
+    if (!user?.id) return;
 
-      const data = await getUserInvoices(user.id);
-      setFaturas(data);
+    // Simula carregamento
+    const timer = setTimeout(() => {
+      setFaturas(mockFaturas);
       setLoading(false);
-    }
+    }, 1000);
 
-    fetchFaturas();
+    return () => clearTimeout(timer);
   }, [user]);
 
   return (
@@ -142,13 +162,3 @@ export function Analytics() {
   );
 }
 
-
-
-export function NovaPropriedade() {
-  return (
-    <div className="bg-white rounded-xl shadow p-6 mb-6">
-      <h2 className="text-xl font-bold mb-4 text-gray-800">Nova Propriedade</h2>
-      <div className="text-gray-700">Formulário para adicionar nova propriedade.</div>
-    </div>
-  );
-}

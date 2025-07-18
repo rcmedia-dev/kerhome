@@ -48,13 +48,13 @@ model PlanoAgente {
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
-  user         User     @relation(fields: [userId], references: [id])
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       String   @unique
 }
 
 model Property {
   id               String    @id @default(uuid())
-  owner            User      @relation(fields: [ownerId], references: [id])
+  owner            User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId          String
 
   title            String
@@ -96,7 +96,7 @@ model Property {
 // Placeholder para Fatura
 model Fatura {
   id         String   @id @default(uuid())
-  user       User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     String
   valor      Float
   status     String
@@ -108,9 +108,9 @@ model Fatura {
 // Placeholder para Mensagens
 model Mensagem {
   id         String   @id @default(uuid())
-  de         User     @relation("MensagemDe", fields: [deId], references: [id])
+  de         User     @relation("MensagemDe", fields: [deId], references: [id], onDelete: Cascade)
   deId       String
-  para       User     @relation("MensagemPara", fields: [paraId], references: [id])
+  para       User     @relation("MensagemPara", fields: [paraId], references: [id], onDelete: Cascade)
   paraId     String
   conteudo   String
   criadoEm   DateTime @default(now())

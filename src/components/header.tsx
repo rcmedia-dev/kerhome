@@ -190,7 +190,9 @@ export default function Header() {
                 Cadastrar Imóvel
               </button>
             </Link>
-            {isClient && !user && <AuthDialog ref={authDialogRef} />}
+            {isClient && !user && <AuthDialog ref={authDialogRef} trigger={<button className="cursor-pointer border border-purple-700 text-purple-700 px-4 py-2 rounded-full">
+                      Minha Conta
+                      </button>}/>}
             {isClient && user && <UserDropdown />}
           </div>
         </nav>
@@ -218,7 +220,10 @@ export default function Header() {
             ) : (
               isClient && (
                 <div className="w-full">
-                  <AuthDialog />
+                  <AuthDialog trigger={<button className="cursor-pointer border border-purple-700 text-purple-700 px-4 py-2 rounded-full">
+                      Minha Conta
+                      </button>}
+                    />
                 </div>
               )
             )}
@@ -230,3 +235,4 @@ export default function Header() {
     </header>
   );
 }
+

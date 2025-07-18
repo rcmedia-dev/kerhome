@@ -1,7 +1,7 @@
 'use server';
 
 import prisma from "../prisma";
-import { Fatura } from "../types/faturas";
+import { Fatura } from "../types/agent";
 
 
 export async function getUserInvoices(userId: string): Promise<Fatura[]> {

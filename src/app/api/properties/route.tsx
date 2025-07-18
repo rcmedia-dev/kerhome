@@ -1,24 +1,38 @@
-// app/api/properties/route.ts
-import { NextRequest, NextResponse } from 'next/server';
 
-const titles = ['Apartamento Moderno', 'Vivenda de Luxo', 'Casa Rústica', 'Penthouse Vista Mar'];
-const locations = ['Luanda - Talatona', 'Benfica', 'Kilamba', 'Huambo - Centro'];
+import prisma from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const limitParam = searchParams.get('limit');
-  const limit = limitParam ? parseInt(limitParam) : 50;
+  const limit = parseInt(searchParams.get('limit') || '20');
 
-  const properties = Array.from({ length: limit }, (_, i) => ({
-    id: i + 1,
-    image: `/house${(i % 10) + 1}.jpg`,
-    title: titles[i % titles.length],
-    location: locations[i % locations.length],
-    bedrooms: Math.floor(Math.random() * 5) + 1,
-    size: `${Math.floor(Math.random() * 200) + 60} m²`,
-    price: `${Math.floor(Math.random() * 60 + 10)}.000.000 Kz`,
-    status: i % 2 === 0 ? 'para alugar' : 'para comprar',
-  }));
+  try {
+    const properties = await prisma.property.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: limit,
+      include: {
+        owner: {
+          select: {
+            id: true,
+            primeiro_nome: true,
+            ultimo_nome: true,
+            email: true,
+          },
+        },
+        guardadoPor: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+      },
+    });
 
-  return NextResponse.json(properties);
+    return NextResponse.json(properties, { status: 200 });
+  } catch (error) {
+    console.error("Erro ao buscar propriedades:", error);
+    return NextResponse.json({ message: "Erro ao buscar propriedades" }, { status: 500 });
+  }
 }

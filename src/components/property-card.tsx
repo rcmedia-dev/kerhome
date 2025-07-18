@@ -28,13 +28,13 @@ export function PropertyCard({ property }: { property: PropertyResponse }) {
     }
   };
 
-  const toggleFavorito = async() => {
+  const toggleFavorito = async () => {
     setFavorito(!favorito);
     if (!user) {
-    alert("Você precisa estar autenticado para guardar imóveis.");
-    return;
-  }
-  await toggleFavoritoProperty(user.id, property.id);
+      alert("Você precisa estar autenticado para guardar imóveis.");
+      return;
+    }
+    await toggleFavoritoProperty(user.id, property.id);
   };
 
   return (
@@ -75,8 +75,9 @@ export function PropertyCard({ property }: { property: PropertyResponse }) {
           fill
           className="object-cover"
         />
-        {/* Ícone de Favorito (se não for dono) */}
-        {!isOwner && (
+
+        {/* Ícone de Favorito (apenas se autenticado e não for o dono) */}
+        {user && !isOwner && (
           <button
             onClick={toggleFavorito}
             className="absolute bottom-3 right-3 bg-white rounded-full p-2 shadow-md hover:scale-105 transition"

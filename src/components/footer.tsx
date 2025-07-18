@@ -33,8 +33,7 @@ export default function Footer() {
           <ul className="space-y-2 text-sm">
             <li><Link href="/" className="hover:text-white">Início</Link></li>
             <li><Link href="/comprar" className="hover:text-white">Comprar</Link></li>
-            <li><Link href="/vender" className="hover:text-white">Vender</Link></li>
-            <li><Link href="/arrendar" className="hover:text-white">Arrendar</Link></li>
+            <li><Link href="/alugar" className="hover:text-white">Arrendar</Link></li>
             <li><Link href="/contato" className="hover:text-white">Contato</Link></li>
           </ul>
         </div>
@@ -44,9 +43,8 @@ export default function Footer() {
           <h4 className="text-lg font-semibold text-white mb-4">Informações</h4>
           <ul className="space-y-2 text-sm">
             <li><Link href="/sobre" className="hover:text-white">Sobre nós</Link></li>
-            <li><Link href="/faq" className="hover:text-white">FAQ</Link></li>
-            <li><Link href="/termos" className="hover:text-white">Termos e condições</Link></li>
-            <li><Link href="/politica" className="hover:text-white">Política de privacidade</Link></li>
+            <li><Link href="/terms" className="hover:text-white">Termos e condições</Link></li>
+            <li><Link href="/policy" className="hover:text-white">Política de privacidade</Link></li>
           </ul>
         </div>
 

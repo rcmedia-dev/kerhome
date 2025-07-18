@@ -1,6 +1,6 @@
 'use client';
 
-import { PlanoAgente } from '@/lib/types/plan';
+import { PlanoAgente } from '@/lib/types/agent';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export type AuthUser = {

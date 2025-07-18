@@ -99,16 +99,6 @@ export default function CadastrarImovelPage() {
   // Estado para imagens
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
 
-
-
-  // Função utilitária para converter string de preço em número
-  function parseNumber(str: string) {
-    if (!str) return null;
-    return Number(str.replace(/[^\d]/g, ''));
-  }
-
-
-
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
@@ -139,7 +129,7 @@ export default function CadastrarImovelPage() {
         }
       }
 
-     const result = await createProperty({
+      const result = await createProperty({
         ownerId: user.id,
         title: titulo,
         description: descricao,

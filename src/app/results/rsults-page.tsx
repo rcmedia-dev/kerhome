@@ -11,9 +11,12 @@ import { PropertyCard } from "@/components/property-showcase";
 export function PropriedadesPage() {
   const searchParams = useSearchParams();
 
-  // Captura dos parâmetros da URL
-  const q = searchParams.get('q')?.toLowerCase() || '';
-  const status = searchParams.get('status') || undefined;
+  // Captura e validação dos parâmetros da URL
+  const title = searchParams.get('q')?.toLowerCase() || '';
+
+  const rawStatus = searchParams.get('status');
+  const status = rawStatus === 'para comprar' || rawStatus === 'para alugar' ? rawStatus : undefined;
+
   const tipo = searchParams.get('tipo') || undefined;
   const banhos = searchParams.get('banhos') ? Number(searchParams.get('banhos')) : undefined;
   const quartos = searchParams.get('quartos') ? Number(searchParams.get('quartos')) : undefined;
@@ -29,14 +32,13 @@ export function PropriedadesPage() {
       setLoading(true);
 
       const props = await searchProperties({
-        q,
+        title,
         status,
         tipo,
         banhos,
         quartos,
         garagens,
-        preco,
-        tamanho,
+        maxPrice: preco,
       });
 
       setProperties(props);
@@ -44,9 +46,8 @@ export function PropriedadesPage() {
     }
 
     load();
-  }, [q, status, tipo, banhos, quartos, garagens, preco, tamanho]);
+  }, [title, status, tipo, banhos, quartos, garagens, preco, tamanho]);
 
-  // Estado: Nenhum imóvel encontrado
   if (!loading && properties.length === 0) {
     return (
       <section className="max-w-7xl mx-auto px-4 py-10 flex flex-col items-center justify-center min-h-[60vh] text-center">
@@ -60,11 +61,10 @@ export function PropriedadesPage() {
     );
   }
 
-  // Estado: Resultados encontrados
   return (
     <section className="max-w-7xl mx-auto px-4 py-10">
       <h1 className="text-2xl font-bold mb-4">Resultados da Pesquisa</h1>
-      
+
       {loading ? (
         <p className="text-gray-600">Carregando imóveis...</p>
       ) : (

@@ -10,9 +10,18 @@ import {
 import { CustomSignInForm } from './login-form';
 import { CustomSignUpForm } from './signup-form';
 
-export const AuthDialog = forwardRef(function AuthDialog(props, ref) {
+interface AuthDialogProps {
+  trigger?: React.ReactNode;
+  defaultMode?: 'signIn' | 'signUp';
+  onSuccess?: () => void;
+}
+
+export const AuthDialog = forwardRef(function AuthDialog(
+  { trigger, defaultMode = 'signIn', onSuccess }: AuthDialogProps,
+  ref
+) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(defaultMode === 'signUp');
 
   useImperativeHandle(ref, () => ({
     open: () => setIsOpen(true),
@@ -21,18 +30,15 @@ export const AuthDialog = forwardRef(function AuthDialog(props, ref) {
 
   const handleSuccess = () => {
     setIsOpen(false);
+    onSuccess?.();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <button className="cursor-pointer border border-purple-700 text-purple-700 px-4 py-2 rounded-full">
-          Minha Conta
-        </button>
-      </DialogTrigger>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 
       <DialogContent className="max-w-md p-0 border-none bg-transparent shadow-none">
-        <DialogTitle className="sr-only">Login</DialogTitle>
+        <DialogTitle className="sr-only">Autenticação</DialogTitle>
         {isSignUp ? (
           <CustomSignUpForm
             onSuccess={handleSuccess}

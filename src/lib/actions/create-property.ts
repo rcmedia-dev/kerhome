@@ -1,83 +1,56 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
-import prisma from '../prisma';
+import prisma from '@/lib/prisma';
+import { upPropertySchema } from '../types/property';
 
-type DetalheAdicional = { titulo: string; valor: string };
+export async function createProperty(formData: FormData) {
+  const raw = Object.fromEntries(formData.entries());
+  const parse = upPropertySchema.safeParse(raw);
 
-interface PropertyInput {
-  ownerId: string;
-  title: string;
-  description: string;
-  tipo: string;
-  status: string;
-  rotulo?: string;
-  price?: number;
-  unidade_preco?: string;
-  preco_antes?: number;
-  preco_depois?: number;
-  preco_chamada?: string;
-  caracteristicas?: string[];
-  size?: string;
-  area_terreno?: number;
-  bedrooms?: number;
-  bathrooms?: number;
-  garagens?: number;
-  garagemtamanho?: string;
-  anoconstrucao?: number;
-  propertyid?: string;
-  detalhesadicionais?: DetalheAdicional[];
-  endereco?: string;
-  bairro?: string;
-  cidade?: string;
-  provincia?: string;
-  pais?: string;
-  notaprivada?: string;
-  gallery: string[];
-  image?: string;
-}
+  if (!parse.success) {
+    return { error: parse.error.flatten() };
+  }
 
-export async function createProperty(input: PropertyInput) {
+  const data = parse.data;
+  const ownerId = formData.get('ownerId') as string;
+
+  if (!ownerId) return { error: "Usuário não autenticado." };
+
   try {
-    const property = await prisma.property.create({
+    await prisma.property.create({
       data: {
-        ownerId: input.ownerId,
-        title: input.title,
-        description: input.description,
-        tipo: input.tipo,
-        status: input.status,
-        rotulo: input.rotulo,
-        price: input.price,
-        unidade_preco: input.unidade_preco,
-        preco_antes: input.preco_antes,
-        preco_depois: input.preco_depois,
-        preco_chamada: input.preco_chamada,
-        caracteristicas: input.caracteristicas as any, // Prisma aceita Json
-        size: input.size,
-        area_terreno: input.area_terreno,
-        bedrooms: input.bedrooms,
-        bathrooms: input.bathrooms,
-        garagens: input.garagens,
-        garagemtamanho: input.garagemtamanho,
-        anoconstrucao: input.anoconstrucao,
-        propertyid: input.propertyid,
-        detalhesadicionais: input.detalhesadicionais as any, // também Json
-        endereco: input.endereco,
-        bairro: input.bairro,
-        cidade: input.cidade,
-        provincia: input.provincia,
-        pais: input.pais,
-        notaprivada: input.notaprivada,
-        gallery: input.gallery,
-        image: input.image,
+        ownerId,
+        title: data.titulo,
+        description: data.descricao,
+        tipo: data.tipo,
+        status: data.status,
+        rotulo: data.rotulo || "",
+        price: data.preco,
+        unidade_preco: data.unidade_preco || "",
+        preco_antes: data.preco_antes,
+        preco_depois: data.preco_depois,
+        preco_chamada: data.preco_chamada,
+        caracteristicas: data.caracteristicas || [],
+        size: data.size || "",
+        area_terreno: data.area_terreno,
+        bedrooms: data.bedrooms,
+        bathrooms: data.bathrooms,
+        garagens: data.garagens,
+        garagemtamanho: data.garagemtamanho,
+        anoconstrucao: data.anoconstrucao,
+        notaprivada: data.notaprivada,
+        endereco: data.endereco,
+        pais: data.pais,
+        provincia: data.provincia,
+        cidade: data.cidade,
+        bairro: data.bairro,
+        detalhesadicionais: data.detalhesadicionais || [],
       },
     });
 
-    revalidatePath('/dashboard'); // Opcional: refaz cache
-
-    return { success: true, data: property };
-  } catch (error) {
-    console.error('[CREATE_PROPERTY_ERROR]', error);
-    return { success: false, error: 'Erro ao cadastrar imóvel.' };
+    return { success: true };
+  } catch (e) {
+    console.error("[ERRO AO CRIAR IMÓVEL]", e);
+    return { error: "Erro ao salvar o imóvel no banco de dados." };
   }
 }

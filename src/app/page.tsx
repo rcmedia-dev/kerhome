@@ -3,11 +3,13 @@ import PropertiesShowcase from '@/components/property-showcase';
 import ActionCardsSection from '@/components/actions-card';
 import FeaturedCarousel from '@/components/featured-houses';
 import TopAgentsSection from '@/components/top-agent';
-import { getProperties } from '@/lib/actions/get-properties';
 import { PropertyResponse } from '@/lib/types/property';
+import { getMockProperties } from '@/lib/actions/get-properties';
 
-export default async function HomePage(){
-  const properties: PropertyResponse[] = await getProperties(4);
+export default async function HomePage() {
+  // Em vez de fetch da API, usar mock direto:
+  const properties: PropertyResponse[] = await getMockProperties();
+
   if (!properties || properties.length < 1) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -15,17 +17,14 @@ export default async function HomePage(){
       </div>
     );
   }
+
   return (
     <>
       <HeroCarousel property={properties} />
-      <PropertiesShowcase property={properties} inline />
+      <PropertiesShowcase property={properties}/>
       <ActionCardsSection />
-      <FeaturedCarousel property={properties}/>
+      <FeaturedCarousel property={properties} />
       <TopAgentsSection />
     </>
-  )
+  );
 }
-
-
-
-

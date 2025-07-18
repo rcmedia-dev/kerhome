@@ -1,12 +1,11 @@
-
 import Image from 'next/image';
 import { BedDouble, MapPin, Ruler, Tag } from "lucide-react";
 import Link from "next/link";
 import { PropertyResponse } from '@/lib/types/property';
 
 type PropertiesShowCaseProps = {
-    property: PropertyResponse[];
-    inline?: boolean;
+  property: PropertyResponse[];
+  inline?: boolean;
 }
 
 export default function PropertiesShowcase({ property, inline }: PropertiesShowCaseProps) {
@@ -23,7 +22,7 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
 
       <div className="mx-auto">
         {inline ? (
-          <div className="flex gap-6">
+          <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-stretch">
             {property.map((property) => (
               <PropertyCard key={property.title} property={property} />
             ))}
@@ -50,6 +49,7 @@ export function PropertyCard({ property }: { property: PropertyResponse }) {
       {property.status === 'para alugar' && (
         <span className="absolute top-3 left-3 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow z-10">Para alugar</span>
       )}
+      
       {/* Imagem */}
       <div className="relative h-56 w-full">
         <Image
@@ -81,7 +81,6 @@ export function PropertyCard({ property }: { property: PropertyResponse }) {
             </div>
           </div>
 
-          {/* Pequeno bloco extra de info */}
           <div className="flex justify-between text-xs text-gray-500 mt-1">
             <span>{property.tipo || property.status}</span>
             {property.bathrooms !== undefined && (
@@ -89,10 +88,9 @@ export function PropertyCard({ property }: { property: PropertyResponse }) {
                 {property.bathrooms ?? 0} Banheiro{(property.bathrooms ?? 0) > 1 ? 's' : ''}
               </span>
             )}
-           {property.garagens != null && property.garagens > 0 && (
+            {property.garagens != null && property.garagens > 0 && (
               <span>{property.garagens} Garagem{property.garagens > 1 ? 's' : ''}</span>
             )}
-
           </div>
 
           <div className="flex items-center gap-2 text-orange-500 font-bold">
@@ -101,7 +99,6 @@ export function PropertyCard({ property }: { property: PropertyResponse }) {
           </div>
         </div>
 
-        {/* Botão alinhado ao final */}
         <div>
           <Link href={`/${property.status === 'para comprar' ? 'comprar' : 'alugar'}/${property.id}`} className="flex justify-center cursor-pointer w-full mt-2 bg-purple-700 hover:bg-purple-800 text-white py-2 rounded-lg font-medium transition">
             Ver detalhes
