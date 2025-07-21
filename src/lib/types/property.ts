@@ -1,81 +1,60 @@
 import { z } from 'zod';
 
-// Schema para detalhes adicionais
-export const detalheAdicionalSchema = z.object({
-  titulo: z.string(),
-  valor: z.string(),
-});
 
-// Schema principal da propriedade (para resposta / backend)
-export const propertySchema = z.object({
-  id: z.string(),
-  ownerId: z.string(),
-  title: z.string(),
-  description: z.string(),
-  tipo: z.string(),
-  status: z.string(), // "para comprar" ou "para alugar"
-  rotulo: z.string(),
-  price: z.number(),
-  unidade_preco: z.string(),
-  preco_antes: z.number().optional(),
-  preco_depois: z.number().optional(),
-  preco_chamada: z.string().optional(),
-  caracteristicas: z.array(z.string()),
-  size: z.union([z.string(), z.number()]),
-  area_terreno: z.number().optional(),
-  bedrooms: z.number(),
-  bathrooms: z.number(),
-  garagens: z.number().optional(),
-  garagemtamanho: z.union([z.string(), z.number()]).optional(),
-  anoconstrucao: z.number().optional(),
-  propertyid: z.string().optional(),
-  detalhesadicionais: z.array(detalheAdicionalSchema).optional(),
-  endereco: z.string().optional(),
-  bairro: z.string().optional(),
-  cidade: z.string(),
-  provincia: z.string(),
-  pais: z.string(),
-  notaprivada: z.string().optional(),
-  gallery: z.array(z.string().url()),
-  image: z.string().url(),
-});
 
-// Schema para formulário (validação com React Hook Form + Server Action)
-export const upPropertySchema = z.object({
-  ownerId: z.string(),
-  titulo: z.string().min(1, "Título obrigatório"),
-  descricao: z.string().min(1, "Descrição obrigatória"),
-  tipo: z.string().min(1),
-  status: z.enum(["para comprar", "para alugar"]),
-  rotulo: z.string().optional(),
-  preco: z.coerce.number().nonnegative("Preço inválido"),
-  unidade_preco: z.string().optional(),
-  preco_antes: z.coerce.number().optional(),
-  preco_depois: z.coerce.number().optional(),
-  preco_chamada: z.string().optional(),
+export const propriedadeSchema = z.object({
+  titulo_da_propriedade: z.string().min(1, "Título é obrigatório"),
+  descricao_da_propriedade: z.string().min(1, "Descrição é obrigatória"),
+  endereco_da_propriedade: z.string().min(1, "Endereço é obrigatório"),
+  pais_da_propriedade: z.string().min(1, "País é obrigatório"),
+  provincia_da_propriedade: z.string().min(1, "Província é obrigatória"),
+  cidade_da_propriedade: z.string().min(1, "Cidade é obrigatória"),
+  bairro_da_propriedade: z.string().optional(),
+
+  tipo_da_propriedade: z.string().min(1, "Tipo de propriedade é obrigatório"),
+  estatus_da_propriedade: z.string().min(1, "Estado é obrigatório"),
+  rotulo_da_propriedade: z.string().min(1, "Rótulo é obrigatório"),
+
+  preco_da_propriedade: z.union([z.string(), z.number()])
+    .transform((val) => Number(val))
+    .refine((val) => !isNaN(val) && val > 0, "Preço da propriedade é obrigatório e deve ser um número válido"),
+
+  unidade_preco_da_propriedade: z.string().optional(),
+  preco_chamada_da_propriedade: z.string().optional(),
+
   caracteristicas: z.array(z.string()).optional(),
-  size: z.string().optional(),
-  area_terreno: z.coerce.number().optional(),
-  bedrooms: z.coerce.number().optional(),
-  bathrooms: z.coerce.number().optional(),
-  garagens: z.coerce.number().optional(),
-  garagemtamanho: z.string().optional(),
-  anoconstrucao: z.coerce.number().optional(),
-  notaprivada: z.string().optional(),
 
-  pais: z.string().optional(),
-  provincia: z.string().optional(),
-  cidade: z.string().optional(),
-  bairro: z.string().optional(),
-  endereco: z.string().optional(),
+  tamanho_da_propriedade: z.string().optional(),
+  area_terreno_da_propriedade: z.string().optional(),
+  quartos_da_propriedade: z.string().optional(),
+  casas_banho_da_propriedade: z.string().optional(),
+  garagens_da_propriedade: z.string().optional(),
+  tamanho_garagen_da_propriedade: z.string().optional(),
 
-  detalhesadicionais: z
-    .array(z.object({ titulo: z.string(), valor: z.string() }))
-    .optional(),
+  ano_construcao_da_propriedade: z.string().min(1, "Ano de construção é obrigatório"),
 
-  galleryFiles: z.any().optional(), // arquivos FormData para Supabase
+  id_da_propriedade: z.string().min(1, "ID da propriedade é obrigatório"),
+
+  detalhes: z.array(
+    z.object({
+      titulo: z.string().optional(),
+      valor: z.string().optional(),
+    })
+  ),
+
+  imagens_da_propriedade: z
+    .any()
+    .refine((files) => files && files.length > 0, "Pelo menos uma imagem é obrigatória"),
+
+  documentos_da_propriedade: z
+    .any()
+    .refine((files) => files && files.length > 0, "Pelo menos um documento é obrigatório"),
+
+  video_da_propriedade: z.any().optional(),
+
+  imagem_360_da_propriedade: z.boolean().optional(),
+  nota_da_propriedade: z.string().optional(),
 });
 
-// Tipos inferidos automaticamente
-export type PropertyFormData = z.infer<typeof upPropertySchema>;
-export type PropertyResponse = z.infer<typeof propertySchema>;
+export type TPropriedadeFormData= z.infer<typeof propriedadeSchema>;
+

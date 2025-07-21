@@ -1,13 +1,16 @@
 'use client';
 
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { useState } from 'react';
+import { FieldValue, FieldValues, useFieldArray, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 // Removido mock-api, cadastro agora só usa Supabase
 import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
-import { getSupabaseClient } from '@/lib/supabase';
 import { useAuth } from '@/components/auth-context';
+import { Loader2, Plus, Trash } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { propriedadeSchema, TPropriedadeFormData } from '@/lib/types/property';
 import { createProperty } from '@/lib/actions/create-property';
+
+
 
 
 const caracteristicasList = [
@@ -60,131 +63,89 @@ const cidadesAngola = [
 
 export default function CadastrarImovelPage() {
   const { user } = useAuth();
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  
+  const { register, handleSubmit, control, formState: { errors, isSubmitting }} = useForm<TPropriedadeFormData>({
+    resolver: zodResolver(propriedadeSchema),
+  });
 
-  // Campos de localização para o mapa
-  const [endereco, setEndereco] = useState('');
-  const [pais, setPais] = useState('');
-  const [provincia, setProvincia] = useState('');
-  const [cidade, setCidade] = useState('');
-  const [bairro, setBairro] = useState('');
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "detalhes"
+  });
 
-  // Estado para detalhes adicionais dinâmicos
-  const [detalhesAdicionais, setDetalhesAdicionais] = useState([{ titulo: '', valor: '' }]);
+  const onSubmit = async (data: FieldValues) => {
 
-  // Estados para cada campo do formulário
-  const [titulo, setTitulo] = useState('');
-  const [descricao, setDescricao] = useState('');
-  const [tipo, setTipo] = useState('');
-  const [status, setStatus] = useState('');
-  const [rotulo, setRotulo] = useState('');
-  const [preco, setPreco] = useState('');
-  const [unidadePreco, setUnidadePreco] = useState('');
-  const [precoAntes, setPrecoAntes] = useState('');
-  const [precoDepois, setPrecoDepois] = useState('');
-  const [precoChamada, setPrecoChamada] = useState('');
-  const [caracteristicas, setCaracteristicas] = useState<string[]>([]);
-  const [size, setSize] = useState('');
-  const [areaTerreno, setAreaTerreno] = useState('');
-  const [bedrooms, setBedrooms] = useState('');
-  const [bathrooms, setBathrooms] = useState('');
-  const [garagens, setGaragens] = useState('');
-  const [garagemTamanho, setGaragemTamanho] = useState('');
-  const [anoConstrucao, setAnoConstrucao] = useState('');
-  const [propertyId, setPropertyId] = useState('');
-  const [notaPrivada, setNotaPrivada] = useState('');
-
-  // Estado para imagens
-  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError(null);
-    setSuccess(false);
     if (!user) {
-      setError('Você precisa estar autenticado para cadastrar um imóvel.');
+      alert('Você precisa estar autenticado para cadastrar uma propriedade.');
       return;
     }
-    try {
-      const supabase = getSupabaseClient();
 
-      // Upload das imagens (galleryFiles) em paralelo
-      let galleryUrls: string[] = [];
-      if (galleryFiles.length > 0) {
-        const uploadResults = await Promise.all(galleryFiles.map(async (file) => {
-          const fileExt = file.name.split('.').pop();
-          const fileName = `${user.id}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
-          // Evita select após upload: { returnMetadata: false }
-          const { data, error: uploadError } = await supabase.storage.from('images').upload(fileName, file);
-          return { error: uploadError, url: data ? supabase.storage.from('images').getPublicUrl(fileName).data.publicUrl : null };
-        }));
-        for (const result of uploadResults) {
-          if (result.error) {
-            setError('Erro ao fazer upload de imagem: ' + result.error.message);
-            return;
-          }
-          if (result.url) galleryUrls.push(result.url);
-        }
-      }
+    const formData = new FormData();
 
-      const result = await createProperty({
-        ownerId: user.id,
-        title: titulo,
-        description: descricao,
-        tipo,
-        status,
-        rotulo,
-        price: parseNumber(preco) ?? undefined,
-        unidade_preco: unidadePreco,
-        preco_antes: parseNumber(precoAntes) ?? undefined,
-        preco_depois: parseNumber(precoDepois) ?? undefined,
-        preco_chamada: precoChamada,
-        caracteristicas,
-        size,
-        area_terreno: areaTerreno ? parseFloat(areaTerreno) : undefined,
-        bedrooms: bedrooms ? parseInt(bedrooms) : undefined,
-        bathrooms: bathrooms ? parseInt(bathrooms) : undefined,
-        garagens: garagens ? parseInt(garagens) : undefined,
-        garagemtamanho: garagemTamanho,
-        anoconstrucao: anoConstrucao ? parseInt(anoConstrucao) : undefined,
-        propertyid: propertyId || undefined,
-        detalhesadicionais: detalhesAdicionais,
-        endereco,
-        bairro,
-        cidade,
-        provincia,
-        pais,
-        notaprivada: notaPrivada,
-        gallery: galleryUrls,
-        image: galleryUrls[0] || undefined,
-      });
-      
-      if (!result.success) {
-        setError(result.error || 'Erro ao cadastrar imóvel.');
-        return;
+    formData.append('titulo_da_propriedade', data.titulo_da_propriedade);
+    formData.append('descricao_da_propriedade', data.descricao_da_propriedade);
+    formData.append('endereco_da_propriedade', data.endereco_da_propriedade);
+    formData.append('pais_da_propriedade', data.pais_da_propriedade);
+    formData.append('provincia_da_propriedade', data.provincia_da_propriedade);
+    formData.append('cidade_da_propriedade', data.cidade_da_propriedade);
+    formData.append('bairro_da_propriedade', data.bairro_da_propriedade || '');
+    formData.append('tipo_da_propriedade', data.tipo_da_propriedade);
+    formData.append('estatus_da_propriedade', data.estatus_da_propriedade);
+    formData.append('rotulo_da_propriedade', data.rotulo_da_propriedade);
+    formData.append('preco_da_propriedade', String(data.preco_da_propriedade));
+    formData.append('unidade_preco_da_propriedade', data.unidade_preco_da_propriedade || '');
+    formData.append('preco_chamada_da_propriedade', data.preco_chamada_da_propriedade || '');
+    formData.append('tamanho_da_propriedade', data.tamanho_da_propriedade || '');
+    formData.append('area_terreno_da_propriedade', data.area_terreno_da_propriedade || '');
+    formData.append('quartos_da_propriedade', data.quartos_da_propriedade || '');
+    formData.append('casas_banho_da_propriedade', data.casas_banho_da_propriedade || '');
+    formData.append('garagens_da_propriedade', data.garagens_da_propriedade || '');
+    formData.append('tamanho_garagen_da_propriedade', data.tamanho_garagen_da_propriedade || '');
+    formData.append('ano_construcao_da_propriedade', data.ano_construcao_da_propriedade);
+    formData.append('id_da_propriedade', data.id_da_propriedade);
+    formData.append('imagem_360_da_propriedade', String(data.imagem_360_da_propriedade));
+    formData.append('nota_da_propriedade', data.nota_da_propriedade ?? '');
+
+    // Características (checkbox múltiplos)
+    data.caracteristicas?.forEach((item: string) => {
+      formData.append('caracteristicas[]', item);
+    });
+
+    // Detalhes dinâmicos
+    data.detalhes.forEach((detalhe: any, index: any) => {
+      formData.append(`detalhes[${index}][titulo]`, detalhe.titulo || '');
+      formData.append(`detalhes[${index}][valor]`, detalhe.valor || '');
+    });
+
+    // Upload de arquivos
+    if (data.imagens_da_propriedade?.length > 0) {
+      for (const imagem of data.imagens_da_propriedade) {
+        formData.append('imagens_da_propriedade', imagem);
       }
-      setSuccess(true);
-      setTimeout(() => router.push('/dashboard'), 1500);
-    } catch (err: any) {
-      setError('Erro ao cadastrar imóvel.');
     }
-  }
 
-  function handleAddDetalhe() {
-    setDetalhesAdicionais([...detalhesAdicionais, { titulo: '', valor: '' }]);
-  }
+    if (data.documentos_da_propriedade?.length > 0) {
+      for (const doc of data.documentos_da_propriedade) {
+        formData.append('documentos_da_propriedade', doc);
+      }
+    }
 
-  function handleDetalheChange(idx: number, field: 'titulo' | 'valor', value: string) {
-    setDetalhesAdicionais(detalhesAdicionais.map((d, i) => i === idx ? { ...d, [field]: value } : d));
-  }
+    if (data.video_da_propriedade?.length > 0) {
+      for (const video of data.video_da_propriedade) {
+        formData.append('video_da_propriedade', video);
+      }
+    }
 
-  // Monta string de endereço para o mapa
-  const enderecoCompleto = [endereco, bairro, cidade, provincia, pais].filter(Boolean).join(', ');
-  const mapSrc = enderecoCompleto
-    ? `https://www.openstreetmap.org/export/embed.html?bbox=&layer=mapnik&marker=&q=${encodeURIComponent(enderecoCompleto)}`
-    : 'https://www.openstreetmap.org/export/embed.html?bbox=&layer=mapnik';
+    const result = await createProperty(formData);
+
+    if (!result.success) {
+      console.log('Erro ao cadastrar:', result.error);
+    } else {
+      router.push('/dashboard'); // ou onde quiser redirecionar
+    }
+  };
+
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-2 py-8">
@@ -193,201 +154,441 @@ export default function CadastrarImovelPage() {
           <CardTitle className="text-2xl font-bold text-gray-800">Cadastrar Novo Imóvel</CardTitle>
         </CardHeader>
         <CardContent>
-          {success ? (
-            <div className="text-green-600 text-center font-semibold py-8">Imóvel cadastrado com sucesso!</div>
-          ) : (
-            <form className="space-y-4" onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {/* Propriedades do Imóvel */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Título da Propriedade</label>
-                <input className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2" required value={titulo} onChange={e => setTitulo(e.target.value)} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Descrição do Imóvel</label>
-                <textarea className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2" rows={2} required value={descricao} onChange={e => setDescricao(e.target.value)} />
-              </div>
-              {/* Localização */}
-              <div className="pt-2 border-t">
-                <div className="font-semibold text-gray-700 mb-2">📍 Localização</div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <input placeholder="Endereço" className="rounded-md border border-gray-300 bg-gray-50 p-2" value={endereco} onChange={e => setEndereco(e.target.value)} />
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">País</label>
-                    <select className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full" value={pais} onChange={e => setPais(e.target.value)}>
-                      <option value="">Selecione o país</option>
-                      {paises.map((pais) => (
-                        <option key={pais} value={pais}>{pais}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Província / Estado</label>
-                    <select className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full" value={provincia} onChange={e => setProvincia(e.target.value)}>
-                      <option value="">Selecione a província</option>
-                      {provinciasAngola.map((prov) => (
-                        <option key={prov} value={prov}>{prov}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Cidade</label>
-                    <select className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full" value={cidade} onChange={e => setCidade(e.target.value)}>
-                      <option value="">Selecione a cidade</option>
-                      {cidadesAngola.map((cidade) => (
-                        <option key={cidade} value={cidade}>{cidade}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <input placeholder="Bairro" className="rounded-md border border-gray-300 bg-gray-50 p-2" value={bairro} onChange={e => setBairro(e.target.value)} />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Título da Propriedade</label>
+                  <input
+                    {...register("titulo_da_propriedade")}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  />
+                  {errors.titulo_da_propriedade && (
+                    <p className="text-red-500 text-xs mt-1">{errors.titulo_da_propriedade.message}</p>
+                  )}
                 </div>
-                {/* Mapa dinâmico */}
-                <div className="mt-4">
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Mapa da Localização</label>
-                  <div className="w-full h-64 rounded-lg overflow-hidden border border-gray-200">
-                    <iframe
-                      title="Mapa do imóvel"
-                      src={mapSrc}
-                      className="w-full h-full border-0"
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                    ></iframe>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Descrição do Imóvel</label>
+                  <textarea
+                    {...register("descricao_da_propriedade")}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                    rows={2}
+                  />
+                  {errors.descricao_da_propriedade && (
+                    <p className="text-red-500 text-xs mt-1">{errors.descricao_da_propriedade.message}</p>
+                  )}
+                </div>
+
+                {/* Localização */}
+                <div className="pt-2 border-t">
+                  <div className="font-semibold text-gray-700 mb-2">📍 Localização</div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <input
+                        {...register("endereco_da_propriedade")}
+                        placeholder="Endereço"
+                        className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
+                      />
+                      {errors.endereco_da_propriedade && (
+                        <p className="text-red-500 text-xs mt-1">{errors.endereco_da_propriedade.message}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">País</label>
+                      <select
+                        {...register("pais_da_propriedade")}
+                        className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
+                      >
+                        <option value="">Selecione o país</option>
+                        {paises.map((pais) => (
+                          <option key={pais} value={pais}>{pais}</option>
+                        ))}
+                      </select>
+                      {errors.pais_da_propriedade && (
+                        <p className="text-red-500 text-xs mt-1">{errors.pais_da_propriedade.message}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Província / Estado</label>
+                      <select
+                        {...register("provincia_da_propriedade")}
+                        className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
+                      >
+                        <option value="">Selecione a província</option>
+                        {provinciasAngola.map((prov) => (
+                          <option key={prov} value={prov}>{prov}</option>
+                        ))}
+                      </select>
+                      {errors.provincia_da_propriedade && (
+                        <p className="text-red-500 text-xs mt-1">{errors.provincia_da_propriedade.message}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Cidade</label>
+                      <select
+                        {...register("cidade_da_propriedade")}
+                        className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
+                      >
+                        <option value="">Selecione a cidade</option>
+                        {cidadesAngola.map((cidade) => (
+                          <option key={cidade} value={cidade}>{cidade}</option>
+                        ))}
+                      </select>
+                      {errors.cidade_da_propriedade && (
+                        <p className="text-red-500 text-xs mt-1">{errors.cidade_da_propriedade.message}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <input
+                        {...register("bairro_da_propriedade")}
+                        placeholder="Bairro"
+                        className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
+                      />
+                      {errors.bairro_da_propriedade && (
+                        <p className="text-red-500 text-xs mt-1">{errors.bairro_da_propriedade.message}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-              {/* Tipo e Estado */}
+
+               {/* Tipo e Estado + Preço */}
               <div className="pt-2 border-t">
                 <div className="font-semibold text-gray-700 mb-2">🏢 Tipo e Estado</div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <input placeholder="Tipo de Propriedade" className="rounded-md border border-gray-300 bg-gray-50 p-2" value={tipo} onChange={e => setTipo(e.target.value)} />
-                  <select className="rounded-md border border-gray-300 bg-gray-50 p-2" value={status} onChange={e => setStatus(e.target.value)}>
-                    <option value="">Selecione o estado</option>
-                    <option value="para alugar">Para Alugar</option>
-                    <option value="para comprar">Para Vender</option>
-                  </select>
-                  <select className="rounded-md border border-gray-300 bg-gray-50 p-2" value={rotulo} onChange={e => setRotulo(e.target.value)}>
-                    <option value="">Selecione o rótulo</option>
-                    <option value="Promoção">Promoção</option>
-                    <option value="À Venda">À Venda</option>
-                  </select>
+                  <div>
+                    <input
+                      placeholder="Tipo de Propriedade"
+                      className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
+                      {...register("tipo_da_propriedade")}
+                    />
+                    {errors.tipo_da_propriedade && (
+                      <p className="text-sm text-red-500 mt-1">{errors.tipo_da_propriedade.message}</p>
+                    )}
+                  </div>
+                  <div>
+                    <select
+                      className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
+                      {...register("estatus_da_propriedade")}
+                    >
+                      <option value="">Selecione o estado</option>
+                      <option value="para alugar">Para Alugar</option>
+                      <option value="para comprar">Para Vender</option>
+                    </select>
+                    {errors.estatus_da_propriedade && (
+                      <p className="text-sm text-red-500 mt-1">{errors.estatus_da_propriedade.message}</p>
+                    )}
+                  </div>
+                  <div>
+                    <select
+                      className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
+                      {...register("rotulo_da_propriedade")}
+                    >
+                      <option value="">Selecione o rótulo</option>
+                      <option value="Promoção">Promoção</option>
+                      <option value="À Venda">À Venda</option>
+                    </select>
+                    {errors.rotulo_da_propriedade && (
+                      <p className="text-sm text-red-500 mt-1">{errors.rotulo_da_propriedade.message}</p>
+                    )}
+                  </div>
                 </div>
-              </div>
-              {/* Preço */}
-              <div className="pt-2 border-t">
-                <div className="font-semibold text-gray-700 mb-2">💰 Preço</div>
+
+                <div className="font-semibold text-gray-700 mb-2 mt-6">💰 Preço</div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <input placeholder="Preço (KZ)" className="rounded-md border border-gray-300 bg-gray-50 p-2" value={preco} onChange={e => setPreco(e.target.value)} />
-                  <input placeholder="Unidade de Preço" className="rounded-md border border-gray-300 bg-gray-50 p-2" value={unidadePreco} onChange={e => setUnidadePreco(e.target.value)} />
-                  <input placeholder="Antes da Etiqueta de Preço" className="rounded-md border border-gray-300 bg-gray-50 p-2" value={precoAntes} onChange={e => setPrecoAntes(e.target.value)} />
-                  <input placeholder="Depois da Etiqueta de Preço" className="rounded-md border border-gray-300 bg-gray-50 p-2" value={precoDepois} onChange={e => setPrecoDepois(e.target.value)} />
-                  <input placeholder="Preço de Chamada" className="rounded-md border border-gray-300 bg-gray-50 p-2" value={precoChamada} onChange={e => setPrecoChamada(e.target.value)} />
+                  <div>
+                    <input
+                      type="number"
+                      placeholder="Preço (KZ)"
+                      className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
+                      {...register("preco_da_propriedade")}
+                    />
+                    {errors.preco_da_propriedade && (
+                      <p className="text-sm text-red-500 mt-1">{errors.preco_da_propriedade.message}</p>
+                    )}
+                  </div>
+                  <div>
+                    <input
+                      placeholder="Unidade de Preço"
+                      className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
+                      {...register("unidade_preco_da_propriedade")}
+                    />
+                    {errors.unidade_preco_da_propriedade && (
+                      <p className="text-sm text-red-500 mt-1">{errors.unidade_preco_da_propriedade.message}</p>
+                    )}
+                  </div>
+                  <div>
+                    <input
+                      placeholder="Preço de Chamada"
+                      className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
+                      {...register("preco_chamada_da_propriedade")}
+                    />
+                    {errors.preco_chamada_da_propriedade && (
+                      <p className="text-sm text-red-500 mt-1">{errors.preco_chamada_da_propriedade.message}</p>
+                    )}
+                  </div>
                 </div>
               </div>
-              {/* Características */}
-              <div className="pt-2 border-t">
-                <div className="font-semibold text-gray-700 mb-2">✅ Características</div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  {caracteristicasList.map((c) => (
-                    <label key={c} className="flex items-center gap-2 text-xs">
-                      <input type="checkbox" className="accent-purple-600" checked={caracteristicas.includes(c)} onChange={e => {
-                        if (e.target.checked) setCaracteristicas([...caracteristicas, c]);
-                        else setCaracteristicas(caracteristicas.filter(x => x !== c));
-                      }} /> {c}
-                    </label>
-                  ))}
-                </div>
-              </div>
-              {/* Detalhes Técnicos */}
-              <div className="pt-2 border-t">
-                <div className="font-semibold text-gray-700 mb-2">🧾 Detalhes Técnicos</div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <input placeholder="Tamanho (m²)" className="rounded-md border border-gray-300 bg-gray-50 p-2" value={size} onChange={e => setSize(e.target.value)} />
-                  <input placeholder="Área do terreno (m²)" className="rounded-md border border-gray-300 bg-gray-50 p-2" value={areaTerreno} onChange={e => setAreaTerreno(e.target.value)} />
-                  <input placeholder="Quartos" className="rounded-md border border-gray-300 bg-gray-50 p-2" value={bedrooms} onChange={e => setBedrooms(e.target.value)} />
-                  <input placeholder="Casas de banho" className="rounded-md border border-gray-300 bg-gray-50 p-2" value={bathrooms} onChange={e => setBathrooms(e.target.value)} />
-                  <input placeholder="Garagens" className="rounded-md border border-gray-300 bg-gray-50 p-2" value={garagens} onChange={e => setGaragens(e.target.value)} />
-                  <input placeholder="Garagens de Tamanho (m²)" className="rounded-md border border-gray-300 bg-gray-50 p-2" value={garagemTamanho} onChange={e => setGaragemTamanho(e.target.value)} />
-                  <input placeholder="Ano de Construção" className="rounded-md border border-gray-300 bg-gray-50 p-2" value={anoConstrucao} onChange={e => setAnoConstrucao(e.target.value)} />
-                  <input placeholder="ID da propriedade" className="rounded-md border border-gray-300 bg-gray-50 p-2" value={propertyId} onChange={e => setPropertyId(e.target.value)} />
-                </div>
-                <div className="mt-2">
+
+             {/* ✅ Características + Detalhes Técnicos */}
+                  <div className="pt-2 border-t">
+                    <div className="font-semibold text-gray-700 mb-2">✅ Características</div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {caracteristicasList.map((c) => (
+                        <label key={c} className="flex items-center gap-2 text-xs">
+                          <input
+                            type="checkbox"
+                            value={c}
+                            {...register("caracteristicas")}
+                            className="accent-purple-600"
+                          />
+                          {c}
+                        </label>
+                      ))}
+                    </div>
+                    {errors.caracteristicas && (
+                      <p className="text-sm text-red-500 mt-1">{errors.caracteristicas.message}</p>
+                    )}
+                  </div>
+
+                  <div className="pt-2 border-t">
+                    <div className="font-semibold text-gray-700 mb-2">🧾 Detalhes Técnicos</div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <input
+                          placeholder="Tamanho (m²)"
+                          className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
+                          {...register("tamanho_da_propriedade")}
+                        />
+                        {errors.tamanho_da_propriedade && (
+                          <p className="text-sm text-red-500 mt-1">{errors.tamanho_da_propriedade.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <input
+                          placeholder="Área do terreno (m²)"
+                          className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
+                          {...register("area_terreno_da_propriedade")}
+                        />
+                        {errors.area_terreno_da_propriedade && (
+                          <p className="text-sm text-red-500 mt-1">{errors.area_terreno_da_propriedade.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <input
+                          placeholder="Quartos"
+                          className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
+                          {...register("quartos_da_propriedade")}
+                        />
+                        {errors.quartos_da_propriedade && (
+                          <p className="text-sm text-red-500 mt-1">{errors.quartos_da_propriedade.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <input
+                          placeholder="Casas de banho"
+                          className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
+                          {...register("casas_banho_da_propriedade")}
+                        />
+                        {errors.casas_banho_da_propriedade && (
+                          <p className="text-sm text-red-500 mt-1">{errors.casas_banho_da_propriedade.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <input
+                          placeholder="Garagens"
+                          className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
+                          {...register("garagens_da_propriedade")}
+                        />
+                        {errors.garagens_da_propriedade && (
+                          <p className="text-sm text-red-500 mt-1">{errors.garagens_da_propriedade.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <input
+                          placeholder="Garagens de Tamanho (m²)"
+                          className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
+                          {...register("tamanho_garagen_da_propriedade")}
+                        />
+                        {errors.tamanho_garagen_da_propriedade && (
+                          <p className="text-sm text-red-500 mt-1">{errors.tamanho_garagen_da_propriedade.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <input
+                          placeholder="Ano de Construção"
+                          className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
+                          {...register("ano_construcao_da_propriedade")}
+                        />
+                        {errors.ano_construcao_da_propriedade && (
+                          <p className="text-sm text-red-500 mt-1">{errors.ano_construcao_da_propriedade.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <input
+                          placeholder="ID da propriedade"
+                          className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
+                          {...register("id_da_propriedade")}
+                        />
+                        {errors.id_da_propriedade && (
+                          <p className="text-sm text-red-500 mt-1">{errors.id_da_propriedade.message}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                {/* Detalhes adicionais dinâmicos */}
+                <div className="mt-4">
                   <label className="block text-xs font-medium text-gray-700 mb-1">Detalhes adicionais</label>
-                  {detalhesAdicionais.map((detalhe, idx) => (
-                    <div key={idx} className="flex gap-2 mb-2">
-                      <input
-                        className="flex-1 rounded-md border border-gray-300 bg-gray-50 p-2"
-                        placeholder="Título"
-                        value={detalhe.titulo}
-                        onChange={e => handleDetalheChange(idx, 'titulo', e.target.value)}
-                      />
-                      <input
-                        className="flex-1 rounded-md border border-gray-300 bg-gray-50 p-2"
-                        placeholder="Valor"
-                        value={detalhe.valor}
-                        onChange={e => handleDetalheChange(idx, 'valor', e.target.value)}
-                      />
+
+                  {fields.map((field, index) => (
+                    <div key={field.id} className="flex flex-col md:flex-row gap-2 mb-2 relative">
+                      <div className="w-full md:flex-1">
+                        <input
+                          className="w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                          placeholder="Título"
+                          {...register(`detalhes.${index}.titulo`)}
+                        />
+                        {errors.detalhes?.[index]?.titulo && (
+                          <p className="text-sm text-red-500 mt-1">{errors.detalhes[index].titulo?.message}</p>
+                        )}
+                      </div>
+
+                      <div className="w-full md:flex-1">
+                        <input
+                          className="w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                          placeholder="Valor"
+                          {...register(`detalhes.${index}.valor`)}
+                        />
+                        {errors.detalhes?.[index]?.valor && (
+                          <p className="text-sm text-red-500 mt-1">{errors.detalhes[index].valor?.message}</p>
+                        )}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => remove(index)}
+                        className="text-red-600 self-start mt-1"
+                        title="Remover"
+                      >
+                        <Trash className="size-5" />
+                      </button>
                     </div>
                   ))}
+
                   <button
                     type="button"
+                    onClick={() => append({ titulo: '', valor: '' })}
                     className="flex items-center gap-1 text-purple-700 hover:text-purple-900 text-xs font-semibold mt-1"
-                    onClick={handleAddDetalhe}
                   >
                     <Plus className="w-4 h-4" /> Adicionar detalhe
                   </button>
                 </div>
-              </div>
+
               {/* Mídia */}
-              <div className="pt-2 border-t">
-                <div className="font-semibold text-gray-700 mb-2">🖼️ Mídia</div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Galeria de Fotos */}
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Galeria de Fotos</label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      className="block w-full text-xs text-gray-700 file:mr-2 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
-                      onChange={e => setGalleryFiles(Array.from(e.target.files || []))}
-                    />
+                  <div className="pt-2 border-t">
+                    <div className="font-semibold text-gray-700 mb-2">🖼️ Mídia</div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                      {/* Galeria de Fotos */}
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Galeria de Fotos</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="block w-full text-xs text-gray-700 file:mr-2 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                          {...register("imagens_da_propriedade")}
+                        />
+                        {errors.imagens_da_propriedade && (
+                          <p className="text-sm text-red-500 mt-1">{errors.imagens_da_propriedade.message as string}</p>
+                        )}
+                      </div>
+
+                      {/* Anexos de Arquivo */}
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Anexos de Arquivo</label>
+                        <input
+                          type="file"
+                          accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.odp"
+                          multiple
+                          className="block w-full text-xs text-gray-700 file:mr-2 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                          {...register("documentos_da_propriedade")}
+                        />
+                        {errors.documentos_da_propriedade && (
+                          <p className="text-sm text-red-500 mt-1">{errors.documentos_da_propriedade.message as string}</p>
+                        )}
+                      </div>
+
+                      {/* Upload de Vídeo */}
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Vídeo</label>
+                        <input
+                          type="file"
+                          accept="video/*"
+                          className="block w-full text-xs text-gray-700 file:mr-2 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                          {...register("video_da_propriedade")}
+                        />
+                        {errors.video_da_propriedade && (
+                          <p className="text-sm text-red-500 mt-1">{errors.video_da_propriedade.message as string}</p>
+                        )}
+                      </div>
+
+                    </div>
                   </div>
-                  {/* Anexos de Arquivo */}
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Anexos de Arquivo</label>
-                    <input
-                      type="file"
-                      accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.odp"
-                      multiple
-                      className="block w-full text-xs text-gray-700 file:mr-2 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
-                    />
-                  </div>
-                  {/* Upload de Vídeo */}
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Vídeo</label>
-                    <input
-                      type="file"
-                      accept="video/*"
-                      className="block w-full text-xs text-gray-700 file:mr-2 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
-                    />
-                  </div>
+
                   {/* Imagem 360 */}
-                  <input placeholder="Imagem 360" className="rounded-md border border-gray-300 bg-gray-50 p-2" />
-                  <label className="flex items-center gap-2 text-xs">
-                    <input type="checkbox" className="accent-purple-600" /> Planos de chão (ativar/desativar)
-                  </label>
-                </div>
-              </div>
-              {/* Nota Privada */}
-              <div className="pt-2 border-t">
-                <div className="font-semibold text-gray-700 mb-2">📝 Nota Privada</div>
-                <textarea className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2" rows={2} placeholder="Nota Privada (não exibida ao público)" value={notaPrivada} onChange={e => setNotaPrivada(e.target.value)} />
-              </div>
-              <button type="submit" className="w-full bg-purple-700 text-white px-4 py-2 rounded-md hover:bg-purple-800 font-semibold mt-2">
-                Cadastrar Imóvel
-              </button>
-              {error && <div className="text-red-600 text-center text-sm">{error}</div>}
+                    <input
+                      placeholder="Imagem 360"
+                      className="rounded-md border border-gray-300 bg-gray-50 p-2"
+                    />
+                    <label className="flex items-center gap-2 text-xs mt-1">
+                      <input
+                        {...register("imagem_360_da_propriedade")}
+                        type="checkbox"
+                        className="accent-purple-600"
+                      />
+                      Planos de chão (ativar/desativar)
+                    </label>
+                    {errors.imagem_360_da_propriedade && (
+                      <p className="text-sm text-red-500 mt-1">{errors.imagem_360_da_propriedade.message as string}</p>
+                    )}
+
+                  {/* Nota Privada */}
+                    <div className="pt-2 border-t">
+                      <div className="font-semibold text-gray-700 mb-2">📝 Nota Privada</div>
+                      <textarea
+                        className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                        rows={2}
+                        placeholder="Nota Privada (não exibida ao público)"
+                        {...register("nota_da_propriedade")}
+                      />
+                      {errors.nota_da_propriedade && (
+                        <p className="text-sm text-red-500 mt-1">{errors.nota_da_propriedade.message as string}</p>
+                      )}
+                    </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className={`w-full px-4 py-2 rounded-md font-semibold mt-2 flex items-center justify-center gap-2 text-white ${
+                      isSubmitting ? 'bg-purple-400 cursor-not-allowed' : 'bg-purple-700 hover:bg-purple-800'
+                    }`}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Cadastrando...
+                      </>
+                    ) : (
+                      'Cadastrar Imóvel'
+                    )}
+                  </button>
             </form>
-          )}
+
         </CardContent>
       </Card>
     </div>
