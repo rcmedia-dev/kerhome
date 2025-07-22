@@ -9,6 +9,7 @@ import { Loader2, Plus, Trash } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { propriedadeSchema, TPropriedadeFormData } from '@/lib/types/property';
 import { createProperty } from '@/lib/actions/create-property';
+import { uploadToSupabase } from '@/lib/actions/upload-image';
 
 
 
@@ -104,7 +105,7 @@ export default function CadastrarImovelPage() {
     formData.append('tamanho_garagen_da_propriedade', data.tamanho_garagen_da_propriedade || '');
     formData.append('ano_construcao_da_propriedade', data.ano_construcao_da_propriedade);
     formData.append('id_da_propriedade', data.id_da_propriedade);
-    formData.append('imagem_360_da_propriedade', String(data.imagem_360_da_propriedade));
+    formData.append('imagem_360_da_propriedade', data.imagem_360_da_propriedade.name);
     formData.append('nota_da_propriedade', data.nota_da_propriedade ?? '');
 
     // Características (checkbox múltiplos)
@@ -118,28 +119,33 @@ export default function CadastrarImovelPage() {
       formData.append(`detalhes[${index}][valor]`, detalhe.valor || '');
     });
 
-    // Upload de arquivos
     if (data.imagens_da_propriedade?.length > 0) {
-      for (const imagem of data.imagens_da_propriedade) {
-        formData.append('imagens_da_propriedade', imagem);
-      }
+    for (const file of data.imagens_da_propriedade) {
+      const url = await uploadToSupabase(file, 'images');
+      if (url) formData.append('imagens_da_propriedade', url);
     }
+  }
 
-    if (data.documentos_da_propriedade?.length > 0) {
-      for (const doc of data.documentos_da_propriedade) {
-        formData.append('documentos_da_propriedade', doc);
-      }
+  // 📦 Upload documentos
+  if (data.documentos_da_propriedade?.length > 0) {
+    for (const file of data.documentos_da_propriedade) {
+      const url = await uploadToSupabase(file, "docs");
+      if (url) formData.append('documentos_da_propriedade', url);
     }
+  }
 
-    if (data.video_da_propriedade?.length > 0) {
-      for (const video of data.video_da_propriedade) {
-        formData.append('video_da_propriedade', video);
-      }
+  // 📦 Upload vídeos
+  if (data.video_da_propriedade?.length > 0) {
+    for (const file of data.video_da_propriedade) {
+      const url = await uploadToSupabase(file, "videos");
+      if (url) formData.append('video_da_propriedade', url);
     }
+  }
 
-    const result = await createProperty(formData);
+  const result = await createProperty(formData, user?.id || null);
 
-    if (!result.success) {
+
+  if (!result.success) {
       console.log('Erro ao cadastrar:', result.error);
     } else {
       router.push('/dashboard'); // ou onde quiser redirecionar
@@ -544,16 +550,9 @@ export default function CadastrarImovelPage() {
                     <input
                       placeholder="Imagem 360"
                       className="rounded-md border border-gray-300 bg-gray-50 p-2"
+                      {...register("imagem_360_da_propriedade")}
                     />
-                    <label className="flex items-center gap-2 text-xs mt-1">
-                      <input
-                        {...register("imagem_360_da_propriedade")}
-                        type="checkbox"
-                        className="accent-purple-600"
-                      />
-                      Planos de chão (ativar/desativar)
-                    </label>
-                    {errors.imagem_360_da_propriedade && (
+                     {errors.imagem_360_da_propriedade && (
                       <p className="text-sm text-red-500 mt-1">{errors.imagem_360_da_propriedade.message as string}</p>
                     )}
 

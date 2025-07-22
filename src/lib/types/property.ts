@@ -52,9 +52,89 @@ export const propriedadeSchema = z.object({
 
   video_da_propriedade: z.any().optional(),
 
-  imagem_360_da_propriedade: z.boolean().optional(),
+  imagem_360_da_propriedade: z.string().optional(),
   nota_da_propriedade: z.string().optional(),
 });
 
 export type TPropriedadeFormData= z.infer<typeof propriedadeSchema>;
 
+export const ownerSchema = z.object({
+  id: z.string(),
+  email: z.string().email(),
+  password: z.string(), // geralmente não enviado para o frontend — considere remover no backend
+  createdAt: z.string().or(z.date()),
+  updatedAt: z.string().or(z.date()),
+  primeiro_nome: z.string().nullable(),
+  ultimo_nome: z.string().nullable(),
+  username: z.string().nullable(),
+  telefone: z.string().nullable(),
+  empresa: z.string().nullable(),
+  licenca: z.string().nullable(),
+  website: z.string().nullable(),
+  facebook: z.string().nullable(),
+  linkedin: z.string().nullable(),
+  instagram: z.string().nullable(),
+  youtube: z.string().nullable(),
+  sobre_mim: z.string().nullable(),
+});
+
+export const propertyResponseSchema = z.object({
+  id: z.string(),
+  ownerId: z.string(),
+
+  title: z.string(),
+  description: z.string(),
+  tipo: z.string(),
+  status: z.string(),
+  rotulo: z.string().nullable(),
+
+  price: z.number().nullable(),
+  unidade_preco: z.string().nullable(),
+  preco_chamada: z.string().nullable(),
+
+  caracteristicas: z.union([
+    z.array(z.string()),
+    z.string(), // aceita string simples também
+    z.null()
+  ]).transform((val) => {
+    if (Array.isArray(val)) return val;
+    if (typeof val === 'string') return [val];
+    return null;
+  }),
+
+  size: z.string().nullable(),
+  area_terreno: z.number().nullable(),
+  bedrooms: z.number().nullable(),
+  bathrooms: z.number().nullable(),
+  garagens: z.number().nullable(),
+  garagemtamanho: z.string().nullable(),
+
+  anoconstrucao: z.number(),
+  propertyid: z.union([z.string(), z.number()])
+  .transform((val) => val.toString()),
+
+
+  detalhesadicionais: z.array(z.object({
+    titulo: z.string(),
+    valor: z.string()
+  })).nullable(),
+
+
+  endereco: z.string(),
+  bairro: z.string().nullable(),
+  cidade: z.string(),
+  provincia: z.string(),
+  pais: z.string(),
+
+  notaprivada: z.string().nullable(),
+
+  gallery: z.array(z.string()),
+  image: z.string().nullable(),
+
+  createdAt: z.string().or(z.date()),
+  updatedAt: z.string().or(z.date()),
+
+  owner: ownerSchema,
+});
+
+export type TPropertyResponseSchema = z.infer<typeof propertyResponseSchema>;

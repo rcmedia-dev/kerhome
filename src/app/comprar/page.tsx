@@ -1,14 +1,16 @@
 // app/comprar/page.tsx
 import { PropertyCard } from '@/components/property-card';
-import { mockProperties } from '@/lib/mockups/properties-mockup';
-import { PropertyResponse } from '@/lib/types/property';
+import { getProperties } from '@/lib/actions/get-properties'; // importar action
 
-export default function PropertiesPage() {
-  const properties = mockProperties.filter(
-    (p: PropertyResponse) => p.status === "para comprar"
+export default async function PropertiesPage() {
+  const allProperties = await getProperties(); // buscar todas as propriedades
+
+  // Filtrar apenas com status "para comprar"
+  const properties = allProperties.filter(
+    (p) => p.status.toLowerCase() === 'para comprar'
   );
 
-  if (!properties || properties.length < 1) {
+  if (properties.length < 1) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <h2 className="text-2xl font-bold text-gray-700">

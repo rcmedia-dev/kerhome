@@ -1,32 +1,51 @@
 
+'use client';
+
 import React, { useEffect, useState } from 'react';
 import { useAuth } from './auth-context';
-import { PropertyResponse } from '@/lib/types/property';
 import { CheckCircle2 } from 'lucide-react';
 import { PropertyCard } from './property-card';
-import { mockProperties } from '@/lib/mockups/properties-mockup';
+import { getProperties, getUserProperties } from '@/lib/actions/get-properties';
+import { TPropertyResponseSchema } from '@/lib/types/property';
+
 
 
 export function MinhasPropriedades() {
-  const [properties, setProperties] = useState<PropertyResponse[]>([]);
+  const [properties, setProperties] = useState<TPropertyResponseSchema[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Simula chamada de API
-    const timer = setTimeout(() => {
-      setProperties(mockProperties);
-      setLoading(false);
-    }, 1000);
+  const { user } = useAuth();
 
-    return () => clearTimeout(timer);
+  if (!user) {
+    alert('Você precisa estar logado para acessar suas propriedades.');
+    return null;
+  }
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const data = await getUserProperties(user?.id);
+        console.log('Propriedades do usuário:', data);
+        setProperties(data);
+      } catch (error) {
+        console.error('Erro ao buscar propriedades:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
   }, []);
+
+  if (loading) {
+    return <div className="text-center text-gray-500">Carregando propriedades...</div>;
+  }
 
   return (
     <div className="bg-white rounded-xl shadow p-6 mb-6">
       <h2 className="text-xl font-bold mb-4 text-gray-800">Minhas Propriedades</h2>
-      {loading ? (
-        <div className="text-center text-gray-500">Carregando...</div>
-      ) : properties.length === 0 ? (
+
+      {properties.length === 0 ? (
         <div className="text-center text-gray-500">Nenhum imóvel cadastrado.</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -40,35 +59,13 @@ export function MinhasPropriedades() {
 }
 
 
+
 export function Favoritas() {
-  const [favoritos, setFavoritos] = useState<PropertyResponse[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Simula carregamento de favoritos
-    const timer = setTimeout(() => {
-      setFavoritos(mockProperties);
-      setLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
 
   return (
     <div className="bg-white rounded-xl shadow p-6 mb-6">
       <h2 className="text-xl font-bold mb-4 text-gray-800">Imóveis Guardados</h2>
-
-      {loading ? (
-        <div className="text-center text-gray-500">Carregando...</div>
-      ) : favoritos.length === 0 ? (
-        <div className="text-center text-gray-500">Nenhum imóvel favorito.</div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {favoritos.map((property) => (
-            <PropertyCard key={property.id} property={property} />
-          ))}
-        </div>
-      )}
+      <div className="text-center text-gray-500">Nenhum imóvel favorito.</div>
     </div>
   );
 }

@@ -64,8 +64,6 @@ model Property {
   rotulo           String?
   price            Float?
   unidade_preco    String?
-  preco_antes      Float?
-  preco_depois     Float?
   preco_chamada    String?
   caracteristicas  Json?
   size             String?

@@ -3,28 +3,26 @@
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { MapPin, BedDouble, Ruler, Tag } from "lucide-react";
-import { getPropertyById } from '@/lib/actions/get-properties';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Link from "next/link";
-import { PropertyResponse } from "@/lib/types/property";
 import { PropertyFilterSidebar } from "@/components/sidebar-filtro";
 import { CidadesDisponiveis } from "@/components/cidades-disponiveis";
 import { ImoveisDestaque } from "@/components/imoveis-destaque";
 import AgentSection from "@/components/agent-section";
 import ContactForm from "@/components/contact-form";
 import { useAuth } from "@/components/auth-context";
+import { getPropertyById } from "@/lib/actions/get-properties";
+import { TPropertyResponseSchema } from "@/lib/types/property";
 
 
 
 export default function PropertyPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params);
-  const [property, setProperty] = useState<PropertyResponse | null>(null);
+  const [property, setProperty] = useState<TPropertyResponseSchema | null>(null);
   const { user } = useAuth();
 
   useEffect(() => {
     async function fetchData() {
       const prop = await getPropertyById(id);
-      console.log('Property retornada do Supabase:', prop);
       setProperty(prop);
     }
     fetchData();

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { getAgentByPropertyId } from '@/lib/actions/get-agent';
+import { getAgentByPropertyId } from '@/lib/actions/get-agent-data';
 
 type Agent = {
   primeiro_nome?: string | null;

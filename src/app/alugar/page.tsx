@@ -1,11 +1,13 @@
-
+// app/alugar/page.tsx
 import { PropertyCard } from "@/components/property-card";
-import { mockProperties } from "@/lib/mockups/properties-mockup";
-import { PropertyResponse } from "@/lib/types/property";
+import { getProperties } from "@/lib/actions/get-properties"; // importar a action
 
-export default function PropertiesPage() {
-  const properties = mockProperties.filter(
-    (p: PropertyResponse) => p.status === "para alugar"
+export default async function PropertiesPage() {
+  const allProperties = await getProperties(); // buscar todas as propriedades
+
+  // Filtrar apenas os imóveis para alugar
+  const properties = allProperties.filter(
+    (p) => p.status.toLowerCase() === "para alugar"
   );
 
   if (!properties || properties.length < 1) {

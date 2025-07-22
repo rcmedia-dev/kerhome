@@ -4,13 +4,13 @@ import { MapPin, BedDouble, Ruler, Tag, Pencil, Trash, Heart } from 'lucide-reac
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/components/auth-context';
-import { PropertyResponse } from '@/lib/types/property';
 import { deletePropertyById } from '@/lib/actions/delete-property';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toggleFavoritoProperty } from '@/lib/actions/toggle-favorite';
+import { TPropertyResponseSchema } from '@/lib/types/property';
 
-export function PropertyCard({ property }: { property: PropertyResponse }) {
+export function PropertyCard({ property }: { property: TPropertyResponseSchema }) {
   const { user } = useAuth();
   const router = useRouter();
   const isOwner = user?.id === property.ownerId;

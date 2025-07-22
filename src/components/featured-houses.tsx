@@ -5,13 +5,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { BedDouble, MapPin, Ruler, Tag } from "lucide-react";
 import { useCallback, useEffect } from "react";
-import { PropertyResponse } from "@/lib/types/property";
+import { TPropertyResponseSchema } from "@/lib/types/property";
 
 type FeaturedCarouselProps = {
-  property: PropertyResponse[];
+  property: TPropertyResponseSchema[];
 };
 
-export default function FeaturedCarousel({ property }: FeaturedCarouselProps) {
+export default function FeaturedCarousel( { property }: FeaturedCarouselProps ) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
 
   const scrollNext = useCallback(() => {
@@ -46,8 +46,8 @@ export default function FeaturedCarousel({ property }: FeaturedCarouselProps) {
                 >
                   <Image
                     src={property.gallery[0]}
-                    alt={property.title}
                     fill
+                    alt={property.title}
                     className="object-cover"
                   />
                   <div className="absolute inset-0 bg-black/30" />

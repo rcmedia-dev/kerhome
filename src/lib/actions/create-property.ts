@@ -1,11 +1,11 @@
 'use server';
 
 import { propriedadeSchema } from '../types/property';
-import { getSupabaseClient } from '@/lib/supabase';
 import prisma from '@/lib/prisma';
 
-export async function createProperty(formData: FormData) {
+export async function createProperty(formData: FormData, ownerId: string | null) {
   const raw = Object.fromEntries(formData.entries());
+  console.log('Dados recebidos para criação de propriedade:', raw);
 
   const caracteristicas = formData.getAll('caracteristicas') as string[];
   const detalhes = formData.getAll('detalhes') as string[];
@@ -23,42 +23,7 @@ export async function createProperty(formData: FormData) {
   }
 
   const data = parse.data;
-  const ownerId = raw.ownerId as string;
   if (!ownerId) return { error: 'Usuário não autenticado.' };
-
-  let imagem360Url = '';
-
-  const imagem360 = formData.get('imagem_360_da_propriedade') as File | null;
-
-  if (imagem360 && imagem360 instanceof File && imagem360.size > 0) {
-    try {
-      const supabase = getSupabaseClient();
-
-      const fileExt = imagem360.name.split('.').pop();
-      const fileName = `property-360-${Date.now()}.${fileExt}`;
-      const filePath = `imoveis/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('imoveis')
-        .upload(filePath, imagem360, {
-          contentType: imagem360.type,
-          upsert: true,
-        });
-
-      if (uploadError) {
-        return { error: 'Erro ao enviar imagem para o Supabase Storage.' };
-      }
-
-      const { data: publicUrlData } = supabase.storage
-        .from('imoveis')
-        .getPublicUrl(filePath);
-
-      imagem360Url = publicUrlData?.publicUrl ?? '';
-    } catch (e) {
-      console.error('Erro no upload da imagem:', e);
-      return { error: 'Erro inesperado no upload da imagem.' };
-    }
-  }
 
   try {
     await prisma.property.create({
@@ -87,7 +52,7 @@ export async function createProperty(formData: FormData) {
         cidade: data.cidade_da_propriedade,
         bairro: data.bairro_da_propriedade,
         detalhesadicionais: detalhes,
-        gallery: data.imagens_da_propriedade ,
+        gallery: [data.imagens_da_propriedade], // Placeholder, handle file uploads separately
       },
     });
 

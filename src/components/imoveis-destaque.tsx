@@ -3,24 +3,16 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import { getImoveisDestaque } from '@/lib/actions/get-imoveis-destaque';
-
-type Imovel = {
-  id: string;
-  title: string;
-  cidade: string | null;
-  price: number | null;
-  unidade_preco: string | null;
-  gallery: string[] | null;
-  status: string; // <-- importante
-};
+import { TPropertyResponseSchema } from '@/lib/types/property';
+import { getLimitedProperties } from '@/lib/actions/get-properties';
 
 export function ImoveisDestaque() {
-  const [imoveis, setImoveis] = useState<Imovel[]>([]);
+  const [imoveis, setImoveis] = useState<TPropertyResponseSchema[]>([]);
 
   useEffect(() => {
     async function fetchData() {
-      const data = await getImoveisDestaque();
+      const data = await getLimitedProperties(4);
+      console.log('Imóveis destacados:', data);
       setImoveis(data);
     }
 
@@ -49,7 +41,7 @@ export function ImoveisDestaque() {
             >
               <div className="w-full h-32 relative">
                 <Image
-                  src={imovel.gallery?.[0] || '/placeholder.jpg'}
+                  src={imovel.gallery[0]}
                   alt={imovel.title}
                   fill
                   className="object-cover"
