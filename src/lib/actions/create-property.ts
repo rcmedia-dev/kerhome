@@ -35,7 +35,7 @@ export async function createProperty(formData: FormData, ownerId: string | null)
         status: data.estatus_da_propriedade,
         rotulo: data.rotulo_da_propriedade || '',
         price: data.preco_da_propriedade,
-        unidade_preco: data.unidade_preco_da_propriedade || '',
+        unidade_preco: data.unidade_preco_da_propriedade.toLocaleString() || '',
         preco_chamada: data.preco_chamada_da_propriedade,
         caracteristicas,
         size: data.tamanho_da_propriedade || '',

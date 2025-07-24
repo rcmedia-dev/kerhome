@@ -2,8 +2,9 @@
 'use server';
 
 import prisma from '../prisma';
+import { favoritedPropertyResponseSchema, TFavoritedPropertyResponseSchema } from '../types/user';
 
-export async function getImoveisFavoritos(userId: string) {
+export async function getImoveisFavoritos(userId?: string): Promise<TFavoritedPropertyResponseSchema[]> {
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -16,7 +17,13 @@ export async function getImoveisFavoritos(userId: string) {
       },
     });
 
-    return user?.imoveisGuardados ?? [];
+    const imoveisGuardadosValidados = user?.imoveisGuardados.map((imovel) =>
+      favoritedPropertyResponseSchema.parse(imovel)
+    );
+
+    return imoveisGuardadosValidados ?? [];
+
+    return imoveisGuardadosValidados ?? [];
   } catch (error) {
     console.error("Erro ao buscar imóveis guardados:", error);
     return [];

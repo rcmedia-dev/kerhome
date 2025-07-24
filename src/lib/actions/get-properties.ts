@@ -17,9 +17,18 @@ export async function getProperties(): Promise<TPropertyResponseSchema[]> {
     });
 
     const propriedadesValidas = propriedades
-      .filter((p) => p.propertyid !== null && p.propertyid !== undefined)
-      .map((propriedade) => propertyResponseSchema.parse(propriedade));
+    .filter((p) => p.propertyid !== null && p.propertyid !== undefined)
+    .map((p) => {
+      const parsedCaracteristicas =
+        typeof p.caracteristicas === 'string'
+          ? JSON.parse(p.caracteristicas)
+          : p.caracteristicas;
 
+      return propertyResponseSchema.parse({
+        ...p,
+        caracteristicas: parsedCaracteristicas,
+      });
+    });
 
     return propriedadesValidas;
   } catch (error) {
@@ -41,16 +50,24 @@ export async function getLimitedProperties(limit: number): Promise<TPropertyResp
     });
 
     // Validação com Zod
-    const propriedadesValidas = propriedades
-      .filter((p) => p.propertyid !== null && p.propertyid !== undefined)
-      .map((propriedade, index) => {
-        try {
-          return propertyResponseSchema.parse(propriedade);
-        } catch (e) {
-          console.error(`Erro na propriedade #${index}:`, propriedade);
-          throw e;
-        }
+   const propriedadesValidas: TPropertyResponseSchema[] = propriedades
+  .filter((p) => p.propertyid !== null && p.propertyid !== undefined)
+  .map((propriedade, index) => {
+    try {
+      const caracteristicasCorrigidas =
+        typeof propriedade.caracteristicas === 'string'
+          ? JSON.parse(propriedade.caracteristicas)
+          : propriedade.caracteristicas;
+
+      return propertyResponseSchema.parse({
+        ...propriedade,
+        caracteristicas: caracteristicasCorrigidas,
       });
+    } catch (e) {
+      console.error(`Erro na propriedade #${index}:`, propriedade);
+      throw e;
+    }
+  });
 
     return propriedadesValidas;
   } catch (error) {
@@ -95,10 +112,29 @@ export async function getUserProperties(userId?: string): Promise<TPropertyRespo
       },
     });
 
-    const propriedadesValidas = propriedade
-      .map((propriedade) => propertyResponseSchema.parse(propriedade));
+    const propriedadesValidas = propriedade.map((propriedade: TPropertyResponseSchema, index: number) => {
+      try {
+        const caracteristicasCorrigidas =
+          typeof propriedade.caracteristicas === 'string'
+            ? JSON.parse(propriedade.caracteristicas)
+            : propriedade.caracteristicas;
 
-    console.log('Propriedades do usuário:', propriedadesValidas);
+        const propriedadeCorrigida = {
+          ...propriedade,
+          caracteristicas: caracteristicasCorrigidas,
+        };
+
+        console.log('Propriedade recebida Map:', propriedadeCorrigida);
+
+        return propertyResponseSchema.parse(propriedadeCorrigida);
+      } catch (error) {
+        console.error(`Erro ao validar propriedade #${index}`, propriedade);
+        throw error;
+      }
+    });
+
+
+
     return propriedadesValidas;
   } catch (error) {
     console.error('Erro ao buscar propriedades do usuário:', error);

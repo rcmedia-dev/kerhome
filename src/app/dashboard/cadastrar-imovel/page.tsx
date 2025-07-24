@@ -1,6 +1,6 @@
 'use client';
 
-import { FieldValue, FieldValues, useFieldArray, useForm } from 'react-hook-form';
+import { FieldValues, useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 // Removido mock-api, cadastro agora só usa Supabase
 import { useRouter } from 'next/navigation';
@@ -66,7 +66,7 @@ export default function CadastrarImovelPage() {
   const { user } = useAuth();
   const router = useRouter();
   
-  const { register, handleSubmit, control, formState: { errors, isSubmitting }} = useForm<TPropriedadeFormData>({
+  const { register, handleSubmit, control, formState: { errors, isSubmitting }} = useForm({
     resolver: zodResolver(propriedadeSchema),
   });
 

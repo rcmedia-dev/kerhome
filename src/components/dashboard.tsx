@@ -2,7 +2,7 @@
 
 import { useAuth } from './auth-context';
 import { BarChart3, Eye, Heart, Home, Package, Settings, Star, Upload, User } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
 import  { MinhasPropriedades, Favoritas, Analytics} from './dashboard-tabs-content';
 import { Dialog, DialogTrigger } from './ui/dialog';
@@ -11,14 +11,19 @@ import { getUserFavorites } from '@/lib/actions/get-user-favorites';
 import { getUserInvoices } from '@/lib/actions/get-user-invoices';
 import { ConfiguracoesConta } from './account-setting';
 import { PlanoCard } from './plano-card';
+import { useRouter } from 'next/navigation';
+import { toggleFavoritoProperty } from '@/lib/actions/toggle-favorite';
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('properties');
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
-  const [propertyCount, setPropertyCount] = useState<number>(0);
-  const [favoriteCount, setFavoriteCount] = useState<number>(0);
-  const [invoiceCount, setInvoiceCount] = useState<number>(0);
+  const [propertyCount, setPropertyCount] = useState(0);
+  const [favoriteCount, setFavoriteCount] = useState(0);
+  const [invoiceCount, setInvoiceCount] = useState(0);
+
   const viewsCount = 0; // Placeholder
 
   useEffect(() => {
@@ -26,15 +31,12 @@ export default function Dashboard() {
     getUserProperties(user.id).then(props => setPropertyCount(props?.length || 0));
     getUserFavorites(user.id).then(favs => setFavoriteCount(favs?.length || 0));
     getUserInvoices(user.id).then(invs => setInvoiceCount(invs?.length || 0));
-
   }, [user?.id]);
 
-  if (!user) return null; // Evita erro se não estiver autenticado
+  if (!user) return null;
 
   const displayName =
-    user.primeiro_nome?.trim() ||
-    user.email?.split('@')[0] ||
-    'Usuário';
+    user.primeiro_nome?.trim() || user.email?.split('@')[0] || 'Usuário';
 
   const stats = [
     { label: 'Propriedades', value: propertyCount, icon: Home },
@@ -49,6 +51,13 @@ export default function Dashboard() {
     { id: 'invoices', label: 'Faturas', icon: BarChart3, badge: invoiceCount },
     { id: 'settings', label: 'Configurações da Conta', icon: Settings },
   ];
+
+  const handleRemoveFavorito = async (propertyId: string) => {
+    startTransition(async () => {
+      await toggleFavoritoProperty(user.id, propertyId);
+      router.refresh(); // Faz refresh da página/dashboard
+    });
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -67,7 +76,7 @@ export default function Dashboard() {
               <DialogTrigger asChild>
                 <button
                   className="flex justify-center items-center px-3 sm:px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition text-sm md:text-base w-full md:w-auto mt-4 md:mt-0"
-                  onClick={() => window.location.href = '/dashboard/cadastrar-imovel'}
+                  onClick={() => router.push('/dashboard/cadastrar-imovel')}
                   type="button"
                 >
                   <Upload className="w-4 h-4 mr-2" />
@@ -79,15 +88,13 @@ export default function Dashboard() {
         </Card>
 
         <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6">
-          {/* COLUNA LATERAL */}
           <div className="lg:col-span-4 flex flex-col gap-6 order-1">
             <Card className="shadow-md">
               <CardHeader className="text-center pb-2">
                 <div className="relative inline-block">
-                  {/* Avatar (imagem ou iniciais) */}
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full bg-purple-700 flex items-center justify-center text-white text-2xl sm:text-3xl font-bold ring-4 ring-purple-500/50">
-                      {user.primeiro_nome?.[0]?.toUpperCase() ?? user.email?.[0]?.toUpperCase()}
-                    </div>
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full bg-purple-700 flex items-center justify-center text-white text-2xl sm:text-3xl font-bold ring-4 ring-purple-500/50">
+                    {user.primeiro_nome?.[0]?.toUpperCase() ?? user.email?.[0]?.toUpperCase()}
+                  </div>
                   <div className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full border-2 border-white" />
                 </div>
                 <CardTitle className="text-lg sm:text-xl text-gray-800 mt-4">{displayName}</CardTitle>
@@ -108,7 +115,6 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            {/* Menu lateral */}
             <Card className="shadow-md">
               <CardHeader>
                 <CardTitle className="text-gray-800 flex items-center text-base sm:text-lg">
@@ -139,7 +145,6 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            {/* Conteúdo das tabs no mobile */}
             <div className="block lg:hidden">
               {activeTab === 'properties' && <MinhasPropriedades />}
               {activeTab === 'favorites' && <Favoritas />}
@@ -147,10 +152,8 @@ export default function Dashboard() {
               {activeTab === 'settings' && <ConfiguracoesConta />}
             </div>
 
-            {/* Plano atual */}
             <PlanoCard userId={user.id} />
 
-            {/* Card motivacional */}
             <Card className="shadow border border-orange-100 mt-4 bg-orange-50/60">
               <CardHeader>
                 <CardTitle className="text-orange-600 text-base sm:text-lg font-bold flex items-center gap-2">
@@ -171,7 +174,6 @@ export default function Dashboard() {
             </Card>
           </div>
 
-          {/* CONTEÚDO PRINCIPAL - DESKTOP */}
           <div className="hidden lg:block lg:col-span-8 order-2 mt-6 lg:mt-0">
             {activeTab === 'properties' && <MinhasPropriedades />}
             {activeTab === 'favorites' && <Favoritas />}

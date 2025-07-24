@@ -1,12 +1,17 @@
 
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useTransition } from 'react';
 import { useAuth } from './auth-context';
 import { CheckCircle2 } from 'lucide-react';
 import { PropertyCard } from './property-card';
-import { getProperties, getUserProperties } from '@/lib/actions/get-properties';
+import { getUserProperties } from '@/lib/actions/get-properties';
 import { TPropertyResponseSchema } from '@/lib/types/property';
+import { getImoveisFavoritos } from '@/lib/actions/get-favorited-imoveis';
+import { TFavoritedPropertyResponseSchema } from '@/lib/types/user';
+import { PropertyFavoritedCard } from './property-favorite-card';
+import { toggleFavoritoProperty } from '@/lib/actions/toggle-favorite';
+import { useRouter } from 'next/navigation';
 
 
 
@@ -58,18 +63,65 @@ export function MinhasPropriedades() {
   );
 }
 
-
-
 export function Favoritas() {
+  const [imoveis, setImoveis] = useState<TFavoritedPropertyResponseSchema[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isPending, startTransition] = useTransition();
+  const { user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    async function fetchFavoritos() {
+      if (!user?.id) return;
+
+      setLoading(true);
+      const data = await getImoveisFavoritos(user.id);
+      setImoveis(data ?? []);
+      setLoading(false);
+    }
+
+    fetchFavoritos();
+  }, [user?.id]);
+
+  function handleRemoveFavorito(propertyId: string) {
+    if (!user?.id) return;
+
+    startTransition(() => {
+      toggleFavoritoProperty(user.id, propertyId).then((res) => {
+        if (res.success && res.favoritado === false) {
+          setImoveis((prev) => prev.filter((p) => p.id !== propertyId));
+          router.refresh(); // Revalida a rota do dashboard
+        }
+      });
+    });
+  }
 
   return (
     <div className="bg-white rounded-xl shadow p-6 mb-6">
       <h2 className="text-xl font-bold mb-4 text-gray-800">Imóveis Guardados</h2>
-      <div className="text-center text-gray-500">Nenhum imóvel favorito.</div>
+
+      {loading ? (
+        <div className="text-center text-gray-500">A carregar favoritos...</div>
+      ) : imoveis.length === 0 ? (
+        <div className="text-center text-gray-500">Nenhum imóvel favorito.</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {imoveis.map((property) => (
+            <PropertyFavoritedCard
+              key={property.propertyid}
+              property={{
+                ...property,
+                price: property.price !== null ? String(property.price) : null, // ← conversão aqui
+              }}
+              user={user}
+              onRemove={() => handleRemoveFavorito(property.id)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
-
 
 type Fatura = {
   id: string;

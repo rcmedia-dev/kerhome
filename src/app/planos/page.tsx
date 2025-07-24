@@ -5,18 +5,22 @@ import { Card } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth-context";
 import { updateUserPlan } from "@/lib/actions/update-user-plan";
+import { Plano } from "@/lib/types/agent";
 
-// Mapeia nomes visuais para o enum real
+
+
+// Mapeia nomes visuais
 const planoVisualMap: Record<Plano, string> = {
-  [Plano.Básico]: "Básico",
+  [Plano.Free]: "Gratuito",
+  [Plano.Basico]: "Básico",
   [Plano.Professional]: "Professional",
   [Plano.Super]: "Super Corretor",
 };
 
-// Lista de planos disponíveis
+// Lista de planos disponíveis (Free excluído da UI)
 const plans = [
   {
-    name: Plano.Básico,
+    name: Plano.Basico,
     visual: "Básico",
     badge: "BÁSICO",
     iconBg: "bg-gray-400",
@@ -67,7 +71,7 @@ const plans = [
 export default function PlanosPage() {
   const { user, setUser } = useAuth();
 
-  const [userPlan, setUserPlan] = useState<Plano>(Plano.Básico);
+  const [userPlan, setUserPlan] = useState<Plano>(Plano.Free);
   const [previousPlan, setPreviousPlan] = useState<Plano | null>(null);
   const [success, setSuccess] = useState("");
 
@@ -93,13 +97,8 @@ export default function PlanosPage() {
       setUser({
         ...user,
         pacote_agente: {
-          id: user.pacote_agente.id,
+          ...user.pacote_agente,
           nome: plan,
-          limite: user.pacote_agente.limite,
-          restante: user.pacote_agente.restante,
-          destaques: user.pacote_agente.destaques,
-          destaquesPermitidos: user.pacote_agente.destaquesPermitidos,
-          criadoEm: user.pacote_agente.criadoEm,
           atualizadoEm: new Date().toISOString(),
         },
       });
@@ -120,7 +119,7 @@ export default function PlanosPage() {
         Compare os benefícios e escolha o plano ideal para você.
       </p>
 
-      <div className="flex flex-col md:flex-row gap-10 w-full max-w-4xl justify-center">
+      <div className="flex flex-col md:flex-row gap-10 w-full max-w-5xl justify-center flex-wrap">
         {plans.map((plan) => {
           const isCurrent = userPlan === plan.name;
           const isPrevious = previousPlan === plan.name;

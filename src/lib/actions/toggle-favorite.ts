@@ -2,6 +2,7 @@
 'use server';
 
 import prisma from '../prisma';
+import { TPropertyResponseSchema } from '../types/property';
 
 export async function toggleFavoritoProperty(userId: string, propertyId: string) {
   if (!userId || !propertyId) {
@@ -16,7 +17,7 @@ export async function toggleFavoritoProperty(userId: string, propertyId: string)
 
     if (!user) return { success: false, error: 'Usuário não encontrado' };
 
-    const alreadyFavorited = user.imoveisGuardados.some(p => p.id === propertyId);
+    const alreadyFavorited = user.imoveisGuardados.some((p: TPropertyResponseSchema) => p.id === propertyId);
 
     if (alreadyFavorited) {
       await prisma.user.update({

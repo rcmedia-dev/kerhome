@@ -5,8 +5,8 @@ import { useSearchParams } from 'next/navigation';
 import Lottie from 'lottie-react';
 import animationData from '@/../public/animation/not_found_animation.json';
 import { searchProperties } from '@/lib/actions/search-properties';
-import { PropertyResponse } from '@/lib/types/property';
-import { PropertyCard } from "@/components/property-showcase";
+import { TPropertyResponseSchema } from '@/lib/types/property';
+import { PropertyCard } from '@/components/property-card';
 
 export function PropriedadesPage() {
   const searchParams = useSearchParams();
@@ -24,7 +24,7 @@ export function PropriedadesPage() {
   const preco = searchParams.get('preco') ? Number(searchParams.get('preco')) : undefined;
   const tamanho = searchParams.get('tamanho') ? Number(searchParams.get('tamanho')) : undefined;
 
-  const [properties, setProperties] = useState<PropertyResponse[]>([]);
+  const [properties, setProperties] = useState<TPropertyResponseSchema[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

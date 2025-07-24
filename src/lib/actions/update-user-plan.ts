@@ -1,9 +1,10 @@
 'use server';
 
-import { PlanoAgente } from "../types/agent";
+
+import { Plano, PlanoAgente } from "../types/agent";
 
 
-export async function updateUserPlan(userId: string, plan: PlanoAgente): Promise<{ success: boolean; error?: string }> {
+export async function updateUserPlan(userId: string, plan: Plano): Promise<{ success: boolean; error?: string }> {
   console.log(`Simulando atualização de plano para o usuário ${userId} para o plano ${plan}`);
 
   // Simula atraso de rede

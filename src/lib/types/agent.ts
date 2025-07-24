@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PropertyResponse, propertySchema } from './property';
+import { propertyResponseSchema } from './property';
 
 export const planoAgenteSchema = z.object({
   id: z.string(),
@@ -57,13 +57,21 @@ export const agentSchema = z.object({
 
   pacote_agente: planoAgenteSchema.optional(),
 
-  properties: z.array(propertySchema).optional(),
-  imoveisGuardados: z.array(propertySchema).optional(),
+  properties: z.array(propertyResponseSchema).optional(),
+  imoveisGuardados: z.array(propertyResponseSchema).optional(),
   faturas: z.array(faturaSchema).optional(),
 
   mensagensEnviadas: z.array(mensagemEnviadaSchema).optional(),
   mensagensRecebidas: z.array(mensagemRecebidaSchema).optional(),
 });
+
+// Enum de planos, incluindo o gratuito
+export enum Plano {
+  Free = "FREE",
+  Basico = "BÁSICO",
+  Professional = "PROFESSIONAL",
+  Super = "SUPER",
+}
 
 export type Agent = z.infer<typeof agentSchema>;
 export type Fatura = z.infer<typeof faturaSchema>;

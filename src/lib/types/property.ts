@@ -15,11 +15,8 @@ export const propriedadeSchema = z.object({
   estatus_da_propriedade: z.string().min(1, "Estado é obrigatório"),
   rotulo_da_propriedade: z.string().min(1, "Rótulo é obrigatório"),
 
-  preco_da_propriedade: z.union([z.string(), z.number()])
-    .transform((val) => Number(val))
-    .refine((val) => !isNaN(val) && val > 0, "Preço da propriedade é obrigatório e deve ser um número válido"),
-
-  unidade_preco_da_propriedade: z.string().optional(),
+  preco_da_propriedade: z.coerce.number(),
+  unidade_preco_da_propriedade: z.coerce.number(),
   preco_chamada_da_propriedade: z.string().optional(),
 
   caracteristicas: z.array(z.string()).optional(),
@@ -31,7 +28,7 @@ export const propriedadeSchema = z.object({
   garagens_da_propriedade: z.string().optional(),
   tamanho_garagen_da_propriedade: z.string().optional(),
 
-  ano_construcao_da_propriedade: z.string().min(1, "Ano de construção é obrigatório"),
+  ano_construcao_da_propriedade: z.coerce.number().min(1, "Ano de construção é obrigatório"),
 
   id_da_propriedade: z.string().min(1, "ID da propriedade é obrigatório"),
 
@@ -88,7 +85,7 @@ export const propertyResponseSchema = z.object({
   status: z.string(),
   rotulo: z.string().nullable(),
 
-  price: z.number().nullable(),
+  price: z.coerce.number().nullable(),
   unidade_preco: z.string().nullable(),
   preco_chamada: z.string().nullable(),
 
@@ -103,15 +100,14 @@ export const propertyResponseSchema = z.object({
   }),
 
   size: z.string().nullable(),
-  area_terreno: z.number().nullable(),
+  area_terreno: z.coerce.number().nullable(),
   bedrooms: z.number().nullable(),
   bathrooms: z.number().nullable(),
   garagens: z.number().nullable(),
   garagemtamanho: z.string().nullable(),
 
   anoconstrucao: z.number(),
-  propertyid: z.union([z.string(), z.number()])
-  .transform((val) => val.toString()),
+  propertyid: z.string(),
 
 
   detalhesadicionais: z.array(z.object({
@@ -132,7 +128,6 @@ export const propertyResponseSchema = z.object({
   image: z.string().nullable(),
 
   createdAt: z.string().or(z.date()),
-  updatedAt: z.string().or(z.date()),
 
   owner: ownerSchema,
 });
