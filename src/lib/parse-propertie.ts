@@ -1,6 +1,7 @@
-import { PrismaProperty, PropertyResponse } from './types/property';
+import { TPropertyResponseSchema } from "./types/property";
 
-export function parsePrismaProperties(data: PrismaProperty[]): PropertyResponse[] {
+
+export function parsePrismaProperties(data: TPropertyResponseSchema[]): TPropertyResponseSchema[] {
   return data.map((item) => {
     const rawCaracteristicas = item.caracteristicas;
     const rawDetalhes = item.detalhesadicionais;

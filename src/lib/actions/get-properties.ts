@@ -112,7 +112,7 @@ export async function getUserProperties(userId?: string): Promise<TPropertyRespo
       },
     });
 
-    const propriedadesValidas = propriedade.map((propriedade: TPropertyResponseSchema, index: number) => {
+    const propriedadesValidas = propriedade.map((propriedade, index: number) => {
       try {
         const caracteristicasCorrigidas =
           typeof propriedade.caracteristicas === 'string'
@@ -124,16 +124,12 @@ export async function getUserProperties(userId?: string): Promise<TPropertyRespo
           caracteristicas: caracteristicasCorrigidas,
         };
 
-        console.log('Propriedade recebida Map:', propriedadeCorrigida);
-
         return propertyResponseSchema.parse(propriedadeCorrigida);
       } catch (error) {
         console.error(`Erro ao validar propriedade #${index}`, propriedade);
         throw error;
       }
     });
-
-
 
     return propriedadesValidas;
   } catch (error) {

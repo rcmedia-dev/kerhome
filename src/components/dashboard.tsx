@@ -13,6 +13,7 @@ import { ConfiguracoesConta } from './account-setting';
 import { PlanoCard } from './plano-card';
 import { useRouter } from 'next/navigation';
 import { toggleFavoritoProperty } from '@/lib/actions/toggle-favorite';
+import { getImoveisFavoritos } from '@/lib/actions/get-favorited-imoveis';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -29,8 +30,9 @@ export default function Dashboard() {
   useEffect(() => {
     if (!user?.id) return;
     getUserProperties(user.id).then(props => setPropertyCount(props?.length || 0));
-    getUserFavorites(user.id).then(favs => setFavoriteCount(favs?.length || 0));
+    getImoveisFavoritos(user.id).then(favs => setFavoriteCount(favs?.length || 0));
     getUserInvoices(user.id).then(invs => setInvoiceCount(invs?.length || 0));
+    console.log('favorites', favoriteCount);
   }, [user?.id]);
 
   if (!user) return null;

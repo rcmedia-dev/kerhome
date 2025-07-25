@@ -107,7 +107,7 @@ export const propertyResponseSchema = z.object({
   garagemtamanho: z.string().nullable(),
 
   anoconstrucao: z.number(),
-  propertyid: z.string(),
+  propertyid: z.string().nullable(),
 
 
   detalhesadicionais: z.array(z.object({

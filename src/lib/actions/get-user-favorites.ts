@@ -1,10 +1,10 @@
 'use server';
 
 import prisma from "../prisma";
-import { PrismaProperty } from "../types/property";
+import { favoritedPropertyResponseSchema, TFavoritedPropertyResponseSchema } from "../types/user";
 
 
-export async function getUserFavorites(userId: string): Promise<PrismaProperty[]> {
+export async function getUserFavorites(userId: string): Promise<TFavoritedPropertyResponseSchema[]> {
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -13,7 +13,15 @@ export async function getUserFavorites(userId: string): Promise<PrismaProperty[]
       },
     });
 
-    return user?.imoveisGuardados ?? [];
+    console.log('getUserFavorites user', user);
+
+     const imoveisGuardadosValidados = user?.imoveisGuardados.map((imovel) =>
+          favoritedPropertyResponseSchema.parse(imovel)
+        );
+
+
+      console.log('getUserFavorites', imoveisGuardadosValidados);
+      return imoveisGuardadosValidados ?? [];
   } catch (error) {
     console.error('Erro ao buscar imóveis favoritos do usuário:', error);
     return [];

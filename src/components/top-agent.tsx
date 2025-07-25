@@ -1,8 +1,4 @@
-'use client'
-
-import { getAllAgents } from '@/lib/actions/get-agent';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
 
 type Agent = {
   id: string;
@@ -11,20 +7,39 @@ type Agent = {
   telefone: string;
   pacote_agente: string;
   propriedades: any[];
-  avatar?: string; // opcional
+  avatar?: string;
 };
 
 export default function TopAgentsSection() {
-  const [agents, setAgents] = useState<Agent[]>([]);
-
-  useEffect(() => {
-    async function fetchAgents() {
-      const data = await getAllAgents();
-      setAgents(data);
-    }
-
-    fetchAgents();
-  }, []);
+  const agents: Agent[] = [
+    {
+      id: '1',
+      nome: 'Ana Silva',
+      email: 'ana@email.com',
+      telefone: '923456789',
+      pacote_agente: 'Premium',
+      propriedades: [{}, {}, {}],
+      avatar: '/house.jpg',
+    },
+    {
+      id: '2',
+      nome: 'Carlos Santos',
+      email: 'carlos@email.com',
+      telefone: '924567890',
+      pacote_agente: 'Standard',
+      propriedades: [{}],
+      avatar: '/carlos.jpg',
+    },
+    {
+      id: '3',
+      nome: 'Joana Mendes',
+      email: 'joana@email.com',
+      telefone: '922123456',
+      pacote_agente: 'Gold',
+      propriedades: [{}, {}],
+      avatar: '/joana.jpg',
+    },
+  ];
 
   return (
     <section className="py-16 bg-white">
@@ -33,7 +48,7 @@ export default function TopAgentsSection() {
         <p className="text-gray-500 mb-10">Conheça os profissionais que mais se destacam em vendas.</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {agents.map((agent, index) => (
+          {agents.map((agent) => (
             <div
               key={agent.id}
               className="flex flex-col h-full bg-gray-50 rounded-2xl p-6 shadow-md hover:shadow-lg transition"

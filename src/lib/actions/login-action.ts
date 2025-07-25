@@ -2,7 +2,7 @@
 
 import bcrypt from 'bcrypt'
 import prisma from '../prisma'
-import { Plano, PlanoAgente } from '../types/plan'
+import { Plano, PlanoAgente } from '../types/agent'
 
 interface LoginResult {
   success: boolean

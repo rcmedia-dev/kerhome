@@ -21,6 +21,8 @@ export async function getImoveisFavoritos(userId?: string): Promise<TFavoritedPr
       favoritedPropertyResponseSchema.parse(imovel)
     );
 
+    console.log('getImoveisFavoritos', imoveisGuardadosValidados);
+
     return imoveisGuardadosValidados ?? [];
 
     return imoveisGuardadosValidados ?? [];
