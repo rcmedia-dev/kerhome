@@ -8,7 +8,7 @@ import { TPropertyResponseSchema } from '@/lib/types/property';
 
 export default async function HomePage() {
   // Em vez de fetch da API, usar mock direto:
-  const properties: TPropertyResponseSchema[] = await getLimitedProperties(4);
+  const properties: TPropertyResponseSchema[] = await getLimitedProperties(3);
 
   if (!properties) {
     return (
