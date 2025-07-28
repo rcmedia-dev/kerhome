@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic"; // 🔁 sempre atualizar
+
+
 // app/comprar/page.tsx
 import { PropertyCard } from '@/components/property-card';
 import { getProperties } from '@/lib/actions/get-properties'; // importar action

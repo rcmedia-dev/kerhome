@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"; // 🔁 sempre atualizar
+
 // app/alugar/page.tsx
 import { PropertyCard } from "@/components/property-card";
 import { getProperties } from "@/lib/actions/get-properties"; // importar a action
