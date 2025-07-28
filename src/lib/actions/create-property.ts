@@ -51,6 +51,7 @@ export async function createProperty(formData: FormData, ownerId: string | null)
         provincia: data.provincia_da_propriedade,
         cidade: data.cidade_da_propriedade,
         bairro: data.bairro_da_propriedade,
+        propertyid: data.id_da_propriedade,
         detalhesadicionais: detalhes,
         gallery: [data.imagens_da_propriedade], // Placeholder, handle file uploads separately
       },

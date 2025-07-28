@@ -16,7 +16,7 @@ export const propriedadeSchema = z.object({
   rotulo_da_propriedade: z.string().min(1, "Rótulo é obrigatório"),
 
   preco_da_propriedade: z.coerce.number(),
-  unidade_preco_da_propriedade: z.coerce.number(),
+  unidade_preco_da_propriedade: z.string(),
   preco_chamada_da_propriedade: z.string().optional(),
 
   caracteristicas: z.array(z.string()).optional(),
