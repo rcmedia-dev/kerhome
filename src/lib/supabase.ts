@@ -1,13 +1,17 @@
-// lib/supabase-browser.ts
-'use client';
+import { createClient } from '@supabase/supabase-js'
 
-import { createBrowserClient } from '@supabase/ssr';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-export const supabase = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+export const supabase = createClient(supabaseUrl, supabaseKey)
 
-export function getSupabaseClient() {
-  return supabase;
+// Helper para obter o cliente Supabase com RLS habilitado
+export const getSupabase = (accessToken: string) => {
+  return createClient(supabaseUrl, supabaseKey, {
+    global: {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  })
 }

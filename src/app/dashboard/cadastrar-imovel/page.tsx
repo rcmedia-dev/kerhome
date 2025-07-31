@@ -1,18 +1,15 @@
+
 'use client';
 
-import { FieldValues, useFieldArray, useForm } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-// Removido mock-api, cadastro agora só usa Supabase
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/components/auth-context';
+import { useFormStatus } from 'react-dom';
 import { Loader2, Plus, Trash } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { propriedadeSchema, TPropriedadeFormData } from '@/lib/types/property';
-import { createProperty } from '@/lib/actions/create-property';
-import { uploadToSupabase } from '@/lib/actions/upload-image';
-
-
-
+import { propriedadeSchema } from '@/lib/types/property';
+import { createProperty } from '@/lib/actions/supabase-actions/create-propertie-action';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 const caracteristicasList = [
   'Ar Condicionado',
@@ -62,12 +59,23 @@ const cidadesAngola = [
   'Alto Zambeze','Ambriz','Andulo','Baía Farta','Bailundo','Banga','Belas','Benguela','Buco-Zau','Cacolo','Cacuaco','Cacongo','Cahama','Calai','Calandula','Cambambe','Cambulo','Camacupa','Capenda-Camulemba','Caála','Cazenga','Cazombo','Cela (Waku Kungo)','Cuanhama','Cubal','Cuimba','Dala','Dande','Dundo','Ebo','Ekunha','Gabela','Ganda','Golungo Alto','Huambo','Humpata','Icolo e Bengo','Kamucuio','Kuito','Kilamba Kiaxi','Léua','Lobito','Longonjo','Lucala','Lucapa','Luanda','Luena','Lubango','Luchazes','Maquela do Zombo','Malanje','Marimba','Matala','Mavinga','Mbanza Kongo','Menongue','Moçâmedes','Muconda','Namacunde','Nambuangongo','Ndalatando','Negage','Nóqui','Ondjiva','Pango Aluquém','Porto Amboim','Quela','Quipungo','Rivungo','Sanza Pombo','Saurimo','Soyo','Sumbe','Talatona','Tomboco','Tombwa','Uíge','Viana','Virei'
 ];
 
+
 export default function CadastrarImovelPage() {
-  const { user } = useAuth();
   const router = useRouter();
   
-  const { register, handleSubmit, control, formState: { errors, isSubmitting }} = useForm({
+  const { 
+    register, 
+    control, 
+    handleSubmit, 
+    formState: { errors, isSubmitting }, 
+    setError,
+    reset
+  } = useForm({
     resolver: zodResolver(propriedadeSchema),
+    defaultValues: {
+      caracteristicas: [],
+      detalhes: [{ titulo: '', valor: '' }]
+    }
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -75,83 +83,61 @@ export default function CadastrarImovelPage() {
     name: "detalhes"
   });
 
-  const onSubmit = async (data: FieldValues) => {
-
-    if (!user) {
-      alert('Você precisa estar autenticado para cadastrar uma propriedade.');
-      return;
-    }
-
+  const onSubmit = async (data: any) => {
     const formData = new FormData();
-
-    formData.append('titulo_da_propriedade', data.titulo_da_propriedade);
-    formData.append('descricao_da_propriedade', data.descricao_da_propriedade);
-    formData.append('endereco_da_propriedade', data.endereco_da_propriedade);
-    formData.append('pais_da_propriedade', data.pais_da_propriedade);
-    formData.append('provincia_da_propriedade', data.provincia_da_propriedade);
-    formData.append('cidade_da_propriedade', data.cidade_da_propriedade);
-    formData.append('bairro_da_propriedade', data.bairro_da_propriedade || '');
-    formData.append('tipo_da_propriedade', data.tipo_da_propriedade);
-    formData.append('estatus_da_propriedade', data.estatus_da_propriedade);
-    formData.append('rotulo_da_propriedade', data.rotulo_da_propriedade);
-    formData.append('preco_da_propriedade', String(data.preco_da_propriedade));
-    formData.append('unidade_preco_da_propriedade', data.unidade_preco_da_propriedade || '');
-    formData.append('preco_chamada_da_propriedade', data.preco_chamada_da_propriedade || '');
-    formData.append('tamanho_da_propriedade', data.tamanho_da_propriedade || '');
-    formData.append('area_terreno_da_propriedade', data.area_terreno_da_propriedade || '');
-    formData.append('quartos_da_propriedade', data.quartos_da_propriedade || '');
-    formData.append('casas_banho_da_propriedade', data.casas_banho_da_propriedade || '');
-    formData.append('garagens_da_propriedade', data.garagens_da_propriedade || '');
-    formData.append('tamanho_garagen_da_propriedade', data.tamanho_garagen_da_propriedade || '');
-    formData.append('ano_construcao_da_propriedade', data.ano_construcao_da_propriedade);
-    formData.append('id_da_propriedade', data.id_da_propriedade);
-    formData.append('imagem_360_da_propriedade', data.imagem_360_da_propriedade.name);
-    formData.append('nota_da_propriedade', data.nota_da_propriedade ?? '');
-
-    // Características (checkbox múltiplos)
-    data.caracteristicas?.forEach((item: string) => {
-      formData.append('caracteristicas[]', item);
+    
+    // Adicionar todos os campos ao FormData
+    Object.entries(data).forEach(([key, value]) => {
+      if (key === 'detalhes') {
+        (value as Array<{ titulo: string; valor: string }>).forEach((detail, index) => {
+          formData.append(`detalhes.${index}.titulo`, detail.titulo);
+          formData.append(`detalhes.${index}.valor`, detail.valor);
+        });
+      } else if (key === 'caracteristicas') {
+        (value as string[]).forEach((item: string) => {
+          formData.append('caracteristicas', item);
+        });
+      } else if (value !== null && value !== undefined) {
+        formData.append(key, value as any);
+      }
     });
 
-    // Detalhes dinâmicos
-    data.detalhes.forEach((detalhe: any, index: any) => {
-      formData.append(`detalhes[${index}][titulo]`, detalhe.titulo || '');
-      formData.append(`detalhes[${index}][valor]`, detalhe.valor || '');
+    // Adicionar arquivos ao FormData
+    const fileInputs = ['imagens_da_propriedade', 'documentos_da_propriedade', 'video_da_propriedade', 'imagem_360_da_propriedade'];
+    fileInputs.forEach(name => {
+      const input = document.querySelector(`input[name="${name}"]`) as HTMLInputElement;
+      if (input?.files) {
+        Array.from(input.files).forEach(file => {
+          formData.append(file.name, file);
+        });
+      }
     });
 
-    if (data.imagens_da_propriedade?.length > 0) {
-    for (const file of data.imagens_da_propriedade) {
-      const url = await uploadToSupabase(file, 'images');
-      if (url) formData.append('imagens_da_propriedade', url);
-    }
-  }
-
-  // 📦 Upload documentos
-  if (data.documentos_da_propriedade?.length > 0) {
-    for (const file of data.documentos_da_propriedade) {
-      const url = await uploadToSupabase(file, "docs");
-      if (url) formData.append('documentos_da_propriedade', url);
-    }
-  }
-
-  // 📦 Upload vídeos
-  if (data.video_da_propriedade?.length > 0) {
-    for (const file of data.video_da_propriedade) {
-      const url = await uploadToSupabase(file, "videos");
-      if (url) formData.append('video_da_propriedade', url);
-    }
-  }
-
-  const result = await createProperty(formData, user?.id || null);
-
-
-  if (!result.success) {
-      console.log('Erro ao cadastrar:', result.error);
-    } else {
-      router.push('/dashboard'); // ou onde quiser redirecionar
+    try {
+      const result = await createProperty(formData);
+      
+      if (result?.success) {
+        toast.success(result.message);
+        reset();
+        router.push('/dashboard');
+        router.refresh();
+      } else if (result?.errors) {
+        Object.entries(result.errors).forEach(([field, messages]) => {
+          setError(field as any, {
+            type: 'server',
+            message: messages?.join(', ')
+          });
+        });
+        
+        if (result.message) {
+          toast.error(result.message);
+        }
+      }
+    } catch (error) {
+      toast.error('Ocorreu um erro ao cadastrar o imóvel');
+      console.error('Submission error:', error);
     }
   };
-
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-2 py-8">
@@ -160,8 +146,9 @@ export default function CadastrarImovelPage() {
           <CardTitle className="text-2xl font-bold text-gray-800">Cadastrar Novo Imóvel</CardTitle>
         </CardHeader>
         <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              {/* Propriedades do Imóvel */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {/* Todos os campos do formulário permanecem iguais */}
+            {/* Propriedades do Imóvel */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Título da Propriedade</label>
                   <input
@@ -570,26 +557,34 @@ export default function CadastrarImovelPage() {
                       )}
                     </div>
 
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={`w-full px-4 py-2 rounded-md font-semibold mt-2 flex items-center justify-center gap-2 text-white ${
-                      isSubmitting ? 'bg-purple-400 cursor-not-allowed' : 'bg-purple-700 hover:bg-purple-800'
-                    }`}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Cadastrando...
-                      </>
-                    ) : (
-                      'Cadastrar Imóvel'
-                    )}
-                  </button>
-            </form>
-
+                  <SubmitButton isSubmitting={isSubmitting} />
+          </form>
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+// Componente de botão de submissão separado
+function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
+  const { pending } = useFormStatus();
+  
+  return (
+    <button
+      type="submit"
+      disabled={isSubmitting || pending}
+      className={`w-full px-4 py-2 rounded-md font-semibold mt-2 flex items-center justify-center gap-2 text-white ${
+        isSubmitting || pending ? 'bg-purple-400 cursor-not-allowed' : 'bg-purple-700 hover:bg-purple-800'
+      }`}
+    >
+      {(isSubmitting || pending) ? (
+        <>
+          <Loader2 className="w-4 h-4 animate-spin" />
+          Cadastrando...
+        </>
+      ) : (
+        'Cadastrar Imóvel'
+      )}
+    </button>
   );
 }
