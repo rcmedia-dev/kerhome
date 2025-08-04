@@ -5,13 +5,13 @@ import React, { useEffect, useState, useTransition } from 'react';
 import { useAuth } from './auth-context';
 import { CheckCircle2 } from 'lucide-react';
 import { PropertyCard } from './property-card';
-import { getUserProperties } from '@/lib/actions/get-properties';
-import { TPropertyResponseSchema } from '@/lib/types/property';
 import { getImoveisFavoritos } from '@/lib/actions/get-favorited-imoveis';
 import { TFavoritedPropertyResponseSchema } from '@/lib/types/user';
 import { PropertyFavoritedCard } from './property-favorite-card';
 import { toggleFavoritoProperty } from '@/lib/actions/toggle-favorite';
 import { useRouter } from 'next/navigation';
+import { TPropertyResponseSchema } from '@/lib/types/property';
+import { getSupabaseUserProperties } from '@/lib/actions/get-properties';
 
 
 
@@ -29,8 +29,7 @@ export function MinhasPropriedades() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const data = await getUserProperties(user?.id);
-        console.log('Propriedades do usuário:', data);
+        const data = await getSupabaseUserProperties(user?.id);
         setProperties(data);
       } catch (error) {
         console.error('Erro ao buscar propriedades:', error);
@@ -66,6 +65,7 @@ export function MinhasPropriedades() {
 export function Favoritas() {
   const [imoveis, setImoveis] = useState<TFavoritedPropertyResponseSchema[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isFavorited, setisFavorited] = useState(false);
   const [isPending, startTransition] = useTransition();
   const { user } = useAuth();
   const router = useRouter();
@@ -76,6 +76,7 @@ export function Favoritas() {
 
       setLoading(true);
       const data = await getImoveisFavoritos(user.id);
+      console.log('Favoritos:', data);
       setImoveis(data ?? []);
       setLoading(false);
     }
@@ -88,8 +89,9 @@ export function Favoritas() {
 
     startTransition(() => {
       toggleFavoritoProperty(user.id, propertyId).then((res) => {
-        if (res.success && res.favoritado === false) {
+        if (res.success && res.isFavorited === false) {
           setImoveis((prev) => prev.filter((p) => p.id !== propertyId));
+          setisFavorited(res.isFavorited);
           router.refresh(); // Revalida a rota do dashboard
         }
       });

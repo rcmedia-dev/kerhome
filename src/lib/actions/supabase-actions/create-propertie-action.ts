@@ -2,39 +2,40 @@
 'use server';
 
 import { supabase } from "@/lib/supabase";
-import { propriedadeSchema } from "@/lib/types/property";
 
 
 export async function createProperty(formData: FormData) {
 
+
   try {
     // Processar dados do formulário
     const data = {
-      titulo_da_propriedade: formData.get('titulo_da_propriedade'),
-      descricao_da_propriedade: formData.get('descricao_da_propriedade'),
-      endereco_da_propriedade: formData.get('endereco_da_propriedade'),
-      pais_da_propriedade: formData.get('pais_da_propriedade'),
-      provincia_da_propriedade: formData.get('provincia_da_propriedade'),
-      cidade_da_propriedade: formData.get('cidade_da_propriedade'),
-      bairro_da_propriedade: formData.get('bairro_da_propriedade'),
-      tipo_da_propriedade: formData.get('tipo_da_propriedade'),
-      estatus_da_propriedade: formData.get('estatus_da_propriedade'),
-      rotulo_da_propriedade: formData.get('rotulo_da_propriedade'),
-      preco_da_propriedade: formData.get('preco_da_propriedade'),
-      unidade_preco_da_propriedade: formData.get('unidade_preco_da_propriedade'),
-      preco_chamada_da_propriedade: formData.get('preco_chamada_da_propriedade'),
+      owner_id: formData.get('owner_id'),
+      title: formData.get('titulo_da_propriedade'),
+      description: formData.get('descricao_da_propriedade'),
+      endereco: formData.get('endereco_da_propriedade'),
+      pais: formData.get('pais_da_propriedade'),
+      provincia: formData.get('provincia_da_propriedade'),
+      cidade: String(formData.get('cidade_da_propriedade')?.toString() || ''), // Corrigido para aceitar string vazia
+      bairro: formData.get('bairro_da_propriedade'),
+      tipo: formData.get('tipo_da_propriedade'),
+      status: formData.get('estatus_da_propriedade'),
+      rotulo: formData.get('rotulo_da_propriedade'),
+      price: formData.get('preco_da_propriedade'),
+      unidade_preco: formData.get('unidade_preco_da_propriedade'),
+      preco_chamada: formData.get('preco_chamada_da_propriedade'),
       caracteristicas: formData.getAll('caracteristicas'),
-      tamanho_da_propriedade: formData.get('tamanho_da_propriedade'),
-      area_terreno_da_propriedade: formData.get('area_terreno_da_propriedade'),
-      quartos_da_propriedade: formData.get('quartos_da_propriedade'),
-      casas_banho_da_propriedade: formData.get('casas_banho_da_propriedade'),
-      garagens_da_propriedade: formData.get('garagens_da_propriedade'),
-      tamanho_garagen_da_propriedade: formData.get('tamanho_garagen_da_propriedade'),
-      ano_construcao_da_propriedade: formData.get('ano_construcao_da_propriedade'),
-      id_da_propriedade: formData.get('id_da_propriedade'),
-      nota_da_propriedade: formData.get('nota_da_propriedade'),
-      imagem_360_da_propriedade: formData.get('imagem_360_da_propriedade'),
-      detalhes: Array.from(formData.entries())
+      size: formData.get('tamanho_da_propriedade'),
+      area_terreno: formData.get('area_terreno_da_propriedade'),
+      bedrooms: formData.get('quartos_da_propriedade'),
+      bathrooms: formData.get('casas_banho_da_propriedade'),
+      garagens: formData.get('garagens_da_propriedade'),
+      garagem_tamanho: formData.get('tamanho_garagen_da_propriedade'),
+      ano_construcao: formData.get('ano_construcao_da_propriedade'),
+      propertyid: formData.get('id_da_propriedade'),
+      gallery: formData.getAll('imagens_da_propriedade'),
+      nota_privada: formData.get('nota_da_propriedade'),
+      detalhes_adicionais: Array.from(formData.entries())
         .filter(([key]) => key.startsWith('detalhes'))
         .reduce((acc: any[], [key, value]) => {
           const match = key.match(/detalhes\.(\d+)\.(titulo|valor)/);
@@ -48,48 +49,35 @@ export async function createProperty(formData: FormData) {
         }, [])
     };
 
-    // Validar os dados
-    const validatedData = propriedadeSchema.safeParse(data);
-    
-    if (!validatedData.success) {
-      return {
-        errors: validatedData.error.flatten().fieldErrors,
-        message: 'Por favor, corrija os erros no formulário.',
-      };
-    }
-
     // Processar uploads de arquivos
     const imageUrls = await processFileUploads(
       supabase, 
-      'property-images', 
+      'images/images', 
       formData.getAll('imagens_da_propriedade') as File[]
     );
 
     const documentUrls = await processFileUploads(
       supabase,
-      'property-documents',
+      'files/docs',
       formData.getAll('documentos_da_propriedade') as File[]
     );
 
     const videoUrl = await processSingleFileUpload(
       supabase,
-      'property-videos',
+      'files/images',
       formData.get('video_da_propriedade') as File | null
     );
 
     const image360Url = await processSingleFileUpload(
       supabase,
-      'property-360-images',
+      'images/images',
       formData.get('imagem_360_da_propriedade') as File | null
     );
 
     // Inserir no banco de dados
     const { data: insertedData, error } = await supabase.from('properties').insert({
-      ...validatedData.data,
-      imagens_da_propriedade: imageUrls,
-      documentos_da_propriedade: documentUrls,
-      video_da_propriedade: videoUrl,
-      imagem_360_da_propriedade: image360Url,
+      ...data,
+      gallery: imageUrls,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }).select();

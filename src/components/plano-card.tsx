@@ -3,37 +3,51 @@
 import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Package, Home, Eye, Star } from 'lucide-react';
+import { getUserPlan } from '@/lib/actions/supabase-actions/get-user-package-action';
+import { useRouter } from 'next/navigation'; // Importe o useRouter
 
 interface PlanoCardProps {
   userId: string;
 }
 
 export function PlanoCard({ userId }: PlanoCardProps) {
+  const router = useRouter(); // Adicione o hook useRouter
   const [plan, setPlan] = useState<{
     nome: string;
     limite: number;
     restante: number;
-    destaques: boolean;
+    destaquesPermitidos: number;
   } | null>(null);
-
-  // Dados mockados
-  const mockPlano = {
-    nome: 'Premium Mensal',
-    limite: 10,
-    restante: 4,
-    destaques: true,
-  };
+  
+  const [loading, setLoading] = useState(true);
+  const [isRedirecting, setIsRedirecting] = useState(false); // Estado para controle do redirecionamento
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
 
-    // Simula carregamento
-    const timer = setTimeout(() => {
-      setPlan(mockPlano);
-    }, 1000);
+    const loadPlan = async () => {
+      setLoading(true);
+      try {
+        const userPlan = await getUserPlan(userId);
+        setPlan(userPlan);
+      } catch (error) {
+        console.error('Erro ao carregar plano:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
+    loadPlan();
   }, [userId]);
+
+  // Função para lidar com o redirecionamento
+  const handleManagePlan = () => {
+    setIsRedirecting(true);
+    router.push('/planos'); // Use o router do Next.js para navegação
+  };
 
   return (
     <Card className="shadow-md">
@@ -44,7 +58,9 @@ export function PlanoCard({ userId }: PlanoCardProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {plan ? (
+        {loading ? (
+          <div className="text-center text-sm text-gray-400">Carregando plano...</div>
+        ) : plan ? (
           <>
             <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
               <div className="flex items-center space-x-2">
@@ -72,18 +88,28 @@ export function PlanoCard({ userId }: PlanoCardProps) {
                 <Star className="w-4 h-4 text-purple-500" />
                 <span className="text-gray-600 text-xs sm:text-base">Destaques</span>
               </div>
-              <span className="text-gray-800 font-semibold text-xs sm:text-base">{plan.destaques ? '1' : '0'}</span>
+              <span className="text-gray-800 font-semibold text-xs sm:text-base">
+                {plan.destaquesPermitidos ? 'Ativo' : 'Inativo'}
+              </span>
             </div>
             <button
-              className="w-full mt-4 flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg animate-pulse text-sm sm:text-base"
-              onClick={() => window.location.href = '/planos'}
+              className={`w-full mt-4 flex items-center justify-center ${
+                plan.destaquesPermitidos 
+                  ? 'bg-orange-500 hover:bg-orange-600' 
+                  : 'bg-purple-500 hover:bg-purple-600'
+              } text-white py-2 rounded-lg text-sm sm:text-base transition-colors`}
+              onClick={handleManagePlan}
+              disabled={isRedirecting || loading}
             >
               <Star className="w-4 h-4 mr-2" />
-              Upgrade Plan
+              {isRedirecting ? 'Redirecionando...' : 
+               plan.destaquesPermitidos ? 'Gerenciar Plano' : 'Upgrade Plan'}
             </button>
           </>
         ) : (
-          <div className="text-center text-sm text-gray-400">Carregando plano...</div>
+          <div className="text-center text-sm text-gray-400">
+            Nenhum plano encontrado ou erro ao carregar
+          </div>
         )}
       </CardContent>
     </Card>

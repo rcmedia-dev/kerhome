@@ -1,33 +1,41 @@
 // lib/actions/get-imoveis-favoritos.ts
 'use server';
 
-import prisma from '../prisma';
-import { favoritedPropertyResponseSchema, TFavoritedPropertyResponseSchema } from '../types/user';
+import { supabase } from '../supabase';
+import { TFavoritedPropertyResponseSchema } from '../types/user';
 
-export async function getImoveisFavoritos(userId?: string): Promise<TFavoritedPropertyResponseSchema[]> {
+export async function getImoveisFavoritos(
+  userId?: string
+): Promise<TFavoritedPropertyResponseSchema[]> {
+  if (!userId) return [];
+
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        imoveisGuardados: {
-          include: {
-            owner: true,
-          },
-        },
-      },
-    });
+    // 1. Buscar todos os favoritos do usuário (não usar maybeSingle pois pode ter vários)
+    const { data: favorites, error: favoritesError } = await supabase
+      .from('favoritos')
+      .select('property_id')
+      .eq('user_id', userId);
 
-    const imoveisGuardadosValidados = user?.imoveisGuardados.map((imovel) =>
-      favoritedPropertyResponseSchema.parse(imovel)
-    );
+    if (favoritesError) throw favoritesError;
+    if (!favorites || favorites.length === 0) return [];
 
-    console.log('getImoveisFavoritos', imoveisGuardadosValidados);
+    // 2. Extrair apenas os IDs dos imóveis favoritos
+    const propertyIds = favorites.map(fav => fav.property_id);
 
-    return imoveisGuardadosValidados ?? [];
+    // 3. Buscar os detalhes completos dos imóveis favoritados
+    const { data: properties, error: propertiesError } = await supabase
+      .from('properties') // Verifique se o nome da tabela está correto (no seu código tinha um espaço)
+      .select('*')
+      .in('id', propertyIds);
 
-    return imoveisGuardadosValidados ?? [];
+    if (propertiesError) throw propertiesError;
+    if (!properties) return [];
+
+    // 4. Validar os dados com o schema
+
+    return properties;
   } catch (error) {
-    console.error("Erro ao buscar imóveis guardados:", error);
+    console.error("Erro ao buscar imóveis favoritos:", error);
     return [];
   }
 }

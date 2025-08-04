@@ -1,80 +1,57 @@
-
 'use client';
 
 import { useFieldArray, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useFormStatus } from 'react-dom';
 import { Loader2, Plus, Trash } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { propriedadeSchema } from '@/lib/types/property';
 import { createProperty } from '@/lib/actions/supabase-actions/create-propertie-action';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/components/auth-context';
+import { TPropriedadeFormData } from '@/lib/types/property';
 
+// Listas de opções
 const caracteristicasList = [
-  'Ar Condicionado',
-  'Aquecimento Central',
-  'Fogão Elétrico',
-  'Alarme de Incêndio',
-  'Academia',
-  'Home Theater',
-  'Lavanderia',
-  'Lavanderia Separada',
-  'Pisos de Mármore',
-  'Micro-ondas',
-  'Geladeira',
-  'Sauna',
-  'Piscina',
-  'TV a Cabo',
-  'Máquina de Lavar',
-  'WiFi'
+  'Ar Condicionado', 'Aquecimento Central', 'Fogão Elétrico', 'Alarme de Incêndio',
+  'Academia', 'Home Theater', 'Lavanderia', 'Lavanderia Separada', 'Pisos de Mármore',
+  'Micro-ondas', 'Geladeira', 'Sauna', 'Piscina', 'TV a Cabo', 'Máquina de Lavar', 'WiFi'
 ];
 
 const paises = [
-  'Afeganistão','África do Sul','Albânia','Alemanha','Andorra','Angola','Antígua e Barbuda','Arábia Saudita','Argélia','Argentina','Armênia','Austrália','Áustria','Azerbaijão','Bahamas','Bahrein','Bangladesh','Barbados','Bélgica','Belize','Benim','Bielorrússia','Bolívia','Bósnia e Herzegovina','Botsuana','Brasil','Brunei','Bulgária','Burquina Faso','Burundi','Butão','Cabo Verde','Camarões','Camboja','Canadá','Catar','Cazaquistão','Chade','Chile','China','Chipre','Colômbia','Comores','Congo (Brazzaville)','Congo (Kinshasa)','Coreia do Norte','Coreia do Sul','Costa do Marfim','Costa Rica','Croácia','Cuba','Dinamarca','Djibuti','Dominica','Egito','El Salvador','Emirados Árabes Unidos','Equador','Eritreia','Eslováquia','Eslovênia','Espanha','Essuatíni','Estados Unidos','Estônia','Etiópia','Fiji','Filipinas','Finlândia','França','Gabão','Gâmbia','Gana','Geórgia','Granada','Grécia','Guatemala','Guiana','Guiné','Guiné Equatorial','Guiné-Bissau','Haiti','Holanda (Países Baixos)','Honduras','Hungria','Iémen','Ilhas Marshall','Ilhas Salomão','Índia','Indonésia','Irã','Iraque','Irlanda','Islândia','Israel','Itália','Jamaica','Japão','Jordânia','Kiribati','Kuwait','Laos','Lesoto','Letônia','Líbano','Libéria','Líbia','Liechtenstein','Lituânia','Luxemburgo','Macedônia do Norte','Madagáscar','Malásia','Maláui','Maldivas','Mali','Malta','Marrocos','Maurícia','Mauritânia','México','Micronésia','Moçambique','Moldávia','Mônaco','Mongólia','Montenegro','Myanmar (Birmânia)','Namíbia','Nauru','Nepal','Nicarágua','Níger','Nigéria','Noruega','Nova Zelândia','Omã','Palau','Palestina','Panamá','Papua-Nova Guiné','Paquistão','Paraguai','Peru','Polônia','Portugal','Quênia','Quirguistão','Reino Unido','República Centro-Africana','República Dominicana','República Tcheca','Romênia','Ruanda','Rússia','São Cristóvão e Neves','São Marino','Santa Lúcia','São Tomé e Príncipe','São Vicente e Granadinas','Seicheles','Senegal','Sérvia','Serra Leoa','Singapura','Síria','Somália','Sri Lanka','Sudão','Sudão do Sul','Suécia','Suíça','Suriname','Tailândia','Taiwan (contestada)','Tajiquistão','Tanzânia','Timor-Leste','Togo','Tonga','Trinidad e Tobago','Tunísia','Turcomenistão','Turquia','Tuvalu','Ucrânia','Uganda','Uruguai','Uzbequistão','Vanuatu','Vaticano','Venezuela','Vietnã','Zâmbia','Zimbábue'
+  'Angola', 'Brasil', 'Portugal', 'Estados Unidos', 'Espanha', 'Outro'
 ];
 
 const provinciasAngola = [
-  'Bengo',
-  'Benguela',
-  'Bié',
-  'Cabinda',
-  'Quando Cubango',
-  'Cuanza Norte',
-  'Cuanza Sul',
-  'Cunene',
-  'Huambo',
-  'Huíla',
-  'Luanda',
-  'Lunda Norte',
-  'Lunda Sul',
-  'Malanje',
-  'Moxico',
-  'Namibe',
-  'Uíge',
-  'Zaire'
+  'Bengo', 'Benguela', 'Bié', 'Cabinda', 'Cuando Cubango', 'Cuanza Norte',
+  'Cuanza Sul', 'Cunene', 'Huambo', 'Huíla', 'Luanda', 'Lunda Norte',
+  'Lunda Sul', 'Malanje', 'Moxico', 'Namibe', 'Uíge', 'Zaire'
 ];
 
 const cidadesAngola = [
-  'Alto Zambeze','Ambriz','Andulo','Baía Farta','Bailundo','Banga','Belas','Benguela','Buco-Zau','Cacolo','Cacuaco','Cacongo','Cahama','Calai','Calandula','Cambambe','Cambulo','Camacupa','Capenda-Camulemba','Caála','Cazenga','Cazombo','Cela (Waku Kungo)','Cuanhama','Cubal','Cuimba','Dala','Dande','Dundo','Ebo','Ekunha','Gabela','Ganda','Golungo Alto','Huambo','Humpata','Icolo e Bengo','Kamucuio','Kuito','Kilamba Kiaxi','Léua','Lobito','Longonjo','Lucala','Lucapa','Luanda','Luena','Lubango','Luchazes','Maquela do Zombo','Malanje','Marimba','Matala','Mavinga','Mbanza Kongo','Menongue','Moçâmedes','Muconda','Namacunde','Nambuangongo','Ndalatando','Negage','Nóqui','Ondjiva','Pango Aluquém','Porto Amboim','Quela','Quipungo','Rivungo','Sanza Pombo','Saurimo','Soyo','Sumbe','Talatona','Tomboco','Tombwa','Uíge','Viana','Virei'
+  'Luanda', 'Lubango', 'Benguela', 'Malanje', 'Soyo', 'Sumbe', 'Ndalatando',
+  'Uíge', 'Cabinda', 'Menongue', 'Ondjiva', 'Outra'
 ];
 
+const tiposPropriedade = [
+  'Apartamento', 'Casa', 'Terreno', 'Comercial', 'Prédio', 'Fazenda', 'Outro'
+];
 
 export default function CadastrarImovelPage() {
   const router = useRouter();
+  const { user } = useAuth();
   
   const { 
     register, 
     control, 
     handleSubmit, 
-    formState: { errors, isSubmitting }, 
-    setError,
-    reset
-  } = useForm({
-    resolver: zodResolver(propriedadeSchema),
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<TPropriedadeFormData>({
     defaultValues: {
       caracteristicas: [],
-      detalhes: [{ titulo: '', valor: '' }]
+      detalhes: [{ titulo: '', valor: '' }],
+      estatus_da_propriedade: 'para alugar',
+      rotulo_da_propriedade: ''
     }
   });
 
@@ -85,8 +62,9 @@ export default function CadastrarImovelPage() {
 
   const onSubmit = async (data: any) => {
     const formData = new FormData();
+    formData.append('owner_id', user?.id || '');
     
-    // Adicionar todos os campos ao FormData
+    // Adicionar campos ao FormData
     Object.entries(data).forEach(([key, value]) => {
       if (key === 'detalhes') {
         (value as Array<{ titulo: string; valor: string }>).forEach((detail, index) => {
@@ -102,13 +80,13 @@ export default function CadastrarImovelPage() {
       }
     });
 
-    // Adicionar arquivos ao FormData
+    // Adicionar arquivos
     const fileInputs = ['imagens_da_propriedade', 'documentos_da_propriedade', 'video_da_propriedade', 'imagem_360_da_propriedade'];
     fileInputs.forEach(name => {
       const input = document.querySelector(`input[name="${name}"]`) as HTMLInputElement;
       if (input?.files) {
         Array.from(input.files).forEach(file => {
-          formData.append(file.name, file);
+          formData.append(name, file);
         });
       }
     });
@@ -117,24 +95,15 @@ export default function CadastrarImovelPage() {
       const result = await createProperty(formData);
       
       if (result?.success) {
-        toast.success(result.message);
+        toast.success('Imóvel cadastrado com sucesso!');
         reset();
         router.push('/dashboard');
         router.refresh();
-      } else if (result?.errors) {
-        Object.entries(result.errors).forEach(([field, messages]) => {
-          setError(field as any, {
-            type: 'server',
-            message: messages?.join(', ')
-          });
-        });
-        
-        if (result.message) {
-          toast.error(result.message);
-        }
+      } else {
+        toast.error(result?.message || 'Erro ao cadastrar imóvel');
       }
     } catch (error) {
-      toast.error('Ocorreu um erro ao cadastrar o imóvel');
+      toast.error('Erro ao cadastrar imóvel');
       console.error('Submission error:', error);
     }
   };
@@ -147,417 +116,418 @@ export default function CadastrarImovelPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Todos os campos do formulário permanecem iguais */}
-            {/* Propriedades do Imóvel */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Título da Propriedade</label>
-                  <input
-                    {...register("titulo_da_propriedade")}
-                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
-                  />
-                  {errors.titulo_da_propriedade && (
-                    <p className="text-red-500 text-xs mt-1">{errors.titulo_da_propriedade.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Descrição do Imóvel</label>
-                  <textarea
-                    {...register("descricao_da_propriedade")}
-                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
-                    rows={2}
-                  />
-                  {errors.descricao_da_propriedade && (
-                    <p className="text-red-500 text-xs mt-1">{errors.descricao_da_propriedade.message}</p>
-                  )}
-                </div>
-
-                {/* Localização */}
-                <div className="pt-2 border-t">
-                  <div className="font-semibold text-gray-700 mb-2">📍 Localização</div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <input
-                        {...register("endereco_da_propriedade")}
-                        placeholder="Endereço"
-                        className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
-                      />
-                      {errors.endereco_da_propriedade && (
-                        <p className="text-red-500 text-xs mt-1">{errors.endereco_da_propriedade.message}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">País</label>
-                      <select
-                        {...register("pais_da_propriedade")}
-                        className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
-                      >
-                        <option value="">Selecione o país</option>
-                        {paises.map((pais) => (
-                          <option key={pais} value={pais}>{pais}</option>
-                        ))}
-                      </select>
-                      {errors.pais_da_propriedade && (
-                        <p className="text-red-500 text-xs mt-1">{errors.pais_da_propriedade.message}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Província / Estado</label>
-                      <select
-                        {...register("provincia_da_propriedade")}
-                        className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
-                      >
-                        <option value="">Selecione a província</option>
-                        {provinciasAngola.map((prov) => (
-                          <option key={prov} value={prov}>{prov}</option>
-                        ))}
-                      </select>
-                      {errors.provincia_da_propriedade && (
-                        <p className="text-red-500 text-xs mt-1">{errors.provincia_da_propriedade.message}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Cidade</label>
-                      <select
-                        {...register("cidade_da_propriedade")}
-                        className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
-                      >
-                        <option value="">Selecione a cidade</option>
-                        {cidadesAngola.map((cidade) => (
-                          <option key={cidade} value={cidade}>{cidade}</option>
-                        ))}
-                      </select>
-                      {errors.cidade_da_propriedade && (
-                        <p className="text-red-500 text-xs mt-1">{errors.cidade_da_propriedade.message}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <input
-                        {...register("bairro_da_propriedade")}
-                        placeholder="Bairro"
-                        className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
-                      />
-                      {errors.bairro_da_propriedade && (
-                        <p className="text-red-500 text-xs mt-1">{errors.bairro_da_propriedade.message}</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-               {/* Tipo e Estado + Preço */}
-              <div className="pt-2 border-t">
-                <div className="font-semibold text-gray-700 mb-2">🏢 Tipo e Estado</div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <input
-                      placeholder="Tipo de Propriedade"
-                      className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
-                      {...register("tipo_da_propriedade")}
-                    />
-                    {errors.tipo_da_propriedade && (
-                      <p className="text-sm text-red-500 mt-1">{errors.tipo_da_propriedade.message}</p>
-                    )}
-                  </div>
-                  <div>
-                    <select
-                      className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
-                      {...register("estatus_da_propriedade")}
-                    >
-                      <option value="">Selecione o estado</option>
-                      <option value="para alugar">Para Alugar</option>
-                      <option value="para comprar">Para Vender</option>
-                    </select>
-                    {errors.estatus_da_propriedade && (
-                      <p className="text-sm text-red-500 mt-1">{errors.estatus_da_propriedade.message}</p>
-                    )}
-                  </div>
-                  <div>
-                    <select
-                      className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
-                      {...register("rotulo_da_propriedade")}
-                    >
-                      <option value="">Selecione o rótulo</option>
-                      <option value="Promoção">Promoção</option>
-                      <option value="À Venda">À Venda</option>
-                    </select>
-                    {errors.rotulo_da_propriedade && (
-                      <p className="text-sm text-red-500 mt-1">{errors.rotulo_da_propriedade.message}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="font-semibold text-gray-700 mb-2 mt-6">💰 Preço</div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <input
-                      type="number"
-                      placeholder="Preço (KZ)"
-                      className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
-                      {...register("preco_da_propriedade")}
-                    />
-                    {errors.preco_da_propriedade && (
-                      <p className="text-sm text-red-500 mt-1">{errors.preco_da_propriedade.message}</p>
-                    )}
-                  </div>
-                  <div>
-                    <input
-                      placeholder="Unidade de Preço"
-                      className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
-                      {...register("unidade_preco_da_propriedade")}
-                    />
-                    {errors.unidade_preco_da_propriedade && (
-                      <p className="text-sm text-red-500 mt-1">{errors.unidade_preco_da_propriedade.message}</p>
-                    )}
-                  </div>
-                  <div>
-                    <input
-                      placeholder="Preço de Chamada"
-                      className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
-                      {...register("preco_chamada_da_propriedade")}
-                    />
-                    {errors.preco_chamada_da_propriedade && (
-                      <p className="text-sm text-red-500 mt-1">{errors.preco_chamada_da_propriedade.message}</p>
-                    )}
-                  </div>
-                </div>
+            
+            {/* Seção: Informações Básicas */}
+            <div className="space-y-4">
+              <h3 className="font-semibold text-lg text-gray-800">Informações Básicas</h3>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Título da Propriedade*</label>
+                <input
+                  {...register("titulo_da_propriedade", { 
+                    required: "Título é obrigatório",
+                    minLength: { value: 5, message: "Mínimo 5 caracteres" }
+                  })}
+                  className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                />
+                {errors.titulo_da_propriedade && (
+                  <p className="text-red-500 text-xs mt-1">{errors.titulo_da_propriedade.message}</p>
+                )}
               </div>
 
-             {/* ✅ Características + Detalhes Técnicos */}
-                  <div className="pt-2 border-t">
-                    <div className="font-semibold text-gray-700 mb-2">✅ Características</div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {caracteristicasList.map((c) => (
-                        <label key={c} className="flex items-center gap-2 text-xs">
-                          <input
-                            type="checkbox"
-                            value={c}
-                            {...register("caracteristicas")}
-                            className="accent-purple-600"
-                          />
-                          {c}
-                        </label>
-                      ))}
-                    </div>
-                    {errors.caracteristicas && (
-                      <p className="text-sm text-red-500 mt-1">{errors.caracteristicas.message}</p>
-                    )}
-                  </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Descrição*</label>
+                <textarea
+                  {...register("descricao_da_propriedade", { 
+                    required: "Descrição é obrigatória",
+                    minLength: { value: 20, message: "Mínimo 20 caracteres" }
+                  })}
+                  className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  rows={4}
+                />
+                {errors.descricao_da_propriedade && (
+                  <p className="text-red-500 text-xs mt-1">{errors.descricao_da_propriedade.message}</p>
+                )}
+              </div>
+            </div>
 
-                  <div className="pt-2 border-t">
-                    <div className="font-semibold text-gray-700 mb-2">🧾 Detalhes Técnicos</div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <input
-                          placeholder="Tamanho (m²)"
-                          className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
-                          {...register("tamanho_da_propriedade")}
-                        />
-                        {errors.tamanho_da_propriedade && (
-                          <p className="text-sm text-red-500 mt-1">{errors.tamanho_da_propriedade.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <input
-                          placeholder="Área do terreno (m²)"
-                          className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
-                          {...register("area_terreno_da_propriedade")}
-                        />
-                        {errors.area_terreno_da_propriedade && (
-                          <p className="text-sm text-red-500 mt-1">{errors.area_terreno_da_propriedade.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <input
-                          placeholder="Quartos"
-                          className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
-                          {...register("quartos_da_propriedade")}
-                        />
-                        {errors.quartos_da_propriedade && (
-                          <p className="text-sm text-red-500 mt-1">{errors.quartos_da_propriedade.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <input
-                          placeholder="Casas de banho"
-                          className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
-                          {...register("casas_banho_da_propriedade")}
-                        />
-                        {errors.casas_banho_da_propriedade && (
-                          <p className="text-sm text-red-500 mt-1">{errors.casas_banho_da_propriedade.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <input
-                          placeholder="Garagens"
-                          className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
-                          {...register("garagens_da_propriedade")}
-                        />
-                        {errors.garagens_da_propriedade && (
-                          <p className="text-sm text-red-500 mt-1">{errors.garagens_da_propriedade.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <input
-                          placeholder="Garagens de Tamanho (m²)"
-                          className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
-                          {...register("tamanho_garagen_da_propriedade")}
-                        />
-                        {errors.tamanho_garagen_da_propriedade && (
-                          <p className="text-sm text-red-500 mt-1">{errors.tamanho_garagen_da_propriedade.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <input
-                          placeholder="Ano de Construção"
-                          className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
-                          {...register("ano_construcao_da_propriedade")}
-                        />
-                        {errors.ano_construcao_da_propriedade && (
-                          <p className="text-sm text-red-500 mt-1">{errors.ano_construcao_da_propriedade.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <input
-                          placeholder="ID da propriedade"
-                          className="rounded-md border border-gray-300 bg-gray-50 p-2 w-full"
-                          {...register("id_da_propriedade")}
-                        />
-                        {errors.id_da_propriedade && (
-                          <p className="text-sm text-red-500 mt-1">{errors.id_da_propriedade.message}</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                {/* Detalhes adicionais dinâmicos */}
-                <div className="mt-4">
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Detalhes adicionais</label>
-
-                  {fields.map((field, index) => (
-                    <div key={field.id} className="flex flex-col md:flex-row gap-2 mb-2 relative">
-                      <div className="w-full md:flex-1">
-                        <input
-                          className="w-full rounded-md border border-gray-300 bg-gray-50 p-2"
-                          placeholder="Título"
-                          {...register(`detalhes.${index}.titulo`)}
-                        />
-                        {errors.detalhes?.[index]?.titulo && (
-                          <p className="text-sm text-red-500 mt-1">{errors.detalhes[index].titulo?.message}</p>
-                        )}
-                      </div>
-
-                      <div className="w-full md:flex-1">
-                        <input
-                          className="w-full rounded-md border border-gray-300 bg-gray-50 p-2"
-                          placeholder="Valor"
-                          {...register(`detalhes.${index}.valor`)}
-                        />
-                        {errors.detalhes?.[index]?.valor && (
-                          <p className="text-sm text-red-500 mt-1">{errors.detalhes[index].valor?.message}</p>
-                        )}
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => remove(index)}
-                        className="text-red-600 self-start mt-1"
-                        title="Remover"
-                      >
-                        <Trash className="size-5" />
-                      </button>
-                    </div>
-                  ))}
-
-                  <button
-                    type="button"
-                    onClick={() => append({ titulo: '', valor: '' })}
-                    className="flex items-center gap-1 text-purple-700 hover:text-purple-900 text-xs font-semibold mt-1"
-                  >
-                    <Plus className="w-4 h-4" /> Adicionar detalhe
-                  </button>
+            {/* Seção: Localização */}
+            <div className="pt-4 border-t space-y-4">
+              <h3 className="font-semibold text-lg text-gray-800">Localização</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Endereço*</label>
+                  <input
+                    {...register("endereco_da_propriedade", { required: "Endereço é obrigatório" })}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  />
+                  {errors.endereco_da_propriedade && (
+                    <p className="text-red-500 text-xs mt-1">{errors.endereco_da_propriedade.message}</p>
+                  )}
                 </div>
 
-              {/* Mídia */}
-                  <div className="pt-2 border-t">
-                    <div className="font-semibold text-gray-700 mb-2">🖼️ Mídia</div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">País*</label>
+                  <select
+                    {...register("pais_da_propriedade", { required: "País é obrigatório" })}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  >
+                    <option value="">Selecione o país</option>
+                    {paises.map(pais => (
+                      <option key={pais} value={pais}>{pais}</option>
+                    ))}
+                  </select>
+                  {errors.pais_da_propriedade && (
+                    <p className="text-red-500 text-xs mt-1">{errors.pais_da_propriedade.message}</p>
+                  )}
+                </div>
 
-                      {/* Galeria de Fotos */}
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Galeria de Fotos</label>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          className="block w-full text-xs text-gray-700 file:mr-2 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
-                          {...register("imagens_da_propriedade")}
-                        />
-                        {errors.imagens_da_propriedade && (
-                          <p className="text-sm text-red-500 mt-1">{errors.imagens_da_propriedade.message as string}</p>
-                        )}
-                      </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Província*</label>
+                  <select
+                    {...register("provincia_da_propriedade", { required: "Província é obrigatória" })}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  >
+                    <option value="">Selecione a província</option>
+                    {provinciasAngola.map(provincia => (
+                      <option key={provincia} value={provincia}>{provincia}</option>
+                    ))}
+                  </select>
+                  {errors.provincia_da_propriedade && (
+                    <p className="text-red-500 text-xs mt-1">{errors.provincia_da_propriedade.message}</p>
+                  )}
+                </div>
 
-                      {/* Anexos de Arquivo */}
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Anexos de Arquivo</label>
-                        <input
-                          type="file"
-                          accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.odp"
-                          multiple
-                          className="block w-full text-xs text-gray-700 file:mr-2 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
-                          {...register("documentos_da_propriedade")}
-                        />
-                        {errors.documentos_da_propriedade && (
-                          <p className="text-sm text-red-500 mt-1">{errors.documentos_da_propriedade.message as string}</p>
-                        )}
-                      </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Cidade*</label>
+                  <select
+                    {...register("cidade_da_propriedade", { 
+                      required: "Cidade é obrigatória",
+                      validate: value => 
+                        cidadesAngola.includes(value) || "Selecione uma cidade válida"
+                    })}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  >
+                    <option value="">Selecione a cidade</option>
+                    {cidadesAngola.map(cidade => (
+                      <option key={cidade} value={cidade}>{cidade}</option>
+                    ))}
+                  </select>
+                  {errors.cidade_da_propriedade && (
+                    <p className="text-red-500 text-xs mt-1">{errors.cidade_da_propriedade.message}</p>
+                  )}
+                </div>
 
-                      {/* Upload de Vídeo */}
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Vídeo</label>
-                        <input
-                          type="file"
-                          accept="video/*"
-                          className="block w-full text-xs text-gray-700 file:mr-2 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
-                          {...register("video_da_propriedade")}
-                        />
-                        {errors.video_da_propriedade && (
-                          <p className="text-sm text-red-500 mt-1">{errors.video_da_propriedade.message as string}</p>
-                        )}
-                      </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Bairro</label>
+                  <input
+                    {...register("bairro_da_propriedade")}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  />
+                </div>
+              </div>
+            </div>
 
-                    </div>
-                  </div>
+            {/* Seção: Tipo e Status */}
+            <div className="pt-4 border-t space-y-4">
+              <h3 className="font-semibold text-lg text-gray-800">Tipo e Status</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Tipo*</label>
+                  <select
+                    {...register("tipo_da_propriedade", { required: "Tipo é obrigatório" })}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  >
+                    <option value="">Selecione o tipo</option>
+                    {tiposPropriedade.map(tipo => (
+                      <option key={tipo} value={tipo}>{tipo}</option>
+                    ))}
+                  </select>
+                  {errors.tipo_da_propriedade && (
+                    <p className="text-red-500 text-xs mt-1">{errors.tipo_da_propriedade.message}</p>
+                  )}
+                </div>
 
-                  {/* Imagem 360 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Status*</label>
+                  <select
+                    {...register("estatus_da_propriedade", { required: "Status é obrigatório" })}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  >
+                    <option value="para alugar">Para Alugar</option>
+                    <option value="para comprar">Para Vender</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Rótulo</label>
+                  <select
+                    {...register("rotulo_da_propriedade")}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  >
+                    <option value="">Nenhum</option>
+                    <option value="Promoção">Promoção</option>
+                    <option value="Destaque">Destaque</option>
+                    <option value="Novo">Novo</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Seção: Preço */}
+            <div className="pt-4 border-t space-y-4">
+              <h3 className="font-semibold text-lg text-gray-800">Preço</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Preço (KZ)*</label>
+                  <input
+                    type="number"
+                    {...register("preco_da_propriedade", { 
+                      required: "Preço é obrigatório",
+                      min: { value: 1, message: "Preço inválido" }
+                    })}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  />
+                  {errors.preco_da_propriedade && (
+                    <p className="text-red-500 text-xs mt-1">{errors.preco_da_propriedade.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Unidade de Preço</label>
+                  <input
+                    {...register("unidade_preco_da_propriedade")}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                    placeholder="Ex: mensal, anual"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Preço de Chamada</label>
+                  <input
+                    {...register("preco_chamada_da_propriedade")}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                    placeholder="Ex: A partir de..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Seção: Características */}
+            <div className="pt-4 border-t space-y-4">
+              <h3 className="font-semibold text-lg text-gray-800">Características</h3>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {caracteristicasList.map(caracteristica => (
+                  <label key={caracteristica} className="flex items-center gap-2">
                     <input
-                      placeholder="Imagem 360"
-                      className="rounded-md border border-gray-300 bg-gray-50 p-2"
-                      {...register("imagem_360_da_propriedade")}
+                      type="checkbox"
+                      value={caracteristica}
+                      {...register("caracteristicas")}
+                      className="h-4 w-4 rounded border-gray-300 text-purple-700 focus:ring-purple-700"
                     />
-                     {errors.imagem_360_da_propriedade && (
-                      <p className="text-sm text-red-500 mt-1">{errors.imagem_360_da_propriedade.message as string}</p>
-                    )}
+                    <span className="text-sm text-gray-700">{caracteristica}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
 
-                  {/* Nota Privada */}
-                    <div className="pt-2 border-t">
-                      <div className="font-semibold text-gray-700 mb-2">📝 Nota Privada</div>
-                      <textarea
-                        className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
-                        rows={2}
-                        placeholder="Nota Privada (não exibida ao público)"
-                        {...register("nota_da_propriedade")}
-                      />
-                      {errors.nota_da_propriedade && (
-                        <p className="text-sm text-red-500 mt-1">{errors.nota_da_propriedade.message as string}</p>
-                      )}
-                    </div>
+            {/* Seção: Detalhes Técnicos */}
+            <div className="pt-4 border-t space-y-4">
+              <h3 className="font-semibold text-lg text-gray-800">Detalhes Técnicos</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Tamanho (m²)</label>
+                  <input
+                    type="number"
+                    {...register("tamanho_da_propriedade", { min: 0 })}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  />
+                </div>
 
-                  <SubmitButton isSubmitting={isSubmitting} />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Área do Terreno (m²)</label>
+                  <input
+                    type="number"
+                    {...register("area_terreno_da_propriedade", { min: 0 })}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Quartos</label>
+                  <input
+                    type="number"
+                    {...register("quartos_da_propriedade", { min: 0 })}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Banheiros</label>
+                  <input
+                    type="number"
+                    {...register("casas_banho_da_propriedade", { min: 0 })}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Garagens</label>
+                  <input
+                    type="number"
+                    {...register("garagens_da_propriedade", { min: 0 })}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Tamanho Garagem (m²)</label>
+                  <input
+                    type="number"
+                    {...register("tamanho_garagen_da_propriedade", { min: 0 })}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Ano de Construção</label>
+                  <input
+                    type="number"
+                    {...register("ano_construcao_da_propriedade", { 
+                      min: 1800,
+                      max: new Date().getFullYear()
+                    })}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">ID da Propriedade</label>
+                  <input
+                    {...register("id_da_propriedade")}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Seção: Detalhes Adicionais */}
+            <div className="pt-4 border-t space-y-4">
+              <h3 className="font-semibold text-lg text-gray-800">Detalhes Adicionais</h3>
+              
+              {fields.map((field, index) => (
+                <div key={field.id} className="flex flex-col md:flex-row gap-4 items-end">
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700">Título</label>
+                    <input
+                      {...register(`detalhes.${index}.titulo`)}
+                      className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                    />
+                  </div>
+                  
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700">Valor</label>
+                    <input
+                      {...register(`detalhes.${index}.valor`)}
+                      className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                    />
+                  </div>
+                  
+                  <button
+                    type="button"
+                    onClick={() => remove(index)}
+                    className="p-2 text-red-600 hover:text-red-800"
+                  >
+                    <Trash className="h-5 w-5" />
+                  </button>
+                </div>
+              ))}
+              
+              <button
+                type="button"
+                onClick={() => append({ titulo: '', valor: '' })}
+                className="flex items-center gap-2 text-purple-700 hover:text-purple-800 text-sm font-medium"
+              >
+                <Plus className="h-4 w-4" />
+                Adicionar Detalhe
+              </button>
+            </div>
+
+            {/* Seção: Mídia */}
+            <div className="pt-4 border-t space-y-4">
+              <h3 className="font-semibold text-lg text-gray-800">Mídia</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Imagens*</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    {...register("imagens_da_propriedade", { 
+                      required: "Pelo menos uma imagem é obrigatória"
+                    })}
+                    className="mt-1 block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Documentos</label>
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.odp"
+                    multiple
+                    {...register("documentos_da_propriedade")}
+                    className="mt-1 block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Vídeo</label>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    {...register("video_da_propriedade")}
+                    className="mt-1 block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Imagem 360°</label>
+                  <input
+                    type="text"
+                    {...register("imagem_360_da_propriedade")}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                    placeholder="URL da imagem 360°"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Seção: Notas */}
+            <div className="pt-4 border-t space-y-4">
+              <h3 className="font-semibold text-lg text-gray-800">Notas</h3>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Nota Privada</label>
+                <textarea
+                  {...register("nota_da_propriedade")}
+                  className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  rows={3}
+                  placeholder="Notas internas não visíveis publicamente"
+                />
+              </div>
+            </div>
+
+            {/* Botão de Envio */}
+            <div className="pt-4">
+              <SubmitButton isSubmitting={isSubmitting} />
+            </div>
           </form>
         </CardContent>
       </Card>
@@ -565,7 +535,6 @@ export default function CadastrarImovelPage() {
   );
 }
 
-// Componente de botão de submissão separado
 function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
   const { pending } = useFormStatus();
   
@@ -573,13 +542,13 @@ function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
     <button
       type="submit"
       disabled={isSubmitting || pending}
-      className={`w-full px-4 py-2 rounded-md font-semibold mt-2 flex items-center justify-center gap-2 text-white ${
-        isSubmitting || pending ? 'bg-purple-400 cursor-not-allowed' : 'bg-purple-700 hover:bg-purple-800'
+      className={`w-full px-4 py-3 rounded-md font-semibold text-white flex items-center justify-center gap-2 ${
+        isSubmitting || pending ? 'bg-indigo-400 cursor-not-allowed' : 'bg-purple-700 hover:bg-purple-800'
       }`}
     >
       {(isSubmitting || pending) ? (
         <>
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <Loader2 className="h-5 w-5 animate-spin" />
           Cadastrando...
         </>
       ) : (

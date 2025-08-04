@@ -1,18 +1,88 @@
+// lib/actions/update-user-plan.ts (versão com tabela separada)
 'use server';
 
+import { supabase } from '../supabase';
+import { unstable_noStore as noStore } from 'next/cache';
+import { UserPlan } from '../types/agent';
 
-import { Plano, PlanoAgente } from "../types/agent";
+interface UpdatePlanResult {
+  success: boolean;
+  error?: string;
+}
 
+export async function updateUserPlan(
+  userId: string,
+  newPlan: UserPlan
+): Promise<UpdatePlanResult> {
+  noStore(); // Evita cache para dados atualizados
+  
+  try {
+    // 1. Verificar se o usuário já está inscrito neste plano
+    const { data: userData, error: userError } = await supabase
+      .from('profiles')
+      .select('pacote_agente_id')
+      .eq('id', userId)
+      .single();
 
-export async function updateUserPlan(userId: string, plan: Plano): Promise<{ success: boolean; error?: string }> {
-  console.log(`Simulando atualização de plano para o usuário ${userId} para o plano ${plan}`);
+    if (userError) {
+      return {
+        success: false,
+        error: userError.message
+      };
+    }
 
-  // Simula atraso de rede
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+    const { data: planData, error: planDataError } = await supabase.from('planos_agente')
+      .select('*')
+      .eq('id', userData.pacote_agente_id)
+      .single();
 
-  // Simula uma atualização bem-sucedida
-  return { success: true };
+    // 3. Atualizar a referência do plano na tabela users
+    const { error: updateError } = await supabase
+      .from('planos_agente')
+      .update({ 
+        nome: newPlan.nome,
+        limite: newPlan.limite,
+        restante: newPlan.restante,
+        destaques: newPlan.destaques,
+        destaques_permitidos: newPlan.destaques_permitidos,
+        updated_at: new Date().toISOString(), 
+      })
+      .eq('id', planData.id);
 
-  // Para simular erro, comente acima e descomente abaixo:
-  // return { success: false, error: "Falha ao atualizar o plano" };
+    if (updateError) {
+      return {
+        success: false,
+        error: updateError.message
+      };
+    }
+
+    // 4. Atualizar os dados do plano
+    const { error: updatePlanError } = await supabase
+      .from('planos_agente')
+      .update({
+        nome: newPlan.nome,
+        limite: newPlan.limite,
+        restante: newPlan.restante,
+        destaques: newPlan.destaques,
+        destaques_permitidos: newPlan.destaques_permitidos,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', planData.id);
+
+    if (updatePlanError) {
+      return {
+        success: false,
+        error: updatePlanError.message
+      };
+    }
+
+    return { success: true };
+
+  } catch (error) {
+    console.error('Erro ao atualizar plano:', error);
+    return {
+      success: false,
+      error: 'Erro interno do servidor'
+    };
+  }
 }

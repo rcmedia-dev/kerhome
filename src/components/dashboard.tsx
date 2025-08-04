@@ -1,19 +1,18 @@
 'use client';
 
 import { useAuth } from './auth-context';
-import { BarChart3, Eye, Heart, Home, Package, Settings, Star, Upload, User } from 'lucide-react';
+import { BarChart3, Eye, Heart, Home, Settings, Star, Upload, User } from 'lucide-react';
 import { useState, useEffect, useTransition } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
 import  { MinhasPropriedades, Favoritas, Analytics} from './dashboard-tabs-content';
 import { Dialog, DialogTrigger } from './ui/dialog';
-import { getUserProperties } from '@/lib/actions/get-user-properties';
-import { getUserFavorites } from '@/lib/actions/get-user-favorites';
 import { getUserInvoices } from '@/lib/actions/get-user-invoices';
 import { ConfiguracoesConta } from './account-setting';
 import { PlanoCard } from './plano-card';
 import { useRouter } from 'next/navigation';
 import { toggleFavoritoProperty } from '@/lib/actions/toggle-favorite';
 import { getImoveisFavoritos } from '@/lib/actions/get-favorited-imoveis';
+import { getSupabaseUserProperties } from '@/lib/actions/get-properties';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -29,10 +28,9 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!user?.id) return;
-    getUserProperties(user.id).then(props => setPropertyCount(props?.length || 0));
-    getImoveisFavoritos(user.id).then(favs => setFavoriteCount(favs?.length || 0));
+    getSupabaseUserProperties(user.id).then(props => setPropertyCount(props?.length || 0));
+    getImoveisFavoritos(user.id).then(favs =>setFavoriteCount(favs?.length || 0));
     getUserInvoices(user.id).then(invs => setInvoiceCount(invs?.length || 0));
-    console.log('favorites', favoriteCount);
   }, [user?.id]);
 
   if (!user) return null;

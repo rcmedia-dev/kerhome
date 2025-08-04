@@ -73,6 +73,18 @@ export enum Plano {
   Super = "SUPER",
 }
 
+export interface UserPlan {
+  id?: string;
+  nome: string;
+  limite: number;
+  restante: number;
+  destaques: boolean;
+  destaques_permitidos: number;
+  userId?: string;
+  criadoEm?: Date;
+  updated_at?: Date;
+}
+
 export type Agent = z.infer<typeof agentSchema>;
 export type Fatura = z.infer<typeof faturaSchema>;
 export type PlanoAgente = z.infer<typeof planoAgenteSchema>;

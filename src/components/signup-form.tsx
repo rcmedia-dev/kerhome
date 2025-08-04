@@ -37,7 +37,7 @@ export function CustomSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
         setUser({
           id: result.user.id,
           email: result.user.email,
-          fullName: `${result.user.primeiro_nome} ${result.user.ultimo_nome}`,
+          username: `${result.user.primeiro_nome} ${result.user.ultimo_nome}`,
           primeiro_nome: result.user.primeiro_nome,
           ultimo_nome: result.user.ultimo_nome
         })

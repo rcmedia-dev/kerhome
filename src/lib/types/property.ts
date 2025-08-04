@@ -8,7 +8,7 @@ export const propriedadeSchema = z.object({
   endereco_da_propriedade: z.string().min(1, "Endereço é obrigatório"),
   pais_da_propriedade: z.string().min(1, "País é obrigatório"),
   provincia_da_propriedade: z.string().min(1, "Província é obrigatória"),
-  cidade_da_propriedade: z.string().min(1, "Cidade é obrigatória"),
+  cidade_da_propriedade: z.string().min(1, "A cidade é obrigatória"),
   bairro_da_propriedade: z.string().optional(),
 
   tipo_da_propriedade: z.string().min(1, "Tipo de propriedade é obrigatório"),
@@ -28,7 +28,10 @@ export const propriedadeSchema = z.object({
   garagens_da_propriedade: z.string().optional(),
   tamanho_garagen_da_propriedade: z.string().optional(),
 
-  ano_construcao_da_propriedade: z.coerce.number().min(1, "Ano de construção é obrigatório"),
+  ano_construcao_da_propriedade: z.coerce.number()
+    .min(1800, 'O ano deve ser posterior a 1800')
+    .max(new Date().getFullYear(), 'O ano não pode ser no futuro')
+    .optional(),
 
   id_da_propriedade: z.string().min(1, "ID da propriedade é obrigatório"),
 
@@ -77,7 +80,7 @@ export const ownerSchema = z.object({
 
 export const propertyResponseSchema = z.object({
   id: z.string(),
-  ownerId: z.string(),
+  owner_id: z.string(),
 
   title: z.string(),
   description: z.string(),
@@ -106,7 +109,7 @@ export const propertyResponseSchema = z.object({
   garagens: z.number().nullable(),
   garagemtamanho: z.string().nullable(),
 
-  anoconstrucao: z.number(),
+  anoconstrucao: z.coerce.number().min(1888, "Ano de construção deve ser válido").nullable(),
   propertyid: z.string().nullable(),
 
 

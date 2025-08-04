@@ -1,7 +1,4 @@
-// lib/actions/toggle-favorito.ts
-'use server';
-
-import prisma from '../prisma';
+import { supabase } from "../supabase";
 
 export async function toggleFavoritoProperty(userId: string, propertyId: string) {
   if (!userId || !propertyId) {
@@ -9,38 +6,55 @@ export async function toggleFavoritoProperty(userId: string, propertyId: string)
   }
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { imoveisGuardados: true },
-    });
+    // 1. Verificar se já está favoritado
+    const { data: existingFavorite, error: selectError } = await supabase
+      .from('favoritos')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('property_id', propertyId)
+      .maybeSingle();
 
-    if (!user) return { success: false, error: 'Usuário não encontrado' };
+    if (selectError) throw selectError;
 
-    const alreadyFavorited = user.imoveisGuardados.some((p) => p.id === propertyId);
+    // 2. Se já existe, remover o favorito
+    if (existingFavorite) {
+      const { error: deleteError } = await supabase
+        .from('favoritos')
+        .delete()
+        .eq('user_id', userId)
+        .eq('property_id', propertyId);
 
-    if (alreadyFavorited) {
-      await prisma.user.update({
-        where: { id: userId },
-        data: {
-          imoveisGuardados: {
-            disconnect: { id: propertyId },
-          },
-        },
-      });
-    } else {
-      await prisma.user.update({
-        where: { id: userId },
-        data: {
-          imoveisGuardados: {
-            connect: { id: propertyId },
-          },
-        },
-      });
+      if (deleteError) throw deleteError;
+      
+      return { 
+        success: true, 
+        action: 'removed', 
+        isFavorited: false 
+      };
+    } 
+    // 3. Se não existe, adicionar como favorito
+    else {
+      const { error: insertError } = await supabase
+        .from('favoritos')
+        .insert({
+          user_id: userId,
+          property_id: propertyId,
+          created_at: new Date().toISOString()
+        });
+
+      if (insertError) throw insertError;
+      
+      return { 
+        success: true, 
+        action: 'added', 
+        isFavorited: true 
+      };
     }
-
-    return { success: true, favoritado: !alreadyFavorited };
   } catch (error) {
-    console.error('Erro ao favoritar:', error);
-    return { success: false, error: 'Erro interno ao favoritar' };
+    console.error('Erro ao favoritar/desfavoritar:', error);
+    return { 
+      success: false, 
+      error: 'Erro interno ao processar favorito' 
+    };
   }
 }

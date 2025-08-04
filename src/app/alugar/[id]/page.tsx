@@ -303,7 +303,7 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
                 <h3 className="text-lg font-semibold mb-4 text-gray-800 text-left md:text-center">
                   Entrar em contato
                 </h3>
-                <ContactForm userIdLogado={user?.id} adminId={property.ownerId}/>
+                <ContactForm userIdLogado={user?.id} adminId={property.owner_id}/>
               </div>
             </div>
           </div>
