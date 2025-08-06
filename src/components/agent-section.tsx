@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { getAgentByPropertyId } from '@/lib/actions/get-agent-data';
+import { getPropertyOwner } from '@/lib/actions/get-agent';
+import Link from 'next/link';
 
 type Agent = {
   primeiro_nome?: string | null;
@@ -34,7 +35,7 @@ export default function AgentSection({ ownerId }: AgentSectionProps) {
 
   useEffect(() => {
     async function fetchAgent() {
-      const data = await getAgentByPropertyId(ownerId);
+      const data = await getPropertyOwner(ownerId);
       console.log('Agent data:', data);
       setAgent(data);
     }
@@ -75,12 +76,12 @@ export default function AgentSection({ ownerId }: AgentSectionProps) {
       <p className="text-sm text-purple-700 font-medium">Agente de Imóveis</p>
       <p className="text-xs text-gray-500 mb-4">{agent.email}</p>
 
-      <a
+      <Link
          href={`/agente?email=${encodeURIComponent(agent.email)}`}
         className="w-full bg-purple-700 text-white py-2 px-3 rounded-lg font-semibold hover:bg-purple-800 transition block text-center"
       >
         Ver outras propriedades
-      </a>
+      </Link>
     </div>
   );
 }

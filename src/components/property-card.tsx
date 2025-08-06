@@ -4,12 +4,13 @@ import { MapPin, BedDouble, Ruler, Tag, Pencil, Trash, Heart } from 'lucide-reac
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/components/auth-context';
-import { deletePropertyById } from '@/lib/actions/delete-property';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { toggleFavoritoProperty } from '@/lib/actions/toggle-favorite';
 import { TPropertyResponseSchema } from '@/lib/types/property';
 import { getImoveisFavoritos } from '@/lib/actions/get-favorited-imoveis';
+import { deleteProperty } from '@/lib/actions/supabase-actions/delete-propertie';
+import { toast } from 'sonner';
 
 export function PropertyCard({ property }: { property: TPropertyResponseSchema }) {
   const { user } = useAuth();
@@ -42,11 +43,12 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
 
   const handleDelete = async () => {
     if (confirm('Tem certeza que deseja eliminar este imóvel?')) {
-      const result = await deletePropertyById(property.id);
-      if (result.success) {
-        router.refresh();
-      } else {
-        alert('Erro ao eliminar imóvel');
+      try{
+        await deleteProperty(property.id, user?.id)
+        toast.success('Imovel Deletado com Sucesso')
+      }catch(e){
+        toast.error('Erro ao deletar o Imovel')
+        console.log('error:', e)
       }
     }
   };

@@ -6,7 +6,6 @@ import { useState, useEffect, useTransition } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
 import  { MinhasPropriedades, Favoritas, Analytics} from './dashboard-tabs-content';
 import { Dialog, DialogTrigger } from './ui/dialog';
-import { getUserInvoices } from '@/lib/actions/get-user-invoices';
 import { ConfiguracoesConta } from './account-setting';
 import { PlanoCard } from './plano-card';
 import { useRouter } from 'next/navigation';
@@ -30,7 +29,7 @@ export default function Dashboard() {
     if (!user?.id) return;
     getSupabaseUserProperties(user.id).then(props => setPropertyCount(props?.length || 0));
     getImoveisFavoritos(user.id).then(favs =>setFavoriteCount(favs?.length || 0));
-    getUserInvoices(user.id).then(invs => setInvoiceCount(invs?.length || 0));
+    //getUserInvoices(user.id).then(invs => setInvoiceCount(invs?.length || 0));
   }, [user?.id]);
 
   if (!user) return null;

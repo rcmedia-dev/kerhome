@@ -12,6 +12,7 @@ import ContactForm from "@/components/contact-form";
 import { useAuth } from "@/components/auth-context";
 import { getPropertyById } from "@/lib/actions/get-properties";
 import { TPropertyResponseSchema } from "@/lib/types/property";
+import AgentCardWithChat from "@/components/agent-card-with-chat";
 
 
 
@@ -297,13 +298,13 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
             {/* Formulário de contato + Agente juntos */}
             <div className="bg-white rounded-2xl p-8 shadow-xl border flex flex-col md:flex-row gap-8 items-center md:items-start">
               {/* Card do Agente */}
-              <AgentSection ownerId={property.id} />
+
               {/* Formulário de contato */}
               <div className="flex-1 w-full">
                 <h3 className="text-lg font-semibold mb-4 text-gray-800 text-left md:text-center">
                   Entrar em contato
                 </h3>
-                <ContactForm userIdLogado={user?.id} adminId={property.owner_id}/>
+                <AgentCardWithChat ownerId={property.owner_id} propertyId={property.id} />
               </div>
             </div>
           </div>

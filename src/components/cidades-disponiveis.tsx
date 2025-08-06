@@ -1,7 +1,6 @@
 'use client';
 
-import { getCidadesDisponiveis } from '@/lib/actions/get-cideades-disponiveis';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 interface Cidade {
   nome: string;
@@ -12,15 +11,15 @@ export function CidadesDisponiveis() {
   const [cidades, setCidades] = useState<Cidade[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchCidades() {
-      const data = await getCidadesDisponiveis();
-      setCidades(data);
-      setLoading(false);
-    }
+ // useEffect(() => {
+    //async function fetchCidades() {
+     // const data = await getCidadesDisponiveis();
+     // setCidades(data);
+     // setLoading(false);
+   // }
 
-    fetchCidades();
-  }, []);
+   // fetchCidades();
+ // }, []);
 
   return (
     <div className="bg-white border shadow-md rounded-2xl p-6 space-y-2">

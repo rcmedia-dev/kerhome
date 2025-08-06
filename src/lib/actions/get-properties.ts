@@ -2,7 +2,6 @@
 
 'use server';
 
-import prisma from '../prisma';
 import { supabase } from '../supabase';
 import { TPropertyResponseSchema, TPropriedadeFormData } from '../types/property';
 
@@ -17,8 +16,6 @@ export async function getProperties(): Promise<TPropertyResponseSchema[]> {
     console.error('Erro ao buscar propriedades:', error);
     throw new Error('Erro ao buscar propriedades');
   }
-
-  
 }
 
 export async function getLimitedProperties(limit: number): Promise<TPropertyResponseSchema[]> {
@@ -34,7 +31,6 @@ export async function getLimitedProperties(limit: number): Promise<TPropertyResp
       throw e;
     }
 }
-
 
 export async function getPropertyById(id: string): Promise<TPropertyResponseSchema | null> {
   try {
