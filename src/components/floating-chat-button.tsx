@@ -1,173 +1,132 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { MessageSquare, X, ChevronLeft, Send, Smile, Paperclip } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { MessageSquare, X, Send, Smile, Paperclip, ChevronLeft } from 'lucide-react';
 import Image from 'next/image';
-import { useAuth } from './auth-context';
 import { supabase } from '@/lib/supabase';
-import { io, Socket } from 'socket.io-client';
-
-// Tipagem
-
-type Profile = {
-  id: string;
-  name: string;
-  avatar_url: string;
-};
+import { useAuth } from './auth-context';
 
 type Message = {
   id: string;
-  content: string;
   sender_id: string;
   receiver_id: string;
+  content: string;
   created_at: string;
-  chat_id: string;
+};
+
+type Contact = {
+  id: string;
+  primeiro_nome: string;
+  ultimo_nome: string;
 };
 
 export default function FloatingChat() {
   const [isOpen, setIsOpen] = useState(false);
-  const [contacts, setContacts] = useState<Profile[]>([]);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
   const [input, setInput] = useState('');
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [showContacts, setShowContacts] = useState(true);
   const { user } = useAuth();
-  const socketRef = useRef<Socket | null>(null);
-  const [chatId, setChatId] = useState<string | null>(null);
 
-  // Iniciar conexão com socket
   useEffect(() => {
-    if (!selectedUser || !chatId) return;
+    if (!user?.id) return;
 
-    fetch('/api/sockets/socket'); // Inicializa o servidor
+    const fetchContactsAndMessages = async () => {
+      // Busca todas as mensagens do usuário
+      const { data: messagesData, error: messagesError } = await supabase
+        .from('messages')
+        .select('id, sender_id, receiver_id, content, created_at')
+        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+        .order('created_at', { ascending: true });
 
-    const socket = io(undefined, {
-      path: '/api/sockets/socket',
-    });
+      if (messagesError) {
+        console.error('Erro ao buscar mensagens:', messagesError);
+        return;
+      }
 
-    socketRef.current = socket;
+      if (messagesData) {
+        setMessages(messagesData);
 
-    socket.on('connect', () => {
-      socket.emit('join_room', chatId);
-    });
+        // Extrai todos os IDs únicos de contatos (removendo o próprio usuário)
+        const contactIds = new Set<string>();
+        messagesData.forEach((msg) => {
+          if (msg.sender_id !== user.id) contactIds.add(msg.sender_id);
+          if (msg.receiver_id !== user.id) contactIds.add(msg.receiver_id);
+        });
 
-    socket.on('receive_message', (msg: Message) => {
-      setMessages((prev) => [...prev, msg]);
-    });
+        // Busca informações dos contatos
+        if (contactIds.size > 0) {
+          const { data: contactsData, error: contactsError } = await supabase
+            .from('profiles')
+            .select('id, primeiro_nome, ultimo_nome')
+            .in('id', Array.from(contactIds));
+
+          if (contactsError) {
+            console.error('Erro ao buscar contatos:', contactsError);
+          } else if (contactsData) {
+            setContacts(contactsData);
+          }
+        }
+      }
+    };
+
+    fetchContactsAndMessages();
+
+    // Configura subscription para novas mensagens
+    const channel = supabase
+      .channel('messages_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `or(sender_id.eq.${user.id},receiver_id.eq.${user.id})`,
+        },
+        (payload) => {
+          setMessages((prev) => [...prev, payload.new as Message]);
+        }
+      )
+      .subscribe();
 
     return () => {
-      socket.disconnect();
+      supabase.removeChannel(channel);
     };
-  }, [chatId, selectedUser]);
+  }, [user?.id]);
 
-  // Buscar contatos que enviaram mensagens
-  useEffect(() => {
-    const fetchContacts = async () => {
-      if (!user?.id) return;
-
-      setLoading(true);
-
-      const { data: messagesData, error } = await supabase
-        .from('messages')
-        .select('sender_id')
-        .eq('receiver_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error || !messagesData) {
-        console.error('Erro ao buscar mensagens:', error);
-        setLoading(false);
-        return;
-      }
-
-      const uniqueSenderIds = [...new Set(messagesData.map((m) => m.sender_id))];
-
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, name, avatar_url')
-        .in('id', uniqueSenderIds);
-
-      if (profilesError || !profiles) {
-        console.error('Erro ao buscar perfis:', profilesError);
-        setLoading(false);
-        return;
-      }
-
-      setContacts(profiles);
-      setLoading(false);
-    };
-
-    if (user) fetchContacts();
-  }, [user]);
-
-  const openChatWith = async (contact: Profile) => {
-    setSelectedUser(contact);
-    setLoading(true);
-
-    // Buscar ou criar chat
-    const { data: existingChat } = await supabase
-      .from('chats')
-      .select('id')
-      .eq('user_id', user!.id)
-      .eq('agent_id', contact.id)
-      .maybeSingle();
-
-    let chatIdToUse = existingChat?.id;
-
-    if (!chatIdToUse) {
-      const { data: newChat } = await supabase
-        .from('chats')
-        .insert([{ user_id: user!.id, agent_id: contact.id, property_id: '123' }])
-        .select()
-        .single();
-
-      chatIdToUse = newChat.id;
-    }
-
-    setChatId(chatIdToUse);
-
-    const { data: msgs, error } = await supabase
-      .from('messages')
-      .select('*')
-      .eq('chat_id', chatIdToUse)
-      .order('created_at', { ascending: true });
-
-    if (error || !msgs) {
-      console.error('Erro ao buscar mensagens da conversa:', error);
-      setMessages([]);
-    } else {
-      setMessages(msgs);
-    }
-
-    setLoading(false);
-  };
-
-  const sendMessage = async () => {
-    if (!input.trim() || !chatId || !user || !selectedUser) return;
+  const handleSendMessage = async () => {
+    if (!input.trim() || !user?.id || !selectedContact) return;
 
     const newMessage = {
-      chat_id: chatId,
+      chat_id: user.id,
       sender_id: user.id,
-      receiver_id: selectedUser.id,
-      content: input,
+      receiver_id: selectedContact.id,
+      content: input.trim(),
     };
 
-    const { data, error } = await supabase
-      .from('messages')
-      .insert([newMessage])
-      .select()
-      .single();
+    const { data, error } = await supabase.from('messages').insert([newMessage]).select();
 
     if (error) {
       console.error('Erro ao enviar mensagem:', error);
-      return;
+    } else if (data && data.length > 0) {
+      setMessages((prev) => [...prev, data[0]]);
+      setInput('');
     }
-
-    socketRef.current?.emit('send_message', data);
-    setMessages((prev) => [...prev, data]);
-    setInput('');
   };
 
-  if (!user) return null;
+  const filteredMessages = selectedContact
+    ? messages.filter(
+        (msg) =>
+          (msg.sender_id === user?.id && msg.receiver_id === selectedContact.id) ||
+          (msg.receiver_id === user?.id && msg.sender_id === selectedContact.id)
+      )
+    : [];
+
+  const handleBackToContacts = () => {
+    setSelectedContact(null);
+    setShowContacts(true);
+  };
 
   return (
     <>
@@ -188,27 +147,35 @@ export default function FloatingChat() {
           {/* Cabeçalho */}
           <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-t-3xl">
             <div className="flex items-center justify-between">
-              {selectedUser ? (
+              {selectedContact ? (
                 <div className="flex items-center gap-3">
-                  <button onClick={() => setSelectedUser(null)}>
+                  <button 
+                    onClick={handleBackToContacts}
+                    className="text-white hover:text-gray-200"
+                  >
                     <ChevronLeft size={20} />
                   </button>
-                  <div className="flex items-center gap-3">
-                    <Image
-                      src={selectedUser.avatar_url || '/avatar.jpg'}
-                      alt="Avatar"
-                      width={40}
-                      height={40}
-                      className="rounded-full ring-2 ring-white/30"
-                    />
-                    <div>
-                      <h3 className="font-semibold text-lg">{selectedUser.name}</h3>
-                      <p className="text-white/70 text-sm">Online</p>
-                    </div>
+                  <div className="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center text-lg font-semibold">
+                    {selectedContact.primeiro_nome.charAt(0)}
+                    {selectedContact.ultimo_nome.charAt(0)}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg">
+                      {selectedContact.primeiro_nome} {selectedContact.ultimo_nome}
+                    </h3>
+                    <p className="text-white/70 text-sm">Online</p>
                   </div>
                 </div>
               ) : (
-                <h3 className="text-lg font-semibold">Mensagens</h3>
+                <div className="flex items-center gap-3">
+                  <MessageSquare size={24} />
+                  <div>
+                    <h3 className="font-semibold text-lg">Conversas</h3>
+                    <p className="text-white/70 text-sm">
+                      {contacts.length} {contacts.length === 1 ? 'contato' : 'contatos'}
+                    </p>
+                  </div>
+                </div>
               )}
               <button onClick={() => setIsOpen(false)} className="text-white hover:text-gray-200">
                 <X size={20} />
@@ -216,91 +183,114 @@ export default function FloatingChat() {
             </div>
           </div>
 
-          {/* Corpo */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50/50 to-white/50">
-            {loading ? (
-              <p className="text-gray-500 text-sm">Carregando...</p>
-            ) : selectedUser ? (
-              messages.length === 0 ? (
-                <p className="text-gray-500 text-sm">Nenhuma mensagem com este contato.</p>
-              ) : (
-                messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`max-w-xs px-4 py-2 rounded-2xl text-sm shadow ${
-                      msg.sender_id === user.id
-                        ? 'bg-blue-500 text-white self-end ml-auto'
-                        : 'bg-gray-200 text-gray-800 self-start mr-auto'
-                    }`}
-                  >
-                    <p>{msg.content}</p>
-                    <span className="text-[10px] text-gray-500 block mt-1 text-right">
-                      {new Date(msg.created_at).toLocaleTimeString('pt-PT', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </span>
+          {/* Corpo - Lista de contatos ou mensagens */}
+          <div className="flex-1 overflow-y-auto bg-gradient-to-b from-gray-50/50 to-white/50">
+            {showContacts && !selectedContact ? (
+              <div className="p-2">
+                {contacts.length > 0 ? (
+                  contacts.map((contact) => (
+                    <button
+                      key={contact.id}
+                      onClick={() => {
+                        setSelectedContact(contact);
+                        setShowContacts(false);
+                      }}
+                      className="w-full flex items-center gap-3 p-3 rounded-lg text-left hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-sm font-semibold">
+                        {contact.primeiro_nome.charAt(0)}
+                        {contact.ultimo_nome.charAt(0)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">
+                          {contact.primeiro_nome} {contact.ultimo_nome}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">
+                          Última mensagem...
+                        </p>
+                      </div>
+                      <div className="text-xs text-gray-400">12:30</div>
+                    </button>
+                  ))
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center p-4">
+                    <MessageSquare className="text-gray-300 mb-2" size={48} />
+                    <p className="text-gray-400 text-center">
+                      Nenhuma conversa encontrada
+                    </p>
+                    <p className="text-gray-400 text-sm text-center">
+                      Comece uma nova conversa
+                    </p>
                   </div>
-                ))
-              )
+                )}
+              </div>
             ) : (
-              contacts.map((contact) => (
-                <button
-                  key={contact.id}
-                  onClick={() => openChatWith(contact)}
-                  className="flex items-center gap-4 w-full text-left hover:bg-gray-100 p-2 rounded-xl"
-                >
-                  <Image
-                    src={contact.avatar_url || '/avatar.jpg'}
-                    alt="Avatar"
-                    width={40}
-                    height={40}
-                    className="rounded-full ring-2 ring-white/30"
-                  />
-                  <div>
-                    <h4 className="font-medium">{contact.name}</h4>
-                    <p className="text-xs text-gray-500">Clique para ver conversa</p>
+              <div className="p-4 space-y-4">
+                {filteredMessages.length > 0 ? (
+                  filteredMessages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`max-w-[75%] px-4 py-2 rounded-xl text-sm ${
+                        msg.sender_id === user?.id
+                          ? 'bg-blue-500 text-white self-end ml-auto'
+                          : 'bg-gray-200 text-gray-800'
+                      }`}
+                    >
+                      {msg.content}
+                    </div>
+                  ))
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center p-4">
+                    <MessageSquare className="text-gray-300 mb-2" size={48} />
+                    <p className="text-gray-400 text-center">
+                      Nenhuma mensagem com {selectedContact?.primeiro_nome}
+                    </p>
+                    <p className="text-gray-400 text-sm text-center">
+                      Envie uma mensagem para começar
+                    </p>
                   </div>
-                </button>
-              ))
+                )}
+              </div>
             )}
           </div>
 
-          {/* Campo de entrada */}
-          <div className="p-4 bg-white/80 backdrop-blur-sm border-t border-gray-100">
-            <div className="flex items-end gap-3">
-              <button className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100">
-                <Paperclip size={20} />
-              </button>
-              <div className="flex-1 relative">
-                <input
-                  type="text"
-                  placeholder={selectedUser ? 'Digite uma mensagem...' : 'Selecione um contato'}
-                  className="w-full border border-gray-200 rounded-2xl px-4 py-3 pr-12 text-sm bg-white/80"
-                  disabled={!selectedUser}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') sendMessage();
-                  }}
-                />
-                <button className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                  <Smile size={18} />
+          {/* Campo de entrada (só aparece quando um contato está selecionado) */}
+          {selectedContact && (
+            <div className="p-4 bg-white/80 backdrop-blur-sm border-t border-gray-100">
+              <div className="flex items-end gap-3">
+                <button className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100">
+                  <Paperclip size={20} />
+                </button>
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    placeholder="Digite uma mensagem..."
+                    className="w-full border border-gray-200 rounded-2xl px-4 py-3 pr-12 text-sm bg-white/80"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  />
+                  <button className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                    <Smile size={18} />
+                  </button>
+                </div>
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!input.trim()}
+                  className={`p-3 rounded-2xl hover:shadow-lg ${
+                    input.trim()
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
+                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  <Send size={18} />
                 </button>
               </div>
-              <button
-                onClick={sendMessage}
-                className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 rounded-2xl hover:shadow-lg"
-                disabled={!selectedUser || !input.trim()}
-              >
-                <Send size={18} />
-              </button>
             </div>
-          </div>
+          )}
         </div>
       )}
 
-      {/* Animação */}
       <style jsx>{`
         @keyframes fadeIn {
           from {

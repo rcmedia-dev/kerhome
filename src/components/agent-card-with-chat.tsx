@@ -3,13 +3,11 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { getPropertyOwner } from '@/lib/actions/get-agent';
-import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { Mail, MessageSquare, Phone, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from './auth-context';
-import FloatingChat from './floating-chat-button';
-import { io, Socket } from 'socket.io-client';
+import Pusher from 'pusher-js';
 
 type Agent = {
   id: string;
@@ -25,6 +23,8 @@ type AgentCardWithChatProps = {
   propertyId: string;
 };
 
+export type Message = { chat_id: string, sender_id: string, receiver_id: string, content: string, read: boolean}
+
 function getInitials(name: string): string {
   return name
     .split(' ')
@@ -38,8 +38,6 @@ function randomColorFromName(name: string): string {
   const index = name.length % colors.length;
   return colors[index];
 }
-
-let socket: Socket | null = null;
 
 export default function AgentCardWithChat({ ownerId, propertyId }: AgentCardWithChatProps) {
   const [agent, setAgent] = useState<Agent | null>(null);
@@ -56,35 +54,22 @@ export default function AgentCardWithChat({ ownerId, propertyId }: AgentCardWith
     : '';
 
   useEffect(() => {
-    async function fetchAgent() {
-      const data = await getPropertyOwner(propertyId);
-      setAgent(data);
-    }
+          async function fetchAgent() {
+              const data = await getPropertyOwner(propertyId);
+              setAgent(data);
+          }
+          fetchAgent()
 
-    if (ownerId) {
-      fetchAgent();
-    }
-  }, [ownerId, propertyId]);
+          const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY!, { cluster: process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER! })
+          const channel = pusher.subscribe('chat-channel')
+          channel.bind('new_message', (data: string) => {
+              setMensagem(data)
+          })
 
-  useEffect(() => {
-    if (!userIdLogado || !agent) return;
-
-    socket = io({
-      path: '/api/sockets/socket',
-    });
-
-    socket.emit('join_room', chatRoomId);
-
-    socket.on('receive_message', (data) => {
-      if (data.sender_id !== userIdLogado) {
-        toast(`Nova mensagem de ${agent?.primeiro_nome ?? 'agente'}`);
-      }
-    });
-
-    return () => {
-      socket?.disconnect();
-    };
-  }, [userIdLogado, agent, chatRoomId]);
+         return () => {
+              pusher.unsubscribe('chat-channel')
+         }
+      }, [propertyId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,44 +79,18 @@ export default function AgentCardWithChat({ ownerId, propertyId }: AgentCardWith
     setStatus('enviando');
 
     try {
-      // Criar a conversa caso não exista
-      const { data: existingMessages } = await supabase
-        .from('messages')
-        .select('id')
-        .or(`and(sender_id.eq.${userIdLogado},receiver_id.eq.${agent.id}),and(sender_id.eq.${agent.id},receiver_id.eq.${userIdLogado})`)
-        .limit(1);
-
-      if (!existingMessages || existingMessages.length === 0) {
-        await supabase
-          .from('messages')
-          .insert([{
-            content: `Nova conversa iniciada sobre o imóvel ${propertyId}`,
-            sender_id: userIdLogado,
-            receiver_id: agent.id,
-            is_read: false
-          }]);
-      }
-
-      const { error } = await supabase
-        .from('messages')
-        .insert({
-          content: mensagem,
-          sender_id: userIdLogado,
-          receiver_id: agent.id,
-          is_read: false,
-          property_id: propertyId,
-        });
-
-      if (error) throw error;
-
-      // Enviar mensagem via Socket.IO
-      socket?.emit('send_message', {
-        content: mensagem,
-        sender_id: userIdLogado,
-        receiver_id: agent.id,
-        chat_id: chatRoomId,
-        property_id: propertyId,
-      });
+        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/messages`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                chat_id: userIdLogado,
+                content: mensagem,
+                receiver_id: agent.id,
+                sender_id: userIdLogado,
+            })
+        })
 
       setMensagem('');
       setStatus('sucesso');
@@ -272,8 +231,6 @@ export default function AgentCardWithChat({ ownerId, propertyId }: AgentCardWith
           </form>
         </div>
       )}
-
-      <FloatingChat />
     </div>
   );
 }
