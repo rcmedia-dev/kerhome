@@ -7,8 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PropertyFilterSidebar } from "@/components/sidebar-filtro";
 import { CidadesDisponiveis } from "@/components/cidades-disponiveis";
 import { ImoveisDestaque } from "@/components/imoveis-destaque";
-import AgentSection from "@/components/agent-section";
-import ContactForm from "@/components/contact-form";
 import { useAuth } from "@/components/auth-context";
 import { getPropertyById } from "@/lib/actions/get-properties";
 import { TPropertyResponseSchema } from "@/lib/types/property";

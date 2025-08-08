@@ -49,10 +49,6 @@ export default function AgentCardWithChat({ ownerId, propertyId }: AgentCardWith
   const { user } = useAuth();
   const userIdLogado = user?.id;
 
-  const chatRoomId = userIdLogado && agent?.id
-    ? [userIdLogado, agent.id].sort().join('-')
-    : '';
-
   useEffect(() => {
           async function fetchAgent() {
               const data = await getPropertyOwner(propertyId);

@@ -108,6 +108,7 @@ export default function FloatingChat() {
     if (!input.trim() || !user?.id || !selectedContact || isSending) return;
 
     setIsSending(true);
+    console.log('Enviando mensagem:', input, 'para', selectedContact);
     
     try {
       const newMessage = {
