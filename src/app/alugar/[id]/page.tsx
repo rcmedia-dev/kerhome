@@ -100,13 +100,23 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
                   </div>
                 )}
               </div>
-              <p className="text-3xl font-extrabold text-orange-500 mt-6 flex items-center gap-2">
-                {property.price && (
-                  <>
-                    <Tag className="w-6 h-6" /> {property.price} {property.unidade_preco && <span className="text-base font-normal">{property.unidade_preco}</span>}
-                  </>
-                )}
-              </p>
+                <p className="text-3xl font-extrabold text-orange-500 mt-6 flex items-center gap-2">
+                  {property.price && (
+                    <>
+                      <Tag className="w-6 h-6" />
+                      {property.price.toLocaleString('pt-AO', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      })}
+                      {property.unidade_preco && (
+                        <span className="text-base font-normal">
+                          {property.unidade_preco}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </p>
+
             </div>
 
             {/* Galeria de Fotos com destaque */}
