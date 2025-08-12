@@ -9,43 +9,152 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth-context';
 import { TPropriedadeFormData } from '@/lib/types/property';
+import { useEffect, useState, useMemo } from 'react';
 
-// Listas de opções
-const caracteristicasList = [
-  'Ar Condicionado', 'Aquecimento Central', 'Fogão Elétrico', 'Alarme de Incêndio',
-  'Academia', 'Home Theater', 'Lavanderia', 'Lavanderia Separada', 'Pisos de Mármore',
-  'Micro-ondas', 'Geladeira', 'Sauna', 'Piscina', 'TV a Cabo', 'Máquina de Lavar', 'WiFi'
-];
+// Componente para inputs de arquivo reutilizável
+const FileInput = ({ 
+  register, 
+  name, 
+  label, 
+  required = false, 
+  accept, 
+  multiple = false,
+  maxSizeMB = 10,
+  maxFiles = 5,
+  errors 
+}: any) => {
+  const [previews, setPreviews] = useState<string[]>([]);
 
-const paises = [
-  'Angola', 'Brasil', 'Portugal', 'Estados Unidos', 'Espanha', 'Outro'
-];
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      const newPreviews = files.map(file => URL.createObjectURL(file));
+      setPreviews(prev => [...prev, ...newPreviews].slice(0, maxFiles));
+    }
+  };
 
-const provinciasAngola = [
-  'Bengo', 'Benguela', 'Bié', 'Cabinda', 'Cuando Cubango', 'Cuanza Norte',
-  'Cuanza Sul', 'Cunene', 'Huambo', 'Huíla', 'Luanda', 'Lunda Norte',
-  'Lunda Sul', 'Malanje', 'Moxico', 'Namibe', 'Uíge', 'Zaire'
-];
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700">
+        {label}{required && '*'}
+      </label>
+      <input
+        type="file"
+        accept={accept}
+        multiple={multiple}
+        {...register(name, { 
+          required: required && `${label} é obrigatório`,
+          validate: {
+            lessThanMaxSize: (files: FileList) => 
+              Array.from(files).every(file => file.size <= maxSizeMB * 1024 * 1024) ||
+              `Cada arquivo deve ter menos de ${maxSizeMB}MB`,
+            maxFiles: (files: FileList) => 
+              files.length <= maxFiles ||
+              `Máximo de ${maxFiles} arquivos permitidos`
+          },
+          onChange: handleFileChange
+        })}
+        className="mt-1 block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+        aria-invalid={errors[name] ? "true" : "false"}
+      />
+      {errors[name] && (
+        <p className="text-red-500 text-xs mt-1">{errors[name].message}</p>
+      )}
+      <div className="flex gap-2 mt-2 flex-wrap">
+        {previews.map((preview, i) => (
+          <img 
+            key={i} 
+            src={preview} 
+            alt={`Preview ${i + 1}`} 
+            className="h-20 w-20 object-cover rounded border"
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
 
-const cidadesAngola = [
-  'Luanda', 'Lubango', 'Benguela', 'Malanje', 'Soyo', 'Sumbe', 'Ndalatando',
-  'Uíge', 'Cabinda', 'Menongue', 'Ondjiva', 'Outra'
-];
-
-const tiposPropriedade = [
-  'Apartamento', 'Casa', 'Terreno', 'Comercial', 'Prédio', 'Fazenda', 'Outro'
-];
+// Componente para detalhes adicionais
+const DetailField = ({ register, index, remove, errors }: any) => (
+  <div className="flex flex-col md:flex-row gap-4 items-end">
+    <div className="flex-1">
+      <label className="block text-sm font-medium text-gray-700">Título</label>
+      <input
+        {...register(`detalhes.${index}.titulo`)}
+        className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+        aria-invalid={errors.detalhes?.[index]?.titulo ? "true" : "false"}
+      />
+      {errors.detalhes?.[index]?.titulo && (
+        <p className="text-red-500 text-xs mt-1">
+          {errors.detalhes[index].titulo.message}
+        </p>
+      )}
+    </div>
+    
+    <div className="flex-1">
+      <label className="block text-sm font-medium text-gray-700">Valor</label>
+      <input
+        {...register(`detalhes.${index}.valor`)}
+        className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+        aria-invalid={errors.detalhes?.[index]?.valor ? "true" : "false"}
+      />
+      {errors.detalhes?.[index]?.valor && (
+        <p className="text-red-500 text-xs mt-1">
+          {errors.detalhes[index].valor.message}
+        </p>
+      )}
+    </div>
+    
+    <button
+      type="button"
+      onClick={() => remove(index)}
+      className="p-2 text-red-600 hover:text-red-800"
+      aria-label={`Remover detalhe ${index + 1}`}
+    >
+      <Trash className="h-5 w-5" />
+    </button>
+  </div>
+);
 
 export default function CadastrarImovelPage() {
   const router = useRouter();
   const { user } = useAuth();
-  
+  const [selectedCountry, setSelectedCountry] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Listas de opções
+  const caracteristicasList = useMemo(() => [
+    'Ar Condicionado', 'Aquecimento Central', 'Fogão Elétrico', 'Alarme de Incêndio',
+    'Academia', 'Home Theater', 'Lavanderia', 'Lavanderia Separada', 'Pisos de Mármore',
+    'Micro-ondas', 'Geladeira', 'Sauna', 'Piscina', 'TV a Cabo', 'Máquina de Lavar', 'WiFi'
+  ], []);
+
+  const paises = useMemo(() => [
+    'Angola', 'Brasil', 'Portugal', 'Estados Unidos', 'Espanha', 'Outro'
+  ], []);
+
+  const provinciasAngola = useMemo(() => [
+    'Bengo', 'Benguela', 'Bié', 'Cabinda', 'Cuando Cubango', 'Cuanza Norte',
+    'Cuanza Sul', 'Cunene', 'Huambo', 'Huíla', 'Luanda', 'Lunda Norte',
+    'Lunda Sul', 'Malanje', 'Moxico', 'Namibe', 'Uíge', 'Zaire'
+  ], []);
+
+  const cidadesAngola = useMemo(() => [
+    'Luanda', 'Lubango', 'Benguela', 'Malanje', 'Soyo', 'Sumbe', 'Ndalatando',
+    'Uíge', 'Cabinda', 'Menongue', 'Ondjiva', 'Outra'
+  ], []);
+
+  const tiposPropriedade = useMemo(() => [
+    'Apartamento', 'Casa', 'Terreno', 'Comercial', 'Prédio', 'Fazenda', 'Outro'
+  ], []);
+
   const { 
     register, 
     control, 
     handleSubmit, 
     formState: { errors, isSubmitting },
     reset,
+    watch
   } = useForm<TPropriedadeFormData>({
     defaultValues: {
       caracteristicas: [],
@@ -81,7 +190,7 @@ export default function CadastrarImovelPage() {
     });
 
     // Adicionar arquivos
-    const fileInputs = ['imagens_da_propriedade', 'documentos_da_propriedade', 'video_da_propriedade', 'imagem_360_da_propriedade'];
+    const fileInputs = ['imagens_da_propriedade', 'documentos_da_propriedade', 'video_da_propriedade'];
     fileInputs.forEach(name => {
       const input = document.querySelector(`input[name="${name}"]`) as HTMLInputElement;
       if (input?.files) {
@@ -129,6 +238,7 @@ export default function CadastrarImovelPage() {
                     minLength: { value: 5, message: "Mínimo 5 caracteres" }
                   })}
                   className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                  aria-invalid={errors.titulo_da_propriedade ? "true" : "false"}
                 />
                 {errors.titulo_da_propriedade && (
                   <p className="text-red-500 text-xs mt-1">{errors.titulo_da_propriedade.message}</p>
@@ -144,6 +254,7 @@ export default function CadastrarImovelPage() {
                   })}
                   className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
                   rows={4}
+                  aria-invalid={errors.descricao_da_propriedade ? "true" : "false"}
                 />
                 {errors.descricao_da_propriedade && (
                   <p className="text-red-500 text-xs mt-1">{errors.descricao_da_propriedade.message}</p>
@@ -161,6 +272,7 @@ export default function CadastrarImovelPage() {
                   <input
                     {...register("endereco_da_propriedade", { required: "Endereço é obrigatório" })}
                     className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                    aria-invalid={errors.endereco_da_propriedade ? "true" : "false"}
                   />
                   {errors.endereco_da_propriedade && (
                     <p className="text-red-500 text-xs mt-1">{errors.endereco_da_propriedade.message}</p>
@@ -170,8 +282,12 @@ export default function CadastrarImovelPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700">País*</label>
                   <select
-                    {...register("pais_da_propriedade", { required: "País é obrigatório" })}
+                    {...register("pais_da_propriedade", { 
+                      required: "País é obrigatório",
+                      onChange: (e) => setSelectedCountry(e.target.value)
+                    })}
                     className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                    aria-invalid={errors.pais_da_propriedade ? "true" : "false"}
                   >
                     <option value="">Selecione o país</option>
                     {paises.map(pais => (
@@ -186,13 +302,20 @@ export default function CadastrarImovelPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Província*</label>
                   <select
-                    {...register("provincia_da_propriedade", { required: "Província é obrigatória" })}
+                    {...register("provincia_da_propriedade", { 
+                      required: "Província é obrigatória",
+                      disabled: !selectedCountry
+                    })}
                     className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                    aria-invalid={errors.provincia_da_propriedade ? "true" : "false"}
                   >
                     <option value="">Selecione a província</option>
-                    {provinciasAngola.map(provincia => (
+                    {selectedCountry === 'Angola' && provinciasAngola.map(provincia => (
                       <option key={provincia} value={provincia}>{provincia}</option>
                     ))}
+                    {selectedCountry && selectedCountry !== 'Angola' && (
+                      <option value="Outra">Outra</option>
+                    )}
                   </select>
                   {errors.provincia_da_propriedade && (
                     <p className="text-red-500 text-xs mt-1">{errors.provincia_da_propriedade.message}</p>
@@ -205,14 +328,22 @@ export default function CadastrarImovelPage() {
                     {...register("cidade_da_propriedade", { 
                       required: "Cidade é obrigatória",
                       validate: value => 
-                        cidadesAngola.includes(value) || "Selecione uma cidade válida"
+                        selectedCountry !== 'Angola' || 
+                        cidadesAngola.includes(value) || 
+                        "Selecione uma cidade válida"
                     })}
                     className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                    disabled={!selectedCountry}
+                    aria-invalid={errors.cidade_da_propriedade ? "true" : "false"}
                   >
                     <option value="">Selecione a cidade</option>
-                    {cidadesAngola.map(cidade => (
-                      <option key={cidade} value={cidade}>{cidade}</option>
-                    ))}
+                    {selectedCountry === 'Angola' ? (
+                      cidadesAngola.map(cidade => (
+                        <option key={cidade} value={cidade}>{cidade}</option>
+                      ))
+                    ) : (
+                      <option value="Outra">Outra</option>
+                    )}
                   </select>
                   {errors.cidade_da_propriedade && (
                     <p className="text-red-500 text-xs mt-1">{errors.cidade_da_propriedade.message}</p>
@@ -239,6 +370,7 @@ export default function CadastrarImovelPage() {
                   <select
                     {...register("tipo_da_propriedade", { required: "Tipo é obrigatório" })}
                     className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                    aria-invalid={errors.tipo_da_propriedade ? "true" : "false"}
                   >
                     <option value="">Selecione o tipo</option>
                     {tiposPropriedade.map(tipo => (
@@ -290,6 +422,7 @@ export default function CadastrarImovelPage() {
                       min: { value: 1, message: "Preço inválido" }
                     })}
                     className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
+                    aria-invalid={errors.preco_da_propriedade ? "true" : "false"}
                   />
                   {errors.preco_da_propriedade && (
                     <p className="text-red-500 text-xs mt-1">{errors.preco_da_propriedade.message}</p>
@@ -421,31 +554,13 @@ export default function CadastrarImovelPage() {
               <h3 className="font-semibold text-lg text-gray-800">Detalhes Adicionais</h3>
               
               {fields.map((field, index) => (
-                <div key={field.id} className="flex flex-col md:flex-row gap-4 items-end">
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700">Título</label>
-                    <input
-                      {...register(`detalhes.${index}.titulo`)}
-                      className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
-                    />
-                  </div>
-                  
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700">Valor</label>
-                    <input
-                      {...register(`detalhes.${index}.valor`)}
-                      className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2"
-                    />
-                  </div>
-                  
-                  <button
-                    type="button"
-                    onClick={() => remove(index)}
-                    className="p-2 text-red-600 hover:text-red-800"
-                  >
-                    <Trash className="h-5 w-5" />
-                  </button>
-                </div>
+                <DetailField 
+                  key={field.id}
+                  register={register}
+                  index={index}
+                  remove={remove}
+                  errors={errors}
+                />
               ))}
               
               <button
@@ -463,39 +578,37 @@ export default function CadastrarImovelPage() {
               <h3 className="font-semibold text-lg text-gray-800">Mídia</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Imagens*</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    {...register("imagens_da_propriedade", { 
-                      required: "Pelo menos uma imagem é obrigatória"
-                    })}
-                    className="mt-1 block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                  />
-                </div>
+                <FileInput
+                  register={register}
+                  name="imagens_da_propriedade"
+                  label="Imagens"
+                  required={true}
+                  accept="image/*"
+                  multiple={true}
+                  maxSizeMB={10}
+                  maxFiles={5}
+                  errors={errors}
+                />
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Documentos</label>
-                  <input
-                    type="file"
-                    accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.odp"
-                    multiple
-                    {...register("documentos_da_propriedade")}
-                    className="mt-1 block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                  />
-                </div>
+                <FileInput
+                  register={register}
+                  name="documentos_da_propriedade"
+                  label="Documentos"
+                  accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.odp"
+                  multiple={true}
+                  maxSizeMB={10}
+                  maxFiles={5}
+                  errors={errors}
+                />
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Vídeo</label>
-                  <input
-                    type="file"
-                    accept="video/*"
-                    {...register("video_da_propriedade")}
-                    className="mt-1 block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                  />
-                </div>
+                <FileInput
+                  register={register}
+                  name="video_da_propriedade"
+                  label="Vídeo"
+                  accept="video/*"
+                  maxSizeMB={50}
+                  errors={errors}
+                />
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Imagem 360°</label>
@@ -545,6 +658,7 @@ function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
       className={`w-full px-4 py-3 rounded-md font-semibold text-white flex items-center justify-center gap-2 ${
         isSubmitting || pending ? 'bg-indigo-400 cursor-not-allowed' : 'bg-purple-700 hover:bg-purple-800'
       }`}
+      aria-disabled={isSubmitting || pending}
     >
       {(isSubmitting || pending) ? (
         <>

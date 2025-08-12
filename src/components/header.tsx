@@ -25,7 +25,8 @@ import { logout } from '@/lib/logout';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isClient, setIsClient] = useState(false); // 👈 flag para ambiente do cliente
+  const [isClient, setIsClient] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { user, setUser } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
@@ -33,6 +34,7 @@ export default function Header() {
 
   useEffect(() => {
     setIsClient(true);
+    setIsLoading(false);
   }, []);
 
   const handleCadastrarImovelClick = (e: React.MouseEvent) => {
@@ -57,12 +59,14 @@ export default function Header() {
   };
 
   function UserDropdown({ mobile }: { mobile?: boolean } = {}) {
-    if (!isClient) return null;
+    if (!isClient || isLoading) return null;
 
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
+            aria-label="Menu do usuário"
+            aria-haspopup="true"
             className={`${mobile ? 'w-full' : ''} flex justify-center px-5 py-3 border-2 border-purple-700 text-purple-700 bg-white hover:bg-purple-50 text-sm font-semibold rounded-full transition items-center gap-2 outline-none focus:ring-2 focus:ring-purple-300 cursor-pointer`}
             style={{ minWidth: 0 }}
           >
@@ -71,7 +75,10 @@ export default function Header() {
           </button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" className="w-56 rounded-2xl shadow-2xl border border-gray-100 bg-white p-2 mt-2 animate-fade-in">
+        <DropdownMenuContent 
+          align="end" 
+          className="w-56 rounded-2xl shadow-2xl border border-gray-100 bg-white p-2 mt-2 animate-fade-in"
+        >
           <div className="px-4 py-3 border-b border-gray-100 mb-2 flex items-center gap-3">
             <UserCircle className="w-10 h-10 text-purple-700" />
             <div>
@@ -79,11 +86,17 @@ export default function Header() {
               <div className="text-xs text-gray-500">{user?.email}</div>
             </div>
           </div>
-          <DropdownMenuItem onClick={() => router.push('/dashboard')} className="rounded-lg px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-700 font-medium cursor-pointer">
+          <DropdownMenuItem 
+            onClick={() => router.push('/dashboard')} 
+            className="rounded-lg px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-700 font-medium cursor-pointer"
+          >
             Dashboard
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout} className="rounded-lg px-4 py-2 text-red-600 hover:bg-red-50 font-medium cursor-pointer">
+          <DropdownMenuItem 
+            onClick={handleLogout} 
+            className="rounded-lg px-4 py-2 text-red-600 hover:bg-red-50 font-medium cursor-pointer"
+          >
             Sair
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -106,7 +119,7 @@ export default function Header() {
     };
 
     return (
-      <section className="flex justify-center items-center py-5 bg-purple-700 px-4">
+      <section aria-label="Barra de pesquisa" className="flex justify-center items-center py-5 bg-purple-700 px-4">
         <form
           onSubmit={handleSubmit}
           className="flex flex-col lg:flex-row bg-white w-full max-w-7xl px-4 py-4 lg:px-6 lg:py-3 rounded-2xl gap-4 items-center"
@@ -117,6 +130,7 @@ export default function Header() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             className="w-full lg:w-[50%] border-none focus:outline-none text-sm px-3"
+            aria-label="Termo de pesquisa"
           />
 
           <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-[50%]">
@@ -144,6 +158,7 @@ export default function Header() {
           <button
             type="submit"
             className="w-full sm:w-auto bg-orange-500 px-4 py-3 rounded-lg text-white font-semibold hover:bg-orange-600 transition"
+            aria-label="Pesquisar imóveis"
           >
             Procurar
           </button>
@@ -160,20 +175,33 @@ export default function Header() {
     { id: 'contacto', label: 'CONTACTO', href: '/contato' },
   ];
 
+  if (isLoading) {
+    return (
+      <header className="sticky top-0 z-50 bg-white shadow-sm h-16">
+        {/* Placeholder enquanto carrega */}
+      </header>
+    );
+  }
+
   return (
-    <header>
+    <header className="sticky top-0 z-50 bg-white shadow-sm">
       <div className="max-w-7xl mx-auto flex justify-between items-center py-2 px-4 md:px-8">
-        <Link href="/">
+        <Link href="/" aria-label="Página inicial">
           <img src="/kerhome_logo.png" alt="kerhome logo" className="w-32 md:w-80" />
         </Link>
 
         <div className="md:hidden">
-          <button onClick={() => setMenuOpen(!menuOpen)} className="text-purple-700">
+          <button 
+            onClick={() => setMenuOpen(!menuOpen)} 
+            className="text-purple-700"
+            aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={menuOpen}
+          >
             {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
-        <nav className="hidden md:flex items-center justify-center gap-10">
+        <nav aria-label="Navegação principal" className="hidden md:flex items-center justify-center gap-10">
           <ul className="flex items-center gap-6">
             {navLinks.map(({ id, label, href }) => (
               <Link key={id} href={href} className={linkClass(href)}>
@@ -186,30 +214,50 @@ export default function Header() {
               <button
                 className="px-5 py-3 bg-purple-700 hover:bg-purple-800 text-sm font-semibold text-white rounded-full"
                 onClick={handleCadastrarImovelClick}
+                aria-label="Cadastrar imóvel"
               >
                 Cadastrar Imóvel
               </button>
             </Link>
-            {isClient && !user && <AuthDialog ref={authDialogRef} trigger={<button className="cursor-pointer border border-purple-700 text-purple-700 px-4 py-2 rounded-full">
-                      Minha Conta
-                      </button>}/>}
+            {isClient && !user && (
+              <AuthDialog 
+                ref={authDialogRef} 
+                trigger={
+                  <button 
+                    className="cursor-pointer border border-purple-700 text-purple-700 px-4 py-2 rounded-full"
+                    aria-label="Acessar minha conta"
+                  >
+                    Minha Conta
+                  </button>
+                }
+              />
+            )}
             {isClient && user && <UserDropdown />}
           </div>
         </nav>
       </div>
 
       {menuOpen && (
-        <div className="md:hidden px-4 pb-4 transition-all">
+        <nav aria-label="Navegação mobile" className="md:hidden px-4 pb-4 transition-all">
           <ul className="flex flex-col space-y-2 mb-4">
             {navLinks.map(({ id, label, href }) => (
-              <Link key={id} href={href} className={linkClass(href)}>
+              <Link 
+                key={id} 
+                href={href} 
+                className={linkClass(href)}
+                onClick={() => setMenuOpen(false)}
+              >
                 {label}
               </Link>
             ))}
           </ul>
           <div className="flex flex-col gap-3">
             <Link href="/dashboard/cadastrar-imovel">
-              <button className="w-full px-5 py-3 bg-purple-700 hover:bg-purple-800 text-sm font-semibold text-white rounded-full">
+              <button 
+                className="w-full px-5 py-3 bg-purple-700 hover:bg-purple-800 text-sm font-semibold text-white rounded-full"
+                onClick={() => setMenuOpen(false)}
+                aria-label="Cadastrar imóvel"
+              >
                 Cadastrar Imóvel
               </button>
             </Link>
@@ -220,19 +268,26 @@ export default function Header() {
             ) : (
               isClient && (
                 <div className="w-full">
-                  <AuthDialog trigger={<button className="cursor-pointer border border-purple-700 text-purple-700 px-4 py-2 rounded-full">
-                      Minha Conta
-                      </button>}
-                    />
+                  <AuthDialog 
+                    trigger={
+                      <button 
+                        className="cursor-pointer border border-purple-700 text-purple-700 px-4 py-2 rounded-full w-full"
+                        aria-label="Acessar minha conta"
+                      >
+                        Minha Conta
+                      </button>
+                    }
+                  />
                 </div>
               )
             )}
           </div>
-        </div>
+        </nav>
       )}
 
-      <SearchBar />
+      <div className="relative z-40">
+        <SearchBar />
+      </div>
     </header>
   );
 }
-

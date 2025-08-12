@@ -1,20 +1,19 @@
+
 import { PropertyCard } from "@/components/property-card";
 import { searchProperties } from "@/lib/actions/supabase-actions/search-properties-action";
 
-interface ResultsPageProps {
-  searchParams: Promise<{
-    q?: string;
-    status?: "para alugar" | "para comprar";
-    cidade?: string;
-  }>;
+interface SearchParams {
+  q?: string;
+  status?: 'para alugar' | 'para comprar';
+  cidade?: string;
 }
 
-export default async function ResultsPage({ searchParams }: ResultsPageProps) {
-  // ⏳ Aguarda os searchParams
-  const params = await searchParams;
-
-  // 🔍 Busca propriedades com filtros
-  const properties = await searchProperties(params);
+export default async function ResultsPage({ q, status, cidade }: SearchParams) {
+  const properties = await searchProperties({
+    q: q,
+    status: status,
+    cidade: cidade,
+  });
 
   return (
     <div className="max-w-7xl mx-auto py-6">

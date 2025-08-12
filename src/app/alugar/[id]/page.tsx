@@ -310,7 +310,7 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
           {/* Sidebar Filtro + Info */}
           <div className="hidden md:block md:col-span-1 sticky top-24 self-start order-none md:order-last space-y-6">
             {/* Filtro de imóveis */}
-            <PropertyFilterSidebar />
+            <PropertyFilterSidebar property={property} />
 
             {/* Cidades disponíveis */}
             <CidadesDisponiveis />

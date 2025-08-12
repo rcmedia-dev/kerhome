@@ -70,7 +70,7 @@ export async function createProperty(formData: FormData) {
 
     const image360Url = await processSingleFileUpload(
       supabase,
-      'images/images',
+      'images',
       formData.get('imagem_360_da_propriedade') as File | null
     );
 

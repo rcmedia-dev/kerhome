@@ -2,25 +2,30 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { TPropertyResponseSchema } from '@/lib/types/property';
 
-export function PropertyFilterSidebar() {
-  const [status, setStatus] = useState('');
-  const [tipo, setTipo] = useState('');
-  const [banhos, setBanhos] = useState('');
-  const [quartos, setQuartos] = useState('');
-  const [garagens, setGaragens] = useState('');
-  const [precoMax, setPrecoMax] = useState('');
-  const [tamanhoMin, setTamanhoMin] = useState('');
+
+export function PropertyFilterSidebar({ property }: { property: TPropertyResponseSchema }) {
+  const [status, setStatus] = useState(property.status || '');
+  const [tipo, setTipo] = useState(property.tipo || '');
+  const [banhos, setBanhos] = useState(property.bathrooms?.toString() || '');
+  const [quartos, setQuartos] = useState(property.bedrooms?.toString() || '');
+  const [garagens, setGaragens] = useState(property.garagens?.toString() || '');
+  const [precoMax, setPrecoMax] = useState(property.price?.toString() || '');
+  const [tamanhoMin, setTamanhoMin] = useState(property.size?.toString() || '');
   const router = useRouter();
 
   const handleSearch = () => {
     const params = new URLSearchParams();
 
-    if (status) params.set('status', status);
-    if (tipo) params.set('tipo', tipo);
-    if (banhos) params.set('banheiros', banhos);
-    if (quartos) params.set('quartos', quartos);
-    if (garagens) params.set('garagens', garagens);
+    // Inclui o título do imóvel
+    if (property.title) params.set('titulo', property.title);
+
+    if (property.status) params.set('status', status);
+    if (property.tipo) params.set('tipo', tipo);
+    if (property.bathrooms) params.set('banheiros', banhos);
+    if (property.bedrooms) params.set('quartos', quartos);
+    if (property.garagens) params.set('garagens', garagens);
     if (precoMax) params.set('preco_max', precoMax);
     if (tamanhoMin) params.set('tamanho_min', tamanhoMin);
 

@@ -8,27 +8,28 @@ export async function deleteProperty(propertyId: string, userId?: string) {
   // 1. Verificar se o usuário é o dono da propriedade
   const { data: property, error: fetchError } = await supabase
     .from('properties')
-    .select('owner_id, images')
+    .select('owner_id, gallery')
     .eq('id', propertyId)
-    .single();
+    .maybeSingle();
 
   if (fetchError) {
+    console.error('Erro ao buscar propriedade:', fetchError);
     throw new Error('Erro ao verificar propriedade');
   }
 
-  if (property.owner_id !== userId) {
+  if (property?.owner_id !== userId) {
     throw new Error('Você não tem permissão para deletar esta propriedade');
   }
 
   // 2. Deletar imagens associadas (se existirem)
-  if (property.images && property.images.length > 0) {
-    const imagePaths = property.images.map((img: string) => 
+  if (property?.gallery[0] && property.gallery.length > 0) {
+    const imagePaths = property.gallery.map((img: string) => 
       img.split('/').pop()
     );
 
     const { error: storageError } = await supabase
       .storage
-      .from('images/images')
+      .from('images')
       .remove(imagePaths);
 
     if (storageError) {
