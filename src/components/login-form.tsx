@@ -12,13 +12,11 @@ interface Props {
 }
 
 export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
-  // State management
   const [error, setError] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(false)
   const { setUser } = useAuth()
   const router = useRouter()
 
-  // Handler functions
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setError(null)
@@ -41,6 +39,7 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
   }
 
   const handleLoginSuccess = (userData: any) => {
+    // Salvando usuário no contexto
     setUser({
       id: userData.id,
       email: userData.email || '',
@@ -56,6 +55,7 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
       instagram: userData.instagram || undefined,
       youtube: userData.youtube || undefined,
       sobre_mim: userData.sobre_mim || undefined,
+      role: userData.role || 'user', // <- adicionando role
       ...(userData.pacote_agente && {
         pacote_agente: {
           id: userData.pacote_agente.id || '',
@@ -69,9 +69,15 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
         }
       })
     })
-    
+
+    // Redirecionamento baseado na role
+    if (userData.role === 'admin') {
+      router.push('/admin/dashboard')
+    } else {
+      router.push('/dashboard')
+    }
+
     onSuccess?.()
-    router.push('/dashboard')
   }
 
   const handleLoginError = (error: any) => {
@@ -79,10 +85,8 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
     console.error('Login error:', error)
   }
 
-  // Component rendering
   return (
     <div className="p-6 bg-white rounded-lg w-full max-w-md">
-      {/* Header Section */}
       <div className="flex justify-center mb-4">
         <Image 
           src="/kerhome_logo.png" 
@@ -98,7 +102,6 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
         <p className="text-gray-500 text-sm">Acesse sua conta para continuar</p>
       </div>
 
-      {/* Login Form */}
       <form className="space-y-5" onSubmit={handleSubmit}>
         <FormInput 
           id="email"
@@ -126,7 +129,6 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
         <SubmitButton loading={loading} />
       </form>
 
-      {/* Footer Links */}
       <div className="mt-6 text-center space-y-2">
         <button
           type="button"
@@ -148,7 +150,6 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
   )
 }
 
-// Reusable Form Input Component
 const FormInput = ({ id, name, type, required, label, minLength }: {
   id: string
   name: string
@@ -176,7 +177,6 @@ const FormInput = ({ id, name, type, required, label, minLength }: {
   </div>
 )
 
-// Reusable Submit Button Component
 const SubmitButton = ({ loading }: { loading: boolean }) => (
   <button
     type="submit"
@@ -196,7 +196,6 @@ const SubmitButton = ({ loading }: { loading: boolean }) => (
   </button>
 )
 
-// Reusable Spinner Component
 const Spinner = () => (
   <svg
     className="animate-spin h-5 w-5 mr-3 text-white"

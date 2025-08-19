@@ -31,6 +31,7 @@ interface UserProfile {
   youtube?: string | null
   sobre_mim?: string | null
   pacote_agente?: PlanoAgente | null
+  role?: string | null   // ✅ CAMPO ADICIONADO
   created_at?: string
   updated_at?: string
 }
@@ -120,6 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         youtube: profile.youtube || null,
         sobre_mim: profile.sobre_mim || null,
         pacote_agente: profile.pacote_agente || null,
+        role: profile.role || null, // ✅ ATRIBUÍDO
         created_at: profile.created_at,
         updated_at: profile.updated_at
       })
@@ -135,23 +137,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!user) return
 
     try {
-      // Atualiza o estado local imediatamente para otimismo
       setUser({ ...user, ...updates })
 
-      // Se houver campos que precisam ser atualizados no backend
-      if (updates.primeiro_nome || updates.ultimo_nome || updates.username) {
+      if (updates.primeiro_nome || updates.ultimo_nome || updates.username || updates.role) {
         await supabase
           .from('profiles')
           .update({
             primeiro_nome: updates.primeiro_nome,
             ultimo_nome: updates.ultimo_nome,
-            username: updates.username
+            username: updates.username,
+            role: updates.role
           })
           .eq('id', user.id)
       }
     } catch (error) {
       console.error('Error updating user:', error)
-      // Reverte as mudanças em caso de erro
       setUser(user)
     }
   }

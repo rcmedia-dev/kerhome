@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from './auth-context';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Menu, UserCircle, X } from 'lucide-react';
 import Link from 'next/link';
@@ -27,15 +27,26 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { user, setUser } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
   const authDialogRef = useRef<{ open: () => void }>(null);
 
+  const handleScroll = useCallback(() => {
+    if (window.scrollY > 50) {
+      setIsScrolled(true);
+    } else {
+      setIsScrolled(false);
+    }
+  }, []);
+
   useEffect(() => {
     setIsClient(true);
     setIsLoading(false);
-  }, []);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
 
   const handleCadastrarImovelClick = (e: React.MouseEvent) => {
     if (!user) {
@@ -60,6 +71,14 @@ export default function Header() {
 
   function UserDropdown({ mobile }: { mobile?: boolean } = {}) {
     if (!isClient || isLoading) return null;
+
+    const handleDashboardClick = () => {
+      if (user?.role === 'admin') {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/dashboard');
+      }
+    };
 
     return (
       <DropdownMenu>
@@ -87,7 +106,7 @@ export default function Header() {
             </div>
           </div>
           <DropdownMenuItem 
-            onClick={() => router.push('/dashboard')} 
+            onClick={handleDashboardClick} 
             className="rounded-lg px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-700 font-medium cursor-pointer"
           >
             Dashboard
@@ -285,7 +304,8 @@ export default function Header() {
         </nav>
       )}
 
-      <div className="relative z-40">
+      {/* Barra de pesquisa que desaparece ao rolar */}
+      <div className={`relative z-40 transition-all duration-300 ${isScrolled ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100 h-auto'}`}>
         <SearchBar />
       </div>
     </header>

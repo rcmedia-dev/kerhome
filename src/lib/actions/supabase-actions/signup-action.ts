@@ -102,6 +102,8 @@ export async function signUp(formData: FormData): Promise<SignUpResponse> {
         email,
         primeiro_nome: primeiro_nome,
         ultimo_nome: ultimo_nome,
+        role: formData.get('role') || 'Agente',
+        status: 'active',
         pacote_agente_id: planoData.id
       })
 
