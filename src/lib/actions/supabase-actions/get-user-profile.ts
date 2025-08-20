@@ -16,15 +16,17 @@ export interface UserProfile {
   instagram?: string;
   youtube?: string ;
   sobre_mim?: string ;
+  pacote_agente_id?: string;
+  role?: string;
   created_at?: string; // Adicionado como opcional
   updated_at?: string; // Adicionado como opcional
 }
 
-export async function getUserProfile(userId?: string): Promise<UserProfile> {
-  console.log("🔎 Buscando perfil para ID:", userId);
+export async function getUserProfile(id?: string): Promise<UserProfile> {
+  console.log("🔎 Buscando perfil para ID:", id);
 
-  if (!userId || typeof userId !== 'string') {
-    console.error("❌ ID inválido:", userId);
+  if (!id || typeof id !== 'string') {
+    console.error("❌ ID inválido:", id);
     throw new Error('ID do usuário inválido');
   }
 
@@ -46,10 +48,12 @@ export async function getUserProfile(userId?: string): Promise<UserProfile> {
         instagram,
         youtube,
         sobre_mim,
+        pacote_agente_id,
+        role,
         created_at,
         updated_at
       `)
-      .eq('id', userId)
+      .eq('id', id)
       .single();
 
     console.log("📡 Resposta do Supabase:", { data, error });
@@ -60,7 +64,7 @@ export async function getUserProfile(userId?: string): Promise<UserProfile> {
     }
 
     if (!data) {
-      console.error('⚠️ Nenhum perfil encontrado para ID:', userId);
+      console.error('⚠️ Nenhum perfil encontrado para ID:', id);
       throw new Error('Perfil não encontrado');
     }
 

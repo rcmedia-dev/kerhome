@@ -1,8 +1,10 @@
+import React from 'react';
 import { getPropertyById } from '../../actions/get-properties-by-id';
 import PropertyDetailClient from './client-component';
 
-export default async function PropertyDetailPage({ params }: { params: { id: string } }) {
-  const property = await getPropertyById(params.id);
+export default async function PropertyDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = React.use(params);
+  const property = await getPropertyById(id);
   
   if (!property) {
     return (

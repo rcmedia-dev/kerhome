@@ -52,6 +52,7 @@ export function UserManagement({ darkMode, initialUsers = [] }: UsersManagementP
   useEffect(() => {
     if (!initialUsers.length) {
       fetchUsers();
+      console.log('initial users:', initialUsers)
     }
   }, []);
 
@@ -66,12 +67,15 @@ export function UserManagement({ darkMode, initialUsers = [] }: UsersManagementP
         role: user.role as 'Agente' | 'Administrador' | null
       }));
       setUsers(transformedUsers);
+      
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar usuários');
     } finally {
       setLoading(false);
     }
   };
+
+  console.log('users fetched from db:', users)
 
   if (loading) {
     return (

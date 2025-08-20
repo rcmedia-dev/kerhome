@@ -52,19 +52,19 @@ export async function createProperty(formData: FormData) {
     // Processar uploads de arquivos
     const imageUrls = await processFileUploads(
       supabase, 
-      'images/images', 
+      'images',
       formData.getAll('imagens_da_propriedade') as File[]
     );
 
     const documentUrls = await processFileUploads(
       supabase,
-      'files/docs',
+      'files',
       formData.getAll('documentos_da_propriedade') as File[]
     );
 
     const videoUrl = await processSingleFileUpload(
       supabase,
-      'files/images',
+      'files',
       formData.get('video_da_propriedade') as File | null
     );
 
