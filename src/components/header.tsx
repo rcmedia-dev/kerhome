@@ -206,7 +206,7 @@ export default function Header() {
     <header className="sticky top-0 z-50 bg-white shadow-sm">
       <div className="max-w-7xl mx-auto flex justify-between items-center py-2 px-4 md:px-8">
         <Link href="/" aria-label="Página inicial">
-          <img src="/kerhome_logo.png" alt="kerhome logo" className="w-32 md:w-80" />
+          <img src="/kercasa_logo.png" alt="kerhome logo" className="w-32 md:w-80" />
         </Link>
 
         <div className="md:hidden">
