@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: 'Kercasa - Seu lar, começa aqui',
   icons: {
-    icon: '/favicon.png', // caminho relativo à pasta /public
+    icon: '/favicon.ico', // caminho relativo à pasta /public
   },
 };
 
