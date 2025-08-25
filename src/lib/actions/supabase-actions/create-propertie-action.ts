@@ -2,6 +2,7 @@
 'use server';
 
 import { supabase } from "@/lib/supabase";
+import { revalidatePath } from "next/cache";
 
 
 export async function createProperty(formData: FormData) {
@@ -83,6 +84,8 @@ export async function createProperty(formData: FormData) {
     }).select();
 
     if (error) throw error;
+
+    revalidatePath('/')
 
     return {
       success: true,
