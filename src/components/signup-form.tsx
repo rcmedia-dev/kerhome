@@ -82,7 +82,7 @@ export function CustomSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
     <div className="p-6 bg-white rounded-lg w-full max-w-md">
       <div className="flex justify-center mb-4">
         <Image 
-          src="/kerhome_logo.png" 
+          src="/kercasa_logo.png" 
           alt="Kerhome Logo" 
           width={100} 
           height={100} 

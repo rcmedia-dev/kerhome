@@ -90,6 +90,7 @@ export default function ContactPage() {
 
             <button
               type="submit"
+              disabled
               className="cursor-pointer w-full py-3 rounded-xl bg-orange-500 text-white font-semibold text-sm hover:bg-orange-600 transition duration-300 shadow-md"
             >
               Enviar Mensagem

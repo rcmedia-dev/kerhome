@@ -96,6 +96,7 @@ export function PropertyFilterSidebar({ property }: { property: TPropertyRespons
 
       <button
         onClick={handleSearch}
+        disabled={true}
         className="w-full bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600 transition"
       >
         Buscar
