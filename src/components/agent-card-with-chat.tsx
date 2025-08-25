@@ -44,28 +44,27 @@ export default function AgentCardWithChat({ ownerId, propertyId }: AgentCardWith
   const [mensagem, setMensagem] = useState('');
   const [status, setStatus] = useState<'idle' | 'enviando' | 'sucesso' | 'erro'>('idle');
   const [showChat, setShowChat] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
   
   const { user } = useAuth();
   const userIdLogado = user?.id;
 
   useEffect(() => {
-          async function fetchAgent() {
-              const data = await getPropertyOwner(propertyId);
-              setAgent(data);
-          }
-          fetchAgent()
+    async function fetchAgent() {
+      const data = await getPropertyOwner(propertyId);
+      setAgent(data);
+    }
+    fetchAgent()
 
-          const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY!, { cluster: process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER! })
-          const channel = pusher.subscribe('chat-channel')
-          channel.bind('new_message', (data: string) => {
-              setMensagem(data)
-          })
+    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY!, { cluster: process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER! })
+    const channel = pusher.subscribe('chat-channel')
+    channel.bind('new_message', (data: string) => {
+      setMensagem(data)
+    })
 
-         return () => {
-              pusher.unsubscribe('chat-channel')
-         }
-      }, [propertyId]);
+    return () => {
+      pusher.unsubscribe('chat-channel')
+    }
+  }, [propertyId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,18 +74,18 @@ export default function AgentCardWithChat({ ownerId, propertyId }: AgentCardWith
     setStatus('enviando');
 
     try {
-        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/messages`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                chat_id: userIdLogado,
-                content: mensagem,
-                receiver_id: agent.id,
-                sender_id: userIdLogado,
-            })
+      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/messages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          chat_id: userIdLogado,
+          content: mensagem,
+          receiver_id: agent.id,
+          sender_id: userIdLogado,
         })
+      })
 
       setMensagem('');
       setStatus('sucesso');
@@ -127,27 +126,9 @@ export default function AgentCardWithChat({ ownerId, propertyId }: AgentCardWith
           </div>
           <div className="flex-1">
             <h3 className="text-lg font-bold text-gray-900">{fullName}</h3>
-            <p className="text-sm text-purple-600 font-medium mb-1">Agente de Imóveis</p>
-            <button onClick={() => setShowDetails(!showDetails)} className="text-xs text-purple-600 hover:text-purple-800 mt-1">
-              {showDetails ? 'Menos detalhes' : 'Mais detalhes'}
-            </button>
+            <p className="text-sm text-purple-600 font-medium">Agente de Imóveis</p>
           </div>
         </div>
-
-        {showDetails && (
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-              <Mail className="text-purple-500" size={16} />
-              <a href={`mailto:${agent.email}`} className="hover:text-purple-600 hover:underline">{agent.email}</a>
-            </div>
-            {agent.telefone && (
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Phone className="text-purple-500" size={16} />
-                <a href={`tel:${agent.telefone}`} className="hover:text-purple-600 hover:underline">{agent.telefone}</a>
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Ações */}
@@ -182,6 +163,43 @@ export default function AgentCardWithChat({ ownerId, propertyId }: AgentCardWith
       {/* Chat */}
       {showChat && (
         <div className="border-t border-gray-200 bg-gray-50 p-4">
+         {/* Informações de contato do agente */}
+          <div className="mb-4 p-4 bg-white rounded-lg border border-gray-300 shadow-sm">
+            <h4 className="font-semibold text-gray-900 mb-3 text-lg">Contato do Agente</h4>
+
+            <div className="space-y-3">
+              {agent?.email ? (
+                <a
+                  href={`mailto:${agent.email}`}
+                  className="flex items-center gap-2 text-base text-orange-500 font-medium hover:underline"
+                >
+                  <Mail className="text-orange-500" size={18} />
+                  <span>{agent.email}</span>
+                </a>
+              ) : (
+                <div className="flex items-center gap-2 text-sm text-gray-400 italic">
+                  <Mail className="text-gray-400" size={16} />
+                  <span>Email não disponível</span>
+                </div>
+              )}
+
+              {agent?.telefone ? (
+                <a
+                  href={`tel:${agent.telefone}`}
+                  className="flex items-center gap-2 text-base text-orange-500 font-medium hover:underline"
+                >
+                  <Phone className="text-orange-500" size={18} />
+                  <span>{agent.telefone}</span>
+                </a>
+              ) : (
+                <div className="flex items-center gap-2 text-sm text-gray-400 italic">
+                  <Phone className="text-gray-400" size={16} />
+                  <span>Telefone não disponível</span>
+                </div>
+              )}
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-3">
             <textarea
               placeholder={`Digite sua mensagem para ${agent.primeiro_nome}...`}

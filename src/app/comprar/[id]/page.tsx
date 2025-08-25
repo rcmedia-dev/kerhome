@@ -338,29 +338,7 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
             </div>
 
             {/* Galeria de Fotos com destaque */}
-            {property.gallery && property.gallery.length > 0 && (
-              <div className="mb-6">
-                {/* Foto principal em destaque */}
-                <div className="relative w-full h-[400px] rounded-3xl overflow-hidden shadow-xl border border-gray-200 mb-4">
-                  <Image
-                    src={property.gallery[0]}
-                    alt={property.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                {/* Miniaturas/carrossel das outras fotos */}
-                {property.gallery.length > 1 && (
-                  <div className="flex gap-3 overflow-x-auto pb-2">
-                    {property.gallery.slice(1).map((img, idx) => (
-                      <div key={idx} className="relative w-32 h-20 rounded-xl overflow-hidden border border-gray-200 shadow cursor-pointer hover:ring-2 hover:ring-purple-400 transition">
-                        <Image src={img} alt={property.title} fill className="object-cover" />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+            <PropertyGallery property={property} />
 
             {/* Detalhes Técnicos */}
             <div className="pt-2">
@@ -594,5 +572,72 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
         </div>
       </div>
     </section>
+  );
+}
+
+
+interface Property {
+  title: string;
+  gallery: string[];
+}
+
+export function PropertyGallery({ property }: { property: Property }) {
+  const [mainImage, setMainImage] = useState<string | null>(null);
+  const [thumbnails, setThumbnails] = useState<string[]>([]);
+
+  // inicializa a galeria
+  useEffect(() => {
+    if (property?.gallery && property.gallery.length > 0) {
+      setMainImage(property.gallery[0]); // primeira como destaque
+      setThumbnails(property.gallery.slice(1)); // restantes como miniaturas
+    }
+  }, [property]);
+
+  // função para trocar a principal com a miniatura clicada
+  const handleSwap = (clickedImg: string, idx: number) => {
+    if (!mainImage) return;
+    const newThumbs = [...thumbnails];
+    newThumbs[idx] = mainImage; // miniatura clicada recebe a antiga principal
+    setMainImage(clickedImg);   // principal vira a imagem clicada
+    setThumbnails(newThumbs);
+  };
+
+  return (
+    <>
+      {/* Galeria de Fotos com destaque */}
+      {mainImage && (
+        <div className="mb-6">
+          {/* Foto principal */}
+          <div className="relative w-full h-[400px] rounded-3xl overflow-hidden shadow-xl border border-gray-200 mb-4">
+            <Image
+              src={mainImage}
+              alt={property.title}
+              fill
+              className="object-cover"
+            />
+          </div>
+
+          {/* Miniaturas/carrossel */}
+          {thumbnails.length > 0 && (
+            <div className="flex gap-3 overflow-x-auto pb-2">
+              {thumbnails.map((img, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => handleSwap(img, idx)}
+                  className="relative w-32 h-20 rounded-xl overflow-hidden border border-gray-200 shadow cursor-pointer hover:ring-2 hover:ring-purple-400 transition"
+                >
+                  <Image
+                    src={img}
+                    alt={`${property.title} - miniatura ${idx + 1}`}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </>
   );
 }
