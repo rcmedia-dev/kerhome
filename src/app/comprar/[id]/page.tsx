@@ -109,16 +109,26 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
                 {property.price && (
                   <>
                     <Tag className="w-6 h-6" />
-                    {property.price.toLocaleString('pt-AO', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2
-                    })}
+                    {property.price.toLocaleString(
+                      property.unidade_preco === "dolar" ? "en-US" : "pt-AO",
+                      {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }
+                    )}
                     {property.unidade_preco && (
-                      <span className="text-base font-normal">{property.unidade_preco}</span>
+                      <span className="text-base font-normal">
+                        {property.unidade_preco === "kwanza"
+                          ? "KZ"
+                          : property.unidade_preco === "dolar"
+                          ? "USD"
+                          : property.unidade_preco}
+                      </span>
                     )}
                   </>
                 )}
               </p>
+
             </div>
 
             {/* Galeria de Fotos com destaque */}
@@ -219,8 +229,27 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
                       <li><span className="font-semibold">Status:</span> {property.status}</li>
                     )}
                     {property.price && (
-                      <li><span className="font-semibold">Preço:</span> {property.price} {property.unidade_preco && <span className="text-base font-normal">{property.unidade_preco}</span>}</li>
+                      <li>
+                        <span className="font-semibold">Preço:</span>{" "}
+                        {property.price.toLocaleString(
+                          property.unidade_preco === "dolar" ? "en-US" : "pt-AO",
+                          {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }
+                        )}{" "}
+                        {property.unidade_preco && (
+                          <span className="text-base font-normal">
+                            {property.unidade_preco === "kwanza"
+                              ? "KZ"
+                              : property.unidade_preco === "dolar"
+                              ? "USD"
+                              : property.unidade_preco}
+                          </span>
+                        )}
+                      </li>
                     )}
+
                   </ul>
                   {/* Características */}
                   {property.caracteristicas && Array.isArray(property.caracteristicas) && property.caracteristicas.length > 0

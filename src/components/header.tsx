@@ -42,12 +42,12 @@ export default function Header() {
     
     // Usa debounce para evitar múltiplas renderizações durante o scroll
     scrollTimeoutRef.current = setTimeout(() => {
-      if (window.scrollY > 50) {
+      if (window.scrollY > 5) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
       }
-    }, 100); // Ajuste este valor conforme necessário (100ms é um bom padrão)
+    }, 50); // Ajuste este valor conforme necessário (100ms é um bom padrão)
   }, []);
 
   useEffect(() => {

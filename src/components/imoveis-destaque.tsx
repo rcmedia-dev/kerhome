@@ -53,8 +53,22 @@ export function ImoveisDestaque() {
                   {imovel.cidade || 'Localização não informada'}
                 </p>
                 <p className="text-sm font-bold text-orange-500 mt-1">
-                  {imovel.price?.toLocaleString()} {imovel.unidade_preco}
+                    {imovel.price &&
+                      imovel.price.toLocaleString(
+                        imovel.unidade_preco === "dolar" ? "en-US" : "pt-AO",
+                        {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }
+                      )}{" "}
+                    {imovel.unidade_preco &&
+                      (imovel.unidade_preco === "kwanza"
+                        ? "KZ"
+                        : imovel.unidade_preco === "dolar"
+                        ? "USD"
+                        : imovel.unidade_preco)}
                 </p>
+
               </div>
             </Link>
           );
