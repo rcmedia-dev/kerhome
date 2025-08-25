@@ -32,22 +32,38 @@ export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const authDialogRef = useRef<{ open: () => void }>(null);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleScroll = useCallback(() => {
-    if (window.scrollY > 50) {
-      setIsScrolled(true);
-    } else {
-      setIsScrolled(false);
+    // Limpa o timeout anterior se existir
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
     }
+    
+    // Usa debounce para evitar múltiplas renderizações durante o scroll
+    scrollTimeoutRef.current = setTimeout(() => {
+      if (window.scrollY > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    }, 100); // Ajuste este valor conforme necessário (100ms é um bom padrão)
   }, []);
 
   useEffect(() => {
     setIsClient(true);
     setIsLoading(false);
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
   }, [handleScroll]);
 
+  // Restante do código permanece igual...
   const handleCadastrarImovelClick = (e: React.MouseEvent) => {
     if (!user) {
       e.preventDefault();

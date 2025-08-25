@@ -13,6 +13,12 @@ import AgentCardWithChat from "@/components/agent-card-with-chat";
 
 
 
+const agents = [ 
+  {id: 1, name: 'João Fernando', picture: '/people/1.jpg'}, 
+  {id: 2, name: 'Antonia Miguel', picture: '/people/2.jpg'}, 
+  {id: 3, name: 'Pedro Afonso', picture: '/people/3.jpg'}
+]
+
 export default function PropertyPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params);
   const [property, setProperty] = useState<TPropertyResponseSchema | null>(null);
@@ -329,11 +335,11 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
                 Corretores em destaque
               </h3>
               <ul className="space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <li key={i} className="flex items-center gap-3">
+                {agents.map((agent) => (
+                  <li key={agent.id} className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-orange-500">
                       <Image
-                        src="/people/1.jpg"
+                        src={agent.picture}
                         alt="Agente"
                         width={48}
                         height={48}
@@ -342,7 +348,7 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-gray-800">
-                        João Pedro
+                        {agent.name}
                       </p>
                       <p className="text-xs text-gray-500">25 casas vendidas</p>
                     </div>

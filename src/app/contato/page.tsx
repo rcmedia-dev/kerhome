@@ -11,7 +11,7 @@ export default function ContactPage() {
         <div className="space-y-8">
           <h1 className="text-5xl font-extrabold text-gray-900 leading-tight tracking-tight">
             Entre em contacto <br />
-            com a <span className="text-orange-500">Kerhome</span>
+            com a <span className="text-purple-700">Ker<span className='text-orange-500'>casa</span></span>
           </h1>
 
           <p className="text-lg text-gray-600 max-w-lg">
@@ -22,15 +22,15 @@ export default function ContactPage() {
           <div className="space-y-5 text-gray-700 text-base">
             <div className="flex items-center gap-4">
               <Phone className="text-orange-500 w-5 h-5" />
-              <span>+244 999 000 000</span>
+              <span>+244 929 884 781</span>
             </div>
             <div className="flex items-center gap-4">
               <Mail className="text-orange-500 w-5 h-5" />
-              <span>contato@kerhome.casa</span>
+              <span>geral@rcmedia.ao</span>
             </div>
             <div className="flex items-center gap-4">
               <MapPin className="text-orange-500 w-5 h-5" />
-              <span>Rua Principal, Talatona – Luanda, Angola</span>
+              <span>Largo do Kinaxixi, Primeira Conservatória do Registro Civil</span>
             </div>
           </div>
         </div>

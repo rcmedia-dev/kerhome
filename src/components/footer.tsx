@@ -10,7 +10,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-10">
         {/* Logo e descrição */}
         <div>
-          <Image src="/kerhome_logo.png" alt="Logo" width={120} height={40} className="mb-4" />
+          <Image src="/kercasa_logo.png" alt="Logo" width={120} height={40} className="mb-4" />
           <p className="text-sm text-gray-400">
             Plataforma confiável para compra, venda e arrendamento de imóveis em Angola.
           </p>

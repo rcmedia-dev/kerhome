@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   User, Mail, Phone, Building, FileText, Globe, 
   Facebook, Linkedin, Instagram, Youtube, Save, 
@@ -9,7 +9,10 @@ import {
   CheckCircle, Lock
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
 import { getUserProfile } from '@/lib/actions/supabase-actions/get-user-profile';
+import { updateUserProfile } from '@/lib/actions/supabase-actions/update-user-profile';
+import { updateUserPassword } from '@/lib/actions/supabase-actions/admin-update-user-password';
 
 // Tipos TypeScript
 interface PlanoAgente {
@@ -39,8 +42,7 @@ interface UserProfile {
   youtube?: string;
   sobre_mim?: string;
   ativo?: boolean;
-  admin?: boolean;
-  pacote_agente?:string;
+  pacote_agente?: string;
   role?: string;
 }
 
@@ -50,12 +52,84 @@ interface AdminUserEditInterfaceProps {
   };
 }
 
+// Componente InputField com React Hook Form
+const InputField = React.memo(({ 
+  label, 
+  type = 'text', 
+  icon: Icon, 
+  placeholder, 
+  disabled = false,
+  rows,
+  required = false,
+  error,
+  field,
+  register,
+  ...rest
+}: {
+  label: string;
+  type?: string;
+  icon?: React.ElementType;
+  placeholder?: string;
+  disabled?: boolean;
+  rows?: number;
+  required?: boolean;
+  error?: any;
+  field: string;
+  register: any;
+}) => {
+  return (
+    <div className="group">
+      <label className="block text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
+        {Icon && <Icon size={16} className="text-gray-600" />}
+        {label}
+        {required && <span className="text-red-500 text-lg">*</span>}
+      </label>
+      <div className="relative">
+        {rows ? (
+          <textarea
+            rows={rows}
+            placeholder={placeholder}
+            disabled={disabled}
+            className={`w-full px-4 py-3 bg-white border-2 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 resize-none ${
+              disabled ? 'bg-gray-50 text-gray-500 cursor-not-allowed' : 'hover:border-gray-400'
+            } ${error ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20' : 'border-gray-300'}`}
+            {...register(field)}
+            {...rest}
+          />
+        ) : (
+          <input
+            type={type}
+            placeholder={placeholder}
+            disabled={disabled}
+            className={`w-full px-4 py-3 bg-white border-2 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 ${
+              disabled ? 'bg-gray-50 text-gray-500 cursor-not-allowed' : 'hover:border-gray-400'
+            } ${error ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20' : 'border-gray-300'}`}
+            {...register(field)}
+            {...rest}
+          />
+        )}
+        {disabled && (
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+            <Shield size={18} className="text-gray-400" />
+          </div>
+        )}
+      </div>
+      {error && (
+        <div className="mt-2 flex items-center gap-2 text-red-600 text-sm font-medium">
+          <AlertCircle size={16} />
+          {error.message}
+        </div>
+      )}
+    </div>
+  );
+});
+
+InputField.displayName = 'InputField';
+
 export default function AdminUserEditInterface(props: { params: Promise<{ id: string }>}) {
   const { id } = React.use(props.params)
   const router = useRouter();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState({ title: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -66,19 +140,56 @@ export default function AdminUserEditInterface(props: { params: Promise<{ id: st
     confirmarSenha: ''
   });
 
+  // React Hook Form
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+    reset
+  } = useForm<UserProfile>({
+    defaultValues: {
+      primeiro_nome: '',
+      ultimo_nome: '',
+      email: '',
+      username: '',
+      telefone: '',
+      empresa: '',
+      licenca: '',
+      website: '',
+      facebook: '',
+      linkedin: '',
+      instagram: '',
+      youtube: '',
+      sobre_mim: '',
+      role: 'Agente'
+    }
+  });
+
+  // Watch form values
+  const formValues = watch();
+
   // Função para voltar à página anterior
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     router.back();
-  };
+  }, [router]);
 
   // Carregar dados do usuário
   useEffect(() => {
     const fetchUserData = async () => {
       setLoading(true);
       try {
-        // Passar o id para a função getUserProfile
         const userData = await getUserProfile(id);
-        setProfile(userData);
+        
+        // Preencher o formulário com os dados do usuário
+        if (userData) {
+          Object.entries(userData).forEach(([key, value]) => {
+            if (value !== null && value !== undefined) {
+              setValue(key as keyof UserProfile, value);
+            }
+          });
+        }
       } catch (error) {
         setToastMessage({ 
           title: 'Erro', 
@@ -95,57 +206,30 @@ export default function AdminUserEditInterface(props: { params: Promise<{ id: st
     if (id) {
       fetchUserData();
     }
-  }, [id]);
+  }, [id, setValue]);
 
-  const handleInputChange = (field: keyof UserProfile, value: string | boolean) => {
-    if (!profile) return;
-    
-    setProfile(prev => ({ ...prev!, [field]: value }));
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
-    }
-  };
-
-  const validateForm = (): boolean => {
-    if (!profile) return false;
-    
-    const newErrors: Record<string, string> = {};
-
-    if (!profile.primeiro_nome?.trim()) {
-      newErrors.primeiro_nome = 'Nome é obrigatório';
-    }
-    if (!profile.ultimo_nome?.trim()) {
-      newErrors.ultimo_nome = 'Sobrenome é obrigatório';
-    }
-    if (profile.website && !profile.website.match(/^https?:\/\/.+/)) {
-      newErrors.website = 'Website deve começar com http:// ou https://';
-    }
-    if (profile.telefone && !profile.telefone.match(/^\+?[\d\s\-\(\)]+$/)) {
-      newErrors.telefone = 'Formato de telefone inválido';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async () => {
-    if (!profile || !validateForm()) return;
-
+  // Função de submit do formulário
+  const onSubmit = async (data: UserProfile) => {
     setIsSubmitting(true);
     
     try {
-      // Aqui você precisaria implementar a função updateUserProfile
-      // await updateUserProfile(id, profile);
-      
-      // Simulação de sucesso
-      setToastMessage({ 
-        title: 'Sucesso', 
-        message: 'Perfil atualizado com sucesso' 
+      const success = await updateUserProfile({
+        userId: id,
+        profileData: data
       });
+      
+      if (success) {
+        setToastMessage({ 
+          title: 'Sucesso', 
+          message: 'Perfil atualizado com sucesso' 
+        });
+      } else {
+        throw new Error('Falha ao atualizar perfil');
+      }
     } catch (error) {
       setToastMessage({ 
         title: 'Erro', 
-        message: 'Falha ao atualizar perfil' 
+        message: error instanceof Error ? error.message : 'Falha ao atualizar perfil' 
       });
       console.error('Erro ao atualizar perfil:', error);
     } finally {
@@ -155,113 +239,59 @@ export default function AdminUserEditInterface(props: { params: Promise<{ id: st
     }
   };
 
-  const handlePasswordChange = () => {
-    if (passwordData.novaSenha !== passwordData.confirmarSenha) {
-      setToastMessage({ 
-        title: 'Erro', 
-        message: 'As senhas não coincidem' 
-      });
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 4000);
-      return;
-    }
+  const handlePasswordChange = useCallback(async () => {
+  if (passwordData.novaSenha !== passwordData.confirmarSenha) {
+    setToastMessage({
+      title: 'Erro',
+      message: 'As senhas não coincidem'
+    });
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 4000);
+    return;
+  }
 
-    if (passwordData.novaSenha.length < 6) {
-      setToastMessage({ 
-        title: 'Erro', 
-        message: 'A senha deve ter pelo menos 6 caracteres' 
-      });
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 4000);
-      return;
-    }
+  if (passwordData.novaSenha.length < 6) {
+    setToastMessage({
+      title: 'Erro',
+      message: 'A senha deve ter pelo menos 6 caracteres'
+    });
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 4000);
+    return;
+  }
 
-    // Simular alteração de senha
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setShowPasswordModal(false);
-      setPasswordData({ novaSenha: '', confirmarSenha: '' });
-      setToastMessage({ 
-        title: 'Sucesso', 
-        message: 'Senha alterada com sucesso' 
-      });
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 4000);
-    }, 1500);
-  };
+  setIsSubmitting(true);
+
+  const result = await updateUserPassword(id, passwordData.novaSenha); // <-- use o ID do usuário aqui
+
+  setIsSubmitting(false);
+
+  if (result.success) {
+    setShowPasswordModal(false);
+    setPasswordData({ novaSenha: '', confirmarSenha: '' });
+    setToastMessage({
+      title: 'Sucesso',
+      message: 'Senha alterada com sucesso'
+    });
+  } else {
+    setToastMessage({
+      title: 'Erro',
+      message: result.error || 'Erro ao atualizar senha'
+    });
+  }
+
+  setShowToast(true);
+  setTimeout(() => setShowToast(false), 4000);
+  }, [passwordData, id]);
+
 
   const sections = [
     { id: 'pessoal', name: 'Pessoal', icon: User, color: 'blue' },
     { id: 'profissional', name: 'Profissional', icon: Building, color: 'green' },
     { id: 'social', name: 'Redes Sociais', icon: Globe, color: 'purple' },
     { id: 'sobre', name: 'Sobre Mim', icon: FileText, color: 'orange' },
-    { id: 'admin', name: 'Administrativo', icon: Shield, color: 'red' }
+    { id: 'role', name: 'Administrativo', icon: Shield, color: 'red' }
   ];
-
-  const InputField = ({ 
-    label, 
-    field, 
-    type = 'text', 
-    icon: Icon, 
-    placeholder, 
-    disabled = false,
-    rows,
-    required = false
-  }: {
-    label: string;
-    field: keyof UserProfile;
-    type?: string;
-    icon?: React.ElementType;
-    placeholder?: string;
-    disabled?: boolean;
-    rows?: number;
-    required?: boolean;
-  }) => (
-    <div className="group">
-      <label className="block text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
-        {Icon && <Icon size={16} className="text-gray-600" />}
-        {label}
-        {required && <span className="text-red-500 text-lg">*</span>}
-      </label>
-      <div className="relative">
-        {rows ? (
-          <textarea
-            rows={rows}
-            value={profile?.[field] as string || ''}
-            onChange={(e) => handleInputChange(field, e.target.value)}
-            placeholder={placeholder}
-            disabled={disabled}
-            className={`w-full px-4 py-3 bg-white border-2 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 resize-none ${
-              disabled ? 'bg-gray-50 text-gray-500 cursor-not-allowed' : 'hover:border-gray-400'
-            } ${errors[field] ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20' : 'border-gray-300'}`}
-          />
-        ) : (
-          <input
-            type={type}
-            value={profile?.[field] as string || ''}
-            onChange={(e) => handleInputChange(field, e.target.value)}
-            placeholder={placeholder}
-            disabled={disabled}
-            className={`w-full px-4 py-3 bg-white border-2 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 ${
-              disabled ? 'bg-gray-50 text-gray-500 cursor-not-allowed' : 'hover:border-gray-400'
-            } ${errors[field] ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20' : 'border-gray-300'}`}
-          />
-        )}
-        {disabled && (
-          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-            <Shield size={18} className="text-gray-400" />
-          </div>
-        )}
-      </div>
-      {errors[field] && (
-        <div className="mt-2 flex items-center gap-2 text-red-600 text-sm font-medium">
-          <AlertCircle size={16} />
-          {errors[field]}
-        </div>
-      )}
-    </div>
-  );
 
   if (loading) {
     return (
@@ -377,33 +407,31 @@ export default function AdminUserEditInterface(props: { params: Promise<{ id: st
               </div>
             </div>
             
-            {profile && (
-              <div className="flex flex-wrap items-center gap-4 mt-4">
-                <div className="flex items-center gap-3 bg-white/20 backdrop-blur-sm rounded-2xl p-3">
-                  <div className="bg-white/20 rounded-full p-2">
-                    <User size={20} />
-                  </div>
-                  <div>
-                    <div className="font-semibold">{profile.primeiro_nome} {profile.ultimo_nome}</div>
-                    <div className="text-sm opacity-90">{profile.email}</div>
-                  </div>
+            <div className="flex flex-wrap items-center gap-4 mt-4">
+              <div className="flex items-center gap-3 bg-white/20 backdrop-blur-sm rounded-2xl p-3">
+                <div className="bg-white/20 rounded-full p-2">
+                  <User size={20} />
                 </div>
-                
-                <div className={`flex items-center gap-2 rounded-full px-4 py-2 ${profile.ativo ? 'bg-green-500/30' : 'bg-red-500/30'}`}>
-                  {profile.ativo ? <CheckCircle size={16} /> : <Ban size={16} />}
-                  <span className="text-sm font-medium">{profile.ativo ? 'Ativo' : 'Inativo'}</span>
-                </div>
-                
-                <div className="flex items-center gap-2 rounded-full px-4 py-2 bg-blue-500/30">
-                  <Key size={16} />
-                  <span className="text-sm font-medium">{profile.admin ? 'Administrador' : 'Usuário'}</span>
+                <div>
+                  <div className="font-semibold">{formValues.primeiro_nome} {formValues.ultimo_nome}</div>
+                  <div className="text-sm opacity-90">{formValues.email}</div>
                 </div>
               </div>
-            )}
+              
+              <div className={`flex items-center gap-2 rounded-full px-4 py-2 ${formValues.ativo ? 'bg-green-500/30' : 'bg-red-500/30'}`}>
+                <CheckCircle size={16} /> 
+                <span className="text-sm font-medium">Ativo</span>
+              </div>
+              
+              <div className="flex items-center gap-2 rounded-full px-4 py-2 bg-blue-500/30">
+                <Key size={16} />
+                <span className="text-sm font-medium">{formValues.role }</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {profile && (
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid lg:grid-cols-4 gap-8">
             {/* Navigation Sidebar */}
             <div className="lg:col-span-1">
@@ -415,6 +443,7 @@ export default function AdminUserEditInterface(props: { params: Promise<{ id: st
                     return (
                       <button
                         key={section.id}
+                        type="button"
                         onClick={() => setActiveSection(section.id)}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
                           activeSection === section.id
@@ -432,6 +461,7 @@ export default function AdminUserEditInterface(props: { params: Promise<{ id: st
                 {/* Informações do Usuário */}
                 <div className="mt-8 bg-gray-50 rounded-2xl p-6">                  
                   <button
+                    type="button"
                     onClick={() => setShowPasswordModal(true)}
                     className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-blue-50 text-blue-700 rounded-xl border-2 border-blue-100 hover:bg-blue-100 transition-all duration-300"
                   >
@@ -441,7 +471,7 @@ export default function AdminUserEditInterface(props: { params: Promise<{ id: st
                 </div>
 
                 {/* Plan Card */}
-                {profile.pacote_agente && (
+                {formValues.pacote_agente && (
                   <div className="mt-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-6 text-white">
                     <div className="flex items-center gap-2 mb-4">
                       <Crown size={20} className="text-yellow-300" />
@@ -510,37 +540,47 @@ export default function AdminUserEditInterface(props: { params: Promise<{ id: st
                       <InputField
                         label="Nome"
                         field="primeiro_nome"
+                        register={register}
                         icon={User}
                         placeholder="Digite o nome"
                         required={true}
+                        error={errors.primeiro_nome}
                       />
                       <InputField
                         label="Sobrenome"
                         field="ultimo_nome"
+                        register={register}
                         icon={User}
                         placeholder="Digite o sobrenome"
                         required={true}
+                        error={errors.ultimo_nome}
                       />
                       <InputField
                         label="Email"
                         field="email"
+                        register={register}
                         type="email"
                         icon={Mail}
                         disabled={true}
+                        error={errors.email}
                       />
                       <InputField
                         label="Username"
                         field="username"
+                        register={register}
                         icon={User}
                         placeholder="@username"
+                        error={errors.username}
                       />
                       <div className="md:col-span-2">
                         <InputField
                           label="Telefone"
                           field="telefone"
+                          register={register}
                           type="tel"
                           icon={Phone}
                           placeholder="+244 xxx xxx xxx"
+                          error={errors.telefone}
                         />
                       </div>
                     </div>
@@ -564,22 +604,28 @@ export default function AdminUserEditInterface(props: { params: Promise<{ id: st
                       <InputField
                         label="Empresa"
                         field="empresa"
+                        register={register}
                         icon={Building}
                         placeholder="Nome da empresa"
+                        error={errors.empresa}
                       />
                       <InputField
                         label="Licença"
                         field="licenca"
+                        register={register}
                         icon={FileText}
                         placeholder="Número da licença profissional"
+                        error={errors.licenca}
                       />
                       <div className="md:col-span-2">
                         <InputField
                           label="Website"
                           field="website"
+                          register={register}
                           type="url"
                           icon={Globe}
                           placeholder="https://site.com"
+                          error={errors.website}
                         />
                       </div>
                     </div>
@@ -603,26 +649,34 @@ export default function AdminUserEditInterface(props: { params: Promise<{ id: st
                       <InputField
                         label="Facebook"
                         field="facebook"
+                        register={register}
                         icon={Facebook}
                         placeholder="usuario.facebook"
+                        error={errors.facebook}
                       />
                       <InputField
                         label="LinkedIn"
                         field="linkedin"
+                        register={register}
                         icon={Linkedin}
                         placeholder="usuario-linkedin"
+                        error={errors.linkedin}
                       />
                       <InputField
                         label="Instagram"
                         field="instagram"
+                        register={register}
                         icon={Instagram}
                         placeholder="@usuario"
+                        error={errors.instagram}
                       />
                       <InputField
                         label="YouTube"
                         field="youtube"
+                        register={register}
                         icon={Youtube}
                         placeholder="NomeDoCanal"
+                        error={errors.youtube}
                       />
                     </div>
                   </div>
@@ -644,14 +698,16 @@ export default function AdminUserEditInterface(props: { params: Promise<{ id: st
                     <InputField
                       label="Descrição"
                       field="sobre_mim"
+                      register={register}
                       rows={6}
                       placeholder="Experiência, habilidades, interesses..."
+                      error={errors.sobre_mim}
                     />
                   </div>
                 )}
 
                 {/* Seção Administrativa */}
-                {activeSection === 'admin' && (
+                {activeSection === 'role' && (
                   <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
                     <div className="flex items-center gap-3 mb-8">
                       <div className="bg-red-100 rounded-2xl p-3">
@@ -659,41 +715,11 @@ export default function AdminUserEditInterface(props: { params: Promise<{ id: st
                       </div>
                       <div>
                         <h2 className="text-2xl font-bold text-gray-900">Configurações Administrativas</h2>
-                        <p className="text-gray-600">Configurações de acesso e status do usuário</p>
+                        <p className="text-gray-600">Configurações de acesso и status do usuário</p>
                       </div>
                     </div>
                     
                     <div className="grid md:grid-cols-2 gap-6">
-                      <div className="group">
-                        <label className="block text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                          <Shield size={16} className="text-gray-600" />
-                          Status da Conta
-                        </label>
-                        <div className="flex gap-4">
-                          <button
-                            onClick={() => handleInputChange('ativo', true)}
-                            className={`px-4 py-3 rounded-xl border-2 transition-all duration-300 flex-1 flex items-center justify-center gap-2 ${
-                              profile.ativo 
-                                ? 'bg-green-50 text-green-700 border-green-200' 
-                                : 'bg-gray-100 text-gray-600 border-gray-200 hover:bg-green-50'
-                            }`}
-                          >
-                            <CheckCircle size={18} />
-                            Ativo
-                          </button>
-                          <button
-                            onClick={() => handleInputChange('ativo', false)}
-                            className={`px-4 py-3 rounded-xl border-2 transition-all duration-300 flex-1 flex items-center justify-center gap-2 ${
-                              !profile.ativo 
-                                ? 'bg-red-50 text-red-700 border-red-200' 
-                                : 'bg-gray-100 text-gray-600 border-gray-200 hover:bg-red-50'
-                            }`}
-                          >
-                            <Ban size={18} />
-                            Inativo
-                          </button>
-                        </div>
-                      </div>
                       
                       <div className="group">
                         <label className="block text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
@@ -702,28 +728,36 @@ export default function AdminUserEditInterface(props: { params: Promise<{ id: st
                         </label>
                         <div className="flex gap-4">
                           <button
-                            onClick={() => handleInputChange('admin', false)}
-                            className={`px-4 py-3 rounded-xl border-2 transition-all duration-300 flex-1 flex items-center justify-center gap-2 ${
-                              !profile.role 
-                                ? 'bg-blue-50 text-blue-700 border-blue-200' 
-                                : 'bg-gray-100 text-gray-600 border-gray-200 hover:bg-blue-50'
-                            }`}
+                            type="button"
+                            onClick={() => setValue('role', 'Agente')}
+                            className={`px-4 py-3 rounded-xl border-2 transition-all duration-300 flex-1 flex items-center justify-center gap-2
+                              ${
+                                formValues.role === 'Agente'
+                                  ? 'bg-blue-100 text-blue-800 border-blue-300 ring-2 ring-blue-200'
+                                  : 'bg-gray-100 text-gray-600 border-gray-200 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700'
+                              }
+                              active:scale-95 focus:outline-none`}
                           >
                             <User size={18} />
-                            Usuário Regular
+                            Agente
                           </button>
+
                           <button
-                            onClick={() => handleInputChange('admin', true)}
-                            className={`px-4 py-3 rounded-xl border-2 transition-all duration-300 flex-1 flex items-center justify-center gap-2 ${
-                              profile.role
-                                ? 'bg-purple-50 text-purple-700 border-purple-200' 
-                                : 'bg-gray-100 text-gray-600 border-gray-200 hover:bg-purple-50'
-                            }`}
+                            type="button"
+                            onClick={() => setValue('role', 'Admin')}
+                            className={`px-4 py-3 rounded-xl border-2 transition-all duration-300 flex-1 flex items-center justify-center gap-2
+                              ${
+                                formValues.role === 'Admin'
+                                  ? 'bg-purple-100 text-purple-800 border-purple-300 ring-2 ring-purple-200'
+                                  : 'bg-gray-100 text-gray-600 border-gray-200 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700'
+                              }
+                              active:scale-95 focus:outline-none`}
                           >
                             <Shield size={18} />
                             Administrador
                           </button>
                         </div>
+
                       </div>
                     </div>
                     
@@ -743,6 +777,7 @@ export default function AdminUserEditInterface(props: { params: Promise<{ id: st
                 <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
                   <div className="flex flex-col sm:flex-row gap-4 justify-end">
                     <button
+                      type="button"
                       onClick={handleBack}
                       className="px-8 py-4 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-400 focus:ring-4 focus:ring-gray-500/20 transition-all duration-300 flex items-center justify-center gap-3"
                     >
@@ -750,7 +785,7 @@ export default function AdminUserEditInterface(props: { params: Promise<{ id: st
                       Cancelar
                     </button>
                     <button
-                      onClick={handleSubmit}
+                      type="submit"
                       disabled={isSubmitting}
                       className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg"
                     >
@@ -771,7 +806,7 @@ export default function AdminUserEditInterface(props: { params: Promise<{ id: st
               </div>
             </div>
           </div>
-        )}
+        </form>
       </div>
     </div>
   );

@@ -19,7 +19,7 @@ export default function TopAgentsSection() {
       telefone: '923456789',
       pacote_agente: 'Premium',
       propriedades: [{}, {}, {}],
-      avatar: '/house.jpg',
+      avatar: '/people/1.jpg',
     },
     {
       id: '2',
@@ -28,7 +28,7 @@ export default function TopAgentsSection() {
       telefone: '924567890',
       pacote_agente: 'Standard',
       propriedades: [{}],
-      avatar: '/carlos.jpg',
+      avatar: '/people/3.jpg',
     },
     {
       id: '3',
@@ -37,7 +37,7 @@ export default function TopAgentsSection() {
       telefone: '922123456',
       pacote_agente: 'Gold',
       propriedades: [{}, {}],
-      avatar: '/joana.jpg',
+      avatar: '/people/2.jpg',
     },
   ];
 

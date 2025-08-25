@@ -2,7 +2,7 @@
 
 import { createClient } from "@supabase/supabase-js"
 
-const supabase = createClient(
+const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY! // 👈 precisa da chave service_role
 )
@@ -31,7 +31,7 @@ interface CreateUserResponse {
 export async function createUser(data: CreateUserInput): Promise<CreateUserResponse> {
   try {
     // 1. Criar utilizador no Auth
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: data.email,
       password: data.password,
       email_confirm: true,
@@ -47,7 +47,7 @@ export async function createUser(data: CreateUserInput): Promise<CreateUserRespo
     const userId = authData.user.id
 
     // 2. Inserir dados na tabela profiles
-    const { error: profileError } = await supabase.from("profiles").insert({
+    const { error: profileError } = await supabaseAdmin.from("profiles").insert({
       id: userId,
       email: data.email,
       primeiro_nome: data.primeiro_nome,
@@ -58,7 +58,7 @@ export async function createUser(data: CreateUserInput): Promise<CreateUserRespo
 
     if (profileError) {
       // rollback → apagar o user no Auth se falhar
-      await supabase.auth.admin.deleteUser(userId)
+      await supabaseAdmin.auth.admin.deleteUser(userId)
       return {
         success: false,
         error: "Erro ao criar perfil: " + profileError.message,
@@ -86,7 +86,7 @@ export async function createUser(data: CreateUserInput): Promise<CreateUserRespo
 
 export async function deleteUser(userId: string) {
   try {
-    const { error } = await supabase.auth.admin.deleteUser(userId)
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId)
 
     if (error) throw error
 
