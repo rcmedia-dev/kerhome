@@ -88,7 +88,6 @@ export async function getAgentByEmail(email: string): Promise<AgentProfile> {
 
   try {
     // Busca o perfil do agente pelo email
-    console.log('email:', email)
     const { data: agent, error } = await supabase
       .from('profiles')
       .select(`

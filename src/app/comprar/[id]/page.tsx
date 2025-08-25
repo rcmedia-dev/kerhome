@@ -1,17 +1,168 @@
-"use client";
+'use client';
 
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { MapPin, BedDouble, Ruler, Tag } from "lucide-react";
-import { getPropertyById } from '@/lib/actions/get-properties';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PropertyFilterSidebar } from "@/components/sidebar-filtro";
 import { CidadesDisponiveis } from "@/components/cidades-disponiveis";
 import { ImoveisDestaque } from "@/components/imoveis-destaque";
+import { useAuth } from "@/components/auth-context";
+import { getPropertyById } from "@/lib/actions/get-properties";
 import { TPropertyResponseSchema } from "@/lib/types/property";
 import AgentCardWithChat from "@/components/agent-card-with-chat";
 
+// Componente Skeleton melhorado para evitar layout shift
+const PropertySkeleton = () => {
+  return (
+    <section className="min-h-screen bg-gray-50 text-gray-800">
+      {/* Mapa Skeleton - mantém a mesma altura do mapa real */}
+      <div className="w-full h-[400px] bg-gray-200 animate-pulse overflow-hidden border-b border-gray-200" />
 
+      {/* Conteúdo principal */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid md:grid-cols-3 gap-12 items-start">
+          {/* Conteúdo principal Skeleton */}
+          <div className="md:col-span-2 space-y-12 order-1 md:order-none">
+            {/* Detalhes principais */}
+            <div className="space-y-6">
+              <div className="h-7 w-32 bg-gray-300 rounded-full animate-pulse"></div>
+              <div className="h-12 w-3/4 bg-gray-300 rounded animate-pulse"></div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-gray-300 rounded-full animate-pulse"></div>
+                <div className="h-4 w-64 bg-gray-300 rounded animate-pulse"></div>
+              </div>
+              
+              <div className="flex flex-wrap gap-6">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <div className="w-5 h-5 bg-gray-300 rounded animate-pulse"></div>
+                    <div className="h-4 w-20 bg-gray-300 rounded animate-pulse"></div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="h-8 w-40 bg-gray-300 rounded animate-pulse"></div>
+            </div>
+
+            {/* Galeria Skeleton */}
+            <div className="space-y-4">
+              <div className="w-full h-[400px] bg-gray-300 rounded-3xl animate-pulse"></div>
+              <div className="flex gap-3">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="w-32 h-20 bg-gray-300 rounded-xl animate-pulse"></div>
+                ))}
+              </div>
+            </div>
+
+            {/* Detalhes Técnicos Skeleton */}
+            <div className="pt-2">
+              <div className="h-6 w-40 bg-gray-300 rounded animate-pulse mb-4"></div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                ))}
+              </div>
+            </div>
+
+            {/* Tabs Skeleton */}
+            <div className="space-y-4">
+              <div className="flex space-x-2 border-b">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="h-10 w-32 bg-gray-300 rounded-t-md animate-pulse"></div>
+                ))}
+              </div>
+              
+              <div className="space-y-4">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                ))}
+              </div>
+            </div>
+
+            {/* Descrição Skeleton */}
+            <div className="space-y-4">
+              <div className="h-8 w-40 bg-gray-300 rounded animate-pulse"></div>
+              <div className="space-y-2">
+                <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                <div className="h-4 bg-gray-300 rounded animate-pulse w-5/6"></div>
+                <div className="h-4 bg-gray-300 rounded animate-pulse w-4/6"></div>
+              </div>
+            </div>
+
+            {/* Endereço Skeleton */}
+            <div className="space-y-4">
+              <div className="h-8 w-40 bg-gray-300 rounded animate-pulse"></div>
+              <div className="h-4 bg-gray-300 rounded animate-pulse w-3/4"></div>
+            </div>
+
+            {/* Formulário de contato Skeleton */}
+            <div className="bg-white rounded-2xl p-8 shadow-xl border">
+              <div className="h-8 w-48 bg-gray-300 rounded animate-pulse mx-auto mb-6"></div>
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="h-12 bg-gray-300 rounded-lg animate-pulse"></div>
+                ))}
+                <div className="h-12 bg-gray-400 rounded-lg animate-pulse mt-4"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar Skeleton */}
+          <div className="hidden md:block md:col-span-1 space-y-6">
+            <div className="bg-white border shadow-md rounded-2xl p-6">
+              <div className="h-8 w-40 bg-gray-300 rounded animate-pulse mb-6"></div>
+              <div className="space-y-4">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="h-12 bg-gray-300 rounded-lg animate-pulse"></div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white border shadow-md rounded-2xl p-6">
+              <div className="h-8 w-48 bg-gray-300 rounded animate-pulse mb-6"></div>
+              <div className="space-y-3">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white border shadow-md rounded-2xl p-6">
+              <div className="h-8 w-48 bg-gray-300 rounded animate-pulse mb-6"></div>
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex gap-4">
+                    <div className="w-16 h-16 bg-gray-300 rounded-lg animate-pulse"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                      <div className="h-3 bg-gray-300 rounded animate-pulse w-3/4"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white border shadow-md rounded-2xl p-6">
+              <div className="h-8 w-48 bg-gray-300 rounded animate-pulse mb-6"></div>
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gray-300 rounded-full animate-pulse"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                      <div className="h-3 bg-gray-300 rounded animate-pulse w-2/3"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
 
 const agents = [ 
   {id: 1, name: 'João Fernando', picture: '/people/1.jpg'}, 
@@ -20,19 +171,73 @@ const agents = [
 ]
 
 export default function PropertyPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = React.use(params);
   const [property, setProperty] = useState<TPropertyResponseSchema | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+
+  // Extrair o ID de forma segura
+  const [id, setId] = useState<string | null>(null);
+  
+  useEffect(() => {
+    // Resolver a Promise params para obter o ID
+    Promise.resolve(params).then(resolvedParams => {
+      setId(resolvedParams.id);
+    });
+  }, [params]);
 
   useEffect(() => {
+    if (!id) return;
+
     async function fetchData() {
-      const prop = await getPropertyById(id);
-      console.log('Property retornada do Supabase:', prop);
-      setProperty(prop);
+      try {
+        setLoading(true);
+        const prop = await getPropertyById(id);
+        setProperty(prop);
+      } catch (err) {
+        console.error("Error fetching property:", err);
+        setError("Não foi possível carregar os dados do imóvel.");
+      } finally {
+        setLoading(false);
+      }
     }
+    
     fetchData();
   }, [id]);
 
-  if (!property) return null;
+  // Exibir skeleton enquanto carrega ou se não tem ID ainda
+  if (loading || !id) {
+    return <PropertySkeleton />;
+  }
+
+  // Exibir erro se ocorrer
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="text-center bg-white p-8 rounded-xl shadow-md max-w-md">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Erro ao carregar</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+          >
+            Tentar Novamente
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!property) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="text-center bg-white p-8 rounded-xl shadow-md max-w-md">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Imóvel não encontrado</h2>
+          <p className="text-gray-600">O imóvel que você está procurando não existe ou foi removido.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <section className="min-h-screen bg-gray-50 text-gray-800">
@@ -105,29 +310,30 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
                   </div>
                 )}
               </div>
-              <p className="text-3xl font-extrabold text-orange-500 mt-6 flex items-center gap-2">
-                {property.price && (
-                  <>
-                    <Tag className="w-6 h-6" />
-                    {property.price.toLocaleString(
-                      property.unidade_preco === "dolar" ? "en-US" : "pt-AO",
-                      {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      }
-                    )}
-                    {property.unidade_preco && (
-                      <span className="text-base font-normal">
-                        {property.unidade_preco === "kwanza"
-                          ? "KZ"
-                          : property.unidade_preco === "dolar"
-                          ? "USD"
-                          : property.unidade_preco}
-                      </span>
-                    )}
-                  </>
-                )}
-              </p>
+                <p className="text-3xl font-extrabold text-orange-500 mt-6 flex items-center gap-2">
+                  {property.price && (
+                    <>
+                      <Tag className="w-6 h-6" />
+                      {property.price.toLocaleString(
+                        property.unidade_preco === "dolar" ? "en-US" : "pt-AO",
+                        {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        }
+                      )}
+
+                      {property.unidade_preco && (
+                        <span className="text-base font-normal">
+                          {property.unidade_preco === "kwanza"
+                            ? "KZ"
+                            : property.unidade_preco === "dolar"
+                            ? "USD"
+                            : property.unidade_preco}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </p>
 
             </div>
 
@@ -336,13 +542,12 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
 
             {/* Formulário de contato + Agente juntos */}
             <div className="bg-white rounded-2xl p-8 shadow-xl border flex flex-col md:flex-row gap-8 items-center md:items-start">
-              {/* Card do Agente */}
               {/* Formulário de contato */}
               <div className="flex-1 w-full">
                 <h3 className="text-lg font-semibold mb-4 text-gray-800 text-left md:text-center">
                   Entrar em contato
                 </h3>
-                <AgentCardWithChat ownerId={property.owner_id} propertyId={property.id}/>
+                <AgentCardWithChat ownerId={property.owner_id} propertyId={property.id} />
               </div>
             </div>
           </div>
@@ -389,76 +594,5 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
         </div>
       </div>
     </section>
-  );
-}
-
-
-function ContactForm() {
-  return (
-    <form className="space-y-5">
-      <div className="relative">
-        <input
-          type="text"
-          id="name"
-          placeholder=" "
-          required
-          className="peer w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
-        />
-        <label
-          htmlFor="name"
-          className="absolute left-4 top-3 text-gray-500 text-sm transition-all \
-            peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base \
-            peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm \
-            peer-focus:text-orange-500"
-        >
-          Nome
-        </label>
-      </div>
-
-      <div className="relative">
-        <input
-          type="email"
-          id="email"
-          placeholder=" "
-          required
-          className="peer w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
-        />
-        <label
-          htmlFor="email"
-          className="absolute left-4 top-3 text-gray-500 text-sm transition-all \
-            peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base \
-            peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm \
-            peer-focus:text-orange-500"
-        >
-          Email
-        </label>
-      </div>
-
-      <div className="relative">
-        <textarea
-          id="message"
-          placeholder=" "
-          required
-          rows={4}
-          className="peer w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
-        />
-        <label
-          htmlFor="message"
-          className="absolute left-4 top-3 text-gray-500 text-sm transition-all \
-            peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base \
-            peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm \
-            peer-focus:text-orange-500"
-        >
-          Mensagem
-        </label>
-      </div>
-
-      <button
-        type="submit"
-        className="w-full py-3 text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 rounded-lg shadow transition"
-      >
-        Enviar
-      </button>
-    </form>
   );
 }

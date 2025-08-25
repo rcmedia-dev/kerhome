@@ -10,30 +10,37 @@ const pusher = new Pusher({
   useTLS: true,
 });
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "https://www.kerhome.ao", // 👈 só libera teu domínio
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+// Handler para preflight (OPTIONS)
+export async function OPTIONS() {
+  return NextResponse.json({}, { status: 200, headers: corsHeaders });
+}
+
+// Handler para POST
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
     const { chat_id, receiver_id, content, sender_id } = body;
 
     console.log('[REQ BODY]', body);
 
     if (!receiver_id || !content || !sender_id) {
-      console.error('[VALIDAÇÃO FALHOU] Dados incompletos');
-      return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 });
+      return NextResponse.json({ error: 'Dados incompletos' }, { status: 400, headers: corsHeaders });
     }
 
-    // Verificação básica de UUIDs (opcional, mas útil)
     const isUUID = (value: string) => /^[0-9a-fA-F\-]{36}$/.test(value);
 
     if (chat_id && !isUUID(chat_id)) {
-      console.error('[ERRO DE FORMATO] chat_id inválido:', chat_id);
-      return NextResponse.json({ error: 'chat_id inválido' }, { status: 400 });
+      return NextResponse.json({ error: 'chat_id inválido' }, { status: 400, headers: corsHeaders });
     }
 
     if (!isUUID(sender_id) || !isUUID(receiver_id)) {
-      console.error('[ERRO DE FORMATO] sender_id ou receiver_id inválidos');
-      return NextResponse.json({ error: 'IDs de utilizador inválidos' }, { status: 400 });
+      return NextResponse.json({ error: 'IDs de utilizador inválidos' }, { status: 400, headers: corsHeaders });
     }
 
     // SUPABASE
@@ -44,8 +51,7 @@ export async function POST(req: Request) {
       .single();
 
     if (error) {
-      console.error('[SUPABASE ERROR]', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders });
     }
 
     console.log('[MENSAGEM INSERIDA]', data);
@@ -55,13 +61,12 @@ export async function POST(req: Request) {
       await pusher.trigger('chat-channel', 'new_message', data);
       console.log('[PUSHER] Evento emitido com sucesso');
     } catch (pushError) {
-      console.error('[PUSHER ERROR]', pushError);
-      return NextResponse.json({ error: 'Erro ao emitir evento com Pusher' }, { status: 500 });
+      return NextResponse.json({ error: 'Erro ao emitir evento com Pusher' }, { status: 500, headers: corsHeaders });
     }
 
-    return NextResponse.json({ message: 'Mensagem enviada', data });
+    return NextResponse.json({ message: 'Mensagem enviada', data }, { headers: corsHeaders });
   } catch (err: any) {
     console.error('[SERVER ERROR]', err);
-    return NextResponse.json({ error: 'Erro no servidor' }, { status: 500 });
+    return NextResponse.json({ error: 'Erro no servidor' }, { status: 500, headers: corsHeaders });
   }
 }

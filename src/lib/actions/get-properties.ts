@@ -32,14 +32,12 @@ export async function getLimitedProperties(limit: number): Promise<TPropertyResp
     }
 }
 
-export async function getPropertyById(id: string): Promise<TPropertyResponseSchema | null> {
+export async function getPropertyById(id: string | null): Promise<TPropertyResponseSchema | null> {
   try {
     const propertieById = await supabase.from('properties')
       .select('*')
       .eq('id', id)
       .single();
-
-    console.log('Propriedade encontrada:', propertieById);
 
     return propertieById.data as TPropertyResponseSchema;
   } catch (error) {

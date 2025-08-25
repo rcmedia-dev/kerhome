@@ -23,7 +23,6 @@ export interface UserProfile {
 }
 
 export async function getUserProfile(id?: string): Promise<UserProfile> {
-  console.log("🔎 Buscando perfil para ID:", id);
 
   if (!id || typeof id !== 'string') {
     console.error("❌ ID inválido:", id);
@@ -56,8 +55,6 @@ export async function getUserProfile(id?: string): Promise<UserProfile> {
       .eq('id', id)
       .single();
 
-    console.log("📡 Resposta do Supabase:", { data, error });
-
     if (error) {
       console.error('❌ Erro ao buscar perfil:', error);
       throw error;
@@ -67,8 +64,6 @@ export async function getUserProfile(id?: string): Promise<UserProfile> {
       console.error('⚠️ Nenhum perfil encontrado para ID:', id);
       throw new Error('Perfil não encontrado');
     }
-
-    console.log('✅ Perfil encontrado:', data);
 
     return data as UserProfile;
 

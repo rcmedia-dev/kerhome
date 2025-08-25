@@ -25,8 +25,6 @@ export async function searchProperties(params: SearchParams) {
         tamanho_min
     } = params;
 
-    console.log("searchProperties params:", params);
-
     let query = supabase
         .from("properties")
         .select("*", { count: "exact" });
@@ -77,8 +75,6 @@ export async function searchProperties(params: SearchParams) {
     }
 
     const { data: propertiesFoundData, error: propertiesFoundError } = await query;
-
-    console.log("propertiesFoundData:", propertiesFoundData);
 
     if (propertiesFoundError) {
         console.error("Erro ao buscar propriedades:", propertiesFoundError);
