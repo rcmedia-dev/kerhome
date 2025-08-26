@@ -8,7 +8,6 @@ import { Mail, MessageSquare, Phone, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from './auth-context';
 import Pusher from 'pusher-js';
-import { incrementPropertyViews } from '@/lib/actions/supabase-actions/get-propertie-views-count';
 import { supabase } from '@/lib/supabase';
 
 type Agent = {
@@ -142,29 +141,46 @@ export default function AgentCardWithChat({ ownerId, propertyId }: AgentCardWith
           <Share2 size={16} />
           Ver outras propriedades
         </Link>
-
         <button
-            onClick={async () => {
-              if (!userIdLogado) {
-                toast.error('Você precisa estar logado para enviar mensagens');
-                return;
+          onClick={async () => {
+            if (!userIdLogado) {
+              toast.error('Você precisa estar logado para enviar mensagens');
+              return;
+            }
+
+            try {
+              // 👉 incrementa a view (só se não for o dono do imóvel)
+              const { data, error } = await supabase.rpc('register_property_view', {
+                p_property_id: propertyId,
+                p_user_id: user.id,
+                p_owner_id: agent.id
+              });
+
+              console.log('datas for the function:', propertyId, user.id, agent.id)
+
+              if (error) {
+                console.error('Erro ao registrar visualização:', error);
+              } else {
+                console.log('Visualização registrada com sucesso. Total:', data);
               }
 
-              // 👉 incrementa a view (só se não for o dono do imóvel)
-              await supabase
-                .rpc('add_property_view', { p_property_id: propertyId, p_owner_id: agent.id });
+            } catch (error) {
+              console.error('Erro inesperado:', error);
+            }
 
-              // abre/fecha o chat
-              setShowChat(!showChat);
-            }}
-            className={`w-full py-2 px-4 rounded-lg font-semibold transition flex items-center justify-center gap-2 ${
-              showChat 
-                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                : 'bg-purple-600 text-white hover:bg-purple-700'
-            }`}
-          >
-            <MessageSquare size={16} />
-            {showChat ? 'Fechar chat' : 'Conversar com o agente'}
+            console.log('clicked');
+
+            // abre/fecha o chat
+            setShowChat(!showChat);
+          }}
+          className={`w-full py-2 px-4 rounded-lg font-semibold transition flex items-center justify-center gap-2 ${
+            showChat 
+              ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              : 'bg-purple-600 text-white hover:bg-purple-700'
+          }`}
+        >
+          <MessageSquare size={16} />
+          {showChat ? 'Fechar chat' : 'Conversar com o agente'}
         </button>
       </div>
 

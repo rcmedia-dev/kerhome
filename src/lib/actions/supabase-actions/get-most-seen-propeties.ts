@@ -4,7 +4,7 @@ export async function getMostViewedProperties(userId?: string) {
   const { data: views, error: errorViews } = await supabase
     .from('property_views')
     .select('property_id')
-    .eq('owner_id', userId);
+    .eq('user_id', userId);
 
   if (errorViews) {
     console.error('Erro ao buscar visualizações:', errorViews);

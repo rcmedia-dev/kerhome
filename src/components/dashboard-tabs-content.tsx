@@ -200,7 +200,7 @@ export function Faturas() {
 export function PropriedadesMaisVisualizadas() {
   const [properties, setProperties] = useState<PropertyWithViews[]>([]);
   const [loading, setLoading] = useState(true);
-  const [views, setViews] = useState(null)
+  const [views, setViews] = useState<number | null>(null)
   const { user } = useAuth();
 
   useEffect(() => {
@@ -209,7 +209,8 @@ export function PropriedadesMaisVisualizadas() {
         setLoading(true);
         // Busca as propriedades mais visualizadas
         const data = await getMostViewedProperties(user?.id);
-        console.log('views totals:', data)
+        console.log('views totals:', data.length)
+        setViews(data.length)
         // Ordena por número de visualizações (decrescente)
         const sortedProperties = data.sort((a, b) => (b.views || 0) - (a.views || 0));
         setProperties(sortedProperties);
@@ -251,7 +252,7 @@ export function PropriedadesMaisVisualizadas() {
               <PropertyCard property={property} />
               <div className="absolute top-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded-full text-xs flex items-center gap-1">
                 <Eye className="w-3 h-3" />
-                <span>{property.total_views || 0}</span>
+                <span>{ views || 0}</span>
               </div>
             </div>
           ))}
