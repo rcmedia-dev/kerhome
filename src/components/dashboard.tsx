@@ -4,7 +4,7 @@ import { useAuth } from './auth-context';
 import { BarChart3, Eye, Heart, Home, Settings, Star, Upload, User } from 'lucide-react';
 import { useState, useEffect, useTransition } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
-import  { MinhasPropriedades, Favoritas, Analytics, PropriedadesMaisVisualizadas} from './dashboard-tabs-content';
+import  { MinhasPropriedades, Favoritas, PropriedadesMaisVisualizadas, Faturas} from './dashboard-tabs-content';
 import { Dialog, DialogTrigger } from './ui/dialog';
 import { ConfiguracoesConta } from './account-setting';
 import { PlanoCard } from './plano-card';
@@ -165,7 +165,7 @@ export default function Dashboard() {
             <div className="block lg:hidden">
               {activeTab === 'properties' && <MinhasPropriedades />}
               {activeTab === 'favorites' && <Favoritas />}
-              {activeTab === 'invoices' && <Analytics />}
+              {activeTab === 'invoices' && <Faturas />}
               {activeTab === 'views' && <PropriedadesMaisVisualizadas />}
               {activeTab === 'settings' && <ConfiguracoesConta />}
             </div>
@@ -195,7 +195,7 @@ export default function Dashboard() {
           <div className="hidden lg:block lg:col-span-8 order-2 mt-6 lg:mt-0">
             {activeTab === 'properties' && <MinhasPropriedades />}
             {activeTab === 'favorites' && <Favoritas />}
-            {activeTab === 'invoices' && <Analytics />}
+            {activeTab === 'invoices' && <Faturas />}
             {activeTab === 'views' && <PropriedadesMaisVisualizadas />}
             {activeTab === 'settings' && <ConfiguracoesConta />}
           </div>

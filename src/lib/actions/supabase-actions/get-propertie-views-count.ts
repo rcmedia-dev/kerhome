@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 export async function incrementPropertyViews(propertyId: string, userId: string, ownerId: string) {
 
   const { data, error } = await supabase
-    .rpc('increment_property_views', {
+    .rpc('add_property_view', {
       p_property_id: propertyId,
       p_user_id: userId,
       p_owner_id: ownerId,

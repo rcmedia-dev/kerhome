@@ -135,6 +135,17 @@ export const propertyResponseSchema = z.object({
   owner: ownerSchema,
 });
 
+// Schema para validação
+export const faturaSchema = z.object({
+  id: z.string(),
+  servico: z.string(),
+  valor: z.number(),
+  status: z.enum(['pago', 'pendente']),
+  created_at: z.string()
+});
+
+export type Fatura = z.infer<typeof faturaSchema>;
+
 export type TPropertyResponseSchema = z.infer<typeof propertyResponseSchema>;
 
 export type PropertyWithViews = TPropertyResponseSchema & {

@@ -10,9 +10,10 @@ import { TFavoritedPropertyResponseSchema } from '@/lib/types/user';
 import { PropertyFavoritedCard } from './property-favorite-card';
 import { toggleFavoritoProperty } from '@/lib/actions/toggle-favorite';
 import { useRouter } from 'next/navigation';
-import { PropertyWithViews, TPropertyResponseSchema } from '@/lib/types/property';
+import { Fatura, PropertyWithViews, TPropertyResponseSchema } from '@/lib/types/property';
 import { getSupabaseUserProperties } from '@/lib/actions/get-properties';
 import { getMostViewedProperties } from '@/lib/actions/supabase-actions/get-most-seen-propeties';
+import { getFaturas } from '@/lib/actions/supabase-actions/user-bills-action';
 
 
 
@@ -126,33 +127,9 @@ export function Favoritas() {
   );
 }
 
-type Fatura = {
-  id: string;
-  servico: string;
-  valor: number;
-  status: 'pago' | 'pendente';
-  criadoEm: string;
-};
 
-// Faturas de exemplo (mock)
-const mockFaturas: Fatura[] = [
-  {
-    id: 'ft1',
-    servico: 'Publicação de imóvel premium',
-    valor: 25000,
-    status: 'pago',
-    criadoEm: '2025-07-01T12:00:00Z',
-  },
-  {
-    id: 'ft2',
-    servico: 'Renovação de anúncio',
-    valor: 10000,
-    status: 'pendente',
-    criadoEm: '2025-07-10T12:00:00Z',
-  },
-];
 
-export function Analytics() {
+export function Faturas() {
   const [faturas, setFaturas] = useState<Fatura[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -160,13 +137,19 @@ export function Analytics() {
   useEffect(() => {
     if (!user?.id) return;
 
-    // Simula carregamento
-    const timer = setTimeout(() => {
-      setFaturas(mockFaturas);
-      setLoading(false);
-    }, 1000);
+    const fetchFaturas = async () => {
+      setLoading(true);
+      try {
+        const result = await getFaturas(user.id); // chama a action
+        setFaturas(result);
+      } catch (error) {
+        console.error('Erro ao carregar faturas:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
+    fetchFaturas();
   }, [user]);
 
   return (
@@ -203,7 +186,7 @@ export function Analytics() {
                   )}
                 </td>
                 <td className="p-2">
-                  {new Date(fatura.criadoEm).toLocaleDateString()}
+                  {new Date(fatura.created_at).toLocaleDateString()}
                 </td>
               </tr>
             ))}
