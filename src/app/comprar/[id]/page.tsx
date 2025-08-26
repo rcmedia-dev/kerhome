@@ -581,7 +581,7 @@ interface Property {
   gallery: string[];
 }
 
-export function PropertyGallery({ property }: { property: Property }) {
+function PropertyGallery({ property }: { property: Property }) {
   const [mainImage, setMainImage] = useState<string | null>(null);
   const [thumbnails, setThumbnails] = useState<string[]>([]);
 

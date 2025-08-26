@@ -136,3 +136,7 @@ export const propertyResponseSchema = z.object({
 });
 
 export type TPropertyResponseSchema = z.infer<typeof propertyResponseSchema>;
+
+export type PropertyWithViews = TPropertyResponseSchema & {
+  total_views: number;
+};

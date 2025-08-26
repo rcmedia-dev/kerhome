@@ -4,7 +4,7 @@ import { useAuth } from './auth-context';
 import { BarChart3, Eye, Heart, Home, Settings, Star, Upload, User } from 'lucide-react';
 import { useState, useEffect, useTransition } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
-import  { MinhasPropriedades, Favoritas, Analytics} from './dashboard-tabs-content';
+import  { MinhasPropriedades, Favoritas, Analytics, PropriedadesMaisVisualizadas} from './dashboard-tabs-content';
 import { Dialog, DialogTrigger } from './ui/dialog';
 import { ConfiguracoesConta } from './account-setting';
 import { PlanoCard } from './plano-card';
@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { toggleFavoritoProperty } from '@/lib/actions/toggle-favorite';
 import { getImoveisFavoritos } from '@/lib/actions/get-favorited-imoveis';
 import { getSupabaseUserProperties } from '@/lib/actions/get-properties';
+import { supabase } from '@/lib/supabase';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -22,15 +23,32 @@ export default function Dashboard() {
   const [propertyCount, setPropertyCount] = useState(0);
   const [favoriteCount, setFavoriteCount] = useState(0);
   const [invoiceCount, setInvoiceCount] = useState(0);
-
-  const viewsCount = 0; // Placeholder
+  const [viewsCount, setViewsCount] = useState(0);
 
   useEffect(() => {
-    if (!user?.id) return;
-    getSupabaseUserProperties(user.id).then(props => setPropertyCount(props?.length || 0));
-    getImoveisFavoritos(user.id).then(favs =>setFavoriteCount(favs?.length || 0));
-    //getUserInvoices(user.id).then(invs => setInvoiceCount(invs?.length || 0));
-  }, [user?.id]);
+  if (!user?.id) return;
+
+  // Função para buscar o número total de visualizações de todas as propriedades do usuário
+  const fetchViewsCount = async () => {
+    const properties = await getSupabaseUserProperties(user.id);
+    
+    if (properties) {
+      let totalViews = 0;
+      for (const property of properties) {
+        const { data } = await supabase
+          .from('property_views')
+          .select('id')
+          .eq('property_id', property.id);
+        totalViews += data?.length || 0;
+      }
+      setViewsCount(totalViews);
+    }
+  };
+
+  getSupabaseUserProperties(user.id).then(props => setPropertyCount(props?.length || 0));
+  getImoveisFavoritos(user.id).then(favs => setFavoriteCount(favs?.length || 0));
+  fetchViewsCount();
+}, [user?.id]);
 
   if (!user) return null;
 
@@ -48,13 +66,13 @@ export default function Dashboard() {
     { id: 'properties', label: 'Minhas Propriedades', icon: Home, badge: propertyCount },
     { id: 'favorites', label: 'Favoritas', icon: Heart, badge: favoriteCount },
     { id: 'invoices', label: 'Faturas', icon: BarChart3, badge: invoiceCount },
+    { id: 'views', label: 'Visualizações de Imoveis', icon: Eye, badge: viewsCount },
     { id: 'settings', label: 'Configurações da Conta', icon: Settings },
   ];
 
   const handleRemoveFavorito = async (propertyId: string) => {
     startTransition(async () => {
       await toggleFavoritoProperty(user.id, propertyId);
-      router.refresh(); // Faz refresh da página/dashboard
     });
   };
 
@@ -148,6 +166,7 @@ export default function Dashboard() {
               {activeTab === 'properties' && <MinhasPropriedades />}
               {activeTab === 'favorites' && <Favoritas />}
               {activeTab === 'invoices' && <Analytics />}
+              {activeTab === 'views' && <PropriedadesMaisVisualizadas />}
               {activeTab === 'settings' && <ConfiguracoesConta />}
             </div>
 
@@ -177,6 +196,7 @@ export default function Dashboard() {
             {activeTab === 'properties' && <MinhasPropriedades />}
             {activeTab === 'favorites' && <Favoritas />}
             {activeTab === 'invoices' && <Analytics />}
+            {activeTab === 'views' && <PropriedadesMaisVisualizadas />}
             {activeTab === 'settings' && <ConfiguracoesConta />}
           </div>
         </div>

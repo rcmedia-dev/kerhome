@@ -3,15 +3,16 @@
 
 import React, { useEffect, useState, useTransition } from 'react';
 import { useAuth } from './auth-context';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Eye } from 'lucide-react';
 import { PropertyCard } from './property-card';
 import { getImoveisFavoritos } from '@/lib/actions/get-favorited-imoveis';
 import { TFavoritedPropertyResponseSchema } from '@/lib/types/user';
 import { PropertyFavoritedCard } from './property-favorite-card';
 import { toggleFavoritoProperty } from '@/lib/actions/toggle-favorite';
 import { useRouter } from 'next/navigation';
-import { TPropertyResponseSchema } from '@/lib/types/property';
+import { PropertyWithViews, TPropertyResponseSchema } from '@/lib/types/property';
 import { getSupabaseUserProperties } from '@/lib/actions/get-properties';
+import { getMostViewedProperties } from '@/lib/actions/supabase-actions/get-most-seen-propeties';
 
 
 
@@ -213,3 +214,66 @@ export function Analytics() {
   );
 }
 
+export function PropriedadesMaisVisualizadas() {
+  const [properties, setProperties] = useState<PropertyWithViews[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [views, setViews] = useState(null)
+  const { user } = useAuth();
+
+  useEffect(() => {
+    async function fetchMostViewedProperties() {
+      try {
+        setLoading(true);
+        // Busca as propriedades mais visualizadas
+        const data = await getMostViewedProperties(user?.id);
+        console.log('views totals:', data)
+        // Ordena por número de visualizações (decrescente)
+        const sortedProperties = data.sort((a, b) => (b.views || 0) - (a.views || 0));
+        setProperties(sortedProperties);
+      } catch (error) {
+        console.error('Erro ao buscar propriedades mais visualizadas:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchMostViewedProperties();
+  }, [user?.id]);
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl shadow p-6 mb-6">
+        <h2 className="text-xl font-bold mb-4 text-gray-800">Propriedades Mais Visualizadas</h2>
+        <div className="text-center text-gray-500">Carregando propriedades...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-xl shadow p-6 mb-6">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold text-gray-800">Propriedades Mais Visualizadas</h2>
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <Eye className="w-4 h-4" />
+          <span>Ordenado por visualizações</span>
+        </div>
+      </div>
+
+      {properties.length === 0 ? (
+        <div className="text-center text-gray-500">Nenhuma propriedade visualizada ainda.</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {properties.map((property) => (
+            <div key={property.id} className="relative">
+              <PropertyCard property={property} />
+              <div className="absolute top-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded-full text-xs flex items-center gap-1">
+                <Eye className="w-3 h-3" />
+                <span>{property.total_views || 0}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

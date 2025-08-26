@@ -8,6 +8,8 @@ import { Mail, MessageSquare, Phone, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from './auth-context';
 import Pusher from 'pusher-js';
+import { incrementPropertyViews } from '@/lib/actions/supabase-actions/get-propertie-views-count';
+import { supabase } from '@/lib/supabase';
 
 type Agent = {
   id: string;
@@ -23,7 +25,7 @@ type AgentCardWithChatProps = {
   propertyId: string;
 };
 
-export type Message = { chat_id: string, sender_id: string, receiver_id: string, content: string, read: boolean}
+export type Message = { chat_id: string, sender_id: string, receiver_id: string, content: string, read: boolean }
 
 function getInitials(name: string): string {
   return name
@@ -142,21 +144,27 @@ export default function AgentCardWithChat({ ownerId, propertyId }: AgentCardWith
         </Link>
 
         <button
-          onClick={() => {
-            if (!userIdLogado) {
-              toast.error('Você precisa estar logado para enviar mensagens');
-              return;
-            }
-            setShowChat(!showChat);
-          }}
-          className={`w-full py-2 px-4 rounded-lg font-semibold transition flex items-center justify-center gap-2 ${
-            showChat 
-              ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              : 'bg-purple-600 text-white hover:bg-purple-700'
-          }`}
-        >
-          <MessageSquare size={16} />
-          {showChat ? 'Fechar chat' : 'Conversar com o agente'}
+            onClick={async () => {
+              if (!userIdLogado) {
+                toast.error('Você precisa estar logado para enviar mensagens');
+                return;
+              }
+
+              // 👉 incrementa a view (só se não for o dono do imóvel)
+              await supabase
+                .rpc('add_property_view', { p_property_id: propertyId, p_owner_id: agent.id });
+
+              // abre/fecha o chat
+              setShowChat(!showChat);
+            }}
+            className={`w-full py-2 px-4 rounded-lg font-semibold transition flex items-center justify-center gap-2 ${
+              showChat 
+                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-purple-600 text-white hover:bg-purple-700'
+            }`}
+          >
+            <MessageSquare size={16} />
+            {showChat ? 'Fechar chat' : 'Conversar com o agente'}
         </button>
       </div>
 
