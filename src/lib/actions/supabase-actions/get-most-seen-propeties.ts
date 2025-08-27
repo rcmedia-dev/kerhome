@@ -1,39 +1,57 @@
 import { supabase } from "@/lib/supabase";
+import { TPropertyResponseSchema } from "@/lib/types/property";
 
-export async function getMostViewedProperties(userId?: string) {
-  const { data: views, error: errorViews } = await supabase
-    .from('property_views')
-    .select('property_id')
-    .eq('user_id', userId);
+type PropertyViewRow = {
+  property_id: string;
+  properties: TPropertyResponseSchema;
+};
 
-  if (errorViews) {
-    console.error('Erro ao buscar visualizações:', errorViews);
+export async function getMyPropertiesWithViews(
+  ownerId?: string
+): Promise<(TPropertyResponseSchema & { total_views: number })[]> {
+  const { data: views, error } = await supabase
+    .from("property_views")
+    .select(
+      `
+      property_id,
+      properties!inner (*)
+    `
+    )
+    .eq("properties.owner_id", ownerId);
+
+  if (error) {
+    console.error("Erro ao buscar views:", error);
     return [];
   }
 
-  // conta quantas vezes cada property_id aparece
+  // aqui o Supabase retorna "any" → vamos tratar como 1:1
+  const typedViews = (views as any[]).map(
+    (v): PropertyViewRow => ({
+      property_id: v.property_id,
+      properties: v.properties as TPropertyResponseSchema,
+    })
+  );
+
+  // contar views
   const viewCounts: Record<string, number> = {};
-  views.forEach(v => {
+  typedViews.forEach((v) => {
     viewCounts[v.property_id] = (viewCounts[v.property_id] || 0) + 1;
   });
 
-  const propertyIds = Object.keys(viewCounts);
+  // montar lista final
+  const propertiesMap: Record<
+    string,
+    TPropertyResponseSchema & { total_views: number }
+  > = {};
+  typedViews.forEach((v) => {
+    const p = v.properties;
+    if (!propertiesMap[p.id]) {
+      propertiesMap[p.id] = {
+        ...p,
+        total_views: viewCounts[p.id] || 0,
+      };
+    }
+  });
 
-  const { data: properties, error: errorProps } = await supabase
-    .from('properties')
-    .select('*')
-    .in('id', propertyIds);
-
-  if (errorProps) {
-    console.error('Erro ao buscar propriedades:', errorProps);
-    return [];
-  }
-
-  // juntar as propriedades com o número de views
-  const enriched = (properties || []).map(p => ({
-    ...p,
-    total_views: viewCounts[p.id] || 0
-  }));
-
-  return enriched;
+  return Object.values(propertiesMap);
 }
