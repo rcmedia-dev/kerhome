@@ -65,7 +65,7 @@ export default function Dashboard() {
   const menuItems = [
     { id: 'properties', label: 'Minhas Propriedades', icon: Home, badge: propertyCount },
     { id: 'favorites', label: 'Favoritas', icon: Heart, badge: favoriteCount },
-    { id: 'invoices', label: 'Faturas', icon: BarChart3, badge: invoiceCount },
+    { id: 'invoices', label: 'Faturas', icon: BarChart3 },
     { id: 'views', label: 'Visualizações de Imoveis', icon: Eye, badge: viewsCount },
     { id: 'settings', label: 'Configurações da Conta', icon: Settings },
   ];

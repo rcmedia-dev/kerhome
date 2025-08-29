@@ -8,6 +8,7 @@ import { updateUserPlan } from "@/lib/actions/update-user-plan";
 import { getUserPlan } from "@/lib/actions/supabase-actions/get-user-package-action";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { handleRequestPlanChange } from "../admin/dashboard/actions/update-user-plan";
 
 // Tipagem para os planos
 interface PlanConfig {
@@ -129,45 +130,51 @@ export default function PlanosPage() {
     setError(""); // Limpa erros anteriores
   }, [user, router]);
 
-  const confirmPayment = useCallback(async () => {
-    if (!selectedPlan || !user?.id) return;
-    
-    setUpgrading(selectedPlan);
-    setPaymentStatus('pending');
-    setError(""); // Limpa erros anteriores
-    
-    try {
-      const planConfig = PLANS[selectedPlan];
-      
-      const result = await updateUserPlan(user.id, {
-        nome: selectedPlan,
-        limite: planConfig.limite,
-        restante: planConfig.limite,
-        destaques: true,
-        destaques_permitidos: planConfig.destaquesPermitidos,
-      });
+const confirmPayment = useCallback(async () => {
+  if (!selectedPlan || !user?.id) return;
 
-      if (result.success) {
-        setPaymentStatus('confirmed');
-        // Usar setTimeout para melhor UX
-        setTimeout(() => {
-          setCurrentPlan(selectedPlan);
-          setSuccess(`Plano atualizado com sucesso para ${selectedPlan}`);
-          setShowPaymentModal(false);
-          setUpgrading(null);
-          setPaymentStatus(null);
-        }, 2000);
-      } else {
-        throw new Error(result.error || "Erro ao atualizar plano");
-      }
-    } catch (err) {
-      console.error("Erro ao atualizar plano:", err);
-      setError(err instanceof Error ? err.message : "Erro ao atualizar plano");
-      setShowPaymentModal(false);
-      setUpgrading(null);
-      setPaymentStatus(null);
+  setUpgrading(selectedPlan);
+  setPaymentStatus("pending");
+  setError(""); // limpa erros anteriores
+
+  try {
+    const planConfig = PLANS[selectedPlan];
+
+    const result = await handleRequestPlanChange(user.id, {
+      nome: selectedPlan,
+      limite: planConfig.limite,
+      restante: planConfig.limite,
+      destaques: true,
+      destaques_permitidos: planConfig.destaquesPermitidos,
+    });
+
+    if (result.success) {
+      setPaymentStatus("confirmed");
+      // feedback para o user
+      setTimeout(() => {
+        setSuccess(
+          `Solicitação de atualização para o plano ${selectedPlan} enviada com sucesso. Aguarde aprovação do administrador.`
+        );
+        setShowPaymentModal(false);
+        setUpgrading(null);
+        setPaymentStatus(null);
+      }, 2000);
+    } else {
+      throw new Error(result.error || "Erro ao solicitar atualização de plano");
     }
-  }, [selectedPlan, user, PLANS]);
+  } catch (err) {
+    console.error("Erro ao solicitar plano:", err);
+    setError(
+      err instanceof Error
+        ? err.message
+        : "Erro ao solicitar atualização de plano"
+    );
+    setShowPaymentModal(false);
+    setUpgrading(null);
+    setPaymentStatus(null);
+  }
+}, [selectedPlan, user, PLANS]);
+
 
   const cancelPayment = useCallback(() => {
     setShowPaymentModal(false);

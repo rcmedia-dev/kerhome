@@ -9,6 +9,7 @@ export async function getProperties(): Promise<TPropertyResponseSchema[]> {
   try {
     const properties = await supabase.from('properties')
       .select('*')
+      .eq('aprovement_status', 'aprovado') // Filtro adicionado aqui
       .order('created_at', { ascending: false });
 
     return properties.data as TPropertyResponseSchema[];
@@ -22,6 +23,7 @@ export async function getLimitedProperties(limit: number): Promise<TPropertyResp
   try {
     const properties = await supabase.from('properties')
       .select('*')
+      .eq('aprovement_status', 'aprovado') // Filtro adicionado aqui
       .order('created_at', { ascending: false })
       .limit(limit);
 
@@ -37,6 +39,7 @@ export async function getPropertyById(id: string | null): Promise<TPropertyRespo
     const propertieById = await supabase.from('properties')
       .select('*')
       .eq('id', id)
+      .eq('aprovement_status', 'aprovado') // Filtro adicionado aqui
       .single();
 
     return propertieById.data as TPropertyResponseSchema;
@@ -46,13 +49,17 @@ export async function getPropertyById(id: string | null): Promise<TPropertyRespo
   }
 }
 
-
 export async function getSupabaseUserProperties(userId?: string): Promise<TPropertyResponseSchema[]> {
-  const {data: propertiesData, error} = await supabase.from('properties').select('*').eq('owner_id', userId).order('created_at', { ascending: false });
+  const {data: propertiesData, error} = await supabase.from('properties')
+    .select('*')
+    .eq('owner_id', userId)
+    .eq('aprovement_status', 'aprovado') // Filtro adicionado aqui
+    .order('created_at', { ascending: false });
+    
   if (error) {
     console.error('Erro ao buscar propriedades do usuário:', error);
     return [];
   }
 
-  return propertiesData
+  return propertiesData;
 }
