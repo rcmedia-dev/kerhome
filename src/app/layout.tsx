@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-context";
 import { Toaster } from "@/components/ui/sonner";
+import "@n8n/chat/style.css";
+import Footer from "@/components/footer";
 import LayoutClient from "@/components/layout-client";
 
 const geistSans = Geist({
@@ -15,10 +17,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  title: 'Kercasa - Seu lar, começa aqui',
+export const metadata: Metadata = {
+  title: "Kercasa - Seu lar, começa aqui",
   icons: {
-    icon: '/favicon.ico', // caminho relativo à pasta /public
+    icon: "/favicon.ico", // caminho relativo à pasta /public
   },
 };
 
@@ -27,12 +29,13 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+
         <AuthProvider>
-          <LayoutClient>{children}</LayoutClient>
-          <Toaster richColors position="top-right" />
+          <LayoutClient >
+            {children}
+            <Toaster richColors position="top-right" />
+          </LayoutClient>
         </AuthProvider>
       </body>
     </html>

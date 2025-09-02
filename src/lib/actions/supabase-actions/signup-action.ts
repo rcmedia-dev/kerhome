@@ -71,27 +71,37 @@ export async function signUp(formData: FormData): Promise<SignUpResponse> {
       }
     }
 
-    // 2. Criar pacote agente
+   // 2. Buscar o plano FREE (já criado no banco)
     const { data: planoData, error: planoError } = await supabase
       .from('planos_agente')
-      .insert({
-        nome: 'Plano Inicial',
-        limite: 1,
-        restante: 1,
-        destaques: false,
-        destaques_permitidos: 1
-      })
       .select('id')
-      .single()
+      .eq('nome', 'FREE')
+      .single();
 
     if (planoError || !planoData) {
-      console.error('Erro ao criar pacote:', planoError)
-      // Rollback: remove o usuário criado se o pacote falhar
-      await supabase.auth.admin.deleteUser(authData.user.id)
+      console.error('Erro ao buscar pacote FREE:', planoError);
+      // Rollback: remove o usuário criado se não conseguir atribuir o plano
+      await supabase.auth.admin.deleteUser(authData.user.id);
       return {
         success: false,
-        error: 'Falha ao criar plano inicial'
-      }
+        error: 'Falha ao atribuir plano inicial'
+      };
+    }
+
+    // 3. Atualizar o profile do usuário com o plano FREE
+    const { error: profilePlanError } = await supabase
+      .from('profiles')
+      .update({ pacote_agente_id: planoData.id })
+      .eq('id', authData.user.id);
+
+    if (profilePlanError) {
+      console.error('Erro ao atualizar profile com plano FREE:', profilePlanError);
+      // Rollback: remove o usuário criado se não conseguir salvar o plano
+      await supabase.auth.admin.deleteUser(authData.user.id);
+      return {
+        success: false,
+        error: 'Falha ao associar plano inicial ao usuário'
+      };
     }
 
     // 3. Criar perfil do usuário

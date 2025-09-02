@@ -1,7 +1,15 @@
 import { getPropertyById } from '../../actions/get-properties-by-id';
 import PropertyDetailClient from './client-component';
 
-export default async function PropertyDetailPage({ params }: { params: { id: string } }) {
+
+interface PropertyDetailPageProps {
+  params: {
+    id: string; // esse `id` vem da URL
+  }
+}
+
+
+export default async function PropertyDetailPage({ params }: PropertyDetailPageProps) {
   const { id } = params; // params já vem pronto
   const property = await getPropertyById(id);
 

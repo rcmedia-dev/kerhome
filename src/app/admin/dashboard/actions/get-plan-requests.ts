@@ -1,9 +1,7 @@
 // lib/actions/get-plan-requests.ts
 'use server'
 
-import { updateUserPlan } from "@/lib/actions/update-user-plan"
 import { supabase } from "@/lib/supabase"
-import { UserPlan } from "@/lib/types/agent"
 
 export async function getPlanRequests() {
   const { data: requests, error: reqError } = await supabase
@@ -12,7 +10,8 @@ export async function getPlanRequests() {
       id,
       status,
       created_at,
-      requested_plan,
+      plan_id,
+      user_id,
       profiles (
         id,
         primeiro_nome,
@@ -39,13 +38,13 @@ export async function getPlanRequests() {
 
   // Cruzar os pedidos com os planos
   return requests.map((req) => {
-    const plano = planos.find((p) => p.id === req.requested_plan)
+    const plano = planos.find((p) => p.id === req.plan_id)
     return {
       id: req.id,
       nome: req.profiles?.primeiro_nome ?? "Sem nome",
       email: req.profiles?.email ?? "Sem email",
       telefone: req.profiles?.telefone ?? "",
-      plano: plano?.nome ?? "Plano Básico",
+      plano: plano?.nome ?? "Plano não encontrado",
       status:
         req.status === "pending"
           ? ("Pendentes" as const)
@@ -53,8 +52,8 @@ export async function getPlanRequests() {
           ? ("Aprovados" as const)
           : ("Rejeitados" as const),
       dataInscricao: req.created_at,
-      requested_plan: req.requested_plan,
-      user_id: req.profiles?.id
+      plan_id: req.plan_id,
+      user_id: req.user_id
     }
   })
 }
@@ -63,43 +62,54 @@ export async function getPlanRequests() {
 export async function approvePlanRequest(
   requestId: string,
   userId: string,
-  newPlan: UserPlan
+  planId: string
 ) {
   try {
-    // Atualiza o plano do usuário (campos do plano em planos_agente)
-    const updateResult = await updateUserPlan(userId, newPlan);
+    // Atualiza o plano do usuário
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({ 
+        pacote_agente_id: planId,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", userId)
 
-    if (!updateResult.success) {
-      throw new Error("Erro ao atualizar plano: " + updateResult.error);
+    if (updateError) {
+      throw new Error("Erro ao atualizar plano do usuário: " + updateError.message)
     }
 
     // Atualiza status da solicitação para aprovado
     const { error: statusError } = await supabase
       .from("plan_requests")
-      .update({ status: "approved", updated_at: new Date().toISOString() })
-      .eq("id", requestId);
+      .update({ 
+        status: "approved", 
+        updated_at: new Date().toISOString() 
+      })
+      .eq("id", requestId)
 
     if (statusError) {
-      throw new Error("Erro ao aprovar solicitação: " + statusError.message);
+      throw new Error("Erro ao aprovar solicitação: " + statusError.message)
     }
 
-    return { success: true, message: "Solicitação aprovada com sucesso!" };
+    return { success: true, message: "Solicitação aprovada com sucesso!" }
   } catch (error) {
-    console.error("Erro ao aprovar solicitação:", error);
+    console.error("Erro ao aprovar solicitação:", error)
     return {
       success: false,
       message: error instanceof Error ? error.message : "Erro desconhecido",
-    };
+    }
   }
 }
-
 
 export async function rejectPlanRequest(requestId: string) {
   try {
     // Atualizar status da solicitação para rejeitado
     const { error } = await supabase
       .from("plan_requests")
-      .update({ status: "rejected" })
+      .update({ 
+        status: "rejected",
+        updated_at: new Date().toISOString()
+      })
       .eq("id", requestId)
 
     if (error) {

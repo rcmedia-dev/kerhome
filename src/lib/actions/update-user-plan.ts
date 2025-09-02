@@ -16,40 +16,25 @@ export async function updateUserPlan(
   noStore();
 
   try {
-    // Buscar o user e o plano atual
-    const { data: userData, error: userError } = await supabase
-      .from('profiles')
-      .select('pacote_agente_id')
-      .eq('id', userId)
-      .single();
-
-    if (userError || !userData) {
-      return { success: false, error: userError?.message || 'Usuário não encontrado' };
-    }
-
-    // Buscar plano atual
+    // 1. Buscar o plano pelo nome (ex.: "BÁSICO", "PROFESSIONAL", "SUPER")
     const { data: planData, error: planError } = await supabase
       .from('planos_agente')
       .select('id')
-      .eq('id', userData.pacote_agente_id)
+      .eq('nome', newPlan.nome)
       .single();
 
     if (planError || !planData) {
       return { success: false, error: planError?.message || 'Plano não encontrado' };
     }
 
-    // Atualizar o plano
+    // 2. Atualizar o usuário para o novo plano
     const { error: updateError } = await supabase
-      .from('planos_agente')
+      .from('profiles')
       .update({ 
-        nome: newPlan.nome,
-        limite: newPlan.limite,
-        restante: newPlan.restante,
-        destaques: newPlan.destaques,
-        destaques_permitidos: newPlan.destaques_permitidos,
-        updated_at: new Date().toISOString(), 
+        pacote_agente_id: planData.id,
+        updated_at: new Date().toISOString()
       })
-      .eq('id', planData.id);
+      .eq('id', userId);
 
     if (updateError) {
       return { success: false, error: updateError.message };

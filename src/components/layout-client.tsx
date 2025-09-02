@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-import FloatingChat from "@/components/floating-chat-button";
+import { N8nChat } from "@/components/n8n-chat"; // importa o chat no lugar do FloatingChat
 
 export default function LayoutClient({
   children,
@@ -11,14 +11,13 @@ export default function LayoutClient({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isDashboardPage =
-    pathname.startsWith("/admin/dashboard");
+  const isDashboardPage = pathname.startsWith("/admin/dashboard");
 
   return (
     <>
       {!isDashboardPage && <Header />}
       {children}
-      {!isDashboardPage && <FloatingChat />}
+      {!isDashboardPage && <N8nChat />} {/* aqui substitui */}
       {!isDashboardPage && <Footer />}
     </>
   );

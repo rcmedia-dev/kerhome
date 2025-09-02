@@ -102,7 +102,7 @@ export default function Header() {
           <button
             aria-label="Menu do usuário"
             aria-haspopup="true"
-            className={`${mobile ? 'w-full' : ''} flex justify-center px-5 py-3 border-2 border-purple-700 text-purple-700 bg-white hover:bg-purple-50 text-sm font-semibold rounded-full transition items-center gap-2 outline-none focus:ring-2 focus:ring-purple-300 cursor-pointer`}
+            className={`${mobile ? 'w-full' : ''} flex justify-center px-5 py-3 border-2 border-purple-700 text-purple-700 bg-white hover:bg-purple-50 text-sm font-semibold rounded-lg transition items-center gap-2 outline-none focus:ring-2 focus:ring-purple-300 cursor-pointer`}
             style={{ minWidth: 0 }}
           >
             <UserCircle className="w-6 h-6 text-purple-700" />
@@ -247,7 +247,7 @@ export default function Header() {
           <div className="flex items-center gap-3">
             <Link href="/dashboard/cadastrar-imovel">
               <button
-                className="px-5 py-3 bg-purple-700 hover:bg-purple-800 text-sm font-semibold text-white rounded-full"
+                className="px-5 py-3 bg-purple-700 hover:bg-purple-800 text-sm font-semibold text-white rounded-lg border-3 border-purple-700"
                 onClick={handleCadastrarImovelClick}
                 aria-label="Cadastrar imóvel"
               >
@@ -259,7 +259,7 @@ export default function Header() {
                 ref={authDialogRef} 
                 trigger={
                   <button 
-                    className="cursor-pointer border border-purple-700 text-purple-700 px-4 py-2 rounded-full"
+                    className="cursor-pointer border border-purple-700 text-purple-700 px-4 py-2 rounded-lg"
                     aria-label="Acessar minha conta"
                   >
                     Minha Conta
@@ -289,7 +289,7 @@ export default function Header() {
           <div className="flex flex-col gap-3">
             <Link href="/dashboard/cadastrar-imovel">
               <button 
-                className="w-full px-5 py-3 bg-purple-700 hover:bg-purple-800 text-sm font-semibold text-white rounded-full"
+                className="w-full px-5 py-3 bg-purple-700 hover:bg-purple-800 text-sm font-semibold text-white rounded-lg border-2 border-purple-700"
                 onClick={() => setMenuOpen(false)}
                 aria-label="Cadastrar imóvel"
               >
@@ -306,7 +306,7 @@ export default function Header() {
                   <AuthDialog 
                     trigger={
                       <button 
-                        className="cursor-pointer border border-purple-700 text-purple-700 px-4 py-2 rounded-full w-full"
+                        className="cursor-pointer border border-purple-700 text-purple-700 px-4 py-2 rounded-lg w-full"
                         aria-label="Acessar minha conta"
                       >
                         Minha Conta

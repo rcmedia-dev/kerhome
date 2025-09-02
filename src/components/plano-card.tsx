@@ -103,7 +103,7 @@ export function PlanoCard({ userId }: PlanoCardProps) {
             >
               <Star className="w-4 h-4 mr-2" />
               {isRedirecting ? 'Redirecionando...' : 
-               plan.destaquesPermitidos ? 'Gerenciar Plano' : 'Upgrade Plan'}
+               plan.destaquesPermitidos ? 'Gerenciar Plano' : 'Atualizar Plano'}
             </button>
           </>
         ) : (

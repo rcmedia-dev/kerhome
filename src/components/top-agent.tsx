@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 
 type Agent = {
   id: string;
@@ -66,9 +67,11 @@ export default function TopAgentsSection() {
               <p className="text-purple-700 font-medium mt-2">
                 {agent.propriedades.length} propriedades listadas
               </p>
-              <button className="mt-4 px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold cursor-pointer rounded-lg transition">
+              <Link
+                href={'/agente'}
+                className="mt-4 px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold cursor-pointer rounded-lg transition">
                 Ver Perfil
-              </button>
+              </Link>
             </div>
           ))}
         </div>

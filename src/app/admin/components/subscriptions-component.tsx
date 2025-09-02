@@ -4,14 +4,9 @@
 import { useEffect, useState } from "react"
 import { CheckCircle, XCircle, Clock, UserCircle2, Mail, Phone, Crown, Zap, Check, ArrowRight, MoreVertical, Star, Loader2 } from "lucide-react"
 import { approvePlanRequest, getPlanRequests, rejectPlanRequest } from "../dashboard/actions/get-plan-requests"
-import { UserPlan } from "@/lib/types/agent"
-
 type SubscriptionStatus = "Todos" | "Pendentes" | "Aprovados" | "Rejeitados"
 
-type UserSubscription = Awaited<ReturnType<typeof getPlanRequests>>[number] & {
-  requested_plan_id?: string
-  user_id?: string
-}
+type UserSubscription = Awaited<ReturnType<typeof getPlanRequests>>[number]
 
 const PLANS = {
   "Plano Básico": {
@@ -109,12 +104,12 @@ export default function SubscricoesPage() {
     })
   }
 
-  const handleApprove = async (requestId: string, userId: string, newPlan: UserPlan) => {
+  const handleApprove = async (requestId: string, userId: string, planId: string) => {
     setProcessing(requestId)
     setMessage(null)
     
     try {
-      const result = await approvePlanRequest(requestId, userId, newPlan)
+      const result = await approvePlanRequest(requestId, userId, planId)
       
       if (result.success) {
         setMessage({ type: 'success', text: result.message })
@@ -298,7 +293,7 @@ export default function SubscricoesPage() {
                         {user.status === "Pendentes" && (
                           <div className="flex gap-2">
                             <button
-                              onClick={() => handleApprove(user.id, user.user_id!, user.requested_plan)}
+                              onClick={() => handleApprove(user.id, user.user_id, user.plan_id)}
                               disabled={processing === user.id}
                               className={`flex-1 py-2 px-4 rounded-xl text-white font-medium text-sm transition-all duration-200 hover:shadow-lg ${plan.button} disabled:opacity-50 disabled:cursor-not-allowed`}
                             >
