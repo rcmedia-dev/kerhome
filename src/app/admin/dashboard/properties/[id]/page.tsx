@@ -8,7 +8,6 @@ interface PropertyDetailPageProps {
   }
 }
 
-
 export default async function PropertyDetailPage({ params }: PropertyDetailPageProps) {
   const { id } = params; // params já vem pronto
   const property = await getPropertyById(id);

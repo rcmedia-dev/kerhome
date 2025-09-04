@@ -3,6 +3,10 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import {
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query'
 
 interface PlanoAgente {
   id: string
@@ -179,17 +183,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const client = new QueryClient();
+
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isLoading, 
-      signOut, 
-      refreshSession,
-      setUser,
-      updateUser
-    }}>
-      {children}
-    </AuthContext.Provider>
+    <QueryClientProvider client={client}>
+      <AuthContext.Provider value={{ 
+        user, 
+        isLoading, 
+        signOut, 
+        refreshSession,
+        setUser,
+        updateUser
+      }}>
+        {children}
+      </AuthContext.Provider>
+    </QueryClientProvider>
   )
 }
 

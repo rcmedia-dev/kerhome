@@ -149,11 +149,6 @@ export default function AgentProfilePage() {
                     <MessageCircle className="w-4 h-4 mr-2" />
                     Enviar mensagem
                   </Button>
-                  
-                  <Button variant="outline" className="w-full border-gray-300 py-3">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Agendar visita
-                  </Button>
                 </div>
 
                 <div className="w-full mt-6 pt-6 border-t border-gray-100">

@@ -18,12 +18,14 @@ import {
   Subscript,
   AwardIcon,
   Award,
+  Medal,
 } from 'lucide-react';
 import Link from 'next/link';
 import { RenderProperties } from '../components/properties-component';
 import UserManagement from '../components/users-component';
 import { RenderDashboard } from '../components/dashboard-component';
 import SubscricoesPage from '../components/subscriptions-component';
+import AgentSubscriptionsPage from '../components/agent-subscription-component';
 
 const KerHomeDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -36,6 +38,7 @@ const KerHomeDashboard = () => {
     { id: 'properties', label: 'Imóveis', icon: Building2, href: '#' },
     { id: 'users', label: 'Utilizadores', icon: Users, href: '#' },
     { id: 'subscriptions', label: 'Subscrições de Planos', icon: Award, href: '#' },
+    { id: 'subscriptions2', label: 'Subscrições de Agentes', icon: Medal, href: '#' },
     { id: 'messages', label: 'Mensagens', icon: MessageCircle, href: '#' },
     { id: 'settings', label: 'Configurações', icon: Settings, href: '#' }
   ];
@@ -204,6 +207,7 @@ const KerHomeDashboard = () => {
       case 'properties': return  <RenderProperties darkMode={darkMode}/>;
       case 'users': return <UserManagement darkMode={darkMode}/>;
       case 'subscriptions': return <SubscricoesPage />;
+      case 'subscriptions2': return <AgentSubscriptionsPage />
       case 'messages': return renderMessages();
       case 'settings': return renderSettings();
       default: return <RenderDashboard darkMode={darkMode}/>;

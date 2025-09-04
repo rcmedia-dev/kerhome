@@ -4,7 +4,6 @@ import "./globals.css";
 import { AuthProvider } from "@/components/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 import "@n8n/chat/style.css";
-import Footer from "@/components/footer";
 import LayoutClient from "@/components/layout-client";
 
 const geistSans = Geist({
@@ -30,7 +29,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-
         <AuthProvider>
           <LayoutClient >
             {children}
