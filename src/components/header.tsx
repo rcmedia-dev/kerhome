@@ -206,7 +206,7 @@ export default function Header() {
     { id: 'inicio', label: 'ÍNICIO', href: '/' },
     { id: 'alugar', label: 'PARA ALUGAR', href: '/alugar' },
     { id: 'comprar', label: 'PARA COMPRAR', href: '/comprar' },
-    { id: 'noticias', label: 'NOTÍCIAS', href: '#' },
+    { id: 'noticias', label: 'NOTÍCIAS', href: '/noticias' },
     { id: 'contacto', label: 'CONTACTO', href: '/contato' },
   ];
 
