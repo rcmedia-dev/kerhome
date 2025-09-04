@@ -3,13 +3,11 @@ import PropertyDetailClient from './client-component';
 
 
 interface PropertyDetailPageProps {
-  params: {
-    id: string; // esse `id` vem da URL
-  }
+  params: Promise<{ id: string }>;
 }
 
 export default async function PropertyDetailPage({ params }: PropertyDetailPageProps) {
-  const { id } = params; // params já vem pronto
+  const { id } = await params; // ⬅️ usar await aqui
   const property = await getPropertyById(id);
 
   if (!property) {

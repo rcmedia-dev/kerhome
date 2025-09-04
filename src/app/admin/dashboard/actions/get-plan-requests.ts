@@ -38,12 +38,15 @@ export async function getPlanRequests() {
 
   // Cruzar os pedidos com os planos
   return requests.map((req) => {
+    // 👇 garante que perfis é tratado como array
+    const perfil = Array.isArray(req.profiles) ? req.profiles[0] : req.profiles
     const plano = planos.find((p) => p.id === req.plan_id)
+
     return {
       id: req.id,
-      nome: req.profiles?.primeiro_nome ?? "Sem nome",
-      email: req.profiles?.email ?? "Sem email",
-      telefone: req.profiles?.telefone ?? "",
+      nome: perfil?.primeiro_nome ?? "Sem nome",
+      email: perfil?.email ?? "Sem email",
+      telefone: perfil?.telefone ?? "",
       plano: plano?.nome ?? "Plano não encontrado",
       status:
         req.status === "pending"
@@ -53,7 +56,7 @@ export async function getPlanRequests() {
           : ("Rejeitados" as const),
       dataInscricao: req.created_at,
       plan_id: req.plan_id,
-      user_id: req.user_id
+      user_id: req.user_id,
     }
   })
 }
@@ -101,6 +104,7 @@ export async function approvePlanRequest(
   }
 }
 
+// Rejeita uma solicitação de plano
 export async function rejectPlanRequest(requestId: string) {
   try {
     // Atualizar status da solicitação para rejeitado

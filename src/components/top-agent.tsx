@@ -1,3 +1,8 @@
+'use client'
+
+import { supabase } from '@/lib/supabase';
+import { useQuery } from '@tanstack/react-query';
+import { VerifiedIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -12,35 +17,16 @@ type Agent = {
 };
 
 export default function TopAgentsSection() {
-  const agents: Agent[] = [
-    {
-      id: '1',
-      nome: 'Ana Silva',
-      email: 'ana@email.com',
-      telefone: '923456789',
-      pacote_agente: 'Premium',
-      propriedades: [{}, {}, {}],
-      avatar: '/people/1.jpg',
-    },
-    {
-      id: '2',
-      nome: 'Carlos Santos',
-      email: 'carlos@email.com',
-      telefone: '924567890',
-      pacote_agente: 'Standard',
-      propriedades: [{}],
-      avatar: '/people/3.jpg',
-    },
-    {
-      id: '3',
-      nome: 'Joana Mendes',
-      email: 'joana@email.com',
-      telefone: '922123456',
-      pacote_agente: 'Gold',
-      propriedades: [{}, {}],
-      avatar: '/people/2.jpg',
-    },
-  ];
+  const response = useQuery({
+    queryKey: ['agents'],
+    queryFn: async() => {
+      const response = await supabase.from('profiles').select('*').eq('role', 'agent').limit(3)
+      return response
+    }
+  })
+
+  const agents = response.data;
+  console.log({agents})
 
   return (
     <section className="py-16 bg-white">
@@ -49,7 +35,7 @@ export default function TopAgentsSection() {
         <p className="text-gray-500 mb-10">Conheça os profissionais que mais se destacam em vendas.</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {agents.map((agent) => (
+          {agents?.data?.map((agent) => (
             <div
               key={agent.id}
               className="flex flex-col h-full bg-gray-50 rounded-2xl p-6 shadow-md hover:shadow-lg transition"
@@ -62,13 +48,13 @@ export default function TopAgentsSection() {
                   className="object-cover"
                 />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800">{agent.nome}</h3>
-              <p className="text-sm text-gray-500">{agent.pacote_agente}</p>
-              <p className="text-purple-700 font-medium mt-2">
-                {agent.propriedades.length} propriedades listadas
+              <h3 className="text-xl font-semibold text-gray-800">{agent.primeiro_nome} {agent.ultimo_nome}</h3>
+              <p className="flex gap-2 justify-center items-center text-purple-700 font-medium mt-2">
+                <VerifiedIcon />
+                Agente Verificado
               </p>
               <Link
-                href={'/agente'}
+                href={`/agente/${agent.id}`}
                 className="mt-4 px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold cursor-pointer rounded-lg transition">
                 Ver Perfil
               </Link>
