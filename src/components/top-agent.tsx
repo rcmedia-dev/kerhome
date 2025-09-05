@@ -26,7 +26,6 @@ export default function TopAgentsSection() {
   })
 
   const agents = response.data;
-  console.log({agents})
 
   return (
     <section className="py-16 bg-white">

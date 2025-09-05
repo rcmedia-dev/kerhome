@@ -16,6 +16,7 @@ export interface UserProfile {
   instagram?: string;
   youtube?: string ;
   sobre_mim?: string ;
+  avatar_url?: string;
   pacote_agente_id?: string;
   role?: string;
   created_at?: string; // Adicionado como opcional
@@ -47,6 +48,7 @@ export async function getUserProfile(id?: string): Promise<UserProfile> {
         instagram,
         youtube,
         sobre_mim,
+        avatar_url,
         pacote_agente_id,
         role,
         created_at,

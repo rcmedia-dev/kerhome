@@ -16,6 +16,7 @@ interface UpdateUserProfileParams {
     instagram: string | null;
     youtube: string | null;
     sobre_mim: string | null;
+    avatar_url: string | null;
   }>;
 }
 
