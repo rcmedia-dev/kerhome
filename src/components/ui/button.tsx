@@ -38,7 +38,6 @@ const buttonVariants = cva(
 function Button({
   className,
   variant,
-  ref,
   size,
   asChild = false,
   ...props

@@ -24,7 +24,7 @@ const ModernFileInput = ({
   accept, 
   multiple = false,
   maxSizeMB = 10,
-  maxFiles = 5,
+  maxFiles = 10,
   errors,
   icon: Icon = Upload
 }: any) => {
@@ -739,7 +739,7 @@ export default function CadastrarImovelPage() {
                 accept="image/*"
                 multiple={true}
                 maxSizeMB={10}
-                maxFiles={5}
+                maxFiles={10}
                 errors={errors}
                 icon={Camera}
               />
