@@ -13,16 +13,26 @@ export function N8nChat() {
 
       chatInstance = createChat({
         webhookUrl:
-          "https://n8n-3rrq.onrender.com/webhook/4184dec9-c2ef-4235-9e00-2812ad4a07c4/chat",
+          "https://n8n.tonile-angola.com/webhook/355cc339-08d9-458b-aa3a-9a31a8ab5abf/chat",
         webhookConfig: {
           method: "POST",
           headers: {},
         },
+        i18n: {
+          en: {
+            title: "Chat",
+            subtitle: "",
+            footer: "",
+            getStarted: "Começar",
+            inputPlaceholder: "Digite sua mensagem...",
+            closeButtonTooltip: "Fechar",
+            send: "Enviar",
+            cancel: "Cancelar",
+          },
+        },
         target: "#n8n-chat",
         initialMessages: [
-          `Olá! 👋 Bem-vindo(a) à nossa imobiliária virtual. 
-Sou seu assistente de IA e estou aqui para ajudar você com suas necessidades de compra, venda ou aluguel de imóveis.
-
+          `Olá! 👋,
 Como posso ajudar você hoje? Você está procurando comprar, vender ou alugar um imóvel?`,
         ],
       });
@@ -31,7 +41,6 @@ Como posso ajudar você hoje? Você está procurando comprar, vender ou alugar u
     loadChat();
 
     return () => {
-      // cleanup: remove o chat se o componente desmontar
       const chatDiv = document.getElementById("n8n-chat");
       if (chatDiv) chatDiv.innerHTML = "";
       chatInstance = null;

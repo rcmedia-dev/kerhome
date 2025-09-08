@@ -23,6 +23,12 @@ import {
 } from './ui/dropdown-menu';
 import { logout } from '@/lib/logout';
 
+// Função linkClass movida para fora do componente Header
+const linkClass = (pathname: string, href: string) =>
+  `text-sm font-medium transition ease-in-out ${
+    pathname === href ? 'text-purple-700' : 'text-gray-700 hover:text-purple-700'
+  }`;
+
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
@@ -35,19 +41,17 @@ export default function Header() {
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleScroll = useCallback(() => {
-    // Limpa o timeout anterior se existir
     if (scrollTimeoutRef.current) {
       clearTimeout(scrollTimeoutRef.current);
     }
     
-    // Usa debounce para evitar múltiplas renderizações durante o scroll
     scrollTimeoutRef.current = setTimeout(() => {
       if (window.scrollY > 5) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
       }
-    }, 50); // Ajuste este valor conforme necessário (100ms é um bom padrão)
+    }, 50);
   }, []);
 
   useEffect(() => {
@@ -63,18 +67,13 @@ export default function Header() {
     };
   }, [handleScroll]);
 
-  // Restante do código permanece igual...
+  // Função para verificar autenticação antes de cadastrar imóvel
   const handleCadastrarImovelClick = (e: React.MouseEvent) => {
     if (!user) {
       e.preventDefault();
       if (authDialogRef.current) authDialogRef.current.open();
     }
   };
-
-  const linkClass = (href: string) =>
-    `text-sm font-medium transition ease-in-out ${
-      pathname === href ? 'text-purple-700' : 'text-gray-700 hover:text-purple-700'
-    }`;
 
   const handleLogout = () => {
     try {
@@ -239,7 +238,7 @@ export default function Header() {
         <nav aria-label="Navegação principal" className="hidden md:flex items-center justify-center gap-10">
           <ul className="flex items-center gap-6">
             {navLinks.map(({ id, label, href }) => (
-              <Link key={id} href={href} className={linkClass(href)}>
+              <Link key={id} href={href} className={linkClass(pathname, href)}>
                 {label}
               </Link>
             ))}
@@ -279,7 +278,7 @@ export default function Header() {
               <Link 
                 key={id} 
                 href={href} 
-                className={linkClass(href)}
+                className={linkClass(pathname, href)}
                 onClick={() => setMenuOpen(false)}
               >
                 {label}
@@ -287,15 +286,7 @@ export default function Header() {
             ))}
           </ul>
           <div className="flex flex-col gap-3">
-            <Link href="/dashboard/cadastrar-imovel">
-              <button 
-                className="w-full px-5 py-3 bg-purple-700 hover:bg-purple-800 text-sm font-semibold text-white rounded-lg border-2 border-purple-700"
-                onClick={() => setMenuOpen(false)}
-                aria-label="Cadastrar imóvel"
-              >
-                Cadastrar Imóvel
-              </button>
-            </Link>
+            {/* Botão Cadastrar Imóvel REMOVIDO da versão mobile */}
             {isClient && user ? (
               <div className="w-full">
                 <UserDropdown mobile />
