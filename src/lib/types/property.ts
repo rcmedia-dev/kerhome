@@ -144,6 +144,54 @@ export const faturaSchema = z.object({
   created_at: z.string()
 });
 
+export interface PropertyFormData {
+  id?: string;
+  owner_id: string;
+  title: string;
+  description: string;
+  tipo: string;
+  status: string;
+  rotulo: string;
+  price: number;
+  unidade_preco: string;
+  preco_chamada: number;
+  size: number;
+  area_terreno: number;
+  bedrooms: number;
+  bathrooms: number;
+  garagens: number;
+  garagem_tamanho: number;
+  ano_construcao: number;
+  propertyid: string;
+  endereco: string;
+  bairro: string;
+  cidade: string;
+  provincia: string;
+  pais: string;
+  nota_privada: string;
+  image: string | File;
+  gallery: (string | File)[];
+  caracteristicas?: string | string[];
+  detalhes_adicionais: string;
+  created_at?: string;
+  updated_at?: string;
+  aprovement_status: string;
+  video_url: string;
+  is_featured: boolean;
+  rejection_reason: string;
+  documents: (string | File)[];
+}
+
+
+export interface PropertyDBData extends Omit<PropertyFormData, 'image' | 'gallery' | 'documents'> {
+  id?: string;
+  image: string | File;
+  gallery: (string | File)[];
+  documents: string[];
+  created_at?: string;
+  updated_at?: string;
+}
+
 export type Fatura = z.infer<typeof faturaSchema>;
 
 export type TPropertyResponseSchema = z.infer<typeof propertyResponseSchema>;
