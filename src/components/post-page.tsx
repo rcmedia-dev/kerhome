@@ -6,8 +6,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Noticias } from '@/lib/types/noticia';
 
-
-
 // Props para o componente
 interface PostPageProps {
   post: Noticias;
@@ -34,11 +32,11 @@ const PostMetaInfo: React.FC<{ createdAt: string; readTime: string }> = ({ creat
   return (
     <div className="flex items-center gap-4 flex-wrap">
       <AuthorBadge />
-      <div className="flex items-center gap-2 text-sm text-gray-500">
+      <div className="flex items-center gap-2 text-sm text-gray-600">
         <Calendar className="w-4 h-4" />
         {formatDate(createdAt)}
       </div>
-      <div className="flex items-center gap-2 text-sm text-gray-500">
+      <div className="flex items-center gap-2 text-sm text-gray-600">
         <Clock className="w-4 h-4" />
         {readTime}
       </div>
@@ -67,7 +65,7 @@ const PostActions: React.FC<{ post: Noticias }> = ({ post }) => {
     <div className="flex items-center gap-4">
       <button 
         onClick={handleShare}
-        className="flex items-center gap-2 text-gray-600 hover:text-purple-700 transition-colors"
+        className="flex items-center gap-2 text-gray-700 hover:text-purple-700 transition-colors p-2 rounded-lg hover:bg-gray-100"
         aria-label="Compartilhar artigo"
       >
         <Share2 className="w-5 h-5" />
@@ -87,10 +85,10 @@ const RelatedPosts: React.FC<{ posts: Noticias[] }> = ({ posts }) => {
 
   return (
     <div className="mt-16">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Artigos Relacionados</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <h2 className="text-2xl font-bold text-gray-800 mb-8">Artigos Relacionados</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {posts.slice(0, 2).map((post) => (
-          <article key={post.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300">
+          <article key={post.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-100">
             <div className="h-48 overflow-hidden">
               <img 
                 src={post.coverImage.url} 
@@ -99,24 +97,24 @@ const RelatedPosts: React.FC<{ posts: Noticias[] }> = ({ posts }) => {
               />
             </div>
             <div className="p-6">
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-4">
                 <AuthorBadge />
                 <span className="text-sm text-gray-500">5 min</span>
               </div>
               
-              <h3 className="text-lg font-bold text-gray-800 mb-3 leading-tight hover:text-purple-700 transition-colors">
+              <h3 className="text-xl font-bold text-gray-800 mb-4 leading-tight hover:text-purple-700 transition-colors line-clamp-2">
                 <Link href={`/blog/${post.slug}`}>
                   {post.title}
                 </Link>
               </h3>
               
-              <p className="text-gray-600 mb-4 text-sm leading-relaxed">
+              <p className="text-gray-600 mb-5 text-sm leading-relaxed line-clamp-3">
                 {stripHtml(post.excerpt.html)}
               </p>
               
               <Link 
                 href={`/blog/${post.slug}`}
-                className="text-purple-700 hover:text-orange-500 font-medium text-sm flex items-center gap-1 group"
+                className="text-purple-700 hover:text-purple-800 font-medium text-sm flex items-center gap-1 group transition-colors"
               >
                 Ler mais
                 <ArrowLeft className="w-4 h-4 rotate-180 group-hover:translate-x-1 transition-transform" />
@@ -139,12 +137,12 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Cabeçalho */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link 
               href="/noticias"
-              className="flex items-center gap-2 text-gray-600 hover:text-purple-700 transition-colors"
+              className="flex items-center gap-2 text-gray-700 hover:text-purple-700 transition-colors p-2 rounded-lg hover:bg-gray-100"
             >
               <ArrowLeft className="w-5 h-5" />
               <span className="font-medium">Voltar para o blog</span>
@@ -161,18 +159,18 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
       <main className="container mx-auto px-4 py-8">
         <article className="max-w-4xl mx-auto">
           {/* Cabeçalho do artigo */}
-          <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4 leading-tight">
+          <div className="mb-10">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight tracking-tight">
               {post.title}
             </h1>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 py-4 border-t border-b border-gray-100">
               <PostMetaInfo createdAt={post.createdAt} readTime='5 min' />
               <PostActions post={post} />
             </div>
           </div>
 
           {/* Imagem de destaque */}
-          <div className="rounded-xl overflow-hidden mb-8">
+          <div className="rounded-xl overflow-hidden mb-10 shadow-md">
             <img 
               src={post.coverImage.url} 
               alt={post.title}
@@ -181,20 +179,31 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
           </div>
 
           {/* Conteúdo do artigo */}
-          <div 
-            className="prose prose-lg max-w-none prose-headings:text-gray-800 prose-p:text-gray-600 prose-a:text-purple-700 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-800 prose-blockquote:border-purple-700 prose-blockquote:bg-purple-50 prose-blockquote:text-gray-700 prose-blockquote:rounded-r-lg prose-li:marker:text-purple-700 mb-12"
-            dangerouslySetInnerHTML={renderContent()}
-          />
+          <div className="mb-16">
+            <div 
+              className="prose prose-lg max-w-none 
+                prose-headings:text-gray-900 prose-headings:font-bold prose-headings:mb-5 prose-headings:mt-10
+                prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-6
+                prose-a:text-purple-700 prose-a:no-underline hover:prose-a:underline prose-a:font-medium
+                prose-strong:text-gray-900
+                prose-blockquote:border-purple-600 prose-blockquote:bg-purple-50 prose-blockquote:text-gray-800 prose-blockquote:rounded-xl prose-blockquote:p-6 prose-blockquote:my-8
+                prose-ol:my-6 prose-ul:my-6
+                prose-li:marker:text-purple-600 prose-li:mb-2
+                prose-hr:my-10 prose-hr:border-gray-200
+                prose-img:rounded-xl prose-img:shadow-md prose-img:my-8"
+              dangerouslySetInnerHTML={renderContent()}
+            />
+          </div>
 
           {/* Autor e informações adicionais */}
-          <div className="bg-purple-50 rounded-xl p-6 mb-12">
-            <div className="flex items-start gap-4">
-              <div className="bg-purple-100 rounded-full p-2">
-                <User className="w-6 h-6 text-purple-700" />
+          <div className="bg-purple-50 rounded-2xl p-8 mb-16 border border-purple-100">
+            <div className="flex items-start gap-6">
+              <div className="bg-purple-100 rounded-full p-3 flex-shrink-0">
+                <User className="w-7 h-7 text-purple-700" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-800 mb-1">Redator KerCasa</h3>
-                <p className="text-gray-600 text-sm">
+                <h3 className="font-semibold text-gray-900 text-lg mb-2">Redator KerCasa</h3>
+                <p className="text-gray-700 leading-relaxed">
                   Especialista em mercado imobiliário com anos de experiência em ajudar pessoas 
                   a encontrar o lar dos sonhos e fazer investimentos inteligentes.
                 </p>
@@ -208,22 +217,22 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
       </main>
 
       {/* Newsletter */}
-      <div className="bg-white border-t border-gray-100 mt-16">
-        <div className="container mx-auto px-4 py-12">
+      <div className="bg-white border-t border-gray-200 mt-16">
+        <div className="container mx-auto px-4 py-16">
           <div className="max-w-2xl mx-auto text-center">
-            <h3 className="text-2xl font-bold text-gray-800 mb-4">
+            <h3 className="text-3xl font-bold text-gray-900 mb-5">
               Receba mais conteúdos como este
             </h3>
-            <p className="text-gray-600 mb-8">
+            <p className="text-gray-700 mb-8 text-lg leading-relaxed">
               Assine nossa newsletter e fique por dentro das melhores oportunidades e dicas do mercado imobiliário
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
               <input
                 type="email"
                 placeholder="Seu melhor e-mail"
-                className="flex-1 px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
+                className="flex-1 px-5 py-3.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all text-gray-700 placeholder-gray-500"
               />
-              <button className="bg-purple-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-800 transition-all">
+              <button className="bg-purple-700 text-white px-6 py-3.5 rounded-xl font-medium hover:bg-purple-800 transition-all shadow-md hover:shadow-lg">
                 Assinar Newsletter
               </button>
             </div>
