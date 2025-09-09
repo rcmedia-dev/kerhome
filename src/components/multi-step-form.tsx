@@ -136,27 +136,11 @@ const MultiStepForm = ({ userId }: MultiStepFormProps) => {
           name: "size",
           label: "Tamanho (m²)",
           type: "number",
-          required: true,
-          validation: {
-            required: "Tamanho é obrigatório",
-            min: {
-              value: 1,
-              message: "Tamanho deve ser maior que 0"
-            }
-          }
         },
         {
           name: "area_terreno",
           label: "Área do Terreno (m²)",
           type: "number",
-          required: true,
-          validation: {
-            required: "Área do terreno é obrigatória",
-            min: {
-              value: 1,
-              message: "Área do terreno deve ser maior que 0"
-            }
-          }
         },
         {
           name: "bedrooms",
@@ -188,25 +172,11 @@ const MultiStepForm = ({ userId }: MultiStepFormProps) => {
           name: "garagens",
           label: "Vagas de Garagem",
           type: "number",
-          required: true,
-          validation: {
-            required: "Número de vagas é obrigatório",
-            min: {
-              value: 0,
-              message: "Número de vagas não pode ser negativo"
-            }
-          }
         },
         {
           name: "garagem_tamanho",
           label: "Tamanho da Garagem (m²)",
           type: "number",
-          validation: {
-            min: {
-              value: 0,
-              message: "Tamanho da garagem não pode ser negativo"
-            }
-          }
         },
         {
           name: "ano_construcao",

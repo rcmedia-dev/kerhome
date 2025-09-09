@@ -115,7 +115,7 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
       {/* Imagem */}
       <div className="relative h-56 w-full">
         <Image
-          src={property.gallery[0]}
+          src={property.image ?? ""}
           alt={property.title}
           fill
           className="object-cover"
