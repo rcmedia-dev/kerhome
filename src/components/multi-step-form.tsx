@@ -393,7 +393,7 @@ const MultiStepForm = ({ userId }: MultiStepFormProps) => {
       }
     } catch (error) {
       console.error("Erro no formulário:", error);
-      setServerError("Erro interno do servidor");
+      setServerError('Erro interno do servidor');
     } finally {
       setIsSubmitting(false);
     }
