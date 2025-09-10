@@ -94,7 +94,7 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
 
       {/* Botões de ação do dono */}
       {isOwner && (
-        <div className="absolute top-3 right-3 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition">
+        <div className="absolute top-3 right-3 z-20 flex gap-2">
           <Link
           href={`/dashboard/editar-imovel/${property.id}`}
             className="bg-white p-1.5 rounded-full shadow hover:bg-purple-100 transition"
