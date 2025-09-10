@@ -1,52 +1,31 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Package, Home, Eye, Star } from 'lucide-react';
-import { getUserPlan } from '@/lib/actions/supabase-actions/get-user-package-action';
-import { useRouter } from 'next/navigation'; // Importe o useRouter
+import { useRouter } from 'next/navigation';
 
-interface PlanoCardProps {
-  userId: string;
+// Create a local type that matches your actual data structure
+interface LocalUserPlan {
+  nome: string;
+  limite: number;
+  restante: number;
+  destaques: boolean;
+  destaquesPermitidos: number;
+  pacote_agente_id: string;
 }
 
-export function PlanoCard({ userId }: PlanoCardProps) {
-  const router = useRouter(); // Adicione o hook useRouter
-  const [plan, setPlan] = useState<{
-    nome: string;
-    limite: number;
-    restante: number;
-    destaquesPermitidos: number;
-  } | null>(null);
-  
-  const [loading, setLoading] = useState(true);
-  const [isRedirecting, setIsRedirecting] = useState(false); // Estado para controle do redirecionamento
+interface PlanoCardProps {
+  plan?: LocalUserPlan; // Use the local type instead
+}
 
-  useEffect(() => {
-    if (!userId) {
-      setLoading(false);
-      return;
-    }
+export function PlanoCard({ plan }: PlanoCardProps) {
+  const router = useRouter();
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
-    const loadPlan = async () => {
-      setLoading(true);
-      try {
-        const userPlan = await getUserPlan(userId);
-        setPlan(userPlan);
-      } catch (error) {
-        console.error('Erro ao carregar plano:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadPlan();
-  }, [userId]);
-
-  // Função para lidar com o redirecionamento
   const handleManagePlan = () => {
     setIsRedirecting(true);
-    router.push('/planos'); // Use o router do Next.js para navegação
+    router.push('/planos');
   };
 
   return (
@@ -58,9 +37,7 @@ export function PlanoCard({ userId }: PlanoCardProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {loading ? (
-          <div className="text-center text-sm text-gray-400">Carregando plano...</div>
-        ) : plan ? (
+        {plan ? (
           <>
             <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
               <div className="flex items-center space-x-2">
@@ -89,21 +66,30 @@ export function PlanoCard({ userId }: PlanoCardProps) {
                 <span className="text-gray-600 text-xs sm:text-base">Destaques</span>
               </div>
               <span className="text-gray-800 font-semibold text-xs sm:text-base">
-                {plan.destaquesPermitidos ? 'Ativo' : 'Inativo'}
+                {plan.destaques ? 'Ativo' : 'Inativo'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <Star className="w-4 h-4 text-purple-500" />
+                <span className="text-gray-600 text-xs sm:text-base">Destaques Permitidos</span>
+              </div>
+              <span className="text-gray-800 font-semibold text-xs sm:text-base">
+                {plan.destaquesPermitidos}
               </span>
             </div>
             <button
               className={`w-full mt-4 flex items-center justify-center ${
-                plan.destaquesPermitidos 
+                plan.destaques 
                   ? 'bg-orange-500 hover:bg-orange-600' 
                   : 'bg-purple-500 hover:bg-purple-600'
               } text-white py-2 rounded-lg text-sm sm:text-base transition-colors`}
               onClick={handleManagePlan}
-              disabled={isRedirecting || loading}
+              disabled={isRedirecting}
             >
               <Star className="w-4 h-4 mr-2" />
               {isRedirecting ? 'Redirecionando...' : 
-               plan.destaquesPermitidos ? 'Gerenciar Plano' : 'Atualizar Plano'}
+               plan.destaques ? 'Gerenciar Plano' : 'Atualizar Plano'}
             </button>
           </>
         ) : (

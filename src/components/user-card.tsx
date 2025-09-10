@@ -4,7 +4,7 @@
 import { useState, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
 import { CanSeeIt } from './can';
-import { Edit, Upload, X, Camera, Cloud, User, Plus } from 'lucide-react';
+import { Edit, Upload, X, Camera, Cloud, User, Plus, Pen } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 export interface UserProfile {
@@ -234,7 +234,7 @@ export function UserCard({ user, displayName, stats, onAvatarUpdate }: UserCardP
               className="absolute bottom-0 right-0 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white shadow-md transition-all hover:bg-orange-600"
               title="Alterar foto de perfil"
             >
-              <Camera className="w-4 h-4" />
+              <Pen className="w-4 h-4" />
             </button>
           )}
           
@@ -244,13 +244,6 @@ export function UserCard({ user, displayName, stats, onAvatarUpdate }: UserCardP
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
             </div>
           )}
-          
-          {/* Status online */}
-          <div className={`absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-white ${
-            user.role === 'agente' || user.role === 'admin' 
-              ? 'bg-green-500' 
-              : 'bg-blue-500'
-          }`} />
         </div>
         
         {/* Botão de upload destacado abaixo do avatar */}

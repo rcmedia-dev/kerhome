@@ -1,37 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Settings } from 'lucide-react';
-import { useAuth } from './auth-context';
-import { getUserProfile, UserProfile } from '@/lib/actions/supabase-actions/get-user-profile';
+import { UserProfile } from '@/lib/actions/supabase-actions/get-user-profile';
 import { updateUserProfile } from '@/lib/actions/supabase-actions/update-user-profile';
 import { toast } from 'sonner';
 
-export function ConfiguracoesConta() {
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
+
+
+type SettingsProps = {
+  profile: UserProfile
+}
+
+export function ConfiguracoesConta({ profile }: SettingsProps) {
   const [form, setForm] = useState<Partial<UserProfile>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Buscar perfil
-  useEffect(() => {
-    if (!user?.id) return;
-
-    const fetchProfile = async () => {
-      setLoading(true);
-      try {
-        const profile = await getUserProfile(user.id);
-        if (profile) setForm(profile);
-      } catch (error) {
-        console.error('Erro ao carregar perfil:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, [user?.id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -43,12 +27,12 @@ export function ConfiguracoesConta() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user?.id) return;
+    if (!profile?.id) return;
 
     setIsSubmitting(true);
     try {
       const success = await updateUserProfile({
-        userId: user.id,
+        userId: profile.id,
         profileData: form
       });
 
@@ -66,17 +50,6 @@ export function ConfiguracoesConta() {
       setIsSubmitting(false);
     }
   };
-
-
-  if (loading) {
-    return (
-      <Card className="shadow-md mt-6">
-        <CardContent className="flex justify-center items-center h-40">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-700"></div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <Card className="shadow-md mt-6">
@@ -139,7 +112,7 @@ export function ConfiguracoesConta() {
 
           <button
             type="submit"
-            disabled={isSubmitting || loading}
+            disabled={isSubmitting}
             className="bg-purple-700 text-white px-4 py-2 rounded-md hover:bg-purple-800 disabled:bg-purple-400 transition-colors"
           >
             {isSubmitting ? 'Salvando...' : 'Atualizar Perfil'}

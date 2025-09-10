@@ -11,7 +11,7 @@ import {
   Upload,
   User,
 } from 'lucide-react';
-import { useState, useEffect, useTransition, useRef } from 'react';
+import { useState } from 'react';
 import {
   Card,
   CardHeader,
@@ -27,8 +27,6 @@ import {
 } from './dashboard-tabs-content';
 import { ConfiguracoesConta } from './account-setting';
 import { PlanoCard } from './plano-card';
-import { useRouter } from 'next/navigation';
-import { toggleFavoritoProperty } from '@/lib/actions/toggle-favorite';
 import { getImoveisFavoritos } from '@/lib/actions/get-favorited-imoveis';
 import { getSupabaseUserProperties } from '@/lib/actions/get-properties';
 import { supabase } from '@/lib/supabase';
@@ -40,48 +38,22 @@ import {
 import { CanSeeIt } from './can';
 import Link from 'next/link';
 import { UserCard } from './user-card';
+import { getFaturas } from '@/lib/actions/supabase-actions/user-bills-action';
+import { getMyPropertiesWithViews } from '@/lib/actions/supabase-actions/get-most-seen-propeties';
+import { getUserPlan } from '@/lib/actions/supabase-actions/get-user-package-action';
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('properties');
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
-  const dialogRef = useRef<HTMLButtonElement | null>(null);
 
   const [propertyCount, setPropertyCount] = useState(0);
   const [favoriteCount, setFavoriteCount] = useState(0);
   const [invoiceCount, setInvoiceCount] = useState(0);
   const [viewsCount, setViewsCount] = useState(0);
 
-  useEffect(() => {
-    if (!user?.id) return;
 
-    // Buscar total de visualizações
-    const fetchViewsCount = async () => {
-      const properties = await getSupabaseUserProperties(user.id);
-
-      if (properties) {
-        let totalViews = 0;
-        for (const property of properties) {
-          const { data } = await supabase
-            .from('property_views')
-            .select('id')
-            .eq('property_id', property.id);
-          totalViews += data?.length || 0;
-        }
-        setViewsCount(totalViews);
-      }
-    };
-
-    getSupabaseUserProperties(user.id).then((props) =>
-      setPropertyCount(props?.length || 0)
-    );
-    getImoveisFavoritos(user.id).then((favs) =>
-      setFavoriteCount(favs?.length || 0)
-    );
-    fetchViewsCount();
-  }, [user?.id]);
-
+  //useQuery Requests
+  //fetching user profile data
   const {
     data: profile,
     isLoading,
@@ -94,6 +66,58 @@ export default function Dashboard() {
     },
     enabled: !!user?.id, // só executa se houver user.id
   });
+
+  //fetching user properties views count
+  const userProperties = useQuery({
+    queryKey: ['user-properties'],
+    queryFn: async() => {
+      const response = await getSupabaseUserProperties(user?.id);
+      setPropertyCount(response.length)
+      return response
+    },
+    enabled: !!user?.id, // só executa se houver user.id
+  })
+
+  //fetching user favorites properties
+  const userFavoriteProperties = useQuery({
+    queryKey: ['favorite-properties'],
+    queryFn: async() => {
+      const response = await getImoveisFavoritos(user?.id);
+      setFavoriteCount(response.length)
+      return response;
+    }
+  })
+
+  //fetching user ivoices
+  const userInvoices = useQuery({
+    queryKey: ['user-invoices'],
+    queryFn: async() => {
+      const response = await getFaturas(user!.id)
+      setInvoiceCount(response.length)
+      return response
+    }
+  })
+
+  //fetching most viewed properties
+  const mostViewed = useQuery({
+    queryKey: ['most-viewed'],
+    queryFn: async() => {
+      const response = await getMyPropertiesWithViews(user?.id)
+      setViewsCount(response.total_views_all)
+      return response
+    }
+  })
+
+  //user plan request
+  const userPlan = useQuery({
+    queryKey: ['user-plan'],
+    queryFn: async() => {
+      const response = await getUserPlan(user!.id)
+      console.log({response})
+      return response
+    }
+  })
+
 
   if (!user) return null;
 
@@ -125,12 +149,6 @@ export default function Dashboard() {
     },
     { id: 'settings', label: 'Configurações da Conta', icon: Settings },
   ];
-
-  const handleRemoveFavorito = async (propertyId: string) => {
-    startTransition(async () => {
-      await toggleFavoritoProperty(user.id, propertyId);
-    });
-  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -249,15 +267,16 @@ export default function Dashboard() {
             </Card>
 
             <div className="block lg:hidden">
-              {activeTab === 'properties' && <MinhasPropriedades />}
-              {activeTab === 'favorites' && <Favoritas />}
-              {activeTab === 'invoices' && <Faturas />}
-              {activeTab === 'views' && <PropriedadesMaisVisualizadas />}
-              {activeTab === 'settings' && <ConfiguracoesConta />}
+              {activeTab === 'properties' && <MinhasPropriedades userProperties={userProperties.data ?? []} />}
+              {activeTab === 'favorites' && <Favoritas userFavoriteProperties={userFavoriteProperties.data ?? []}/>}
+              {activeTab === 'invoices' && <Faturas invoices={userInvoices.data ?? []}/>}
+              {activeTab === 'views' && <PropriedadesMaisVisualizadas mostViewedProperties={mostViewed.data!}/>}
+              {activeTab === 'settings' && <ConfiguracoesConta profile={profile!}/>}
             </div>
 
             <CanSeeIt>
-              <PlanoCard userId={user.id} />
+              
+              <PlanoCard plan={userPlan.data} />
 
               <Card className="shadow border border-orange-100 mt-4 bg-orange-50/60">
                 <CardHeader>
@@ -283,11 +302,11 @@ export default function Dashboard() {
           </div>
 
           <div className="hidden lg:block lg:col-span-8 order-2 mt-6 lg:mt-0">
-            {activeTab === 'properties' && <MinhasPropriedades />}
-            {activeTab === 'favorites' && <Favoritas />}
-            {activeTab === 'invoices' && <Faturas />}
-            {activeTab === 'views' && <PropriedadesMaisVisualizadas />}
-            {activeTab === 'settings' && <ConfiguracoesConta />}
+            {activeTab === 'properties' && <MinhasPropriedades userProperties={userProperties.data ?? []} />}
+            {activeTab === 'favorites' && <Favoritas userFavoriteProperties={userFavoriteProperties.data ?? []}/>}
+            {activeTab === 'invoices' && <Faturas invoices={userInvoices.data ?? []}/>}
+            {activeTab === 'views' && <PropriedadesMaisVisualizadas mostViewedProperties={mostViewed.data!}/>}
+            {activeTab === 'settings' && <ConfiguracoesConta profile={profile!}/>}
           </div>
         </div>
       </div>
@@ -299,23 +318,20 @@ function AgentRequestButton({ userId }: { userId: string }) {
   const [isLoading, setIsLoading] = useState(false);
   const [hasPendingRequest, setHasPendingRequest] = useState(false);
 
-  // Verificar se já existe uma solicitação pendente
-  useEffect(() => {
-    const checkPendingRequest = async () => {
-      const { data, error } = await supabase
-        .from("plan_requests")
-        .select("id, status")
-        .eq("user_id", userId)
-        .eq("status", "pending")
-        .single();
 
+  //useQuery requests
+  //fetching plan requests 
+  const planRequest = useQuery({
+    queryKey: ['plan-request'],
+    queryFn: async() => {
+      const { data, error } = await supabase.from('plan_requests').select('id, status').eq('user_id', userId).eq('status', 'pending').single() 
       if (data && !error) {
         setHasPendingRequest(true);
       }
-    };
 
-    checkPendingRequest();
-  }, [userId]);
+      return
+    }
+  })
 
   const handleBecomeAgent = async () => {
     setIsLoading(true);

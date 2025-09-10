@@ -6,6 +6,7 @@ import { Noticias } from '@/lib/types/noticia';
 import { useQuery } from '@tanstack/react-query';
 import { fetchPosts } from '@/lib/actions/supabase-actions/posts-actions';
 import Link from 'next/link';
+import readingTime from 'reading-time';
 
 
 
@@ -109,7 +110,7 @@ const PostInfo: React.FC<PostInfoProps> = ({ createdAt, readTime }) => {
       </div>
       <div className="flex items-center gap-2 text-sm text-gray-500">
         <User className="w-4 h-4" />
-        {readTime}
+        {readTime}m
       </div>
     </div>
   );
@@ -152,7 +153,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     return html.replace(/<[^>]*>/g, '');
   };
 
-
+  const estimatedTime = readingTime(post.content.html)
 
   return (
     <article className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 group">
@@ -166,7 +167,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
       <div className="p-6">
         <div className="flex items-center justify-between mb-3">
           <AuthorBadge />
-          <span className="text-sm text-gray-500">5 min</span>
+          <span className="text-sm text-gray-500">{estimatedTime.minutes.toString()}m</span>
         </div>
         
         <h3 className="text-lg font-bold text-gray-800 mb-3 leading-tight group-hover:text-purple-700 transition-colors">
@@ -202,6 +203,8 @@ const FeaturedPost: React.FC<FeaturedPostProps> = ({ post }) => {
     return html.replace(/<[^>]*>/g, '');
   };
 
+  const estimatedTime = readingTime(post.content.html)
+
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300">
       <div className="md:flex">
@@ -213,7 +216,7 @@ const FeaturedPost: React.FC<FeaturedPostProps> = ({ post }) => {
           />
         </div>
         <div className="p-8">
-          <PostInfo createdAt={post.createdAt} readTime='5 min' />
+          <PostInfo createdAt={post.createdAt} readTime={estimatedTime.minutes.toString()} />
           <h3 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800">
             {post.title}
           </h3>

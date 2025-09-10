@@ -22,8 +22,6 @@ type Property = {
 
 type Props = {
   property: Property;
-  user?: any;
-  onRemove: () => void;
 };
 
 const parseNumber = (value: string | number | null | undefined): number => {
@@ -31,7 +29,7 @@ const parseNumber = (value: string | number | null | undefined): number => {
   return isNaN(Number(n)) ? 0 : Number(n);
 };
 
-export function PropertyFavoritedCard({ property, user, onRemove }: Props) {
+export function PropertyFavoritedCard({ property }: Props) {
   const precoFormatado = parseNumber(property.price).toLocaleString("pt-AO", {
     style: "currency",
     currency: "AOA",
@@ -72,16 +70,6 @@ export function PropertyFavoritedCard({ property, user, onRemove }: Props) {
           </div>
         )}
 
-        {/* Botão para remover dos favoritos */}
-        {user?.id && (
-          <button
-            onClick={onRemove}
-            className="absolute bottom-3 right-3 bg-white rounded-full p-2 shadow-md hover:scale-105 transition"
-            title="Remover dos favoritos"
-          >
-            <Trash className="w-5 h-5 text-red-600" />
-          </button>
-        )}
       </div>
 
       {/* Informações do imóvel */}

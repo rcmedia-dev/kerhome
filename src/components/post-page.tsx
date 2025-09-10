@@ -3,7 +3,7 @@
 import React from 'react';
 import { Calendar, User, ArrowLeft, Clock, Share2 } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
+import readingTime from 'reading-time';
 import { Noticias } from '@/lib/types/noticia';
 
 // Props para o componente
@@ -99,7 +99,7 @@ const RelatedPosts: React.FC<{ posts: Noticias[] }> = ({ posts }) => {
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <AuthorBadge />
-                <span className="text-sm text-gray-500">5 min</span>
+                <span className="text-sm text-gray-500">{}</span>
               </div>
               
               <h3 className="text-xl font-bold text-gray-800 mb-4 leading-tight hover:text-purple-700 transition-colors line-clamp-2">
@@ -134,11 +134,13 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
     return { __html: post.content.html };
   };
 
+  const estimatedTime = readingTime(post.content.html) 
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Cabeçalho */}
       <header className="bg-white shadow-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-[8%] py-4">
           <div className="flex items-center justify-between">
             <Link 
               href="/noticias"
@@ -164,7 +166,7 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
               {post.title}
             </h1>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 py-4 border-t border-b border-gray-100">
-              <PostMetaInfo createdAt={post.createdAt} readTime='5 min' />
+              <PostMetaInfo createdAt={post.createdAt} readTime={estimatedTime.minutes.toString()} />
               <PostActions post={post} />
             </div>
           </div>
