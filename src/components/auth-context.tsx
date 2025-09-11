@@ -19,7 +19,7 @@ interface PlanoAgente {
   updated_at: string
 }
 
-interface UserProfile {
+export interface UserProfile {
   id: string
   email: string
   primeiro_nome: string

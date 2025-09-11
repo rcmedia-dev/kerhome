@@ -29,7 +29,7 @@ export function ImoveisDestaque() {
       <div className="space-y-4">
         {imoveis.map((imovel) => {
           const destino =
-            imovel.status === 'para alugar'
+            imovel.status === 'arrendar'
               ? `/alugar/${imovel.id}`
               : `/comprar/${imovel.id}`;
 

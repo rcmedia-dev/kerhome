@@ -9,7 +9,7 @@ export default async function PropertiesPage() {
 
   // Filtrar apenas os imóveis para alugar
   const properties = allProperties.filter(
-    (p) => p.status.toLowerCase() === "para alugar"
+    (p) => p.status.toLowerCase() === "arrendar"
   );
 
   if (!properties || properties.length < 1) {

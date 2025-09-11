@@ -8,6 +8,7 @@ import { getUserPlan } from "@/lib/actions/supabase-actions/get-user-package-act
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { handleRequestPlanChange } from "../admin/dashboard/actions/update-user-plan";
+import { notificateN8n } from "@/lib/actions/supabase-actions/n8n-notification-request";
 
 // Tipagem para os planos
 interface PlanConfig {
@@ -141,6 +142,10 @@ export default function PlanosPage() {
 
       if (result.success) {
         setPaymentStatus("confirmed");
+        await notificateN8n("plan_subscription", {
+          agentName: user.primeiro_nome,
+          planType: selectedPlan
+        });
         setTimeout(() => {
           setSuccess(
             `Solicitação de atualização para o plano ${selectedPlan} enviada com sucesso. Aguarde aprovação do administrador.`

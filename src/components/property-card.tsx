@@ -81,12 +81,12 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
   return (
     <div className="w-[300px] bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 h-full flex flex-col relative group">
       {/* Badge de status */}
-      {property.status === 'para comprar' && (
+      {property.status === 'comprar' && (
         <span className="absolute top-3 left-3 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow z-10">
           À venda
         </span>
       )}
-      {property.status === 'para alugar' && (
+      {property.status === 'arrendar' && (
         <span className="absolute top-3 left-3 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow z-10">
           Para alugar
         </span>
@@ -180,14 +180,14 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
               })} Kz
-              {property.status === 'para alugar' && '/mês'}
+              {property.status === 'arrendar' && '/mês'}
             </span>
           </div>
         </div>
 
         <div>
           <Link
-            href={`/${property.status === 'para comprar' ? 'comprar' : 'alugar'}/${property.id}`}
+            href={`/${property.status === 'comprar' ? 'comprar' : 'arrendar'}/${property.id}`}
             className="flex justify-center cursor-pointer w-full mt-2 bg-purple-700 hover:bg-purple-800 text-white py-2 rounded-lg font-medium transition"
             prefetch={false}
           >

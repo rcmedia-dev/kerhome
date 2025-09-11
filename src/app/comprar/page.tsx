@@ -10,7 +10,7 @@ export default async function PropertiesPage() {
 
   // Filtrar apenas com status "para comprar"
   const properties = allProperties.filter(
-    (p) => p.status.toLowerCase() === 'para comprar'
+    (p) => p.status.toLowerCase() === 'comprar'
   );
 
   if (properties.length < 1) {

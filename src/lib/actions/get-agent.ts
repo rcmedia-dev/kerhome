@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { TPropertyResponseSchema } from '../types/property';
 
-interface PropertyOwner {
+export interface PropertyOwner {
   id: string;
   primeiro_nome: string;
   ultimo_nome: string;
@@ -12,7 +12,7 @@ interface PropertyOwner {
   sobre_mim?: string;
 }
 
-export async function getPropertyOwner(propertyId: string): Promise<PropertyOwner> {
+export async function getPropertyOwner(propertyId?: string): Promise<PropertyOwner> {
   // Validação básica
   if (!propertyId || typeof propertyId !== 'string') {
     throw new Error('ID da propriedade inválido');

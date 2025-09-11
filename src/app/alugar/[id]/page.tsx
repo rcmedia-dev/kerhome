@@ -11,6 +11,8 @@ import { useAuth } from "@/components/auth-context";
 import { getPropertyById } from "@/lib/actions/get-properties";
 import { TPropertyResponseSchema } from "@/lib/types/property";
 import AgentCardWithChat from "@/components/agent-card-with-chat";
+import { useQuery } from "@tanstack/react-query";
+import { getPropertyOwner } from "@/lib/actions/get-agent";
 
 const agents = [
   { id: 1, name: "João Fernando", picture: "/people/1.jpg" },
@@ -23,13 +25,22 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
   const [property, setProperty] = useState<TPropertyResponseSchema | null>(null);
   const { user } = useAuth();
 
-  useEffect(() => {
-    async function fetchData() {
-      const prop = await getPropertyById(id);
-      setProperty(prop);
+  const propertyDetails = useQuery({
+    queryKey: ['propertie-data-alugar'],
+    queryFn: async() => {
+      const response = await getPropertyById(id)
+      setProperty(response)
+      return response
     }
-    fetchData();
-  }, [id]);
+  })
+
+  const ownerDetails = useQuery({
+    queryKey: ['owner-data-alugar'],
+    queryFn: async() => {
+      const response = await getPropertyOwner(propertyDetails.data?.id)
+      return response
+    }
+  })
 
   if (!property) {
     return (
@@ -477,7 +488,7 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
                 <h3 className="text-lg font-semibold mb-4 text-gray-800 text-left md:text-center">
                   Entrar em contato
                 </h3>
-                <AgentCardWithChat ownerId={property.owner_id} propertyId={property.id} />
+                <AgentCardWithChat ownerData={ownerDetails.data} propertyId={property.id} userId={user?.id}/>
               </div>
             </div>
           </div>

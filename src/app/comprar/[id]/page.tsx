@@ -11,6 +11,8 @@ import { useAuth } from "@/components/auth-context";
 import { getPropertyById } from "@/lib/actions/get-properties";
 import { TPropertyResponseSchema } from "@/lib/types/property";
 import AgentCardWithChat from "@/components/agent-card-with-chat";
+import { useQuery } from "@tanstack/react-query";
+import { getPropertyOwner } from "@/lib/actions/get-agent";
 
 // Componente Skeleton melhorado para evitar layout shift
 const PropertySkeleton = () => {
@@ -171,20 +173,28 @@ const agents = [
 ]
 
 export default function PropertyPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = React.use(params)
   const [property, setProperty] = useState<TPropertyResponseSchema | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
 
-  // Extrair o ID de forma segura
-  const [id, setId] = useState<string | null>(null);
-  
-  useEffect(() => {
-    // Resolver a Promise params para obter o ID
-    Promise.resolve(params).then(resolvedParams => {
-      setId(resolvedParams.id);
-    });
-  }, [params]);
+   const propertyDetails = useQuery({
+    queryKey: ['propertie-data-comprar'],
+    queryFn: async() => {
+      const response = await getPropertyById(id)
+      setProperty(response)
+      return response
+    }
+  })
+
+  const ownerDetails = useQuery({
+    queryKey: ['owner-data-comprar'],
+    queryFn: async() => {
+      const response = await getPropertyOwner(propertyDetails.data?.id)
+      return response
+    }
+  })
 
   useEffect(() => {
     if (!id) return;
@@ -262,7 +272,7 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
             {/* Detalhes principais */}
             <div className="space-y-6">
               <span className="inline-block bg-orange-100 text-orange-700 text-sm font-medium px-4 py-1.5 rounded-full shadow-sm">
-                {property.rotulo || (property.status === "para alugar" ? "Para Alugar" : "À Venda")}
+                {property.rotulo || (property.status === "arrendar" ? "Para Alugar" : "À Venda")}
               </span>
               <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
                 {property.title}
@@ -525,7 +535,9 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
                 <h3 className="text-lg font-semibold mb-4 text-gray-800 text-left md:text-center">
                   Entrar em contato
                 </h3>
-                <AgentCardWithChat ownerId={property.owner_id} propertyId={property.id} />
+
+                <AgentCardWithChat ownerData={ownerDetails.data} propertyId={property.id} userId={user?.id}/>
+
               </div>
             </div>
           </div>

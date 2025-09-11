@@ -150,6 +150,7 @@ export async function createProperty(formData: PropertyFormData) {
       console.error("Erro ao criar propriedade:", error);
       return { success: false, error: error.message };
     }
+    
 
     revalidatePath("/properties");
     return { success: true, propertyId: data.id, property: data };

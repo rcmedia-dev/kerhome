@@ -1,30 +1,19 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
-import { getPropertyOwner } from '@/lib/actions/get-agent';
 import { toast } from 'sonner';
 import { Mail, MessageSquare, Phone, Share2 } from 'lucide-react';
 import Link from 'next/link';
-import { useAuth } from './auth-context';
-import Pusher from 'pusher-js';
 import { supabase } from '@/lib/supabase';
-
-type Agent = {
-  id: string;
-  primeiro_nome?: string | null;
-  ultimo_nome?: string | null;
-  email: string;
-  avatar?: string | null;
-  telefone?: string | null;
-};
+import { PropertyOwner } from '@/lib/actions/get-agent';
+import { createConversation, sendMessage } from '@/lib/actions/message-action';
 
 type AgentCardWithChatProps = {
-  ownerId: string;
+  ownerData?: PropertyOwner;
   propertyId: string;
+  userId?: string;
 };
-
-export type Message = { chat_id: string, sender_id: string, receiver_id: string, content: string, read: boolean }
 
 function getInitials(name: string): string {
   return name
@@ -40,68 +29,59 @@ function randomColorFromName(name: string): string {
   return colors[index];
 }
 
-export default function AgentCardWithChat({ ownerId, propertyId }: AgentCardWithChatProps) {
-  const [agent, setAgent] = useState<Agent | null>(null);
+export default function AgentCardWithChat({ userId, ownerData, propertyId }: AgentCardWithChatProps) {
   const [mensagem, setMensagem] = useState('');
   const [status, setStatus] = useState<'idle' | 'enviando' | 'sucesso' | 'erro'>('idle');
   const [showChat, setShowChat] = useState(false);
-  
-  const { user } = useAuth();
-  const userIdLogado = user?.id;
-
-  useEffect(() => {
-    async function fetchAgent() {
-      const data = await getPropertyOwner(propertyId);
-      setAgent(data);
-    }
-    fetchAgent()
-
-    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY!, { cluster: process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER! })
-    const channel = pusher.subscribe('chat-channel')
-    channel.bind('new_message', (data: string) => {
-      setMensagem(data)
-    })
-
-    return () => {
-      pusher.unsubscribe('chat-channel')
-    }
-  }, [propertyId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!userIdLogado || !agent) return;
+    // Verificações mais detalhadas
+    if (!userId) {
+      toast.error('Você precisa estar logado para enviar mensagens');
+      return;
+    }
 
-    setStatus('enviando');
+    if (!ownerData) {
+      toast.error('Informações do agente não disponíveis');
+      return;
+    }
+
+    if (!mensagem.trim()) {
+      toast.error('Digite uma mensagem');
+      return;
+    }
+
+    setStatus("enviando");
 
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/messages`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          chat_id: userIdLogado,
-          content: mensagem,
-          receiver_id: agent.id,
-          sender_id: userIdLogado,
-        })
-      })
+      
+      // 1. Cria (ou reutiliza) conversa
+      const conversation = await createConversation(
+        propertyId,
+        ownerData.id, // agente
+        userId        // cliente
+      );
 
-      setMensagem('');
-      setStatus('sucesso');
-      toast.success('Mensagem enviada com sucesso!');
+      // 2. Envia a mensagem
+      await sendMessage(conversation.id, userId, mensagem.trim());
+
+      // 3. Reset
+      setMensagem("");
+      setStatus("sucesso");
+      toast.success("Mensagem enviada com sucesso!");
 
     } catch (error) {
-      console.error('Erro ao enviar mensagem:', error);
-      setStatus('erro');
-      toast.error('Erro ao enviar a mensagem');
+      console.error("❌ Erro ao enviar mensagem:", error);
+      setStatus("erro");
+      toast.error("Erro ao enviar a mensagem");
     }
   };
 
-  if (!agent) return null;
+  if (!ownerData) return null;
 
-  const fullName = `${agent.primeiro_nome ?? ''} ${agent.ultimo_nome ?? ''}`.trim() || 'Agente';
+  const fullName = `${ownerData.primeiro_nome ?? ''} ${ownerData.ultimo_nome ?? ''}`.trim() || 'Agente';
   const initials = getInitials(fullName);
   const color = randomColorFromName(fullName);
 
@@ -111,9 +91,9 @@ export default function AgentCardWithChat({ ownerId, propertyId }: AgentCardWith
       <div className="p-6 mx-auto pb-4">
         <div className="flex items-start gap-4">
           <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-purple-600 bg-gray-100">
-            {agent.avatar ? (
+            {ownerData.avatar_url ? (
               <Image
-                src={agent.avatar}
+                src={ownerData.avatar_url}
                 alt={fullName}
                 width={64}
                 height={64}
@@ -135,7 +115,7 @@ export default function AgentCardWithChat({ ownerId, propertyId }: AgentCardWith
       {/* Ações */}
       <div className="px-6 pb-4 flex flex-col gap-3">
         <Link
-          href={`/agente?email=${encodeURIComponent(agent.email)}`}
+          href={`/agente?email=${encodeURIComponent(ownerData.email)}`}
           className="w-full bg-purple-100 text-purple-700 py-2 px-4 rounded-lg font-semibold hover:bg-purple-200 transition flex items-center justify-center gap-2"
         >
           <Share2 size={16} />
@@ -143,7 +123,7 @@ export default function AgentCardWithChat({ ownerId, propertyId }: AgentCardWith
         </Link>
         <button
           onClick={async () => {
-            if (!userIdLogado) {
+            if (!userId) {
               toast.error('Você precisa estar logado para enviar mensagens');
               return;
             }
@@ -152,11 +132,11 @@ export default function AgentCardWithChat({ ownerId, propertyId }: AgentCardWith
               // 👉 incrementa a view (só se não for o dono do imóvel)
               const { data, error } = await supabase.rpc('register_property_view', {
                 p_property_id: propertyId,
-                p_user_id: user.id,
-                p_owner_id: agent.id
+                p_user_id: userId,
+                p_owner_id: ownerData.id
               });
 
-              console.log('datas for the function:', propertyId, user.id, agent.id)
+              console.log('datas for the function:', propertyId, userId, ownerData.id)
 
               if (error) {
                 console.error('Erro ao registrar visualização:', error);
@@ -192,13 +172,13 @@ export default function AgentCardWithChat({ ownerId, propertyId }: AgentCardWith
             <h4 className="font-semibold text-gray-900 mb-3 text-lg">Contato do Agente</h4>
 
             <div className="space-y-3">
-              {agent?.email ? (
+              {ownerData?.email ? (
                 <a
-                  href={`mailto:${agent.email}`}
+                  href={`mailto:${ownerData.email}`}
                   className="flex items-center gap-2 text-base text-orange-500 font-medium hover:underline"
                 >
                   <Mail className="text-orange-500" size={18} />
-                  <span>{agent.email}</span>
+                  <span>{ownerData.email}</span>
                 </a>
               ) : (
                 <div className="flex items-center gap-2 text-sm text-gray-400 italic">
@@ -207,13 +187,13 @@ export default function AgentCardWithChat({ ownerId, propertyId }: AgentCardWith
                 </div>
               )}
 
-              {agent?.telefone ? (
+              {ownerData?.telefone ? (
                 <a
-                  href={`tel:${agent.telefone}`}
+                  href={`tel:${ownerData.telefone}`}
                   className="flex items-center gap-2 text-base text-orange-500 font-medium hover:underline"
                 >
                   <Phone className="text-orange-500" size={18} />
-                  <span>{agent.telefone}</span>
+                  <span>{ownerData.telefone}</span>
                 </a>
               ) : (
                 <div className="flex items-center gap-2 text-sm text-gray-400 italic">
@@ -226,26 +206,26 @@ export default function AgentCardWithChat({ ownerId, propertyId }: AgentCardWith
 
           <form onSubmit={handleSubmit} className="space-y-3">
             <textarea
-              placeholder={`Digite sua mensagem para ${agent.primeiro_nome}...`}
+              placeholder={`Digite sua mensagem para ${ownerData.primeiro_nome}...`}
               required
               rows={3}
               value={mensagem}
               onChange={(e) => setMensagem(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all resize-none"
-              disabled={!userIdLogado}
+              disabled={!userId}
             />
-            {!userIdLogado && (
+            {!userId && (
               <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 text-sm text-yellow-700">
                 Você precisa estar logado para enviar mensagens.
               </div>
             )}
             <div className="flex justify-between items-center">
               <p className="text-xs text-gray-500">
-                {userIdLogado ? 'Sua mensagem será enviada ao agente' : 'Faça login para enviar mensagens'}
+                {userId ? 'Sua mensagem será enviada ao agente' : 'Faça login para enviar mensagens'}
               </p>
               <button
                 type="submit"
-                disabled={status === 'enviando' || !userIdLogado}
+                disabled={status === 'enviando' || !userId || !mensagem.trim()}
                 className="px-6 py-2 text-sm font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {status === 'enviando' ? (

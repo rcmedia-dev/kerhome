@@ -41,6 +41,7 @@ import { UserCard } from './user-card';
 import { getFaturas } from '@/lib/actions/supabase-actions/user-bills-action';
 import { getMyPropertiesWithViews } from '@/lib/actions/supabase-actions/get-most-seen-propeties';
 import { getUserPlan } from '@/lib/actions/supabase-actions/get-user-package-action';
+import { notificateN8n } from '@/lib/actions/supabase-actions/n8n-notification-request';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -170,7 +171,7 @@ export default function Dashboard() {
               ) : isError ? (
                 <span className="text-red-500 text-sm">Erro ao carregar perfil</span>
               ) : profile?.role === "user" ? (
-                <AgentRequestButton userId={user.id} />
+                <AgentRequestButton userId={user.id} userName={displayName} />
               ) : profile?.role === "agent" ? (
                 // Botão de enviar propriedade
                 <Link
@@ -314,7 +315,7 @@ export default function Dashboard() {
   );
 }
 
-function AgentRequestButton({ userId }: { userId: string }) {
+function AgentRequestButton({ userId, userName }: { userId: string, userName: string }) {
   const [isLoading, setIsLoading] = useState(false);
   const [hasPendingRequest, setHasPendingRequest] = useState(false);
 
@@ -353,6 +354,12 @@ function AgentRequestButton({ userId }: { userId: string }) {
         alert("Erro ao enviar solicitação");
         return;
       }
+
+      console.log({userName})
+
+      await notificateN8n("agente_solicitation", {
+        agentName: userName
+      });
 
       alert("Solicitação para se tornar agente enviada com sucesso!");
       setHasPendingRequest(true);

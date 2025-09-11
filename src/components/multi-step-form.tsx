@@ -8,12 +8,14 @@ import { PropertyFormData } from "@/lib/types/property";
 import FormStep from "./form-step";
 import { useRouter } from "next/navigation";
 import { createProperty } from "@/lib/actions/supabase-actions/create-propertie-action";
+import { notificateN8n } from "@/lib/actions/supabase-actions/n8n-notification-request";
 
 interface MultiStepFormProps {
   userId?: string;
+  agentName: string;
 }
 
-const MultiStepForm = ({ userId }: MultiStepFormProps) => {
+const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -143,8 +145,8 @@ const MultiStepForm = ({ userId }: MultiStepFormProps) => {
           type: "select",
           required: true,
           options: [
-            { value: "para comprar", label: "Venda" },
-            { value: "para alugar", label: "Aluguel" },
+            { value: "comprar", label: "Venda" },
+            { value: "arrendar", label: "Aluguel" },
           ],
           placeholder: "Selecione se é para vender ou alugar",
           validation: {
@@ -443,12 +445,19 @@ const MultiStepForm = ({ userId }: MultiStepFormProps) => {
         price: formData.price
       });
 
+
+
       // Chamar a Server Action diretamente com os dados do React Hook Form
       const result = await createProperty(formData);
 
       if (result.success) {
         setSuccessMessage("Propriedade cadastrada com sucesso! Em breve será revisada pela nossa equipe.");
         setShowSuccess(true);
+        await notificateN8n("imovel", {
+          agentName,
+          imovelName: formData.title,
+          status: formData.status
+        });
       } else {
         setServerError(result.error || "Erro ao criar propriedade. Verifique os dados e tente novamente.");
       }
