@@ -53,7 +53,6 @@ export async function getSupabaseUserProperties(userId?: string): Promise<TPrope
   const {data: propertiesData, error} = await supabase.from('properties')
     .select('*')
     .eq('owner_id', userId)
-    .eq('aprovement_status', 'aprovado') // Filtro adicionado aqui
     .order('created_at', { ascending: false });
     
   if (error) {

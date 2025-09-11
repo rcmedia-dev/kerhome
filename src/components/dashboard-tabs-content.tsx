@@ -5,6 +5,7 @@ import { TFavoritedPropertyResponseSchema } from '@/lib/types/user';
 import { PropertyFavoritedCard } from './property-favorite-card';
 import { Fatura, TPropertyResponseSchema } from '@/lib/types/property';
 import { TMyPropertiesWithViews } from '@/lib/actions/supabase-actions/get-most-seen-propeties';
+import { PendingPropertyCard } from './pending-property-card';
 
 
 
@@ -13,7 +14,6 @@ type MinePropertiesProps = {
 }
 
 export function MinhasPropriedades({ userProperties }: MinePropertiesProps) {
-
   return (
     <div className="bg-white rounded-xl shadow p-6 mb-6">
       <h2 className="text-xl font-bold mb-4 text-gray-800">Minhas Propriedades</h2>
@@ -23,7 +23,11 @@ export function MinhasPropriedades({ userProperties }: MinePropertiesProps) {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {userProperties.map((property) => (
-            <PropertyCard key={property.id} property={property} />
+            property.aprovement_status === 'pending' ? (
+              <PendingPropertyCard key={property.id} property={property} />
+            ) : (
+              <PropertyCard key={property.id} property={property} />
+            )
           ))}
         </div>
       )}

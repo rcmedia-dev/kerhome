@@ -1,10 +1,10 @@
 // components/user-card.tsx
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
 import { CanSeeIt } from './can';
-import { Plus, Pen, Upload } from 'lucide-react';
+import { Pen, Upload } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 export interface UserProfile {

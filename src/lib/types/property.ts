@@ -126,6 +126,7 @@ export const propertyResponseSchema = z.object({
   pais: z.string(),
 
   notaprivada: z.string().nullable(),
+  aprovement_status: z.string(),
 
   gallery: z.array(z.string()),
   image: z.string().nullable(),
