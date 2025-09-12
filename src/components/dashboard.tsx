@@ -53,8 +53,6 @@ export default function Dashboard() {
   const [viewsCount, setViewsCount] = useState(0);
 
 
-  //useQuery Requests
-  //fetching user profile data
   const {
     data: profile,
     isLoading,
@@ -114,7 +112,6 @@ export default function Dashboard() {
     queryKey: ['user-plan'],
     queryFn: async() => {
       const response = await getUserPlan(user!.id)
-      console.log({response})
       return response
     }
   })
@@ -355,15 +352,12 @@ function AgentRequestButton({ userId, userName }: { userId: string, userName: st
         return;
       }
 
-      console.log({userName})
-
       await notificateN8n("agente_solicitation", {
         agentName: userName
       });
 
       alert("Solicitação para se tornar agente enviada com sucesso!");
       setHasPendingRequest(true);
-      console.log("Request criada:", data);
     } catch (err) {
       console.error(err);
       alert("Erro inesperado ao enviar solicitação");

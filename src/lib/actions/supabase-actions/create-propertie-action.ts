@@ -31,7 +31,7 @@ async function uploadFileToSupabase(file: File, bucket: string, path: string): P
 }
 
 // Processar uploads de arquivos
-async function processFileUploads(formData: PropertyFormData) {
+export async function processFileUploads(formData: PropertyFormData) {
   const processedData: Partial<PropertyDBData> = {};
 
   // Processar imagem principal

@@ -187,7 +187,7 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
 
         <div>
           <Link
-            href={`/${property.status === 'comprar' ? 'comprar' : 'arrendar'}/${property.id}`}
+            href={`/${property.status === 'comprar' ? 'comprar' : 'alugar'}/${property.id}`}
             className="flex justify-center cursor-pointer w-full mt-2 bg-purple-700 hover:bg-purple-800 text-white py-2 rounded-lg font-medium transition"
             prefetch={false}
           >
