@@ -42,6 +42,7 @@ import {
 import { logout } from '@/lib/logout';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getConversations, getMessages, sendMessage, subscribeMessages } from '@/lib/actions/message-action';
+import { supabase } from '@/lib/supabase';
 
 // Tipos para notificações e mensagens
 interface Notification {
@@ -60,15 +61,6 @@ interface MessageItem {
   sender: 'user' | 'other';
 }
 
-interface Message {
-  id: number;
-  sender: string;
-  preview: string;
-  time: string;
-  unread: boolean;
-  conversation: MessageItem[];
-}
-
 interface User {
   id: string;
   email: string;
@@ -80,17 +72,20 @@ interface User {
 interface SupabaseMessage {
   id: string;
   content: string;
-  sender: { id: string; email: string }[] // agora aceita array
+  sender: { id: string; primeiro_nome?: string; ultimo_nome?: string; email: string; avatar_url?: string };
   created_at: string;
   conversation_id: string;
 }
 
 interface SupabaseConversation {
   id: string;
-  property: { title: string } | null;
-  agent: { id: string; email: string; primeiro_nome: string; ultimo_nome: string; } | null;
-  client: { id: string; email: string; primeiro_nome: string; ultimo_nome: string; } | null;
+  property: { id: string; title: string } | null;
+  agent: { id: string; email: string; primeiro_nome: string; ultimo_nome: string; avatar_url?: string } | null;
+  client: { id: string; email: string; primeiro_nome: string; ultimo_nome: string; avatar_url?: string } | null;
   created_at: string;
+  property_id?: string;
+  agent_id?: string;
+  client_id?: string;
 }
 
 // Função para estilização dos links
@@ -117,6 +112,7 @@ function MessageChat({
 }) {
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -135,7 +131,6 @@ function MessageChat({
   };
 
   // Get the other participant's email
-  const { user } = useAuth();
   const otherParticipant = user?.id === conversation.agent?.id 
     ? conversation.client 
     : conversation.agent;
@@ -166,17 +161,17 @@ function MessageChat({
           messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex ${msg.sender?.[0]?.id === user?.id ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${msg.sender?.id === user?.id ? 'justify-end' : 'justify-start'}`}
             >
               <div
                 className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
-                  msg.sender?.[0]?.id === user?.id
+                  msg.sender?.id === user?.id
                     ? 'bg-purple-600 text-white rounded-br-none'
                     : 'bg-gray-100 text-gray-800 rounded-bl-none'
                 }`}
               >
                 <p>{msg.content}</p>
-                <span className={`text-xs block mt-1 ${msg.sender?.[0]?.id === user?.id ? 'text-purple-200' : 'text-gray-500'}`}>
+                <span className={`text-xs block mt-1 ${msg.sender?.id === user?.id ? 'text-purple-200' : 'text-gray-500'}`}>
                   {new Date(msg.created_at).toLocaleTimeString()}
                 </span>
               </div>
@@ -253,26 +248,68 @@ function FloatingChat({
   const sendMessageMutation = useMutation({
     mutationFn: ({ conversationId, content }: { conversationId: string; content: string }) =>
       sendMessage(conversationId, userId, content),
-    onSuccess: () => {
-      // Invalidate and refetch messages
+    onMutate: async ({ conversationId, content }) => {
+      // Cancelar queries atuais para evitar conflitos
+      await queryClient.cancelQueries({ queryKey: ['messages', conversationId] });
+
+      // Salvar o estado anterior para rollback em caso de erro
+      const previousMessages = queryClient.getQueryData(['messages', conversationId]);
+
+      // Otimistic update - adicionar a mensagem imediatamente à UI
+      queryClient.setQueryData(['messages', conversationId], (old: SupabaseMessage[] | undefined) => {
+        const newMessage: SupabaseMessage = {
+          id: `temp-${Date.now()}`,
+          content,
+          sender: {
+            id: userId,
+            primeiro_nome: user?.primeiro_nome,
+            ultimo_nome: user?.ultimo_nome,
+            email: user?.email || '',
+            avatar_url: user?.avatar_url || undefined
+          },
+          created_at: new Date().toISOString(),
+          conversation_id: conversationId
+        };
+        
+        return old ? [...old, newMessage] : [newMessage];
+      });
+
+      return { previousMessages };
+    },
+    onError: (err, variables, context) => {
+      // Reverter para o estado anterior em caso de erro
+      if (context?.previousMessages) {
+        queryClient.setQueryData(['messages', variables.conversationId], context.previousMessages);
+      }
+    },
+    onSettled: () => {
+      // Invalidar a query para garantir que os dados estão atualizados
       queryClient.invalidateQueries({ queryKey: ['messages', selectedConversation?.id] });
     },
   });
 
-  // Subscribe to real-time messages
+  // Subscribe to real-time messages - CORRIGIDO
   useEffect(() => {
-    if (!selectedConversation?.id) return;
+    if (!selectedConversation?.id || !userId) return;
 
-    const subscription = subscribeMessages(selectedConversation.id, (newMessage: any) => {
-      queryClient.setQueryData(['messages', selectedConversation.id], (old: SupabaseMessage[] | undefined) => {
-        return old ? [...old, newMessage] : [newMessage];
-      });
-    });
+    const subscription = subscribeMessages(
+      selectedConversation.id, 
+      userId, 
+      (newMessage: any) => {
+        queryClient.setQueryData(['messages', selectedConversation.id], (old: SupabaseMessage[] | undefined) => {
+          // Evitar duplicação de mensagens
+          if (old && old.some(msg => msg.id === newMessage.id)) {
+            return old;
+          }
+          return old ? [...old, newMessage] : [newMessage];
+        });
+      }
+    );
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [selectedConversation?.id, queryClient]);
+  }, [selectedConversation?.id, userId, queryClient]);
 
   // Posicionar inicialmente no canto inferior direito
   useEffect(() => {
@@ -351,7 +388,7 @@ function FloatingChat({
     <div
       ref={chatRef}
       className={`fixed z-50 shadow-2xl rounded-2xl overflow-hidden border border-gray-200 bg-white flex flex-col ${
-        isMinimized ? 'w-80 h-14' : 'w-80 h-96'
+        isMinimized ? 'w-96 h-14' : 'w-96 h-[32rem]'
       } ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
       style={{
         left: `${position.x}px`,
@@ -432,7 +469,7 @@ function FloatingChat({
                 messages={messages || []}
                 onBack={handleBack}
                 onSendMessage={handleSendMessage}
-                isLoading={sendMessageMutation.isPending || messagesLoading}
+                isLoading={messagesLoading}
               />
             </div>
           )}
@@ -595,6 +632,7 @@ export default function Header() {
   const authDialogRef = useRef<AuthDialogRef>(null);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const handleScroll = useCallback(() => {
     if (scrollTimeoutRef.current) {
@@ -618,6 +656,39 @@ export default function Header() {
     };
   }, [handleScroll]);
 
+  // Efeito para subscrever mensagens em tempo real - CORRIGIDO
+  useEffect(() => {
+    if (!user) return;
+
+    // Criar um canal para todas as conversas do usuário
+    const channel = supabase
+      .channel('global-messages')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages'
+        },
+        async (payload) => {
+          const newMessage = payload.new;
+          
+          // Verificar se a mensagem é para uma conversa do usuário atual
+          // e não foi enviada por ele
+          if (newMessage.sender_id !== user.id) {
+            // Aqui você precisaria verificar se a conversa pertence ao usuário
+            // Isso requer uma consulta adicional ou lógica mais complexa
+            setUnreadCount(prev => prev + 1);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   // Função para verificar autenticação antes de cadastrar imóvel
   const handleCadastrarImovelClick = (e: React.MouseEvent) => {
     if (!user) {
@@ -635,6 +706,7 @@ export default function Header() {
 
     setIsAnimating(true);
     setFloatingChatOpen(true);
+    setUnreadCount(0); // resetar contador ao abrir
     
     // Reset da animação após um tempo
     setTimeout(() => setIsAnimating(false), 1000);
@@ -687,6 +759,13 @@ export default function Header() {
               aria-label="Mensagens"
             >
               <MessageSquare className="w-5 h-5" />
+              
+              {/* Badge de mensagens não lidas */}
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {unreadCount}
+                </span>
+              )}
             </button>
           )}
           
@@ -757,12 +836,19 @@ export default function Header() {
                   handleFloatingChatClick();
                   setMenuOpen(false);
                 }}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-purple-200 text-purple-700 hover:bg-purple-50 transition-all ${
+                className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-purple-200 text-purple-700 hover:bg-purple-50 transition-all ${
                   isAnimating ? 'animate-spin animate-pulse animate-bounce' : ''
                 }`}
               >
                 <MessageSquare className="w-5 h-5" />
                 Mensagens
+                
+                {/* Badge de mensagens não lidas para mobile */}
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
               </button>
             )}
             

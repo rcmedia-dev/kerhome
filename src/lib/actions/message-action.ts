@@ -4,9 +4,7 @@ import { supabase } from "../supabase";
 export async function createConversation(propertyId: string, agentId: string, clientId: string) {
   const { data, error } = await supabase
     .from("conversations")
-    .insert([
-      { property_id: propertyId, agent_id: agentId, client_id: clientId }
-    ])
+    .insert([{ property_id: propertyId, agent_id: agentId, client_id: clientId }])
     .select()
     .single();
 
@@ -16,7 +14,6 @@ export async function createConversation(propertyId: string, agentId: string, cl
 
 //get conversations actions - CORRIGIDA
 export async function getConversations(userId: string) {
-  // Primeiro busque as conversas básicas
   const { data: conversations, error } = await supabase
     .from("conversations")
     .select(`
@@ -31,34 +28,35 @@ export async function getConversations(userId: string) {
 
   if (error) throw error;
 
-  // Depois busque os dados relacionados separadamente
   const enrichedConversations = await Promise.all(
     conversations.map(async (conv) => {
       const [property, agent, client] = await Promise.all([
-        conv.property_id ? supabase
-          .from('properties')
-          .select('id, title')
-          .eq('id', conv.property_id)
-          .single() : Promise.resolve({ data: null }),
-        
-        conv.agent_id ? supabase
-          .from('profiles')
-          .select('id, primeiro_nome, ultimo_nome, email, avatar_url')
-          .eq('id', conv.agent_id)
-          .single() : Promise.resolve({ data: null }),
-        
-        conv.client_id ? supabase
-          .from('profiles')
-          .select('id, primeiro_nome, ultimo_nome, email, avatar_url')
-          .eq('id', conv.client_id)
-          .single() : Promise.resolve({ data: null })
+        conv.property_id
+          ? supabase.from("properties").select("id, title").eq("id", conv.property_id).single()
+          : Promise.resolve({ data: null }),
+
+        conv.agent_id
+          ? supabase
+              .from("profiles")
+              .select("id, primeiro_nome, ultimo_nome, email, avatar_url")
+              .eq("id", conv.agent_id)
+              .single()
+          : Promise.resolve({ data: null }),
+
+        conv.client_id
+          ? supabase
+              .from("profiles")
+              .select("id, primeiro_nome, ultimo_nome, email, avatar_url")
+              .eq("id", conv.client_id)
+              .single()
+          : Promise.resolve({ data: null }),
       ]);
 
       return {
         ...conv,
         property: property.data,
         agent: agent.data,
-        client: client.data
+        client: client.data,
       };
     })
   );
@@ -70,9 +68,7 @@ export async function getConversations(userId: string) {
 export async function sendMessage(conversationId: string, senderId: string, content: string) {
   const { data, error } = await supabase
     .from("messages")
-    .insert([
-      { conversation_id: conversationId, sender_id: senderId, content }
-    ])
+    .insert([{ conversation_id: conversationId, sender_id: senderId, content }])
     .select()
     .single();
 
@@ -96,25 +92,34 @@ export async function getMessages(conversationId: string) {
     .order("created_at", { ascending: true });
 
   if (error) throw error;
-  
-  // Transformar os dados para corresponder à interface esperada
-  return data.map(item => ({
+
+  return data.map((item) => ({
     id: item.id,
     content: item.content,
     created_at: item.created_at,
     conversation_id: item.conversation_id,
-    sender: item.profiles
+    sender: Array.isArray(item.profiles) ? item.profiles[0] : item.profiles,
   }));
 }
 
-export function subscribeMessages(conversationId: string, callback: (message: any) => void) {
+// subscribe to messages with unread counter logic
+export function subscribeMessages(
+  conversationId: string,
+  userId: string,
+  callback: (message: any, incrementUnread: boolean) => void
+) {
   return supabase
     .channel("messages")
     .on(
       "postgres_changes",
       { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
-      (payload) => {
-        callback(payload.new);
+      async (payload) => {
+        const message = payload.new;
+
+        // só incrementa contador se NÃO for mensagem do próprio usuário
+        const incrementUnread = message.sender_id !== userId;
+
+        callback(message, incrementUnread);
       }
     )
     .subscribe();

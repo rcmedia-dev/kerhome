@@ -35,6 +35,7 @@ export interface UserProfile {
   youtube?: string | null
   sobre_mim?: string | null
   pacote_agente?: PlanoAgente | null
+  avatar_url?: string | null
   role?: string | null   // ✅ CAMPO ADICIONADO
   created_at?: string
   updated_at?: string
