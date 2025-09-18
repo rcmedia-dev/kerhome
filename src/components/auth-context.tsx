@@ -2,11 +2,8 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
-import {
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { createClient } from '@/lib/supabase/client'
 
 interface PlanoAgente {
   id: string
@@ -36,7 +33,7 @@ export interface UserProfile {
   sobre_mim?: string | null
   pacote_agente?: PlanoAgente | null
   avatar_url?: string | null
-  role?: string | null   // ✅ CAMPO ADICIONADO
+  role?: string | null
   created_at?: string
   updated_at?: string
 }
@@ -45,7 +42,6 @@ interface AuthContextType {
   user: UserProfile | null
   isLoading: boolean
   signOut: () => Promise<void>
-  refreshSession: () => Promise<void>
   setUser: (user: UserProfile | null) => void
   updateUser: (updates: Partial<UserProfile>) => void
 }
@@ -54,47 +50,69 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true,
   signOut: async () => {},
-  refreshSession: async () => {},
   setUser: () => {},
-  updateUser: () => {}
+  updateUser: () => {},
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
+  const client = new QueryClient()
 
+  const supabase = createClient()
+
+  // 🔑 Pega a sessão atual e escuta mudanças
   useEffect(() => {
+    let isMounted = true // Para evitar state updates em componentes desmontados
+
     const initializeAuth = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession()
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
 
-      if (error) {
-        console.error('Error getting session:', error)
-        setIsLoading(false)
-        return
-      }
+        if (error) {
+          console.error('Error getting session:', error)
+          if (isMounted) setIsLoading(false)
+          return
+        }
 
-      if (session?.user) {
-        await fetchUserProfile(session.user.id)
-      } else {
-        setIsLoading(false)
+        if (session?.user && isMounted) {
+          await fetchUserProfile(session.user.id)
+        } else if (isMounted) {
+          setIsLoading(false)
+        }
+      } catch (error) {
+        console.error('Error in auth initialization:', error)
+        if (isMounted) setIsLoading(false)
       }
     }
 
     initializeAuth()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        await fetchUserProfile(session.user.id)
-      } else {
-        setUser(null)
-        router.push('/')
-      }
-    })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (!isMounted) return
 
-    return () => subscription.unsubscribe()
+        if (session?.user) {
+          await fetchUserProfile(session.user.id)
+        } else {
+          setUser(null)
+          // Não redirecionar automaticamente para a página inicial
+          // Isso causa loops de redirecionamento em páginas públicas
+          // router.push('/')
+        }
+        
+        if (isMounted) setIsLoading(false)
+      }
+    )
+
+    return () => {
+      isMounted = false
+      subscription.unsubscribe()
+    }
   }, [router])
 
+  // 🔎 Busca perfil completo do utilizador
   const fetchUserProfile = async (userId: string) => {
     try {
       const { data: profile, error } = await supabase
@@ -126,41 +144,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         youtube: profile.youtube || null,
         sobre_mim: profile.sobre_mim || null,
         pacote_agente: profile.pacote_agente || null,
-        role: profile.role || null, // ✅ ATRIBUÍDO
+        role: profile.role || null,
         created_at: profile.created_at,
-        updated_at: profile.updated_at
+        updated_at: profile.updated_at,
       })
     } catch (error) {
       console.error('Error fetching user profile:', error)
-      await supabase.auth.signOut()
+      // Não fazer logout automático - isso causa o problema de redirecionamento
+      // await supabase.auth.signOut()
     } finally {
       setIsLoading(false)
     }
   }
 
+  // ✏️ Atualiza dados do utilizador
   const updateUser = async (updates: Partial<UserProfile>) => {
     if (!user) return
 
     try {
       setUser({ ...user, ...updates })
 
-      if (updates.primeiro_nome || updates.ultimo_nome || updates.username || updates.role) {
-        await supabase
-          .from('profiles')
-          .update({
-            primeiro_nome: updates.primeiro_nome,
-            ultimo_nome: updates.ultimo_nome,
-            username: updates.username,
-            role: updates.role
-          })
-          .eq('id', user.id)
-      }
+      await supabase
+        .from('profiles')
+        .update({
+          primeiro_nome: updates.primeiro_nome,
+          ultimo_nome: updates.ultimo_nome,
+          username: updates.username,
+          role: updates.role,
+        })
+        .eq('id', user.id)
     } catch (error) {
       console.error('Error updating user:', error)
-      setUser(user)
+      setUser(user) // Revert changes on error
     }
   }
 
+  // 🚪 Logout
   const signOut = async () => {
     try {
       await supabase.auth.signOut()
@@ -171,31 +190,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const refreshSession = async () => {
-    try {
-      const { data, error } = await supabase.auth.refreshSession()
-      if (error) throw error
-      if (data.session?.user) {
-        await fetchUserProfile(data.session.user.id)
-      }
-    } catch (error) {
-      console.error('Error refreshing session:', error)
-      await signOut()
-    }
-  }
-
-  const client = new QueryClient();
-
   return (
     <QueryClientProvider client={client}>
-      <AuthContext.Provider value={{ 
-        user, 
-        isLoading, 
-        signOut, 
-        refreshSession,
-        setUser,
-        updateUser
-      }}>
+      <AuthContext.Provider value={{ user, isLoading, signOut, setUser, updateUser }}>
         {children}
       </AuthContext.Provider>
     </QueryClientProvider>

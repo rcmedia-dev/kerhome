@@ -73,7 +73,7 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
     const numberValue = parseInt(numericValue, 10);
     if (isNaN(numberValue)) return '';
     
-    return numberValue.toLocaleString('pt-BR');
+    return numberValue.toLocaleString('pt-AO');
   };
 
   // Observa mudanças no campo de preço para aplicar a máscara

@@ -1,6 +1,6 @@
 'use server'
 
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 
 export type PlanoAgente = {
@@ -41,6 +41,8 @@ interface LoginResponse {
 }
 
 export async function login(formData: FormData): Promise<LoginResponse> {
+  const supabase = await createClient()
+
   const email = formData.get('email')?.toString()
   const password = formData.get('password')?.toString()
 

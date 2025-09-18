@@ -41,7 +41,7 @@ export default function TopAgentsSection() {
             >
               <div className="relative w-32 h-32 mx-auto rounded-full overflow-hidden mb-4 shadow-sm border-4 border-orange-500">
                 <Image
-                  src={agent.avatar ?? '/default-avatar.jpg'}
+                  src={agent.avatar_url ?? '/default-avatar.jpg'}
                   alt={agent.primeiro_nome}
                   fill
                   className="object-cover"

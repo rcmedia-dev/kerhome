@@ -35,7 +35,7 @@ export default function HeroCarousel( {property}: HeroCarouselProps) {
               key={i}
             >
               <Image
-                src={property.gallery[0] ?? '/house.jpg'}
+                src={property.image ?? '/house.jpg'}
                 alt={property.title}
                 fill
                 className="object-cover"
