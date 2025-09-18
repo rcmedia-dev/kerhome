@@ -17,29 +17,29 @@ import { getPropertyOwner } from "@/lib/actions/get-agent";
 // Componente Skeleton melhorado para evitar layout shift
 const PropertySkeleton = () => {
   return (
-    <section className="min-h-screen bg-gray-50 text-gray-800">
+    <section className="min-h-screen bg-gray-50 text-gray-800 overflow-x-hidden">
       {/* Mapa Skeleton - mantém a mesma altura do mapa real */}
-      <div className="w-full h-[400px] bg-gray-200 animate-pulse overflow-hidden border-b border-gray-200" />
+      <div className="w-full h-[300px] sm:h-[400px] bg-gray-200 animate-pulse overflow-hidden border-b border-gray-200" />
 
       {/* Conteúdo principal */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid md:grid-cols-3 gap-12 items-start">
+      <div className="max-w-7xl mx-auto px-4 sm:px-5 py-8 sm:py-16">
+        <div className="grid md:grid-cols-3 gap-8 sm:gap-12 items-start">
           {/* Conteúdo principal Skeleton */}
-          <div className="md:col-span-2 space-y-12 order-1 md:order-none">
+          <div className="md:col-span-2 space-y-8 sm:space-y-12 order-1 md:order-none">
             {/* Detalhes principais */}
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               <div className="h-7 w-32 bg-gray-300 rounded-full animate-pulse"></div>
-              <div className="h-12 w-3/4 bg-gray-300 rounded animate-pulse"></div>
+              <div className="h-10 sm:h-12 w-3/4 bg-gray-300 rounded animate-pulse"></div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-gray-300 rounded-full animate-pulse"></div>
-                <div className="h-4 w-64 bg-gray-300 rounded animate-pulse"></div>
+                <div className="h-4 w-48 sm:w-64 bg-gray-300 rounded animate-pulse"></div>
               </div>
               
-              <div className="flex flex-wrap gap-6">
+              <div className="flex flex-wrap gap-4 sm:gap-6">
                 {[...Array(5)].map((_, i) => (
                   <div key={i} className="flex items-center gap-2">
-                    <div className="w-5 h-5 bg-gray-300 rounded animate-pulse"></div>
-                    <div className="h-4 w-20 bg-gray-300 rounded animate-pulse"></div>
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 bg-gray-300 rounded animate-pulse"></div>
+                    <div className="h-4 w-16 sm:w-20 bg-gray-300 rounded animate-pulse"></div>
                   </div>
                 ))}
               </div>
@@ -49,10 +49,10 @@ const PropertySkeleton = () => {
 
             {/* Galeria Skeleton */}
             <div className="space-y-4">
-              <div className="w-full h-[400px] bg-gray-300 rounded-3xl animate-pulse"></div>
-              <div className="flex gap-3">
+              <div className="w-full h-[300px] sm:h-[400px] bg-gray-300 rounded-3xl animate-pulse"></div>
+              <div className="flex gap-3 overflow-x-auto">
                 {[...Array(4)].map((_, i) => (
-                  <div key={i} className="w-32 h-20 bg-gray-300 rounded-xl animate-pulse"></div>
+                  <div key={i} className="w-24 h-16 sm:w-32 sm:h-20 bg-gray-300 rounded-xl animate-pulse flex-shrink-0"></div>
                 ))}
               </div>
             </div>
@@ -69,9 +69,9 @@ const PropertySkeleton = () => {
 
             {/* Tabs Skeleton */}
             <div className="space-y-4">
-              <div className="flex space-x-2 border-b">
+              <div className="flex space-x-2 border-b overflow-x-auto">
                 {[...Array(3)].map((_, i) => (
-                  <div key={i} className="h-10 w-32 bg-gray-300 rounded-t-md animate-pulse"></div>
+                  <div key={i} className="h-8 w-24 sm:w-32 bg-gray-300 rounded-t-md animate-pulse flex-shrink-0"></div>
                 ))}
               </div>
               
@@ -99,7 +99,7 @@ const PropertySkeleton = () => {
             </div>
 
             {/* Formulário de contato Skeleton */}
-            <div className="bg-white rounded-2xl p-8 shadow-xl border">
+            <div className="bg-white rounded-2xl p-5 sm:p-8 shadow-xl border">
               <div className="h-8 w-48 bg-gray-300 rounded animate-pulse mx-auto mb-6"></div>
               <div className="space-y-4">
                 {[...Array(3)].map((_, i) => (
@@ -171,6 +171,70 @@ const agents = [
   {id: 2, name: 'Antonia Miguel', picture: '/people/2.jpg'}, 
   {id: 3, name: 'Pedro Afonso', picture: '/people/3.jpg'}
 ]
+
+// Componente para a galeria de imagens com troca
+function PropertyGallery({ property }: { property: any }) {
+  const [mainImage, setMainImage] = useState<string | null>(null);
+  const [thumbnails, setThumbnails] = useState<string[]>([]);
+
+  // Inicializa a galeria
+  useEffect(() => {
+    if (property?.gallery && property.gallery.length > 0) {
+      setMainImage(property.gallery[0]); // primeira como destaque
+      setThumbnails(property.gallery.slice(1)); // restantes como miniaturas
+    }
+  }, [property]);
+
+  // Função para trocar a principal com a miniatura clicada
+  const handleSwap = (clickedImg: string, idx: number) => {
+    if (!mainImage) return;
+    const newThumbs = [...thumbnails];
+    newThumbs[idx] = mainImage; // miniatura clicada recebe a antiga principal
+    setMainImage(clickedImg);   // principal vira a imagem clicada
+    setThumbnails(newThumbs);
+  };
+
+  return (
+    <>
+      {/* Galeria de Fotos com destaque */}
+      {mainImage && (
+        <div className="mb-6">
+          {/* Foto principal */}
+          <div className="relative w-full h-[300px] sm:h-[400px] rounded-3xl overflow-hidden shadow-xl border border-gray-200 mb-4">
+            <Image
+              src={mainImage}
+              alt={property.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+            />
+          </div>
+
+          {/* Miniaturas/carrossel */}
+          {thumbnails.length > 0 && (
+            <div className="flex gap-3 overflow-x-auto pb-2">
+              {thumbnails.map((img, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => handleSwap(img, idx)}
+                  className="relative w-24 h-16 sm:w-32 sm:h-20 rounded-xl overflow-hidden border border-gray-200 shadow cursor-pointer hover:ring-2 hover:ring-purple-400 transition flex-shrink-0"
+                >
+                  <Image
+                    src={img}
+                    alt={`${property.title} - miniatura ${idx + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="96px"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
 
 export default function PropertyPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params)
@@ -250,9 +314,9 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
   }
 
   return (
-    <section className="min-h-screen bg-gray-50 text-gray-800">
+    <section className="min-h-screen bg-gray-50 text-gray-800 overflow-x-hidden">
       {/* Mapa no topo */}
-      <div className="w-full h-[400px] overflow-hidden border-b border-gray-200">
+      <div className="w-full h-[300px] sm:h-[400px] overflow-hidden border-b border-gray-200">
         <iframe
           className="w-full h-full"
           loading="lazy"
@@ -265,23 +329,25 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
       </div>
 
       {/* Hero */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid md:grid-cols-3 gap-12 items-start">
+      <div className="max-w-7xl mx-auto px-4 sm:px-5 py-8 sm:py-16">
+        <div className="grid md:grid-cols-3 gap-8 sm:gap-12 items-start">
           {/* Conteúdo principal */}
-          <div className="md:col-span-2 space-y-12 order-1 md:order-none">
+          <div className="md:col-span-2 space-y-8 sm:space-y-12 order-1 md:order-none">
             {/* Detalhes principais */}
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               <span className="inline-block bg-orange-100 text-orange-700 text-sm font-medium px-4 py-1.5 rounded-full shadow-sm">
                 {property.rotulo || (property.status === "arrendar" ? "Para Alugar" : "À Venda")}
               </span>
-              <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
                 {property.title}
               </h1>
               <div className="flex items-center gap-2 text-sm text-gray-500">
-                <MapPin className="w-4 h-4" />
-                <span>{[property.endereco, property.bairro, property.cidade, property.provincia, property.pais].filter(Boolean).join(", ")}</span>
+                <MapPin className="w-4 h-4 flex-shrink-0" />
+                <span className="break-words">
+                  {[property.endereco, property.bairro, property.cidade, property.provincia, property.pais].filter(Boolean).join(", ")}
+                </span>
               </div>
-              <div className="flex flex-wrap gap-6 text-sm text-gray-700 mt-4">
+              <div className="flex flex-wrap gap-4 sm:gap-6 text-sm text-gray-700 mt-4">
                 {property.tipo && (
                   <div className="flex items-center gap-2">
                     <span className="font-semibold">Tipo:</span> {property.tipo}
@@ -289,13 +355,13 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
                 )}
                 {typeof property.bedrooms !== 'undefined' && (
                   <div className="flex items-center gap-2">
-                    <BedDouble className="w-5 h-5 text-orange-500" />
+                    <BedDouble className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500 flex-shrink-0" />
                     <span>{property.bedrooms} Quartos</span>
                   </div>
                 )}
                 {property.size && (
                   <div className="flex items-center gap-2">
-                    <Ruler className="w-5 h-5 text-orange-500" />
+                    <Ruler className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500 flex-shrink-0" />
                     <span>{property.size}</span>
                   </div>
                 )}
@@ -320,10 +386,10 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
                   </div>
                 )}
               </div>
-                <p className="text-3xl font-extrabold text-orange-500 mt-6 flex items-center gap-2">
+                <p className="text-2xl sm:text-3xl font-extrabold text-orange-500 mt-4 sm:mt-6 flex items-center gap-2">
                   {property.price && (
                     <>
-                      <Tag className="w-6 h-6" />
+                      <Tag className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
                       {property.price.toLocaleString(
                         property.unidade_preco === "dolar" ? "en-US" : "pt-AO",
                         {
@@ -333,7 +399,7 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
                       )}
 
                       {property.unidade_preco && (
-                        <span className="text-base font-normal">
+                        <span className="text-sm sm:text-base font-normal">
                           {property.unidade_preco === "kwanza"
                             ? "KZ"
                             : property.unidade_preco === "dolar"
@@ -368,22 +434,22 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
 
             {/* Tabs Visão Geral */}
             <Tabs defaultValue="visao-geral" className="space-y-4">
-              <TabsList className="flex space-x-2 border-b">
+              <TabsList className="flex space-x-2 border-b overflow-x-auto">
                 <TabsTrigger
                   value="visao-geral"
-                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white px-4 py-2 rounded-t-md text-sm font-medium transition"
+                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white px-3 py-2 sm:px-4 sm:py-2 rounded-t-md text-xs sm:text-sm font-medium transition flex-shrink-0"
                 >
                   Visão Geral
                 </TabsTrigger>
                 <TabsTrigger
                   value="video"
-                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white px-4 py-2 rounded-t-md text-sm font-medium transition"
+                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white px-3 py-2 sm:px-4 sm:py-2 rounded-t-md text-xs sm:text-sm font-medium transition flex-shrink-0"
                 >
                   Vídeo
                 </TabsTrigger>
                 <TabsTrigger
                   value="tour"
-                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white px-4 py-2 rounded-t-md text-sm font-medium transition"
+                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white px-3 py-2 sm:px-4 sm:py-2 rounded-t-md text-xs sm:text-sm font-medium transition flex-shrink-0"
                 >
                   Passeio Virtual
                 </TabsTrigger>
@@ -433,7 +499,7 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
                           }
                         )}{" "}
                         {property.unidade_preco && (
-                          <span className="text-base font-normal">
+                          <span className="text-sm font-normal">
                             {property.unidade_preco === "kwanza"
                               ? "KZ"
                               : property.unidade_preco === "dolar"
@@ -457,7 +523,7 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
                             .map((c, i) => (
                               <li
                                 key={i}
-                                className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-xs font-medium border border-purple-100"
+                                className="bg-purple-50 text-purple-700 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium border border-purple-100"
                               >
                                 {c}
                               </li>
@@ -514,7 +580,7 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
 
             {/* Descrição */}
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-gray-800">Descrição</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Descrição</h2>
               <p className="text-gray-600 leading-relaxed">
                 {property.status === "para alugar"
                   ? "Imóvel disponível para arrendamento com excelente localização e infraestrutura."
@@ -524,12 +590,12 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
 
             {/* Endereço */}
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-gray-800">Endereço</h2>
-              <p className="text-gray-600">{property.endereco}</p>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Endereço</h2>
+              <p className="text-gray-600 break-words">{property.endereco}</p>
             </div>
 
             {/* Formulário de contato + Agente juntos */}
-            <div className="bg-white rounded-2xl p-8 shadow-xl border flex flex-col md:flex-row gap-8 items-center md:items-start">
+            <div className="bg-white rounded-2xl p-5 sm:p-8 shadow-xl border flex flex-col md:flex-row gap-6 sm:gap-8 items-center md:items-start">
               {/* Formulário de contato */}
               <div className="flex-1 w-full">
                 <h3 className="text-lg font-semibold mb-4 text-gray-800 text-left md:text-center">
@@ -584,72 +650,5 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
         </div>
       </div>
     </section>
-  );
-}
-
-
-interface Property {
-  title: string;
-  gallery: string[];
-}
-
-function PropertyGallery({ property }: { property: Property }) {
-  const [mainImage, setMainImage] = useState<string | null>(null);
-  const [thumbnails, setThumbnails] = useState<string[]>([]);
-
-  // inicializa a galeria
-  useEffect(() => {
-    if (property?.gallery && property.gallery.length > 0) {
-      setMainImage(property.gallery[0]); // primeira como destaque
-      setThumbnails(property.gallery.slice(1)); // restantes como miniaturas
-    }
-  }, [property]);
-
-  // função para trocar a principal com a miniatura clicada
-  const handleSwap = (clickedImg: string, idx: number) => {
-    if (!mainImage) return;
-    const newThumbs = [...thumbnails];
-    newThumbs[idx] = mainImage; // miniatura clicada recebe a antiga principal
-    setMainImage(clickedImg);   // principal vira a imagem clicada
-    setThumbnails(newThumbs);
-  };
-
-  return (
-    <>
-      {/* Galeria de Fotos com destaque */}
-      {mainImage && (
-        <div className="mb-6">
-          {/* Foto principal */}
-          <div className="relative w-full h-[400px] rounded-3xl overflow-hidden shadow-xl border border-gray-200 mb-4">
-            <Image
-              src={mainImage}
-              alt={property.title}
-              fill
-              className="object-cover"
-            />
-          </div>
-
-          {/* Miniaturas/carrossel */}
-          {thumbnails.length > 0 && (
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              {thumbnails.map((img, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => handleSwap(img, idx)}
-                  className="relative w-32 h-20 rounded-xl overflow-hidden border border-gray-200 shadow cursor-pointer hover:ring-2 hover:ring-purple-400 transition"
-                >
-                  <Image
-                    src={img}
-                    alt={`${property.title} - miniatura ${idx + 1}`}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </>
   );
 }
