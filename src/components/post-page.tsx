@@ -140,22 +140,26 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
     <div className="min-h-screen bg-gray-50">
       {/* Cabeçalho */}
       <header className="bg-white shadow-sm sticky top-0 z-10">
-        <div className="container mx-auto px-[8%] py-4">
-          <div className="flex items-center justify-between">
-            <Link 
-              href="/noticias"
-              className="flex items-center gap-2 text-gray-700 hover:text-purple-700 transition-colors p-2 rounded-lg hover:bg-gray-100"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Voltar para o blog</span>
-            </Link>
-            <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-800">KERCASA BLOG</h1>
-            </div>
-            <div className="w-24"></div> {/* Espaçador para centralizar o título */}
-          </div>
+        <div className="container mx-auto px-[8%] py-4 relative flex items-center justify-between">
+          {/* Botão voltar */}
+          <Link 
+            href="/noticias"
+            className="flex items-center gap-2 text-gray-700 hover:text-purple-700 transition-colors p-2 rounded-lg hover:bg-gray-100"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-medium hidden sm:inline">Voltar para o blog</span>
+          </Link>
+
+          {/* Título centralizado */}
+          <h1 className="absolute left-1/2 transform -translate-x-1/2 text-xl sm:text-2xl font-bold text-gray-800">
+            KERCASA BLOG
+          </h1>
+
+          {/* Espaçador só para telas grandes */}
+          <div className="w-6 sm:w-24"></div>
         </div>
       </header>
+
 
       {/* Conteúdo principal */}
       <main className="container mx-auto px-4 py-8">

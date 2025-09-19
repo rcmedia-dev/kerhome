@@ -1,6 +1,6 @@
 'use client';
 
-import { MapPin, BedDouble, Ruler, Tag, Pencil, Trash, Heart } from 'lucide-react';
+import { MapPin, BedDouble, Ruler, Tag, Pencil, Trash, Heart, Share2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/components/auth-context';
@@ -45,10 +45,10 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
     if (confirm('Tem certeza que deseja eliminar este imóvel?')) {
       try{
         await deleteProperty(property.id, user?.id)
-        toast.success('Imovel Deletado com Sucesso')
+        toast.success('Imóvel deletado com sucesso');
       }catch(e){
-        toast.error('Erro ao deletar o Imovel')
-        console.log('error:', e)
+        toast.error('Erro ao deletar o imóvel');
+        console.log('error:', e);
       }
     }
   };
@@ -78,6 +78,30 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
     }
   };
 
+  const handleShare = async () => {
+    const url = `${window.location.origin}/${property.status === 'comprar' ? 'comprar' : 'alugar'}/${property.id}`;
+    const shareData = {
+      title: property.title,
+      text: `Confira este imóvel em ${property.endereco}`,
+      url,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (error) {
+        console.log("Erro ao compartilhar:", error);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+        toast.success("Link copiado para a área de transferência!");
+      } catch (error) {
+        toast.error("Não foi possível copiar o link.");
+      }
+    }
+  };
+
   return (
     <div className="w-[300px] bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 h-full flex flex-col relative group">
       {/* Badge de status */}
@@ -96,7 +120,7 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
       {isOwner && (
         <div className="absolute top-3 right-3 z-20 flex gap-2">
           <Link
-          href={`/dashboard/editar-imovel/${property.id}`}
+            href={`/dashboard/editar-imovel/${property.id}`}
             className="bg-white p-1.5 rounded-full shadow hover:bg-purple-100 transition"
             title="Editar"
           >
@@ -122,21 +146,32 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
           priority={false}
         />
 
-        {/* Ícone de Favorito (apenas se autenticado e não for o dono) */}
+        {/* Ícones de ação (favoritar + compartilhar) */}
         {user && !isOwner && (
-          <button
-            onClick={toggleFavorito}
-            className="absolute bottom-3 right-3 bg-white rounded-full p-2 shadow-md hover:scale-105 transition"
-            title={favorito ? "Remover dos favoritos" : "Guardar imóvel"}
-            disabled={loadingFavorito}
-            aria-label={favorito ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-          >
-            {loadingFavorito ? (
-              <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-            ) : (
-              <Heart className={`w-5 h-5 ${favorito ? 'text-purple-600 fill-purple-600' : 'text-gray-400'}`} />
-            )}
-          </button>
+          <div className="absolute bottom-3 right-3 flex gap-2">
+            <button
+              onClick={toggleFavorito}
+              className="bg-white rounded-full p-2 shadow-md hover:scale-105 transition"
+              title={favorito ? "Remover dos favoritos" : "Guardar imóvel"}
+              disabled={loadingFavorito}
+              aria-label={favorito ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+            >
+              {loadingFavorito ? (
+                <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <Heart className={`w-5 h-5 ${favorito ? 'text-purple-600 fill-purple-600' : 'text-gray-400'}`} />
+              )}
+            </button>
+
+            <button
+              onClick={handleShare}
+              className="bg-white rounded-full p-2 shadow-md hover:scale-105 transition"
+              title="Compartilhar imóvel"
+              aria-label="Compartilhar imóvel"
+            >
+              <Share2 className="w-5 h-5 text-gray-500" />
+            </button>
+          </div>
         )}
       </div>
 
