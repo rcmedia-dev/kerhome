@@ -6,13 +6,12 @@ import React, { useEffect, useState } from 'react';
 import { TPropertyResponseSchema } from '@/lib/types/property';
 import { getLimitedProperties } from '@/lib/actions/get-properties';
 
-export function ImoveisDestaque() {
+export default function ImoveisSemelhantes() {
   const [imoveis, setImoveis] = useState<TPropertyResponseSchema[]>([]);
 
   useEffect(() => {
     async function fetchData() {
       const data = await getLimitedProperties(4);
-      console.log('Imóveis destacados:', data);
       setImoveis(data);
     }
 
@@ -24,7 +23,7 @@ export function ImoveisDestaque() {
   return (
     <div className="bg-white border shadow-md rounded-2xl p-6">
       <h3 className="text-lg font-semibold text-gray-800 mb-4">
-        Imóveis em destaque
+        Imóveis Semelhantes
       </h3>
       <div className="space-y-4">
         {imoveis.map((imovel) => {

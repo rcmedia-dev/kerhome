@@ -2,11 +2,8 @@
 
 import Image from "next/image";
 import React, { useState, useEffect, useCallback } from "react";
-import { MapPin, BedDouble, Ruler, Tag, Phone, Mail, MessageCircle, Share2, Maximize2, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, BedDouble, Ruler, Tag, MessageCircle, Share2, Maximize2, X, ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PropertyFilterSidebar } from "@/components/sidebar-filtro";
-import { CidadesDisponiveis } from "@/components/cidades-disponiveis";
-import { ImoveisDestaque } from "@/components/imoveis-destaque";
 import { useAuth } from "@/components/auth-context";
 import { getPropertyById } from "@/lib/actions/get-properties";
 import { TPropertyResponseSchema } from "@/lib/types/property";
@@ -14,8 +11,10 @@ import AgentCardWithChat from "@/components/agent-card-with-chat";
 import { useQuery } from "@tanstack/react-query";
 import { getPropertyOwner } from "@/lib/actions/get-agent";
 import Head from "next/head";
+import ImoveisSemelhantes from "@/components/imoveis-destaque";
+import CorretoresEmDestaque from "@/components/corretores";
 
-// Componente Skeleton melhorado para evitar layout shift
+// Componente Skeleton melhorado
 const PropertySkeleton = () => {
   return (
     <>
@@ -29,15 +28,11 @@ const PropertySkeleton = () => {
       </Head>
       
       <section className="min-h-screen bg-gray-50 text-gray-800 overflow-x-hidden">
-        {/* Mapa Skeleton - mantém a mesma altura do mapa real */}
         <div className="w-full h-[300px] sm:h-[400px] bg-gray-200 animate-pulse overflow-hidden border-b border-gray-200" />
 
-        {/* Conteúdo principal */}
         <div className="max-w-7xl mx-auto px-4 sm:px-5 py-8 sm:py-16">
           <div className="grid md:grid-cols-3 gap-8 sm:gap-12 items-start">
-            {/* Conteúdo principal Skeleton */}
             <div className="md:col-span-2 space-y-8 sm:space-y-12 order-1 md:order-none">
-              {/* Detalhes principais */}
               <div className="space-y-4 sm:space-y-6">
                 <div className="h-7 w-32 bg-gray-300 rounded-full animate-pulse"></div>
                 <div className="h-10 sm:h-12 w-3/4 bg-gray-300 rounded animate-pulse"></div>
@@ -58,7 +53,6 @@ const PropertySkeleton = () => {
                 <div className="h-8 w-40 bg-gray-300 rounded animate-pulse"></div>
               </div>
 
-              {/* Galeria Skeleton */}
               <div className="space-y-4">
                 <div className="w-full h-[300px] sm:h-[400px] bg-gray-300 rounded-3xl animate-pulse"></div>
                 <div className="flex gap-3 overflow-x-auto">
@@ -68,7 +62,6 @@ const PropertySkeleton = () => {
                 </div>
               </div>
 
-              {/* Detalhes Técnicos Skeleton */}
               <div className="pt-2">
                 <div className="h-6 w-40 bg-gray-300 rounded animate-pulse mb-4"></div>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -78,7 +71,6 @@ const PropertySkeleton = () => {
                 </div>
               </div>
 
-              {/* Tabs Skeleton */}
               <div className="space-y-4">
                 <div className="flex space-x-2 border-b overflow-x-auto">
                   {[...Array(3)].map((_, i) => (
@@ -93,7 +85,6 @@ const PropertySkeleton = () => {
                 </div>
               </div>
 
-              {/* Descrição Skeleton */}
               <div className="space-y-4">
                 <div className="h-8 w-40 bg-gray-300 rounded animate-pulse"></div>
                 <div className="space-y-2">
@@ -103,13 +94,11 @@ const PropertySkeleton = () => {
                 </div>
               </div>
 
-              {/* Endereço Skeleton */}
               <div className="space-y-4">
                 <div className="h-8 w-40 bg-gray-300 rounded animate-pulse"></div>
                 <div className="h-4 bg-gray-300 rounded animate-pulse w-3/4"></div>
               </div>
 
-              {/* Formulário de contato Skeleton */}
               <div className="bg-white rounded-2xl p-5 sm:p-8 shadow-xl border">
                 <div className="h-8 w-48 bg-gray-300 rounded animate-pulse mx-auto mb-6"></div>
                 <div className="space-y-4">
@@ -121,7 +110,6 @@ const PropertySkeleton = () => {
               </div>
             </div>
 
-            {/* Sidebar Skeleton */}
             <div className="hidden md:block md:col-span-1 space-y-6">
               <div className="bg-white border shadow-md rounded-2xl p-6">
                 <div className="h-8 w-40 bg-gray-300 rounded animate-pulse mb-6"></div>
@@ -179,61 +167,81 @@ const PropertySkeleton = () => {
 };
 
 const agents = [ 
-  {id: 1, name: 'João Fernando', picture: '/people/1.jpg'}, 
-  {id: 2, name: 'Antonia Miguel', picture: '/people/2.jpg'}, 
-  {id: 3, name: 'Pedro Afonso', picture: '/people/3.jpg'}
+  {id: 1, name: 'João Fernando', picture: '/people/1.jpg', sales: 25}, 
+  {id: 2, name: 'Antonia Miguel', picture: '/people/2.jpg', sales: 18}, 
+  {id: 3, name: 'Pedro Afonso', picture: '/people/3.jpg', sales: 32}
 ]
 
-// Componente para a galeria de imagens com troca e tela cheia
 function PropertyGallery({ property }: { property: any }) {
   const [mainImage, setMainImage] = useState<string | null>(null);
   const [thumbnails, setThumbnails] = useState<string[]>([]);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [allImages, setAllImages] = useState<string[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Inicializa a galeria
+  // Verificar se é mobile
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkIsMobile);
+    };
+  }, []);
+
   useEffect(() => {
     if (property?.gallery && property.gallery.length > 0) {
-      setMainImage(property.gallery[0]); // primeira como destaque
-      setThumbnails(property.gallery.slice(1)); // restantes como miniaturas
-      setAllImages(property.gallery); // todas as imagens
+      setMainImage(property.gallery[0]);
+      setThumbnails(property.gallery.slice(1));
+      setAllImages(property.gallery);
     }
   }, [property]);
 
-  // Função para trocar a principal com a miniatura clicada
   const handleSwap = (clickedImg: string, idx: number) => {
-    if (!mainImage) return;
+    if (!mainImage || isMobile) return; // Não troca no mobile
     const newThumbs = [...thumbnails];
-    newThumbs[idx] = mainImage; // miniatura clicada recebe a antiga principal
-    setMainImage(clickedImg);   // principal vira a imagem clicada
+    newThumbs[idx] = mainImage;
+    setMainImage(clickedImg);
     setThumbnails(newThumbs);
     
-    // Atualiza o índice atual
     const clickedIndex = allImages.indexOf(clickedImg);
     if (clickedIndex !== -1) {
       setCurrentIndex(clickedIndex);
     }
   };
 
-  // Função para abrir a tela cheia
+  // Navegação do carrossel mobile
+  const handleCarouselNavigation = (direction: 'prev' | 'next') => {
+    if (!isMobile) return;
+    
+    if (direction === 'prev') {
+      setCurrentIndex((prevIndex) => 
+        prevIndex === 0 ? allImages.length - 1 : prevIndex - 1
+      );
+    } else {
+      setCurrentIndex((prevIndex) => 
+        prevIndex === allImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }
+    setMainImage(allImages[currentIndex]);
+  };
+
   const openFullscreen = (index: number) => {
     setCurrentIndex(index);
     setIsFullscreen(true);
-    
-    // Bloquear scroll do body quando a tela cheia estiver aberta
     document.body.style.overflow = 'hidden';
   };
 
-  // Função para fechar a tela cheia
   const closeFullscreen = useCallback(() => {
     setIsFullscreen(false);
-    
-    // Restaurar scroll do body
     document.body.style.overflow = 'unset';
   }, []);
 
-  // Função para navegar entre as imagens na tela cheia
   const navigateImage = (direction: 'prev' | 'next') => {
     if (direction === 'prev') {
       setCurrentIndex((prevIndex) => 
@@ -246,7 +254,6 @@ function PropertyGallery({ property }: { property: any }) {
     }
   };
 
-  // Fechar a tela cheia ao pressionar a tecla ESC
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -267,13 +274,11 @@ function PropertyGallery({ property }: { property: any }) {
     };
   }, [isFullscreen, closeFullscreen]);
 
-  // Componente para a visualização em tela cheia
   const FullscreenView = () => {
     if (!isFullscreen) return null;
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center">
-        {/* Botão de fechar */}
         <button
           onClick={closeFullscreen}
           className="absolute top-4 right-4 text-white p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all z-10"
@@ -282,7 +287,6 @@ function PropertyGallery({ property }: { property: any }) {
           <X size={28} />
         </button>
 
-        {/* Botão de navegação anterior */}
         <button
           onClick={() => navigateImage('prev')}
           className="absolute left-4 text-white p-3 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all z-10"
@@ -291,7 +295,6 @@ function PropertyGallery({ property }: { property: any }) {
           <ChevronLeft size={32} />
         </button>
 
-        {/* Botão de navegação próxima */}
         <button
           onClick={() => navigateImage('next')}
           className="absolute right-4 text-white p-3 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all z-10"
@@ -300,7 +303,6 @@ function PropertyGallery({ property }: { property: any }) {
           <ChevronRight size={32} />
         </button>
 
-        {/* Imagem em tela cheia */}
         <div className="relative w-full h-full flex items-center justify-center">
           <Image
             src={allImages[currentIndex]}
@@ -312,7 +314,6 @@ function PropertyGallery({ property }: { property: any }) {
           />
         </div>
 
-        {/* Indicador de posição (ex: 1/5) */}
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white bg-black bg-opacity-50 px-3 py-1 rounded-full text-sm">
           {currentIndex + 1} / {allImages.length}
         </div>
@@ -320,78 +321,154 @@ function PropertyGallery({ property }: { property: any }) {
     );
   };
 
+  // Renderização para desktop
+  if (!isMobile) {
+    return (
+      <>
+        {mainImage && (
+          <div className="mb-6">
+            <div className="relative w-full h-[220px] sm:h-[300px] md:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 mb-4 group">
+              <Image
+                src={mainImage}
+                alt={property.title}
+                fill
+                className="object-cover cursor-zoom-in"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 70vw"
+                priority
+                onClick={() => openFullscreen(allImages.indexOf(mainImage))}
+              />
+              
+              <div className="absolute top-4 right-4 flex gap-2">
+                <button className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors">
+                  <Heart size={20} className="text-gray-600" />
+                </button>
+                <button className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors">
+                  <Share2 size={20} className="text-gray-600" />
+                </button>
+              </div>
+              
+              <div className="absolute inset-0 bg-black bg-opacity-60 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-50">
+                <button
+                  onClick={() => openFullscreen(allImages.indexOf(mainImage))}
+                  className="bg-white bg-opacity-80 p-3 rounded-full hover:bg-opacity-100 transition-all"
+                  aria-label="Expandir imagem"
+                >
+                  <Maximize2 size={24} className="text-gray-800" />
+                </button>
+              </div>
+            </div>
+
+            {thumbnails.length > 0 && (
+              <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                {thumbnails.map((img, idx) => {
+                  const actualIndex = allImages.indexOf(img);
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => handleSwap(img, idx)}
+                      className="relative flex-shrink-0 w-20 h-16 sm:w-28 sm:h-20 md:w-32 md:h-24 rounded-xl overflow-hidden border border-gray-200 shadow cursor-pointer hover:ring-2 hover:ring-purple-400 transition group"
+                    >
+                      <Image
+                        src={img}
+                        alt={`${property.title} - miniatura ${idx + 1}`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 80px, (max-width: 1024px) 128px, 160px"
+                      />
+                      
+                      <div 
+                        className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-50"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openFullscreen(actualIndex);
+                        }}
+                      >
+                        <button
+                          className="bg-white bg-opacity-80 p-1 rounded-full hover:bg-opacity-100 transition-all"
+                          aria-label="Expandir imagem"
+                        >
+                          <Maximize2 size={16} className="text-gray-800" />
+                        </button>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        <FullscreenView />
+      </>
+    );
+  }
+
+  // Renderização para mobile (carrossel)
   return (
     <>
-      {/* Galeria de Fotos com destaque */}
       {mainImage && (
         <div className="mb-6">
-          {/* Foto principal com botão de tela cheia */}
-          <div className="relative w-full h-[220px] sm:h-[300px] md:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 mb-4 group">
+          <div className="relative w-full h-[300px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 mb-4 group">
             <Image
-              src={mainImage}
+              src={allImages[currentIndex]}
               alt={property.title}
               fill
-              className="object-cover cursor-zoom-in"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 70vw"
+              className="object-cover"
+              sizes="100vw"
               priority
-              onClick={() => openFullscreen(allImages.indexOf(mainImage))}
             />
             
-            {/* Overlay com botão de tela cheia */}
+            <div className="absolute top-4 right-4 flex gap-2">
+              <button className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors">
+                <Heart size={20} className="text-gray-600" />
+              </button>
+              <button className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors">
+                <Share2 size={20} className="text-gray-600" />
+              </button>
+            </div>
+            
+            {/* Botões de navegação do carrossel */}
+            <button
+              onClick={() => handleCarouselNavigation('prev')}
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all z-10"
+              aria-label="Imagem anterior"
+            >
+              <ChevronLeft size={24} />
+            </button>
+
+            <button
+              onClick={() => handleCarouselNavigation('next')}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all z-10"
+              aria-label="Próxima imagem"
+            >
+              <ChevronRight size={24} />
+            </button>
+            
             <div className="absolute inset-0 bg-black bg-opacity-60 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-50">
               <button
-                onClick={() => openFullscreen(allImages.indexOf(mainImage))}
-                className="bg-white bg-opacity-80 p-2 rounded-full hover:bg-opacity-100 transition-all"
+                onClick={() => openFullscreen(currentIndex)}
+                className="bg-white bg-opacity-80 p-3 rounded-full hover:bg-opacity-100 transition-all"
                 aria-label="Expandir imagem"
               >
                 <Maximize2 size={24} className="text-gray-800" />
               </button>
             </div>
-          </div>
-
-          {/* Miniaturas/carrossel */}
-          {thumbnails.length > 0 && (
-            <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-              {thumbnails.map((img, idx) => {
-                const actualIndex = allImages.indexOf(img);
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => handleSwap(img, idx)}
-                    className="relative flex-shrink-0 w-20 h-16 sm:w-28 sm:h-20 md:w-32 md:h-24 rounded-xl overflow-hidden border border-gray-200 shadow cursor-pointer hover:ring-2 hover:ring-purple-400 transition group"
-                  >
-                    <Image
-                      src={img}
-                      alt={`${property.title} - miniatura ${idx + 1}`}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 80px, (max-width: 1024px) 128px, 160px"
-                    />
-                    
-                    {/* Overlay com botão de tela cheia para miniaturas */}
-                    <div 
-                      className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-50"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openFullscreen(actualIndex);
-                      }}
-                    >
-                      <button
-                        className="bg-white bg-opacity-80 p-1 rounded-full hover:bg-opacity-100 transition-all"
-                        aria-label="Expandir imagem"
-                      >
-                        <Maximize2 size={16} className="text-gray-800" />
-                      </button>
-                    </div>
-                  </button>
-                );
-              })}
+            
+            {/* Indicadores do carrossel */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+              {allImages.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-2 h-2 rounded-full ${
+                    index === currentIndex ? 'bg-white' : 'bg-gray-400'
+                  }`}
+                />
+              ))}
             </div>
-          )}
+          </div>
         </div>
       )}
 
-      {/* Renderizar a visualização em tela cheia */}
       <FullscreenView />
     </>
   );
@@ -410,7 +487,6 @@ function ShareButton({ property }: { property: any }) {
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        // Fallback para copiar para a área de transferência
         await navigator.clipboard.writeText(window.location.href);
         alert("Link copiado para a área de transferência!");
       }
@@ -432,8 +508,6 @@ function ShareButton({ property }: { property: any }) {
 
 // Componente para o menu mobile
 function MobileMenu() {
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 p-2 shadow-lg">
       <div className="flex justify-around items-center">
@@ -475,14 +549,13 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
-
-  // Gerar a URL completa para as meta tags
   const [currentUrl, setCurrentUrl] = useState('');
+
   useEffect(() => {
     setCurrentUrl(window.location.href);
   }, []);
 
-   const propertyDetails = useQuery({
+  const propertyDetails = useQuery({
     queryKey: ['propertie-data-comprar'],
     queryFn: async() => {
       const response = await getPropertyById(id)
@@ -518,12 +591,10 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
     fetchData();
   }, [id]);
 
-  // Exibir skeleton enquanto carrega ou se não tem ID ainda
   if (loading || !id) {
     return <PropertySkeleton />;
   }
 
-  // Exibir erro se ocorrer
   if (error) {
     return (
       <>
@@ -568,14 +639,12 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
         <title>{property.title || "Imóvel Incrível"}</title>
         <meta name="description" content={property.description || "Dê uma olhada neste imóvel incrível!"} />
         
-        {/* Open Graph Meta Tags */}
         <meta property="og:title" content={property.title || "Imóvel Incrível"} />
         <meta property="og:description" content={property.description || "Dê uma olhada neste imóvel incrível!"} />
         <meta property="og:image" content={property.gallery && property.gallery.length > 0 ? property.gallery[0] : "/placeholder-image.jpg"} />
         <meta property="og:url" content={currentUrl} />
         <meta property="og:type" content="website" />
         
-        {/* Twitter Card Meta Tags */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={property.title || "Imóvel Incrível"} />
         <meta name="twitter:description" content={property.description || "Dê uma olhada neste imóvel incrível!"} />
@@ -583,6 +652,15 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
       </Head>
       
       <div className="min-h-screen bg-gray-50 text-gray-800 overflow-x-hidden pb-16 md:pb-0">
+        {/* Header com breadcrumb */}
+        <div className="bg-white border-b border-gray-200 py-3 px-4">
+          <div className="max-w-7xl mx-auto">
+            <nav className="text-sm text-gray-500">
+              <span>Início</span> / <span>Imóveis</span> / <span>{property.cidade || 'Cidade'}</span> / <span className="text-gray-800 font-medium">{property.title}</span>
+            </nav>
+          </div>
+        </div>
+
         {/* Mapa no topo */}
         <div className="w-full h-[250px] sm:h-[350px] overflow-hidden border-b border-gray-200">
           <iframe
@@ -596,324 +674,346 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
           ></iframe>
         </div>
 
-        {/* Hero */}
+        {/* Conteúdo principal */}
         <div className="max-w-7xl mx-auto px-3 sm:px-5 py-6 sm:py-12">
-          <div className="grid md:grid-cols-3 gap-6 sm:gap-8 items-start">
+          <div className="grid lg:grid-cols-4 gap-6 sm:gap-8">
             {/* Conteúdo principal */}
-            <div className="md:col-span-2 space-y-6 sm:space-y-8 order-1 md:order-none">
-              {/* Detalhes principais */}
-              <div className="space-y-4">
-                <div className="flex flex-wrap gap-3 items-center">
+            <div className="lg:col-span-3 space-y-6 sm:space-y-8">
+              {/* Cabeçalho do imóvel */}
+              <div className="bg-white rounded-xl p-5 shadow-sm border">
+                <div className="flex flex-wrap gap-3 items-center mb-3">
                   <span className="inline-block bg-orange-100 text-orange-700 text-sm font-medium px-3 py-1 rounded-full shadow-sm">
                     {property.rotulo || (property.status === "arrendar" ? "Para Alugar" : "À Venda")}
                   </span>
                   <ShareButton property={property} />
                 </div>
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight break-words">
+                
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight break-words mb-2">
                   {property.title}
                 </h1>
-                <div className="flex items-start gap-2 text-sm text-gray-500">
+                
+                <div className="flex items-start gap-2 text-sm text-gray-500 mb-4">
                   <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" />
                   <span className="break-words line-clamp-2">
                     {[property.endereco, property.bairro, property.cidade, property.provincia, property.pais].filter(Boolean).join(", ")}
                   </span>
                 </div>
-                <div className="flex flex-wrap gap-3 sm:gap-4 text-sm text-gray-700 mt-4">
+                
+                <div className="flex flex-wrap gap-3 mb-4">
                   {property.tipo && (
-                    <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg">
+                    <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg text-sm">
                       <span className="font-semibold">Tipo:</span> {property.tipo}
                     </div>
                   )}
                   {typeof property.bedrooms !== 'undefined' && (
-                    <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg">
+                    <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg text-sm">
                       <BedDouble className="w-4 h-4 text-orange-500 flex-shrink-0" />
                       <span>{property.bedrooms} Quartos</span>
                     </div>
                   )}
                   {property.size && (
-                    <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg">
+                    <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg text-sm">
                       <Ruler className="w-4 h-4 text-orange-500 flex-shrink-0" />
                       <span>{property.size}</span>
                     </div>
                   )}
                   {typeof property.bathrooms !== 'undefined' && (
-                    <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg">
+                    <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg text-sm">
                       <span className="font-semibold">Banheiros:</span> {property.bathrooms}
                     </div>
                   )}
-                  {typeof property.garagens !== 'undefined' && (
-                    <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg">
-                      <span className="font-semibold">Garagens:</span> {property.garagens}
-                    </div>
-                  )}
                 </div>
-                <div className="flex flex-wrap gap-3 sm:gap-4 text-sm text-gray-700">
-                  {property.anoconstrucao && (
-                    <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg">
-                      <span className="font-semibold">Ano:</span> {property.anoconstrucao}
-                    </div>
-                  )}
-                  {property.propertyid && (
-                    <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg">
-                      <span className="font-semibold">ID:</span> {property.propertyid}
-                    </div>
-                  )}
-                </div>
-                <div className="text-xl sm:text-2xl font-extrabold text-orange-500 mt-4 flex items-center gap-2">
-                  {property.price && (
-                    <>
-                      <Tag className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
-                      {property.price.toLocaleString(
-                        property.unidade_preco === "dolar" ? "en-US" : "pt-AO",
-                        {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2
-                        }
-                      )}
-
-                      {property.unidade_preco && (
-                        <span className="text-sm sm:text-base font-normal">
-                          {property.unidade_preco === "kwanza"
-                            ? "KZ"
-                            : property.unidade_preco === "dolar"
-                            ? "USD"
-                            : property.unidade_preco}
-                        </span>
-                      )}
-                    </>
-                  )}
+                
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div className="text-xl sm:text-2xl font-extrabold text-orange-500 flex items-center gap-2">
+                    {property.price && (
+                      <>
+                        <Tag className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+                        {property.price.toLocaleString(
+                          property.unidade_preco === "dolar" ? "en-US" : "pt-AO",
+                          {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          }
+                        )}
+                        {property.unidade_preco && (
+                          <span className="text-sm sm:text-base font-normal">
+                            {property.unidade_preco === "kwanza"
+                              ? "KZ"
+                              : property.unidade_preco === "dolar"
+                              ? "USD"
+                              : property.unidade_preco}
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <button className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-orange-500 transition-colors">
+                      <Heart size={16} />
+                      Favoritar
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* Galeria de Fotos com destaque */}
-              <PropertyGallery property={property} />
+              {/* Galeria de Fotos */}
+              <div className="bg-white rounded-xl p-5 shadow-sm border">
+                <PropertyGallery property={property} />
+              </div>
+
+              {/* Estatísticas do imóvel
+              <PropertyStats property={property} /> */}
 
               {/* Detalhes Técnicos */}
-              <div className="pt-2">
-                <h3 className="font-semibold text-gray-700 mb-3">Detalhes Técnicos</h3>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-sm text-gray-600">
+              <div className="bg-white rounded-xl p-5 shadow-sm border">
+                <h3 className="font-semibold text-gray-700 mb-4 text-lg">Detalhes Técnicos</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {typeof property.area_terreno !== 'undefined' && (
-                    <li className="bg-gray-50 p-3 rounded-lg"><span className="font-medium">Área do Terreno:</span> {property.area_terreno}</li>
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <span className="font-medium block text-sm text-gray-500">Área do Terreno</span>
+                      <span className="text-gray-800">{property.area_terreno}</span>
+                    </div>
                   )}
                   {property.size && (
-                    <li className="bg-gray-50 p-3 rounded-lg"><span className="font-medium">Tamanho:</span> {property.size}</li>
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <span className="font-medium block text-sm text-gray-500">Tamanho</span>
+                      <span className="text-gray-800">{property.size}</span>
+                    </div>
                   )}
                   {property.garagemtamanho && (
-                    <li className="bg-gray-50 p-3 rounded-lg"><span className="font-medium">Garagem (m²):</span> {property.garagemtamanho}</li>
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <span className="font-medium block text-sm text-gray-500">Garagem (m²)</span>
+                      <span className="text-gray-800">{property.garagemtamanho}</span>
+                    </div>
                   )}
-                </ul>
+                  {typeof property.bedrooms !== 'undefined' && (
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <span className="font-medium block text-sm text-gray-500">Quartos</span>
+                      <span className="text-gray-800">{property.bedrooms}</span>
+                    </div>
+                  )}
+                  {typeof property.bathrooms !== 'undefined' && (
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <span className="font-medium block text-sm text-gray-500">Banheiros</span>
+                      <span className="text-gray-800">{property.bathrooms}</span>
+                    </div>
+                  )}
+                  {typeof property.garagens !== 'undefined' && (
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <span className="font-medium block text-sm text-gray-500">Garagens</span>
+                      <span className="text-gray-800">{property.garagens}</span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Tabs Visão Geral */}
-              <Tabs defaultValue="visao-geral" className="space-y-4">
-                <TabsList className="flex space-x-1 sm:space-x-2 border-b overflow-x-auto pb-0.5">
-                  <TabsTrigger
-                    value="visao-geral"
-                    className="data-[state=active]:bg-orange-500 data-[state=active]:text-white px-3 py-2 rounded-t-md text-xs sm:text-sm font-medium transition flex-shrink-0"
-                  >
-                    Visão Geral
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="video"
-                    className="data-[state=active]:bg-orange-500 data-[state=active]:text-white px-3 py-2 rounded-t-md text-xs sm:text-sm font-medium transition flex-shrink-0"
-                  >
-                    Vídeo
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="tour"
-                    className="data-[state=active]:bg-orange-500 data-[state=active]:text-white px-3 py-2 rounded-t-md text-xs sm:text-sm font-medium transition flex-shrink-0"
-                  >
-                    Passeio Virtual
-                  </TabsTrigger>
-                </TabsList>
-                <TabsContent value="visao-geral" className="pt-4">
-                  <div className="space-y-4">
-                    {/* Detalhes principais */}
-                    <ul className="text-gray-600 space-y-3 list-disc list-inside">
-                      {property.tipo && (
-                        <li><span className="font-semibold">Tipo:</span> {property.tipo}</li>
-                      )}
-                      {typeof property.bedrooms !== 'undefined' && (
-                        <li><span className="font-semibold">Quartos:</span> {property.bedrooms}</li>
-                      )}
-                      {typeof property.bathrooms !== 'undefined' && (
-                        <li><span className="font-semibold">Banheiros:</span> {property.bathrooms}</li>
-                      )}
-                      {typeof property.garagens !== 'undefined' && (
-                        <li><span className="font-semibold">Garagens:</span> {property.garagens}</li>
-                      )}
-                      {property.anoconstrucao && (
-                        <li><span className="font-semibold">Ano:</span> {property.anoconstrucao}</li>
-                      )}
-                      {property.propertyid && (
-                        <li><span className="font-semibold">ID:</span> {property.propertyid}</li>
-                      )}
-                      {typeof property.area_terreno !== 'undefined' && (
-                        <li><span className="font-semibold">Área do Terreno:</span> {property.area_terreno}</li>
-                      )}
-                      {property.size && (
-                        <li><span className="font-semibold">Tamanho:</span> {property.size}</li>
-                      )}
-                      {property.garagemtamanho && (
-                        <li><span className="font-semibold">Garagem (m²):</span> {property.garagemtamanho}</li>
-                      )}
-                      {property.status && (
-                        <li><span className="font-semibold">Status:</span> {property.status}</li>
-                      )}
-                      {property.price && (
-                        <li>
-                          <span className="font-semibold">Preço:</span>{" "}
-                          {property.price.toLocaleString(
-                            property.unidade_preco === "dolar" ? "en-US" : "pt-AO",
-                            {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            }
-                          )}{" "}
-                          {property.unidade_preco && (
-                            <span className="text-sm font-normal">
-                              {property.unidade_preco === "kwanza"
-                                ? "KZ"
-                                : property.unidade_preco === "dolar"
-                                ? "USD"
-                                : property.unidade_preco}
-                            </span>
+              <div className="bg-white rounded-xl p-5 shadow-sm border">
+                <Tabs defaultValue="visao-geral" className="w-full">
+                  <TabsList className="grid grid-cols-3 mb-6 bg-gray-100 p-1 rounded-lg">
+                    <TabsTrigger
+                      value="visao-geral"
+                      className="data-[state=active]:bg-white data-[state=active]:text-orange-500 data-[state=active]:shadow-sm rounded-md py-2 transition-all"
+                    >
+                      Visão Geral
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="video"
+                      className="data-[state=active]:bg-white data-[state=active]:text-orange-500 data-[state=active]:shadow-sm rounded-md py-2 transition-all"
+                    >
+                      Vídeo
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="tour"
+                      className="data-[state=active]:bg-white data-[state=active]:text-orange-500 data-[state=active]:shadow-sm rounded-md py-2 transition-all"
+                    >
+                      Passeio Virtual
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="visao-geral" className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="font-semibold text-gray-700 mb-2">Informações Básicas</h4>
+                        <ul className="space-y-2 text-gray-600">
+                          {property.tipo && (
+                            <li className="flex justify-between py-2 border-b border-gray-100">
+                              <span>Tipo</span>
+                              <span className="font-medium">{property.tipo}</span>
+                            </li>
                           )}
-                        </li>
-                      )}
-
-                    </ul>
+                          {typeof property.bedrooms !== 'undefined' && (
+                            <li className="flex justify-between py-2 border-b border-gray-100">
+                              <span>Quartos</span>
+                              <span className="font-medium">{property.bedrooms}</span>
+                            </li>
+                          )}
+                          {typeof property.bathrooms !== 'undefined' && (
+                            <li className="flex justify-between py-2 border-b border-gray-100">
+                              <span>Banheiros</span>
+                              <span className="font-medium">{property.bathrooms}</span>
+                            </li>
+                          )}
+                          {typeof property.garagens !== 'undefined' && (
+                            <li className="flex justify-between py-2 border-b border-gray-100">
+                              <span>Garagens</span>
+                              <span className="font-medium">{property.garagens}</span>
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-semibold text-gray-700 mb-2">Detalhes Adicionais</h4>
+                        <ul className="space-y-2 text-gray-600">
+                          {property.anoconstrucao && (
+                            <li className="flex justify-between py-2 border-b border-gray-100">
+                              <span>Ano de Construção</span>
+                              <span className="font-medium">{property.anoconstrucao}</span>
+                            </li>
+                          )}
+                          {property.propertyid && (
+                            <li className="flex justify-between py-2 border-b border-gray-100">
+                              <span>ID do Imóvel</span>
+                              <span className="font-medium">{property.propertyid}</span>
+                            </li>
+                          )}
+                          {property.status && (
+                            <li className="flex justify-between py-2 border-b border-gray-100">
+                              <span>Status</span>
+                              <span className="font-medium capitalize">{property.status}</span>
+                            </li>
+                          )}
+                          {property.price && (
+                            <li className="flex justify-between py-2 border-b border-gray-100">
+                              <span>Preço</span>
+                              <span className="font-medium text-orange-500">
+                                {property.price.toLocaleString(
+                                  property.unidade_preco === "dolar" ? "en-US" : "pt-AO",
+                                  { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                                )}{" "}
+                                {property.unidade_preco === "kwanza"
+                                  ? "KZ"
+                                  : property.unidade_preco === "dolar"
+                                  ? "USD"
+                                  : property.unidade_preco}
+                              </span>
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    </div>
+                    
                     {/* Características */}
-                    {property.caracteristicas && Array.isArray(property.caracteristicas) && property.caracteristicas.length > 0
- && (
-                      <div className="pt-2">
-                        <h3 className="font-semibold text-gray-700 mb-2">Características</h3>
-                        <ul className="flex flex-wrap gap-2">
-                          {Array.isArray(property.caracteristicas) &&
-                            property.caracteristicas
-                              .filter((c): c is string => typeof c === 'string')
-                              .map((c, i) => (
-                                <li
-                                  key={i}
-                                  className="bg-purple-50 text-purple-700 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium border border-purple-100"
-                                >
-                                  {c}
-                                </li>
-                              ))}
-                        </ul>
-
+                    {property.caracteristicas && Array.isArray(property.caracteristicas) && property.caracteristicas.length > 0 && (
+                      <div className="pt-4">
+                        <h4 className="font-semibold text-gray-700 mb-3">Características</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {property.caracteristicas
+                            .filter((c): c is string => typeof c === 'string')
+                            .map((c, i) => (
+                              <span
+                                key={i}
+                                className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-sm font-medium border border-purple-100"
+                              >
+                                {c}
+                              </span>
+                            ))}
+                        </div>
                       </div>
                     )}
+                    
                     {/* Detalhes Adicionais */}
-                    {property.detalhesadicionais &&  Array.isArray(property.detalhesadicionais) && property.detalhesadicionais.length > 0 && (
-                      <div className="pt-2">
-                        <h3 className="font-semibold text-gray-700 mb-2">Detalhes Adicionais</h3>
-                        <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-sm text-gray-600">
-                          {Array.isArray(property.detalhesadicionais) &&
-                            property.detalhesadicionais
-                              .filter(
-                                (d): d is { titulo: string; valor: string } =>
-                                  typeof d === 'object' &&
-                                  d !== null &&
-                                  'titulo' in d &&
-                                  'valor' in d &&
-                                  typeof (d as any).titulo === 'string' &&
-                                  typeof (d as any).valor === 'string'
-                              )
-                              .map((d, i) => (
-                                <li key={i} className="bg-gray-50 p-2 rounded">
-                                  <span className="font-medium">{d.titulo}:</span> {d.valor}
-                                </li>
-                              ))}
-                        </ul>
-
+                    {property.detalhesadicionais && Array.isArray(property.detalhesadicionais) && property.detalhesadicionais.length > 0 && (
+                      <div className="pt-4">
+                        <h4 className="font-semibold text-gray-700 mb-3">Mais Detalhes</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {property.detalhesadicionais
+                            .filter(
+                              (d): d is { titulo: string; valor: string } =>
+                                typeof d === 'object' &&
+                                d !== null &&
+                                'titulo' in d &&
+                                'valor' in d
+                            )
+                            .map((d, i) => (
+                              <div key={i} className="bg-gray-50 p-3 rounded-lg">
+                                <span className="font-medium block text-sm text-gray-500">{d.titulo}</span>
+                                <span className="text-gray-800">{d.valor}</span>
+                              </div>
+                            ))}
+                        </div>
                       </div>
                     )}
-                  </div>
-                </TabsContent>
-                <TabsContent value="video" className="pt-4">
-                  <div className="w-full aspect-video rounded-lg overflow-hidden">
-                    Este imóvel não tem vídeo.
-                  </div>
-                </TabsContent>
-                <TabsContent value="tour" className="pt-4">
-                  <div className="text-gray-600 italic">
-                    Este imóvel não tem imagem 360.
-                  </div>
-                </TabsContent>
-              </Tabs>
+                  </TabsContent>
+                  
+                  <TabsContent value="video">
+                    <div className="w-full aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
+                      <p className="text-gray-500">Este imóvel não tem vídeo disponível.</p>
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="tour">
+                    <div className="w-full aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
+                      <p className="text-gray-500">Este imóvel não tem passeio virtual disponível.</p>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </div>
 
               {/* Descrição */}
-              <div className="space-y-4">
-                <h2 className="text-xl font-bold text-gray-800">Descrição</h2>
+              <div className="bg-white rounded-xl p-5 shadow-sm border">
+                <h2 className="text-xl font-bold text-gray-800 mb-4">Descrição</h2>
                 <p className="text-gray-600 leading-relaxed">
-                  {property.status === "para alugar"
-                    ? "Imóvel disponível para arrendamento com excelente localização e infraestrutura."
-                    : "Excelente oportunidade de compra. Ideal para moradia ou investimento."}
+                  {property.description || 
+                    (property.status === "para alugar"
+                      ? "Imóvel disponível para arrendamento com excelente localização e infraestrutura. Possui amplos espaços, acabamentos de qualidade e está situado em uma região privilegiada com fácil acesso a comércios, serviços e transporte público."
+                      : "Excelente oportunidade de compra. Ideal para moradia ou investimento. Este imóvel oferece conforto, praticidade e potencial de valorização. Agende uma visita e comprove pessoalmente todas as qualidades deste empreendimento.")}
                 </p>
               </div>
 
               {/* Endereço */}
-              <div className="space-y-4">
-                <h2 className="text-xl font-bold text-gray-800">Endereço</h2>
-                <p className="text-gray-600 break-words">{property.endereco}</p>
+              <div className="bg-white rounded-xl p-5 shadow-sm border">
+                <h2 className="text-xl font-bold text-gray-800 mb-4">Localização</h2>
+                <div className="flex items-start gap-2 text-gray-600 mb-4">
+                  <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5 text-orange-500" />
+                  <span className="break-words">{property.endereco}</span>
+                </div>
+                <div className="w-full h-[200px] rounded-lg overflow-hidden">
+                  <iframe
+                    className="w-full h-full"
+                    loading="lazy"
+                    allowFullScreen
+                    referrerPolicy="no-referrer-when-downgrade"
+                    src={`https://www.google.com/maps?q=${encodeURIComponent(
+                      property.endereco ?? ''
+                    )}&output=embed&zoom=15`}
+                  ></iframe>
+                </div>
               </div>
 
-              {/* Formulário de contato + Agente juntos */}
-              <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-md border">
-                <h3 className="text-lg font-semibold mb-4 text-gray-800 text-left">
-                  Entrar em contato
+              {/* Formulário de contato + Agente */}
+              <div className="bg-white rounded-xl p-5 shadow-sm border">
+                <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                  Entre em contato com o corretor
                 </h3>
-
                 <AgentCardWithChat ownerData={ownerDetails.data} propertyId={property.id} userId={user?.id}/>
-
               </div>
             </div>
 
-            {/* Sidebar Filtro + Info - apenas em desktop */}
-            <div className="hidden md:block md:col-span-1 sticky top-24 self-start order-none md:order-last space-y-6">
-              {/* Filtro de imóveis */}
-              <PropertyFilterSidebar property={property} />
+            {/* Sidebar */}
+            <div className="lg:col-span-1 space-y-6">
+              <div className="sticky top-24 space-y-6">
 
-              {/* Cidades disponíveis */}
-              <CidadesDisponiveis />
-
-              {/* Imóveis em destaque */}
-              <ImoveisDestaque />
-
-              {/* Corretores em destaque */}
-              <div className="bg-white border shadow-md rounded-2xl p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Corretores em destaque
-                </h3>
-                <ul className="space-y-4">
-                  {agents.map((agent) => (
-                    <li key={agent.id} className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-orange-500">
-                        <Image
-                          src={agent.picture}
-                          alt="Agente"
-                          width={48}
-                          height={48}
-                          className="object-cover w-full h-full"
-                        />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-800">
-                          {agent.name}
-                        </p>
-                        <p className="text-xs text-gray-500">25 casas vendidas</p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                {/* Imóveis em destaque */}
+                <ImoveisSemelhantes />
+                <CorretoresEmDestaque />
               </div>
             </div>
           </div>
         </div>
-
-        {/* Menu mobile fixo na parte inferior */}
-        <MobileMenu />
       </div>
     </>
   );

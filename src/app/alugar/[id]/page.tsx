@@ -2,11 +2,8 @@
 
 import Image from "next/image";
 import React, { useState, useEffect, useCallback } from "react";
-import { MapPin, BedDouble, Ruler, Tag, Phone, Mail, MessageCircle, Share2, Maximize2, X, ChevronLeft, ChevronRight, Heart, Calendar, Eye } from "lucide-react";
+import { MapPin, BedDouble, Ruler, Tag, MessageCircle, Share2, Maximize2, X, ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PropertyFilterSidebar } from "@/components/sidebar-filtro";
-import { CidadesDisponiveis } from "@/components/cidades-disponiveis";
-import { ImoveisDestaque } from "@/components/imoveis-destaque";
 import { useAuth } from "@/components/auth-context";
 import { getPropertyById } from "@/lib/actions/get-properties";
 import { TPropertyResponseSchema } from "@/lib/types/property";
@@ -14,6 +11,8 @@ import AgentCardWithChat from "@/components/agent-card-with-chat";
 import { useQuery } from "@tanstack/react-query";
 import { getPropertyOwner } from "@/lib/actions/get-agent";
 import Head from "next/head";
+import ImoveisSemelhantes from "@/components/imoveis-destaque";
+import CorretoresEmDestaque from "@/components/corretores";
 
 // Componente Skeleton melhorado
 const PropertySkeleton = () => {
@@ -173,13 +172,27 @@ const agents = [
   {id: 3, name: 'Pedro Afonso', picture: '/people/3.jpg', sales: 32}
 ]
 
-// Componente para a galeria de imagens com troca e tela cheia
 function PropertyGallery({ property }: { property: any }) {
   const [mainImage, setMainImage] = useState<string | null>(null);
   const [thumbnails, setThumbnails] = useState<string[]>([]);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [allImages, setAllImages] = useState<string[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Verificar se é mobile
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkIsMobile);
+    };
+  }, []);
 
   useEffect(() => {
     if (property?.gallery && property.gallery.length > 0) {
@@ -190,7 +203,7 @@ function PropertyGallery({ property }: { property: any }) {
   }, [property]);
 
   const handleSwap = (clickedImg: string, idx: number) => {
-    if (!mainImage) return;
+    if (!mainImage || isMobile) return; // Não troca no mobile
     const newThumbs = [...thumbnails];
     newThumbs[idx] = mainImage;
     setMainImage(clickedImg);
@@ -200,6 +213,22 @@ function PropertyGallery({ property }: { property: any }) {
     if (clickedIndex !== -1) {
       setCurrentIndex(clickedIndex);
     }
+  };
+
+  // Navegação do carrossel mobile
+  const handleCarouselNavigation = (direction: 'prev' | 'next') => {
+    if (!isMobile) return;
+    
+    if (direction === 'prev') {
+      setCurrentIndex((prevIndex) => 
+        prevIndex === 0 ? allImages.length - 1 : prevIndex - 1
+      );
+    } else {
+      setCurrentIndex((prevIndex) => 
+        prevIndex === allImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }
+    setMainImage(allImages[currentIndex]);
   };
 
   const openFullscreen = (index: number) => {
@@ -292,19 +321,101 @@ function PropertyGallery({ property }: { property: any }) {
     );
   };
 
+  // Renderização para desktop
+  if (!isMobile) {
+    return (
+      <>
+        {mainImage && (
+          <div className="mb-6">
+            <div className="relative w-full h-[220px] sm:h-[300px] md:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 mb-4 group">
+              <Image
+                src={mainImage}
+                alt={property.title}
+                fill
+                className="object-cover cursor-zoom-in"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 70vw"
+                priority
+                onClick={() => openFullscreen(allImages.indexOf(mainImage))}
+              />
+              
+              <div className="absolute top-4 right-4 flex gap-2">
+                <button className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors">
+                  <Heart size={20} className="text-gray-600" />
+                </button>
+                <button className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors">
+                  <Share2 size={20} className="text-gray-600" />
+                </button>
+              </div>
+              
+              <div className="absolute inset-0 bg-black bg-opacity-60 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-50">
+                <button
+                  onClick={() => openFullscreen(allImages.indexOf(mainImage))}
+                  className="bg-white bg-opacity-80 p-3 rounded-full hover:bg-opacity-100 transition-all"
+                  aria-label="Expandir imagem"
+                >
+                  <Maximize2 size={24} className="text-gray-800" />
+                </button>
+              </div>
+            </div>
+
+            {thumbnails.length > 0 && (
+              <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                {thumbnails.map((img, idx) => {
+                  const actualIndex = allImages.indexOf(img);
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => handleSwap(img, idx)}
+                      className="relative flex-shrink-0 w-20 h-16 sm:w-28 sm:h-20 md:w-32 md:h-24 rounded-xl overflow-hidden border border-gray-200 shadow cursor-pointer hover:ring-2 hover:ring-purple-400 transition group"
+                    >
+                      <Image
+                        src={img}
+                        alt={`${property.title} - miniatura ${idx + 1}`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 80px, (max-width: 1024px) 128px, 160px"
+                      />
+                      
+                      <div 
+                        className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-50"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openFullscreen(actualIndex);
+                        }}
+                      >
+                        <button
+                          className="bg-white bg-opacity-80 p-1 rounded-full hover:bg-opacity-100 transition-all"
+                          aria-label="Expandir imagem"
+                        >
+                          <Maximize2 size={16} className="text-gray-800" />
+                        </button>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        <FullscreenView />
+      </>
+    );
+  }
+
+  // Renderização para mobile (carrossel)
   return (
     <>
       {mainImage && (
         <div className="mb-6">
-          <div className="relative w-full h-[220px] sm:h-[300px] md:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 mb-4 group">
+          <div className="relative w-full h-[300px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 mb-4 group">
             <Image
-              src={mainImage}
+              src={allImages[currentIndex]}
               alt={property.title}
               fill
-              className="object-cover cursor-zoom-in"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 70vw"
+              className="object-cover"
+              sizes="100vw"
               priority
-              onClick={() => openFullscreen(allImages.indexOf(mainImage))}
             />
             
             <div className="absolute top-4 right-4 flex gap-2">
@@ -316,54 +427,45 @@ function PropertyGallery({ property }: { property: any }) {
               </button>
             </div>
             
+            {/* Botões de navegação do carrossel */}
+            <button
+              onClick={() => handleCarouselNavigation('prev')}
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all z-10"
+              aria-label="Imagem anterior"
+            >
+              <ChevronLeft size={24} />
+            </button>
+
+            <button
+              onClick={() => handleCarouselNavigation('next')}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all z-10"
+              aria-label="Próxima imagem"
+            >
+              <ChevronRight size={24} />
+            </button>
+            
             <div className="absolute inset-0 bg-black bg-opacity-60 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-50">
               <button
-                onClick={() => openFullscreen(allImages.indexOf(mainImage))}
+                onClick={() => openFullscreen(currentIndex)}
                 className="bg-white bg-opacity-80 p-3 rounded-full hover:bg-opacity-100 transition-all"
                 aria-label="Expandir imagem"
               >
                 <Maximize2 size={24} className="text-gray-800" />
               </button>
             </div>
-          </div>
-
-          {thumbnails.length > 0 && (
-            <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-              {thumbnails.map((img, idx) => {
-                const actualIndex = allImages.indexOf(img);
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => handleSwap(img, idx)}
-                    className="relative flex-shrink-0 w-20 h-16 sm:w-28 sm:h-20 md:w-32 md:h-24 rounded-xl overflow-hidden border border-gray-200 shadow cursor-pointer hover:ring-2 hover:ring-purple-400 transition group"
-                  >
-                    <Image
-                      src={img}
-                      alt={`${property.title} - miniatura ${idx + 1}`}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 80px, (max-width: 1024px) 128px, 160px"
-                    />
-                    
-                    <div 
-                      className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-50"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openFullscreen(actualIndex);
-                      }}
-                    >
-                      <button
-                        className="bg-white bg-opacity-80 p-1 rounded-full hover:bg-opacity-100 transition-all"
-                        aria-label="Expandir imagem"
-                      >
-                        <Maximize2 size={16} className="text-gray-800" />
-                      </button>
-                    </div>
-                  </button>
-                );
-              })}
+            
+            {/* Indicadores do carrossel */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+              {allImages.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-2 h-2 rounded-full ${
+                    index === currentIndex ? 'bg-white' : 'bg-gray-400'
+                  }`}
+                />
+              ))}
             </div>
-          )}
+          </div>
         </div>
       )}
 
@@ -401,38 +503,6 @@ function ShareButton({ property }: { property: any }) {
       <Share2 size={16} />
       Partilhar
     </button>
-  );
-}
-
-// Componente para estatísticas do imóvel
-function PropertyStats({ property }: { property: any }) {
-  return (
-    <div className="bg-white rounded-xl p-4 shadow-sm border">
-      <h3 className="font-semibold text-gray-700 mb-3">Estatísticas do Imóvel</h3>
-      <div className="grid grid-cols-3 gap-4 text-center">
-        <div className="p-2">
-          <div className="bg-orange-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2">
-            <Eye className="text-orange-500" size={18} />
-          </div>
-          <p className="text-sm text-gray-600">Visualizações</p>
-          <p className="font-bold text-gray-800">1.2K</p>
-        </div>
-        <div className="p-2">
-          <div className="bg-orange-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2">
-            <Heart className="text-orange-500" size={18} />
-          </div>
-          <p className="text-sm text-gray-600">Favoritos</p>
-          <p className="font-bold text-gray-800">84</p>
-        </div>
-        <div className="p-2">
-          <div className="bg-orange-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2">
-            <Calendar className="text-orange-500" size={18} />
-          </div>
-          <p className="text-sm text-gray-600">Disponível</p>
-          <p className="font-bold text-gray-800">Agora</p>
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -693,8 +763,8 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
                 <PropertyGallery property={property} />
               </div>
 
-              {/* Estatísticas do imóvel */}
-              <PropertyStats property={property} />
+              {/* Estatísticas do imóvel
+              <PropertyStats property={property} /> */}
 
               {/* Detalhes Técnicos */}
               <div className="bg-white rounded-xl p-5 shadow-sm border">
@@ -936,52 +1006,14 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
             {/* Sidebar */}
             <div className="lg:col-span-1 space-y-6">
               <div className="sticky top-24 space-y-6">
-                {/* Filtro de imóveis */}
-                <PropertyFilterSidebar property={property} />
-
-                {/* Cidades disponíveis */}
-                <CidadesDisponiveis />
 
                 {/* Imóveis em destaque */}
-                <ImoveisDestaque />
-
-                {/* Corretores em destaque */}
-                <div className="bg-white border shadow-md rounded-xl p-5">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                    Corretores em Destaque
-                  </h3>
-                  <div className="space-y-4">
-                    {agents.map((agent) => (
-                      <div key={agent.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-orange-500">
-                          <Image
-                            src={agent.picture}
-                            alt={agent.name}
-                            width={48}
-                            height={48}
-                            className="object-cover w-full h-full"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-gray-800 truncate">
-                            {agent.name}
-                          </p>
-                          <p className="text-xs text-gray-500">{agent.sales} imóveis vendidos</p>
-                        </div>
-                        <button className="text-orange-500 hover:text-orange-600 transition-colors">
-                          <MessageCircle size={16} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <ImoveisSemelhantes />
+                <CorretoresEmDestaque />
               </div>
             </div>
           </div>
         </div>
-
-        {/* Menu mobile fixo na parte inferior */}
-        <MobileMenu />
       </div>
     </>
   );
