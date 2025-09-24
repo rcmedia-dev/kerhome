@@ -14,7 +14,7 @@ import Head from "next/head";
 import ImoveisSemelhantes from "@/components/imoveis-destaque";
 import CorretoresEmDestaque from "@/components/corretores";
 
-// Componente Skeleton melhorado
+// ===== COMPONENTE SKELETON =====
 const PropertySkeleton = () => {
   return (
     <>
@@ -166,13 +166,122 @@ const PropertySkeleton = () => {
   );
 };
 
-const agents = [ 
-  {id: 1, name: 'João Fernando', picture: '/people/1.jpg', sales: 25}, 
-  {id: 2, name: 'Antonia Miguel', picture: '/people/2.jpg', sales: 18}, 
-  {id: 3, name: 'Pedro Afonso', picture: '/people/3.jpg', sales: 32}
-]
+// ===== COMPONENTE FULLSCREEN VIEW =====
+const FullscreenView = ({ 
+  isFullscreen, 
+  currentIndex, 
+  allImages, 
+  property, 
+  onClose, 
+  onNavigate 
+}: { 
+  isFullscreen: boolean;
+  currentIndex: number;
+  allImages: string[];
+  property: any;
+  onClose: () => void;
+  onNavigate: (direction: 'prev' | 'next') => void;
+}) => {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      } else if (e.key === 'ArrowLeft') {
+        onNavigate('prev');
+      } else if (e.key === 'ArrowRight') {
+        onNavigate('next');
+      }
+    };
 
-function PropertyGallery({ property }: { property: any }) {
+    if (isFullscreen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isFullscreen, onClose, onNavigate]);
+
+  if (!isFullscreen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center">
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 text-white p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all z-10"
+        aria-label="Fechar tela cheia"
+      >
+        <X size={28} />
+      </button>
+
+      <button
+        onClick={() => onNavigate('prev')}
+        className="absolute left-4 text-white p-3 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all z-10"
+        aria-label="Imagem anterior"
+      >
+        <ChevronLeft size={32} />
+      </button>
+
+      <button
+        onClick={() => onNavigate('next')}
+        className="absolute right-4 text-white p-3 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all z-10"
+        aria-label="Próxima imagem"
+      >
+        <ChevronRight size={32} />
+      </button>
+
+      <div className="relative w-full h-full flex items-center justify-center">
+        <Image
+          src={allImages[currentIndex]}
+          alt={`${property.title} - Imagem ${currentIndex + 1}`}
+          fill
+          className="object-contain"
+          sizes="100vw"
+          priority
+        />
+      </div>
+
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white bg-black bg-opacity-50 px-3 py-1 rounded-full text-sm">
+        {currentIndex + 1} / {allImages.length}
+      </div>
+    </div>
+  );
+};
+
+// ===== COMPONENTE SHARE BUTTON =====
+const ShareButton = ({ property }: { property: any }) => {
+  const handleShare = async () => {
+    const shareData = {
+      title: property.title,
+      text: `Dê uma olhada neste imóvel incrível: ${property.title}`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        alert("Link copiado para a área de transferência!");
+      }
+    } catch (error) {
+      console.error("Erro ao partilhar:", error);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleShare}
+      className="flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-200 transition-colors text-sm"
+    >
+      <Share2 size={16} />
+      Partilhar
+    </button>
+  );
+};
+
+// ===== COMPONENTE PROPERTY GALLERY =====
+const PropertyGallery = ({ property }: { property: any }) => {
   const [mainImage, setMainImage] = useState<string | null>(null);
   const [thumbnails, setThumbnails] = useState<string[]>([]);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -180,7 +289,6 @@ function PropertyGallery({ property }: { property: any }) {
   const [allImages, setAllImages] = useState<string[]>([]);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Verificar se é mobile
   useEffect(() => {
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -203,7 +311,7 @@ function PropertyGallery({ property }: { property: any }) {
   }, [property]);
 
   const handleSwap = (clickedImg: string, idx: number) => {
-    if (!mainImage || isMobile) return; // Não troca no mobile
+    if (!mainImage || isMobile) return;
     const newThumbs = [...thumbnails];
     newThumbs[idx] = mainImage;
     setMainImage(clickedImg);
@@ -215,7 +323,6 @@ function PropertyGallery({ property }: { property: any }) {
     }
   };
 
-  // Navegação do carrossel mobile
   const handleCarouselNavigation = (direction: 'prev' | 'next') => {
     if (!isMobile) return;
     
@@ -252,73 +359,6 @@ function PropertyGallery({ property }: { property: any }) {
         prevIndex === allImages.length - 1 ? 0 : prevIndex + 1
       );
     }
-  };
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        closeFullscreen();
-      } else if (e.key === 'ArrowLeft') {
-        navigateImage('prev');
-      } else if (e.key === 'ArrowRight') {
-        navigateImage('next');
-      }
-    };
-
-    if (isFullscreen) {
-      window.addEventListener('keydown', handleKeyDown);
-    }
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isFullscreen, closeFullscreen]);
-
-  const FullscreenView = () => {
-    if (!isFullscreen) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center">
-        <button
-          onClick={closeFullscreen}
-          className="absolute top-4 right-4 text-white p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all z-10"
-          aria-label="Fechar tela cheia"
-        >
-          <X size={28} />
-        </button>
-
-        <button
-          onClick={() => navigateImage('prev')}
-          className="absolute left-4 text-white p-3 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all z-10"
-          aria-label="Imagem anterior"
-        >
-          <ChevronLeft size={32} />
-        </button>
-
-        <button
-          onClick={() => navigateImage('next')}
-          className="absolute right-4 text-white p-3 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all z-10"
-          aria-label="Próxima imagem"
-        >
-          <ChevronRight size={32} />
-        </button>
-
-        <div className="relative w-full h-full flex items-center justify-center">
-          <Image
-            src={allImages[currentIndex]}
-            alt={`${property.title} - Imagem ${currentIndex + 1}`}
-            fill
-            className="object-contain"
-            sizes="100vw"
-            priority
-          />
-        </div>
-
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white bg-black bg-opacity-50 px-3 py-1 rounded-full text-sm">
-          {currentIndex + 1} / {allImages.length}
-        </div>
-      </div>
-    );
   };
 
   // Renderização para desktop
@@ -398,7 +438,14 @@ function PropertyGallery({ property }: { property: any }) {
           </div>
         )}
 
-        <FullscreenView />
+        <FullscreenView
+          isFullscreen={isFullscreen}
+          currentIndex={currentIndex}
+          allImages={allImages}
+          property={property}
+          onClose={closeFullscreen}
+          onNavigate={navigateImage}
+        />
       </>
     );
   }
@@ -427,7 +474,6 @@ function PropertyGallery({ property }: { property: any }) {
               </button>
             </div>
             
-            {/* Botões de navegação do carrossel */}
             <button
               onClick={() => handleCarouselNavigation('prev')}
               className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all z-10"
@@ -454,7 +500,6 @@ function PropertyGallery({ property }: { property: any }) {
               </button>
             </div>
             
-            {/* Indicadores do carrossel */}
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
               {allImages.map((_, index) => (
                 <div
@@ -469,45 +514,361 @@ function PropertyGallery({ property }: { property: any }) {
         </div>
       )}
 
-      <FullscreenView />
+      <FullscreenView
+        isFullscreen={isFullscreen}
+        currentIndex={currentIndex}
+        allImages={allImages}
+        property={property}
+        onClose={closeFullscreen}
+        onNavigate={navigateImage}
+      />
     </>
   );
-}
+};
 
-// Componente para o botão de partilha
-function ShareButton({ property }: { property: any }) {
-  const handleShare = async () => {
-    const shareData = {
-      title: property.title,
-      text: `Dê uma olhada neste imóvel incrível: ${property.title}`,
-      url: window.location.href,
-    };
-
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(window.location.href);
-        alert("Link copiado para a área de transferência!");
-      }
-    } catch (error) {
-      console.error("Erro ao partilhar:", error);
-    }
-  };
-
+// ===== COMPONENTE PROPERTY HEADER =====
+const PropertyHeader = ({ property }: { property: TPropertyResponseSchema }) => {
   return (
-    <button
-      onClick={handleShare}
-      className="flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-200 transition-colors text-sm"
-    >
-      <Share2 size={16} />
-      Partilhar
-    </button>
+    <div className="bg-white rounded-xl p-5 shadow-sm border">
+      <div className="flex flex-wrap gap-3 items-center mb-3">
+        <span className="inline-block bg-orange-100 text-orange-700 text-sm font-medium px-3 py-1 rounded-full shadow-sm">
+          {property.rotulo || (property.status === "arrendar" ? "Para Alugar" : "À Venda")}
+        </span>
+        <ShareButton property={property} />
+      </div>
+      
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight break-words mb-2">
+        {property.title}
+      </h1>
+      
+      <div className="flex items-start gap-2 text-sm text-gray-500 mb-4">
+        <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" />
+        <span className="break-words line-clamp-2">
+          {[property.endereco, property.bairro, property.cidade, property.provincia, property.pais].filter(Boolean).join(", ")}
+        </span>
+      </div>
+      
+      <div className="flex flex-wrap gap-3 mb-4">
+        {property.tipo && (
+          <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg text-sm">
+            <span className="font-semibold">Tipo:</span> {property.tipo}
+          </div>
+        )}
+        {typeof property.bedrooms !== 'undefined' && (
+          <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg text-sm">
+            <BedDouble className="w-4 h-4 text-orange-500 flex-shrink-0" />
+            <span>{property.bedrooms} Quartos</span>
+          </div>
+        )}
+        {property.size && (
+          <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg text-sm">
+            <Ruler className="w-4 h-4 text-orange-500 flex-shrink-0" />
+            <span>{property.size}</span>
+          </div>
+        )}
+        {typeof property.bathrooms !== 'undefined' && (
+          <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg text-sm">
+            <span className="font-semibold">Banheiros:</span> {property.bathrooms}
+          </div>
+        )}
+      </div>
+      
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="text-xl sm:text-2xl font-extrabold text-orange-500 flex items-center gap-2">
+          {property.price && (
+            <>
+              <Tag className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+              {property.price.toLocaleString(
+                property.unidade_preco === "dolar" ? "en-US" : "pt-AO",
+                {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                }
+              )}
+              {property.unidade_preco && (
+                <span className="text-sm sm:text-base font-normal">
+                  {property.unidade_preco === "kwanza"
+                    ? "KZ"
+                    : property.unidade_preco === "dolar"
+                    ? "USD"
+                    : property.unidade_preco}
+                </span>
+              )}
+            </>
+          )}
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <button className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-orange-500 transition-colors">
+            <Heart size={16} />
+            Favoritar
+          </button>
+        </div>
+      </div>
+    </div>
   );
-}
+};
 
-// Componente para o menu mobile
-function MobileMenu() {
+// ===== COMPONENTE TECHNICAL DETAILS =====
+const TechnicalDetails = ({ property }: { property: TPropertyResponseSchema }) => {
+  return (
+    <div className="bg-white rounded-xl p-5 shadow-sm border">
+      <h3 className="font-semibold text-gray-700 mb-4 text-lg">Detalhes Técnicos</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {typeof property.area_terreno !== 'undefined' && (
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <span className="font-medium block text-sm text-gray-500">Área do Terreno</span>
+            <span className="text-gray-800">{property.area_terreno}</span>
+          </div>
+        )}
+        {property.size && (
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <span className="font-medium block text-sm text-gray-500">Tamanho</span>
+            <span className="text-gray-800">{property.size}</span>
+          </div>
+        )}
+        {property.garagemtamanho && (
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <span className="font-medium block text-sm text-gray-500">Garagem (m²)</span>
+            <span className="text-gray-800">{property.garagemtamanho}</span>
+          </div>
+        )}
+        {typeof property.bedrooms !== 'undefined' && (
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <span className="font-medium block text-sm text-gray-500">Quartos</span>
+            <span className="text-gray-800">{property.bedrooms}</span>
+          </div>
+        )}
+        {typeof property.bathrooms !== 'undefined' && (
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <span className="font-medium block text-sm text-gray-500">Banheiros</span>
+            <span className="text-gray-800">{property.bathrooms}</span>
+          </div>
+        )}
+        {typeof property.garagens !== 'undefined' && (
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <span className="font-medium block text-sm text-gray-500">Garagens</span>
+            <span className="text-gray-800">{property.garagens}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ===== COMPONENTE PROPERTY TABS =====
+const PropertyTabs = ({ property }: { property: TPropertyResponseSchema }) => {
+  return (
+    <div className="bg-white rounded-xl p-5 shadow-sm border">
+      <Tabs defaultValue="visao-geral" className="w-full">
+        <TabsList className="grid grid-cols-3 mb-6 bg-gray-100 p-1 rounded-lg">
+          <TabsTrigger
+            value="visao-geral"
+            className="data-[state=active]:bg-white data-[state=active]:text-orange-500 data-[state=active]:shadow-sm rounded-md py-2 transition-all"
+          >
+            Visão Geral
+          </TabsTrigger>
+          <TabsTrigger
+            value="video"
+            className="data-[state=active]:bg-white data-[state=active]:text-orange-500 data-[state=active]:shadow-sm rounded-md py-2 transition-all"
+          >
+            Vídeo
+          </TabsTrigger>
+          <TabsTrigger
+            value="tour"
+            className="data-[state=active]:bg-white data-[state=active]:text-orange-500 data-[state=active]:shadow-sm rounded-md py-2 transition-all"
+          >
+            Passeio Virtual
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="visao-geral" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h4 className="font-semibold text-gray-700 mb-2">Informações Básicas</h4>
+              <ul className="space-y-2 text-gray-600">
+                {property.tipo && (
+                  <li className="flex justify-between py-2 border-b border-gray-100">
+                    <span>Tipo</span>
+                    <span className="font-medium">{property.tipo}</span>
+                  </li>
+                )}
+                {typeof property.bedrooms !== 'undefined' && (
+                  <li className="flex justify-between py-2 border-b border-gray-100">
+                    <span>Quartos</span>
+                    <span className="font-medium">{property.bedrooms}</span>
+                  </li>
+                )}
+                {typeof property.bathrooms !== 'undefined' && (
+                  <li className="flex justify-between py-2 border-b border-gray-100">
+                    <span>Banheiros</span>
+                    <span className="font-medium">{property.bathrooms}</span>
+                  </li>
+                )}
+                {typeof property.garagens !== 'undefined' && (
+                  <li className="flex justify-between py-2 border-b border-gray-100">
+                    <span>Garagens</span>
+                    <span className="font-medium">{property.garagens}</span>
+                  </li>
+                )}
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold text-gray-700 mb-2">Detalhes Adicionais</h4>
+              <ul className="space-y-2 text-gray-600">
+                {property.anoconstrucao && (
+                  <li className="flex justify-between py-2 border-b border-gray-100">
+                    <span>Ano de Construção</span>
+                    <span className="font-medium">{property.anoconstrucao}</span>
+                  </li>
+                )}
+                {property.propertyid && (
+                  <li className="flex justify-between py-2 border-b border-gray-100">
+                    <span>ID do Imóvel</span>
+                    <span className="font-medium">{property.propertyid}</span>
+                  </li>
+                )}
+                {property.status && (
+                  <li className="flex justify-between py-2 border-b border-gray-100">
+                    <span>Status</span>
+                    <span className="font-medium capitalize">{property.status}</span>
+                  </li>
+                )}
+                {property.price && (
+                  <li className="flex justify-between py-2 border-b border-gray-100">
+                    <span>Preço</span>
+                    <span className="font-medium text-orange-500">
+                      {property.price.toLocaleString(
+                        property.unidade_preco === "dolar" ? "en-US" : "pt-AO",
+                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                      )}{" "}
+                      {property.unidade_preco === "kwanza"
+                        ? "KZ"
+                        : property.unidade_preco === "dolar"
+                        ? "USD"
+                        : property.unidade_preco}
+                    </span>
+                  </li>
+                )}
+              </ul>
+            </div>
+          </div>
+          
+          {property.caracteristicas && Array.isArray(property.caracteristicas) && property.caracteristicas.length > 0 && (
+            <div className="pt-4">
+              <h4 className="font-semibold text-gray-700 mb-3">Características</h4>
+              <div className="flex flex-wrap gap-2">
+                {property.caracteristicas
+                  .filter((c): c is string => typeof c === 'string')
+                  .map((c, i) => (
+                    <span
+                      key={i}
+                      className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-sm font-medium border border-purple-100"
+                    >
+                      {c}
+                    </span>
+                  ))}
+              </div>
+            </div>
+          )}
+          
+          {property.detalhesadicionais && Array.isArray(property.detalhesadicionais) && property.detalhesadicionais.length > 0 && (
+            <div className="pt-4">
+              <h4 className="font-semibold text-gray-700 mb-3">Mais Detalhes</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {property.detalhesadicionais
+                  .filter(
+                    (d): d is { titulo: string; valor: string } =>
+                      typeof d === 'object' &&
+                      d !== null &&
+                      'titulo' in d &&
+                      'valor' in d
+                  )
+                  .map((d, i) => (
+                    <div key={i} className="bg-gray-50 p-3 rounded-lg">
+                      <span className="font-medium block text-sm text-gray-500">{d.titulo}</span>
+                      <span className="text-gray-800">{d.valor}</span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="video">
+          <div className="w-full aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
+            <p className="text-gray-500">Este imóvel não tem vídeo disponível.</p>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="tour">
+          <div className="w-full aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
+            <p className="text-gray-500">Este imóvel não tem passeio virtual disponível.</p>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+// ===== COMPONENTE PROPERTY DESCRIPTION =====
+const PropertyDescription = ({ property }: { property: TPropertyResponseSchema }) => {
+  return (
+    <div className="bg-white rounded-xl p-5 shadow-sm border">
+      <h2 className="text-xl font-bold text-gray-800 mb-4">Descrição</h2>
+      <p className="text-gray-600 leading-relaxed">
+        {property.description || 
+          (property.status === "para alugar"
+            ? "Imóvel disponível para arrendamento com excelente localização e infraestrutura. Possui amplos espaços, acabamentos de qualidade e está situado em uma região privilegiada com fácil acesso a comércios, serviços e transporte público."
+            : "Excelente oportunidade de compra. Ideal para moradia ou investimento. Este imóvel oferece conforto, praticidade e potencial de valorização. Agende uma visita e comprove pessoalmente todas as qualidades deste empreendimento.")}
+      </p>
+    </div>
+  );
+};
+
+// ===== COMPONENTE PROPERTY LOCATION =====
+const PropertyLocation = ({ property }: { property: TPropertyResponseSchema }) => {
+  return (
+    <div className="bg-white rounded-xl p-5 shadow-sm border">
+      <h2 className="text-xl font-bold text-gray-800 mb-4">Localização</h2>
+      <div className="flex items-start gap-2 text-gray-600 mb-4">
+        <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5 text-orange-500" />
+        <span className="break-words">{property.endereco}</span>
+      </div>
+      <div className="w-full h-[200px] rounded-lg overflow-hidden">
+        <iframe
+          className="w-full h-full"
+          loading="lazy"
+          allowFullScreen
+          referrerPolicy="no-referrer-when-downgrade"
+          src={`https://www.google.com/maps?q=${encodeURIComponent(
+            property.endereco ?? ''
+          )}&output=embed&zoom=15`}
+        ></iframe>
+      </div>
+    </div>
+  );
+};
+
+// ===== COMPONENTE PROPERTY CONTACT =====
+const PropertyContact = ({ property, ownerDetails, user }: { 
+  property: TPropertyResponseSchema; 
+  ownerDetails: any; 
+  user: any;
+}) => {
+  return (
+    <div className="bg-white rounded-xl p-5 shadow-sm border">
+      <h3 className="text-lg font-semibold mb-4 text-gray-800">
+        Entre em contato com o corretor
+      </h3>
+      <AgentCardWithChat ownerData={ownerDetails} propertyId={property.id} userId={user?.id}/>
+    </div>
+  );
+};
+
+// ===== COMPONENTE MOBILE MENU =====
+const MobileMenu = () => {
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 p-2 shadow-lg">
       <div className="flex justify-around items-center">
@@ -541,8 +902,49 @@ function MobileMenu() {
       </div>
     </div>
   );
-}
+};
 
+// ===== COMPONENTE ERROR STATE =====
+const ErrorState = ({ error, onRetry }: { error: string; onRetry: () => void }) => {
+  return (
+    <>
+      <Head>
+        <title>Erro ao carregar imóvel</title>
+      </Head>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="text-center bg-white p-8 rounded-xl shadow-md max-w-md">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Erro ao carregar</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button 
+            onClick={onRetry}
+            className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+          >
+            Tentar Novamente
+          </button>
+        </div>
+      </div>
+    </>
+  );
+};
+
+// ===== COMPONENTE NOT FOUND STATE =====
+const NotFoundState = () => {
+  return (
+    <>
+      <Head>
+        <title>Imóvel não encontrado</title>
+      </Head>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="text-center bg-white p-8 rounded-xl shadow-md max-w-md">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Imóvel não encontrado</h2>
+          <p className="text-gray-600">O imóvel que você está procurando não existe ou foi removido.</p>
+        </div>
+      </div>
+    </>
+  );
+};
+
+// ===== COMPONENTE PRINCIPAL =====
 export default function PropertyPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params)
   const [property, setProperty] = useState<TPropertyResponseSchema | null>(null);
@@ -596,41 +998,11 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
   }
 
   if (error) {
-    return (
-      <>
-        <Head>
-          <title>Erro ao carregar imóvel</title>
-        </Head>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-          <div className="text-center bg-white p-8 rounded-xl shadow-md max-w-md">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Erro ao carregar</h2>
-            <p className="text-gray-600 mb-6">{error}</p>
-            <button 
-              onClick={() => window.location.reload()}
-              className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-            >
-              Tentar Novamente
-            </button>
-          </div>
-        </div>
-      </>
-    );
+    return <ErrorState error={error} onRetry={() => window.location.reload()} />;
   }
 
   if (!property) {
-    return (
-      <>
-        <Head>
-          <title>Imóvel não encontrado</title>
-        </Head>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-          <div className="text-center bg-white p-8 rounded-xl shadow-md max-w-md">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Imóvel não encontrado</h2>
-            <p className="text-gray-600">O imóvel que você está procurando não existe ou foi removido.</p>
-          </div>
-        </div>
-      </>
-    );
+    return <NotFoundState />;
   }
 
   return (
@@ -679,341 +1051,35 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
           <div className="grid lg:grid-cols-4 gap-6 sm:gap-8">
             {/* Conteúdo principal */}
             <div className="lg:col-span-3 space-y-6 sm:space-y-8">
-              {/* Cabeçalho do imóvel */}
-              <div className="bg-white rounded-xl p-5 shadow-sm border">
-                <div className="flex flex-wrap gap-3 items-center mb-3">
-                  <span className="inline-block bg-orange-100 text-orange-700 text-sm font-medium px-3 py-1 rounded-full shadow-sm">
-                    {property.rotulo || (property.status === "arrendar" ? "Para Alugar" : "À Venda")}
-                  </span>
-                  <ShareButton property={property} />
-                </div>
-                
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight break-words mb-2">
-                  {property.title}
-                </h1>
-                
-                <div className="flex items-start gap-2 text-sm text-gray-500 mb-4">
-                  <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                  <span className="break-words line-clamp-2">
-                    {[property.endereco, property.bairro, property.cidade, property.provincia, property.pais].filter(Boolean).join(", ")}
-                  </span>
-                </div>
-                
-                <div className="flex flex-wrap gap-3 mb-4">
-                  {property.tipo && (
-                    <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg text-sm">
-                      <span className="font-semibold">Tipo:</span> {property.tipo}
-                    </div>
-                  )}
-                  {typeof property.bedrooms !== 'undefined' && (
-                    <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg text-sm">
-                      <BedDouble className="w-4 h-4 text-orange-500 flex-shrink-0" />
-                      <span>{property.bedrooms} Quartos</span>
-                    </div>
-                  )}
-                  {property.size && (
-                    <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg text-sm">
-                      <Ruler className="w-4 h-4 text-orange-500 flex-shrink-0" />
-                      <span>{property.size}</span>
-                    </div>
-                  )}
-                  {typeof property.bathrooms !== 'undefined' && (
-                    <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg text-sm">
-                      <span className="font-semibold">Banheiros:</span> {property.bathrooms}
-                    </div>
-                  )}
-                </div>
-                
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                  <div className="text-xl sm:text-2xl font-extrabold text-orange-500 flex items-center gap-2">
-                    {property.price && (
-                      <>
-                        <Tag className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
-                        {property.price.toLocaleString(
-                          property.unidade_preco === "dolar" ? "en-US" : "pt-AO",
-                          {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                          }
-                        )}
-                        {property.unidade_preco && (
-                          <span className="text-sm sm:text-base font-normal">
-                            {property.unidade_preco === "kwanza"
-                              ? "KZ"
-                              : property.unidade_preco === "dolar"
-                              ? "USD"
-                              : property.unidade_preco}
-                          </span>
-                        )}
-                      </>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <button className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-orange-500 transition-colors">
-                      <Heart size={16} />
-                      Favoritar
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <PropertyHeader property={property} />
 
               {/* Galeria de Fotos */}
               <div className="bg-white rounded-xl p-5 shadow-sm border">
                 <PropertyGallery property={property} />
               </div>
 
-              {/* Estatísticas do imóvel
-              <PropertyStats property={property} /> */}
+              <TechnicalDetails property={property} />
 
-              {/* Detalhes Técnicos */}
-              <div className="bg-white rounded-xl p-5 shadow-sm border">
-                <h3 className="font-semibold text-gray-700 mb-4 text-lg">Detalhes Técnicos</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {typeof property.area_terreno !== 'undefined' && (
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <span className="font-medium block text-sm text-gray-500">Área do Terreno</span>
-                      <span className="text-gray-800">{property.area_terreno}</span>
-                    </div>
-                  )}
-                  {property.size && (
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <span className="font-medium block text-sm text-gray-500">Tamanho</span>
-                      <span className="text-gray-800">{property.size}</span>
-                    </div>
-                  )}
-                  {property.garagemtamanho && (
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <span className="font-medium block text-sm text-gray-500">Garagem (m²)</span>
-                      <span className="text-gray-800">{property.garagemtamanho}</span>
-                    </div>
-                  )}
-                  {typeof property.bedrooms !== 'undefined' && (
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <span className="font-medium block text-sm text-gray-500">Quartos</span>
-                      <span className="text-gray-800">{property.bedrooms}</span>
-                    </div>
-                  )}
-                  {typeof property.bathrooms !== 'undefined' && (
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <span className="font-medium block text-sm text-gray-500">Banheiros</span>
-                      <span className="text-gray-800">{property.bathrooms}</span>
-                    </div>
-                  )}
-                  {typeof property.garagens !== 'undefined' && (
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <span className="font-medium block text-sm text-gray-500">Garagens</span>
-                      <span className="text-gray-800">{property.garagens}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <PropertyTabs property={property} />
 
-              {/* Tabs Visão Geral */}
-              <div className="bg-white rounded-xl p-5 shadow-sm border">
-                <Tabs defaultValue="visao-geral" className="w-full">
-                  <TabsList className="grid grid-cols-3 mb-6 bg-gray-100 p-1 rounded-lg">
-                    <TabsTrigger
-                      value="visao-geral"
-                      className="data-[state=active]:bg-white data-[state=active]:text-orange-500 data-[state=active]:shadow-sm rounded-md py-2 transition-all"
-                    >
-                      Visão Geral
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="video"
-                      className="data-[state=active]:bg-white data-[state=active]:text-orange-500 data-[state=active]:shadow-sm rounded-md py-2 transition-all"
-                    >
-                      Vídeo
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="tour"
-                      className="data-[state=active]:bg-white data-[state=active]:text-orange-500 data-[state=active]:shadow-sm rounded-md py-2 transition-all"
-                    >
-                      Passeio Virtual
-                    </TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="visao-geral" className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <h4 className="font-semibold text-gray-700 mb-2">Informações Básicas</h4>
-                        <ul className="space-y-2 text-gray-600">
-                          {property.tipo && (
-                            <li className="flex justify-between py-2 border-b border-gray-100">
-                              <span>Tipo</span>
-                              <span className="font-medium">{property.tipo}</span>
-                            </li>
-                          )}
-                          {typeof property.bedrooms !== 'undefined' && (
-                            <li className="flex justify-between py-2 border-b border-gray-100">
-                              <span>Quartos</span>
-                              <span className="font-medium">{property.bedrooms}</span>
-                            </li>
-                          )}
-                          {typeof property.bathrooms !== 'undefined' && (
-                            <li className="flex justify-between py-2 border-b border-gray-100">
-                              <span>Banheiros</span>
-                              <span className="font-medium">{property.bathrooms}</span>
-                            </li>
-                          )}
-                          {typeof property.garagens !== 'undefined' && (
-                            <li className="flex justify-between py-2 border-b border-gray-100">
-                              <span>Garagens</span>
-                              <span className="font-medium">{property.garagens}</span>
-                            </li>
-                          )}
-                        </ul>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-semibold text-gray-700 mb-2">Detalhes Adicionais</h4>
-                        <ul className="space-y-2 text-gray-600">
-                          {property.anoconstrucao && (
-                            <li className="flex justify-between py-2 border-b border-gray-100">
-                              <span>Ano de Construção</span>
-                              <span className="font-medium">{property.anoconstrucao}</span>
-                            </li>
-                          )}
-                          {property.propertyid && (
-                            <li className="flex justify-between py-2 border-b border-gray-100">
-                              <span>ID do Imóvel</span>
-                              <span className="font-medium">{property.propertyid}</span>
-                            </li>
-                          )}
-                          {property.status && (
-                            <li className="flex justify-between py-2 border-b border-gray-100">
-                              <span>Status</span>
-                              <span className="font-medium capitalize">{property.status}</span>
-                            </li>
-                          )}
-                          {property.price && (
-                            <li className="flex justify-between py-2 border-b border-gray-100">
-                              <span>Preço</span>
-                              <span className="font-medium text-orange-500">
-                                {property.price.toLocaleString(
-                                  property.unidade_preco === "dolar" ? "en-US" : "pt-AO",
-                                  { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-                                )}{" "}
-                                {property.unidade_preco === "kwanza"
-                                  ? "KZ"
-                                  : property.unidade_preco === "dolar"
-                                  ? "USD"
-                                  : property.unidade_preco}
-                              </span>
-                            </li>
-                          )}
-                        </ul>
-                      </div>
-                    </div>
-                    
-                    {/* Características */}
-                    {property.caracteristicas && Array.isArray(property.caracteristicas) && property.caracteristicas.length > 0 && (
-                      <div className="pt-4">
-                        <h4 className="font-semibold text-gray-700 mb-3">Características</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {property.caracteristicas
-                            .filter((c): c is string => typeof c === 'string')
-                            .map((c, i) => (
-                              <span
-                                key={i}
-                                className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-sm font-medium border border-purple-100"
-                              >
-                                {c}
-                              </span>
-                            ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {/* Detalhes Adicionais */}
-                    {property.detalhesadicionais && Array.isArray(property.detalhesadicionais) && property.detalhesadicionais.length > 0 && (
-                      <div className="pt-4">
-                        <h4 className="font-semibold text-gray-700 mb-3">Mais Detalhes</h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {property.detalhesadicionais
-                            .filter(
-                              (d): d is { titulo: string; valor: string } =>
-                                typeof d === 'object' &&
-                                d !== null &&
-                                'titulo' in d &&
-                                'valor' in d
-                            )
-                            .map((d, i) => (
-                              <div key={i} className="bg-gray-50 p-3 rounded-lg">
-                                <span className="font-medium block text-sm text-gray-500">{d.titulo}</span>
-                                <span className="text-gray-800">{d.valor}</span>
-                              </div>
-                            ))}
-                        </div>
-                      </div>
-                    )}
-                  </TabsContent>
-                  
-                  <TabsContent value="video">
-                    <div className="w-full aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
-                      <p className="text-gray-500">Este imóvel não tem vídeo disponível.</p>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="tour">
-                    <div className="w-full aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
-                      <p className="text-gray-500">Este imóvel não tem passeio virtual disponível.</p>
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              </div>
+              <PropertyDescription property={property} />
 
-              {/* Descrição */}
-              <div className="bg-white rounded-xl p-5 shadow-sm border">
-                <h2 className="text-xl font-bold text-gray-800 mb-4">Descrição</h2>
-                <p className="text-gray-600 leading-relaxed">
-                  {property.description || 
-                    (property.status === "para alugar"
-                      ? "Imóvel disponível para arrendamento com excelente localização e infraestrutura. Possui amplos espaços, acabamentos de qualidade e está situado em uma região privilegiada com fácil acesso a comércios, serviços e transporte público."
-                      : "Excelente oportunidade de compra. Ideal para moradia ou investimento. Este imóvel oferece conforto, praticidade e potencial de valorização. Agende uma visita e comprove pessoalmente todas as qualidades deste empreendimento.")}
-                </p>
-              </div>
+              <PropertyLocation property={property} />
 
-              {/* Endereço */}
-              <div className="bg-white rounded-xl p-5 shadow-sm border">
-                <h2 className="text-xl font-bold text-gray-800 mb-4">Localização</h2>
-                <div className="flex items-start gap-2 text-gray-600 mb-4">
-                  <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5 text-orange-500" />
-                  <span className="break-words">{property.endereco}</span>
-                </div>
-                <div className="w-full h-[200px] rounded-lg overflow-hidden">
-                  <iframe
-                    className="w-full h-full"
-                    loading="lazy"
-                    allowFullScreen
-                    referrerPolicy="no-referrer-when-downgrade"
-                    src={`https://www.google.com/maps?q=${encodeURIComponent(
-                      property.endereco ?? ''
-                    )}&output=embed&zoom=15`}
-                  ></iframe>
-                </div>
-              </div>
-
-              {/* Formulário de contato + Agente */}
-              <div className="bg-white rounded-xl p-5 shadow-sm border">
-                <h3 className="text-lg font-semibold mb-4 text-gray-800">
-                  Entre em contato com o corretor
-                </h3>
-                <AgentCardWithChat ownerData={ownerDetails.data} propertyId={property.id} userId={user?.id}/>
-              </div>
+              <PropertyContact property={property} ownerDetails={ownerDetails.data} user={user} />
             </div>
 
             {/* Sidebar */}
             <div className="lg:col-span-1 space-y-6">
               <div className="sticky top-24 space-y-6">
-
-                {/* Imóveis em destaque */}
                 <ImoveisSemelhantes />
                 <CorretoresEmDestaque />
               </div>
             </div>
           </div>
         </div>
+
+        <MobileMenu />
       </div>
     </>
   );
