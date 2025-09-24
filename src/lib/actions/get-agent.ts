@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { TPropertyResponseSchema } from '../types/property';
+import { Agent } from '@/components/top-agent';
 
 export interface PropertyOwner {
   id: string;
@@ -142,3 +143,21 @@ export async function getAgentProperties(userId: string): Promise<TPropertyRespo
     throw new Error('Erro ao buscar propriedades');
   }
 }
+
+export async function getAgents(): Promise<Agent[]> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("role", "agent")
+    .limit(3);
+
+  if (error) {
+    console.error("Erro ao buscar agentes:", error.message);
+    return [];
+  }
+
+  // aqui já devolvemos só a parte certa (array de agentes)
+  return data as Agent[]; 
+}
+
+

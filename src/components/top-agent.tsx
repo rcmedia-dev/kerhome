@@ -1,31 +1,39 @@
 'use client'
 
-import { supabase } from '@/lib/supabase';
-import { useQuery } from '@tanstack/react-query';
 import { VerifiedIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-type Agent = {
+export interface Agent {
   id: string;
-  nome: string;
+  avatar_url?: string | null;
+  created_at: string;
   email: string;
-  telefone: string;
-  pacote_agente: string;
-  propriedades: any[];
-  avatar?: string;
-};
+  empresa?: string | null;
+  facebook?: string | null;
+  instagram?: string | null;
+  last_seen_at?: string | null;
+  licenca?: string | null;
+  linkedin?: string | null;
+  pacote_agente_id?: string | null;
+  primeiro_nome: string;
+  ultimo_nome: string;
+  role: "agent" | "admin" | "user" | string; // pode expandir conforme os roles do sistema
+  sobre_mim?: string | null;
+  status: "active" | "inactive" | "pending" | string; // ajusta conforme o enum no supabase
+  telefone?: string | null;
+  updated_at?: string;
+  username?: string | null;
+  website?: string | null;
+  youtube?: string | null;
+}
 
-export default function TopAgentsSection() {
-  const response = useQuery({
-    queryKey: ['agents'],
-    queryFn: async() => {
-      const response = await supabase.from('profiles').select('*').eq('role', 'agent').limit(3)
-      return response
-    }
-  })
 
-  const agents = response.data;
+type TopAgentsSectionProps = {
+  agents: Agent[]
+}
+
+export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
 
   return (
     <section className="py-16 bg-white">
@@ -34,7 +42,7 @@ export default function TopAgentsSection() {
         <p className="text-gray-500 mb-10">Conheça os profissionais que mais se destacam em vendas.</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {agents?.data?.map((agent) => (
+          {agents.map((agent) => (
             <div
               key={agent.id}
               className="flex flex-col h-full bg-gray-50 rounded-2xl p-6 shadow-md hover:shadow-lg transition"

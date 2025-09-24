@@ -13,14 +13,7 @@ import {
   Home, 
   Building, 
   Newspaper, 
-  Phone,
-  ChevronLeft,
-  Paperclip,
-  Send,
-  Smile,
-  Maximize2,
-  Minimize2,
-  XCircle
+  Phone
 } from 'lucide-react';
 import Link from 'next/link';
 import { AuthDialog } from './login-modal';
@@ -40,53 +33,8 @@ import {
   DropdownMenuSeparator,
 } from './ui/dropdown-menu';
 import { logout } from '@/lib/logout';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getConversations, getMessages, sendMessage, subscribeMessages } from '@/lib/actions/message-action';
 import { supabase } from '@/lib/supabase';
-
-// Tipos para notificações e mensagens
-interface Notification {
-  id: number;
-  title: string;
-  message: string;
-  time: string;
-  read: boolean;
-  type: 'info' | 'warning' | 'success' | 'error';
-}
-
-interface MessageItem {
-  id: number;
-  text: string;
-  time: string;
-  sender: 'user' | 'other';
-}
-
-interface User {
-  id: string;
-  email: string;
-  primeiro_nome: string;
-  role: string;
-}
-
-// Types for Supabase data
-interface SupabaseMessage {
-  id: string;
-  content: string;
-  sender: { id: string; primeiro_nome?: string; ultimo_nome?: string; email: string; avatar_url?: string };
-  created_at: string;
-  conversation_id: string;
-}
-
-interface SupabaseConversation {
-  id: string;
-  property: { id: string; title: string } | null;
-  agent: { id: string; email: string; primeiro_nome: string; ultimo_nome: string; avatar_url?: string } | null;
-  client: { id: string; email: string; primeiro_nome: string; ultimo_nome: string; avatar_url?: string } | null;
-  created_at: string;
-  property_id?: string;
-  agent_id?: string;
-  client_id?: string;
-}
+import DraggableChat from './floating-chat';
 
 // Função para estilização dos links
 const linkClass = (pathname: string, href: string) =>
@@ -95,389 +43,6 @@ const linkClass = (pathname: string, href: string) =>
       ? 'text-purple-700 bg-purple-50 shadow-sm' 
       : 'text-gray-700 hover:text-purple-700 hover:bg-purple-50'
   }`;
-
-// Componente para o chat de mensagens
-function MessageChat({ 
-  conversation, 
-  messages, 
-  onBack, 
-  onSendMessage,
-  isLoading 
-}: { 
-  conversation: SupabaseConversation;
-  messages: SupabaseMessage[];
-  onBack: () => void;
-  onSendMessage: (text: string) => void;
-  isLoading: boolean;
-}) {
-  const [newMessage, setNewMessage] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { user } = useAuth();
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newMessage.trim()) {
-      onSendMessage(newMessage);
-      setNewMessage('');
-    }
-  };
-
-  // Get the other participant's email
-  const otherParticipant = user?.id === conversation.agent?.id 
-    ? conversation.client 
-    : conversation.agent;
-
-  return (
-    <div className="h-full flex flex-col animate-in fade-in-50">
-      <div className="flex items-center gap-3 mb-4 pb-3 border-b border-gray-200">
-        <button 
-          onClick={onBack}
-          className="text-purple-700"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <div className="flex-1">
-          <h3 className="font-semibold">
-            {`${otherParticipant?.primeiro_nome ?? ''} ${otherParticipant?.ultimo_nome ?? ''}`.trim() || 'Unknown'}
-          </h3>
-          <p className="text-xs text-gray-500">Propriedade: {conversation.property?.title || 'No title'}</p>
-        </div>
-      </div>
-      
-      <div className="flex-1 overflow-y-auto space-y-4 mb-4">
-        {isLoading ? (
-          <div className="text-center py-4">Carregando mensagens...</div>
-        ) : messages.length === 0 ? (
-          <div className="text-center py-4 text-gray-500">Nenhuma mensagem ainda</div>
-        ) : (
-          messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex ${msg.sender?.id === user?.id ? 'justify-end' : 'justify-start'}`}
-            >
-              <div
-                className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
-                  msg.sender?.id === user?.id
-                    ? 'bg-purple-600 text-white rounded-br-none'
-                    : 'bg-gray-100 text-gray-800 rounded-bl-none'
-                }`}
-              >
-                <p>{msg.content}</p>
-                <span className={`text-xs block mt-1 ${msg.sender?.id === user?.id ? 'text-purple-200' : 'text-gray-500'}`}>
-                  {new Date(msg.created_at).toLocaleTimeString()}
-                </span>
-              </div>
-            </div>
-          ))
-        )}
-        <div ref={messagesEndRef} />
-      </div>
-      
-      <form onSubmit={handleSubmit} className="flex gap-2">
-        <div className="flex-1 relative">
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Digite sua mensagem..."
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-300 pr-12"
-            disabled={isLoading}
-          />
-          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex gap-1">
-            <button type="button" className="text-gray-400 hover:text-gray-600">
-              <Paperclip className="w-5 h-5" />
-            </button>
-            <button type="button" className="text-gray-400 hover:text-gray-600">
-              <Smile className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-        <button
-          type="submit"
-          className="bg-purple-700 text-white p-2.5 rounded-full hover:bg-purple-800 transition-colors disabled:opacity-50"
-          disabled={isLoading || !newMessage.trim()}
-        >
-          <Send className="w-5 h-5" />
-        </button>
-      </form>
-    </div>
-  );
-}
-
-function FloatingChat({ 
-  userId,
-  isOpen, 
-  onClose,
-}: { 
-  userId: string;
-  isOpen: boolean; 
-  onClose: () => void;
-}) {
-  const [selectedConversation, setSelectedConversation] = useState<SupabaseConversation | null>(null);
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const chatRef = useRef<HTMLDivElement>(null);
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
-
-  // Fetch conversations
-  const { data: conversations, isLoading: conversationsLoading } = useQuery({
-    queryKey: ['conversations', userId],
-    queryFn: () => getConversations(userId),
-    enabled: isOpen && !!userId,
-  });
-
-  // Fetch messages for selected conversation
-  const { data: messages, isLoading: messagesLoading } = useQuery({
-    queryKey: ['messages', selectedConversation?.id],
-    queryFn: () => getMessages(selectedConversation!.id),
-    enabled: isOpen && !!selectedConversation,
-  });
-
-  // Send message mutation
-  const sendMessageMutation = useMutation({
-    mutationFn: ({ conversationId, content }: { conversationId: string; content: string }) =>
-      sendMessage(conversationId, userId, content),
-    onMutate: async ({ conversationId, content }) => {
-      // Cancelar queries atuais para evitar conflitos
-      await queryClient.cancelQueries({ queryKey: ['messages', conversationId] });
-
-      // Salvar o estado anterior para rollback em caso de erro
-      const previousMessages = queryClient.getQueryData(['messages', conversationId]);
-
-      // Otimistic update - adicionar a mensagem imediatamente à UI
-      queryClient.setQueryData(['messages', conversationId], (old: SupabaseMessage[] | undefined) => {
-        const newMessage: SupabaseMessage = {
-          id: `temp-${Date.now()}`,
-          content,
-          sender: {
-            id: userId,
-            primeiro_nome: user?.primeiro_nome,
-            ultimo_nome: user?.ultimo_nome,
-            email: user?.email || '',
-            avatar_url: user?.avatar_url || undefined
-          },
-          created_at: new Date().toISOString(),
-          conversation_id: conversationId
-        };
-        
-        return old ? [...old, newMessage] : [newMessage];
-      });
-
-      return { previousMessages };
-    },
-    onError: (err, variables, context) => {
-      // Reverter para o estado anterior em caso de erro
-      if (context?.previousMessages) {
-        queryClient.setQueryData(['messages', variables.conversationId], context.previousMessages);
-      }
-    },
-    onSettled: () => {
-      // Invalidar a query para garantir que os dados estão atualizados
-      queryClient.invalidateQueries({ queryKey: ['messages', selectedConversation?.id] });
-    },
-  });
-
-  // Subscribe to real-time messages - CORRIGIDO
-  useEffect(() => {
-    if (!selectedConversation?.id || !userId) return;
-
-    const subscription = subscribeMessages(
-      selectedConversation.id, 
-      userId, 
-      (newMessage: any) => {
-        queryClient.setQueryData(['messages', selectedConversation.id], (old: SupabaseMessage[] | undefined) => {
-          // Evitar duplicação de mensagens
-          if (old && old.some(msg => msg.id === newMessage.id)) {
-            return old;
-          }
-          return old ? [...old, newMessage] : [newMessage];
-        });
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [selectedConversation?.id, userId, queryClient]);
-
-  // Posicionar inicialmente no canto inferior direito
-  useEffect(() => {
-    if (isOpen && chatRef.current) {
-      const width = chatRef.current.offsetWidth;
-      const height = chatRef.current.offsetHeight;
-      setPosition({
-        x: window.innerWidth - width - 20,
-        y: window.innerHeight - height - 20
-      });
-    }
-  }, [isOpen]);
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (chatRef.current && !isMinimized) {
-      setIsDragging(true);
-      const rect = chatRef.current.getBoundingClientRect();
-      setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
-      });
-    }
-  };
-
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (isDragging && chatRef.current && !isMinimized) {
-      const newX = e.clientX - dragOffset.x;
-      const newY = e.clientY - dragOffset.y;
-      
-      // Limitar ao viewport
-      const maxX = window.innerWidth - chatRef.current.offsetWidth;
-      const maxY = window.innerHeight - chatRef.current.offsetHeight;
-      
-      setPosition({
-        x: Math.max(0, Math.min(newX, maxX)),
-        y: Math.max(0, Math.min(newY, maxY))
-      });
-    }
-  }, [isDragging, dragOffset, isMinimized]);
-
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-  }, []);
-
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [isDragging, handleMouseMove, handleMouseUp]);
-
-  const handleConversationClick = (conversation: SupabaseConversation) => {
-    setSelectedConversation(conversation);
-  };
-
-  const handleBack = () => {
-    setSelectedConversation(null);
-  };
-
-  const handleSendMessage = (content: string) => {
-    if (selectedConversation) {
-      sendMessageMutation.mutate({
-        conversationId: selectedConversation.id,
-        content
-      });
-    }
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <div
-      ref={chatRef}
-      className={`fixed z-50 shadow-2xl rounded-2xl overflow-hidden border border-gray-200 bg-white flex flex-col ${
-        isMinimized ? 'w-96 h-14' : 'w-96 h-[32rem]'
-      } ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-      style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        transition: isDragging ? 'none' : 'all 0.3s ease'
-      }}
-      onMouseDown={handleMouseDown}
-    >
-      {/* Cabeçalho arrastável */}
-      <div className="bg-purple-700 text-white p-3 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <MessageSquare className="w-5 h-5" />
-          <span className="font-semibold">
-            {selectedConversation ? 'Conversa' : 'Mensagens'}
-          </span>
-          {conversations && conversations.length > 0 && (
-            <span className="bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-              {conversations.length}
-            </span>
-          )}
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setIsMinimized(!isMinimized)}
-            className="text-white hover:bg-purple-600 rounded-full p-1 transition-colors"
-          >
-            {isMinimized ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
-          </button>
-          <button
-            onClick={onClose}
-            className="text-white hover:bg-purple-600 rounded-full p-1 transition-colors"
-          >
-            <XCircle className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-
-      {!isMinimized && (
-        <div className="flex-1 overflow-hidden">
-          {!selectedConversation ? (
-            <div className="p-3 h-full overflow-y-auto">
-              {conversationsLoading ? (
-                <div className="text-center py-4">Carregando conversas...</div>
-              ) : conversations && conversations.length > 0 ? (
-                <div className="space-y-2">
-                  {conversations.map((conversation: SupabaseConversation) => (
-                    <div 
-                      key={conversation.id} 
-                      className="p-3 rounded-lg border cursor-pointer transition-all hover:shadow-sm bg-gray-50 border-gray-100"
-                      onClick={() => handleConversationClick(conversation)}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="font-medium text-gray-700">
-                          {conversation.property?.title || 'Sem titulo'}
-                        </div>
-                        <span className="text-xs text-gray-500">
-                          {new Date(conversation.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Com: {user?.id === conversation.agent?.id 
-                          ? `${conversation.client?.primeiro_nome ?? ''} ${conversation.client?.ultimo_nome ?? ''}`.trim() || 'Unknown' 
-                          : `${conversation.agent?.primeiro_nome ?? ''} ${conversation.agent?.ultimo_nome ?? ''}`.trim() || 'Unknown'}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-4 text-gray-500">
-                  Nenhuma conversa encontrada
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="p-3 h-full flex flex-col">
-              <MessageChat 
-                conversation={selectedConversation}
-                messages={messages || []}
-                onBack={handleBack}
-                onSendMessage={handleSendMessage}
-                isLoading={messagesLoading}
-              />
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
 
 // Componente para o dropdown do usuário
 function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: boolean }) {
@@ -623,15 +188,13 @@ interface AuthDialogRef {
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [floatingChatOpen, setFloatingChatOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const { user } = useAuth();
   const pathname = usePathname();
-  const router = useRouter();
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const authDialogRef = useRef<AuthDialogRef>(null);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [isAnimating, setIsAnimating] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
   const handleScroll = useCallback(() => {
@@ -656,11 +219,10 @@ export default function Header() {
     };
   }, [handleScroll]);
 
-  // Efeito para subscrever mensagens em tempo real - CORRIGIDO
+  // Efeito para subscrever mensagens em tempo real
   useEffect(() => {
     if (!user) return;
 
-    // Criar um canal para todas as conversas do usuário
     const channel = supabase
       .channel('global-messages')
       .on(
@@ -673,11 +235,7 @@ export default function Header() {
         async (payload) => {
           const newMessage = payload.new;
           
-          // Verificar se a mensagem é para uma conversa do usuário atual
-          // e não foi enviada por ele
           if (newMessage.sender_id !== user.id) {
-            // Aqui você precisaria verificar se a conversa pertence ao usuário
-            // Isso requer uma consulta adicional ou lógica mais complexa
             setUnreadCount(prev => prev + 1);
           }
         }
@@ -695,21 +253,6 @@ export default function Header() {
       e.preventDefault();
       authDialogRef.current?.open();
     }
-  };
-
-  // Função para abrir o chat flutuante
-  const handleFloatingChatClick = () => {
-    if (!user) {
-      authDialogRef.current?.open();
-      return;
-    }
-
-    setIsAnimating(true);
-    setFloatingChatOpen(true);
-    setUnreadCount(0); // resetar contador ao abrir
-    
-    // Reset da animação após um tempo
-    setTimeout(() => setIsAnimating(false), 1000);
   };
 
   const navLinks = [
@@ -749,18 +292,18 @@ export default function Header() {
 
         {/* Ações do usuário - Desktop */}
         <div className="hidden md:flex items-center gap-2">
-          {/* Botão combinado de notificações/mensagens com animação "insana" - SÓ APARECE QUANDO LOGADO */}
+          {/* Botão de mensagens */}
           {user && (
             <button
-              onClick={handleFloatingChatClick}
-              className={`relative flex items-center p-2.5 rounded-xl bg-white border border-purple-200 text-purple-700 hover:bg-purple-50 transition-all duration-300 ${
-                isAnimating ? 'animate-spin animate-pulse animate-bounce' : ''
-              }`}
+              onClick={() => {
+                setIsChatOpen(true);
+                setUnreadCount(0);
+              }}
+              className="relative flex items-center p-2.5 rounded-xl bg-white border border-purple-200 text-purple-700 hover:bg-purple-50 transition-all duration-300"
               aria-label="Mensagens"
             >
               <MessageSquare className="w-5 h-5" />
               
-              {/* Badge de mensagens não lidas */}
               {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                   {unreadCount}
@@ -829,21 +372,22 @@ export default function Header() {
           </ul>
           
           <div className="flex flex-col gap-3 pt-2 border-t border-gray-100">
-            {/* Botão combinado de notificações/mensagens para mobile - SÓ APARECE QUANDO LOGADO */}
             {user && (
               <button
                 onClick={() => {
-                  handleFloatingChatClick();
+                  if (!user) {
+                    authDialogRef.current?.open();
+                    return;
+                  }
+                  setIsChatOpen(true);
+                  setUnreadCount(0);
                   setMenuOpen(false);
                 }}
-                className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-purple-200 text-purple-700 hover:bg-purple-50 transition-all ${
-                  isAnimating ? 'animate-spin animate-pulse animate-bounce' : ''
-                }`}
+                className="relative flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-purple-200 text-purple-700 hover:bg-purple-50 transition-all"
               >
                 <MessageSquare className="w-5 h-5" />
                 Mensagens
                 
-                {/* Badge de mensagens não lidas para mobile */}
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                     {unreadCount}
@@ -885,19 +429,16 @@ export default function Header() {
         </nav>
       )}
 
-      {/* Chat flutuante */}
-      {user && (
-        <FloatingChat 
-          userId={user.id}
-          isOpen={floatingChatOpen} 
-          onClose={() => setFloatingChatOpen(false)}
-        />
-      )}
-
       {/* Barra de pesquisa que desaparece ao rolar */}
       <div className={`relative z-30 transition-all duration-300 ${isScrolled ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100 h-auto'}`}>
         <SearchBar />
       </div>
+
+      <DraggableChat 
+        isOpen={isChatOpen} 
+        onClose={() => setIsChatOpen(false)} 
+        userId={user?.id || ""} 
+      />
     </header>
   );
 }

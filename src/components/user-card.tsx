@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/
 import { CanSeeIt } from './can';
 import { Pen, Upload } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import imageCompression from "browser-image-compression";
 
 export interface UserProfile {
   id?: string;
@@ -179,6 +180,8 @@ const SocialLinks = ({ user }: { user: UserProfile }) => {
   );
 };
 
+
+
 export function UserCard({ user, displayName, stats, onAvatarUpdate }: UserCardProps) {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -194,53 +197,57 @@ export function UserCard({ user, displayName, stats, onAvatarUpdate }: UserCardP
     const file = event.target.files?.[0];
     if (!file || !user.id) return;
 
-    if (!file.type.startsWith('image/')) {
-      alert('Por favor, selecione um arquivo de imagem.');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      alert('A imagem deve ter no máximo 5MB.');
+    if (!file.type.startsWith("image/")) {
+      alert("Por favor, selecione um arquivo de imagem.");
       return;
     }
 
     setIsUploading(true);
 
     try {
-      const fileExt = file.name.split('.').pop();
+      // 🔹 Opções de compressão
+      const options = {
+        maxSizeMB: 2, // máximo ~2MB
+        maxWidthOrHeight: 1024, // redimensiona se for muito grande
+        useWebWorker: true,
+      };
+
+      // 🔹 Comprimir a imagem antes do upload
+      const compressedFile = await imageCompression(file, options);
+
+      const fileExt = compressedFile.name.split(".").pop();
       const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       const filePath = `avatars/${fileName}`;
 
-      // Upload sem progresso (o Supabase não suporta onUploadProgress)
+      // Upload para Supabase
       const { error: uploadError } = await supabase.storage
-        .from('user-avatars')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: true
+        .from("user-avatars")
+        .upload(filePath, compressedFile, {
+          cacheControl: "3600",
+          upsert: true,
         });
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
-        .from('user-avatars')
+        .from("user-avatars")
         .getPublicUrl(filePath);
 
       const { error: updateError } = await supabase
-        .from('profiles')
+        .from("profiles")
         .update({ avatar_url: publicUrl })
-        .eq('id', user.id);
+        .eq("id", user.id);
 
       if (updateError) throw updateError;
 
       onAvatarUpdate?.(publicUrl);
-
     } catch (error) {
-      console.error('Erro ao fazer upload:', error);
-      alert('Erro ao fazer upload da imagem. Tente novamente.');
+      console.error("Erro ao fazer upload:", error);
+      alert("Erro ao fazer upload da imagem. Tente novamente.");
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     }
   };
@@ -259,7 +266,7 @@ export function UserCard({ user, displayName, stats, onAvatarUpdate }: UserCardP
           isUploading={isUploading}
           onUploadClick={handleAvatarClick}
         />
-        
+
         <input
           type="file"
           accept="image/*"
@@ -268,12 +275,12 @@ export function UserCard({ user, displayName, stats, onAvatarUpdate }: UserCardP
           ref={fileInputRef}
           disabled={isUploading}
         />
-        
+
         <CardTitle className="text-lg sm:text-xl text-purple-900 mt-4 flex items-center justify-center">
           {displayName}
           <RoleBadge role={user.role} />
         </CardTitle>
-        
+
         <CardDescription className="text-purple-700 text-xs sm:text-base">
           {getProfileDescription()}
         </CardDescription>

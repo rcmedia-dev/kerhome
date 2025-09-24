@@ -2,13 +2,15 @@ import HeroCarousel from '@/components/hero';
 import PropertiesShowcase from '@/components/property-showcase';
 import ActionCardsSection from '@/components/actions-card';
 import FeaturedCarousel from '@/components/featured-houses';
-import TopAgentsSection from '@/components/top-agent';
-import { getLimitedProperties, getProperties } from '@/lib/actions/get-properties';
+import TopAgentsSection, { Agent } from '@/components/top-agent';
+import { getLimitedProperties } from '@/lib/actions/get-properties';
 import { TPropertyResponseSchema } from '@/lib/types/property';
+import { getAgents } from '@/lib/actions/get-agent';
 
 export default async function HomePage() {
-  // Em vez de fetch da API, usar mock direto:
   const properties: TPropertyResponseSchema[] = await getLimitedProperties(3);
+  const agents: Agent[] = await getAgents()
+  console.log({agents})
 
   if (!properties) {
     return (
@@ -24,7 +26,7 @@ export default async function HomePage() {
       <PropertiesShowcase property={properties}/>
       <ActionCardsSection />
       <FeaturedCarousel property={properties} />
-      <TopAgentsSection />
+      <TopAgentsSection agents={agents}/>
     </>
   );
 }
