@@ -5,6 +5,7 @@ import { AuthProvider } from "@/components/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 import "@n8n/chat/style.css";
 import LayoutClient from "@/components/layout-client";
+import LoaderProviders from "./providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,10 +31,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AuthProvider>
+          <LoaderProviders>
           <LayoutClient >
             {children}
             <Toaster richColors position="top-right" />
           </LayoutClient>
+          </LoaderProviders>
         </AuthProvider>
       </body>
     </html>
