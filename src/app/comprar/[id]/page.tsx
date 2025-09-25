@@ -38,13 +38,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       type: "article",
       images: [
         {
-          url: `${siteUrl}/comprar/${property.id}/opengraph-image`,
+          url: property.image,
           width: 1200,
           height: 630,
           alt: property.title,
         },
       ],
-
     },
     twitter: {
       card: "summary_large_image",
