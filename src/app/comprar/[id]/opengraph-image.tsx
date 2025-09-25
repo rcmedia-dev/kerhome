@@ -5,15 +5,13 @@ import { ImageResponse } from 'next/og';
 export const runtime = 'edge';
 
 export default async function Image({ params }: { params: { id: string } }) {
-  // Busca os dados do imóvel
   const post = await getPropertyById(params.id);
 
-  // Escolhe a primeira imagem do imóvel (se existir)
- // Escolhe a primeira imagem do imóvel (se existir)
-const imageUrl =
-  (post?.image as string | undefined) ||
-  "https://via.placeholder.com/1200x630?text=Imóvel";
-
+  // URL absoluta da imagem
+  const imageUrl =
+    (post?.image as string | undefined)?.startsWith("http")
+      ? post?.image
+      : "https://via.placeholder.com/1200x630?text=Imóvel";
 
   return new ImageResponse(
     (
@@ -24,48 +22,50 @@ const imageUrl =
           width: "100%",
           height: "100%",
           backgroundColor: "white",
-          padding: "40px",
-          justifyContent: "center",
-          alignItems: "center",
-          textAlign: "center",
           fontFamily: "sans-serif",
         }}
       >
-        {/* Imagem */}
-        <img
-          src={imageUrl}
-          alt="Imagem do Imóvel"
+        {/* Imagem de capa como background */}
+        <div
           style={{
             width: "100%",
-            height: "60%",
-            objectFit: "cover",
-            borderRadius: "16px",
-            marginBottom: "30px",
+            height: "65%",
+            backgroundImage: `url(${imageUrl})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            borderBottom: "4px solid #eee",
           }}
         />
 
-        {/* Título */}
+        {/* Conteúdo abaixo */}
         <div
           style={{
-            fontSize: 54,
-            fontWeight: "bold",
-            color: "black",
-            marginBottom: "20px",
+            flex: 1,
+            padding: "30px",
+            textAlign: "center",
           }}
         >
-          {post?.title || "Imóvel incrível"}
-        </div>
-
-        {/* Descrição */}
-        <div
-          style={{
-            fontSize: 28,
-            color: "#444",
-            maxWidth: "90%",
-            lineHeight: 1.4,
-          }}
-        >
-          {post?.description || "Confira mais detalhes deste imóvel!"}
+          <h1
+            style={{
+              fontSize: 54,
+              fontWeight: "bold",
+              marginBottom: "20px",
+              color: "black",
+            }}
+          >
+            {post?.title || "Imóvel incrível"}
+          </h1>
+          <p
+            style={{
+              fontSize: 28,
+              color: "#444",
+              lineHeight: 1.4,
+              maxWidth: "90%",
+              margin: "0 auto",
+            }}
+          >
+            {post?.description || "Confira mais detalhes deste imóvel!"}
+          </p>
         </div>
       </div>
     ),
