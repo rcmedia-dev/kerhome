@@ -1,3 +1,5 @@
+'use client'
+
 import { TPropertyResponseSchema } from "@/lib/types/property";
 import { MapPin, BedDouble, Ruler, Tag, Heart } from "lucide-react";
 import { ShareButton } from "./share-button";

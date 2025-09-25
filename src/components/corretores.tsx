@@ -1,3 +1,5 @@
+'use client'
+
 import { getAgents } from "@/lib/actions/supabase-actions/get-agents"
 import { useQuery } from "@tanstack/react-query"
 import Image from "next/image"
