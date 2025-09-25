@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       type: "article",
       images: [
         {
-          url: `${siteUrl}/alugar/${property.id}/opengraph-image`,
+          url: property.image,
           width: 1200,
           height: 630,
           alt: property.title,
