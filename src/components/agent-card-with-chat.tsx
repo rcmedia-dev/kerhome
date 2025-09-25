@@ -136,8 +136,6 @@ export default function AgentCardWithChat({ userId, ownerData, propertyId }: Age
                 p_owner_id: ownerData.id
               });
 
-              console.log('datas for the function:', propertyId, userId, ownerData.id)
-
               if (error) {
                 console.error('Erro ao registrar visualização:', error);
               } else {
@@ -147,8 +145,6 @@ export default function AgentCardWithChat({ userId, ownerData, propertyId }: Age
             } catch (error) {
               console.error('Erro inesperado:', error);
             }
-
-            console.log('clicked');
 
             // abre/fecha o chat
             setShowChat(!showChat);

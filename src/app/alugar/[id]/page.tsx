@@ -20,11 +20,7 @@ const PropertySkeleton = () => {
     <>
       <Head>
         <title>Carregando imóvel...</title>
-        <meta property="og:title" content="Imóvel Incrível" />
-        <meta property="og:description" content="Dê uma olhada neste imóvel incrível!" />
-        <meta property="og:image" content="/placeholder-image.jpg" />
-        <meta property="og:type" content="website" />
-        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="description" content="Carregando detalhes do imóvel" />
       </Head>
       
       <section className="min-h-screen bg-gray-50 text-gray-800 overflow-x-hidden">
@@ -857,15 +853,34 @@ const PropertyContact = ({ property, ownerDetails, user }: {
   ownerDetails: any; 
   user: any;
 }) => {
+  console.log("🔍 PropertyContact props:", {
+    propertyId: property?.id,
+    ownerDetails,
+    userId: user?.id,
+  });
+
+  if (!ownerDetails) {
+    return (
+      <div className="bg-white rounded-xl p-5 shadow-sm border text-gray-500">
+        Nenhum corretor disponível para este imóvel.
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-xl p-5 shadow-sm border">
       <h3 className="text-lg font-semibold mb-4 text-gray-800">
         Entre em contato com o corretor
       </h3>
-      <AgentCardWithChat ownerData={ownerDetails} propertyId={property.id} userId={user?.id}/>
+      <AgentCardWithChat
+        ownerData={ownerDetails}
+        propertyId={property.id}
+        userId={user?.id}
+      />
     </div>
   );
 };
+
 
 // ===== COMPONENTE MOBILE MENU =====
 const MobileMenu = () => {
@@ -910,6 +925,7 @@ const ErrorState = ({ error, onRetry }: { error: string; onRetry: () => void }) 
     <>
       <Head>
         <title>Erro ao carregar imóvel</title>
+        <meta name="description" content="Erro ao carregar detalhes do imóvel" />
       </Head>
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center bg-white p-8 rounded-xl shadow-md max-w-md">
@@ -933,6 +949,7 @@ const NotFoundState = () => {
     <>
       <Head>
         <title>Imóvel não encontrado</title>
+        <meta name="description" content="O imóvel solicitado não foi encontrado" />
       </Head>
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center bg-white p-8 rounded-xl shadow-md max-w-md">
@@ -945,34 +962,23 @@ const NotFoundState = () => {
 };
 
 // ===== COMPONENTE PRINCIPAL =====
-export default function PropertyPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = React.use(params)
-  const [property, setProperty] = useState<TPropertyResponseSchema | null>(null);
+export default function PropertyPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = React.use(params);
+  const [property, setProperty] =
+    useState<TPropertyResponseSchema | null>(null);
+  const [ownerDetails, setOwnerDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
-  const [currentUrl, setCurrentUrl] = useState('');
+  const [currentUrl, setCurrentUrl] = useState("");
 
   useEffect(() => {
     setCurrentUrl(window.location.href);
   }, []);
-
-  const propertyDetails = useQuery({
-    queryKey: ['propertie-data-comprar'],
-    queryFn: async() => {
-      const response = await getPropertyById(id)
-      setProperty(response)
-      return response
-    }
-  })
-
-  const ownerDetails = useQuery({
-    queryKey: ['owner-data-comprar'],
-    queryFn: async() => {
-      const response = await getPropertyOwner(propertyDetails.data?.id)
-      return response
-    }
-  })
 
   useEffect(() => {
     if (!id) return;
@@ -980,8 +986,16 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
     async function fetchData() {
       try {
         setLoading(true);
+
+        // Busca o imóvel
         const prop = await getPropertyById(id);
         setProperty(prop);
+
+        // Busca o dono assim que o imóvel for carregado
+        if (prop?.id) {
+          const owner = await getPropertyOwner(prop.id);
+          setOwnerDetails(owner);
+        }
       } catch (err) {
         console.error("Error fetching property:", err);
         setError("Não foi possível carregar os dados do imóvel.");
@@ -989,7 +1003,7 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
         setLoading(false);
       }
     }
-    
+
     fetchData();
   }, [id]);
 
@@ -998,7 +1012,9 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
   }
 
   if (error) {
-    return <ErrorState error={error} onRetry={() => window.location.reload()} />;
+    return (
+      <ErrorState error={error} onRetry={() => window.location.reload()} />
+    );
   }
 
   if (!property) {
@@ -1008,27 +1024,28 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
   return (
     <>
       <Head>
-        <title>{property.title || "Imóvel Incrível"}</title>
-        <meta name="description" content={property.description || "Dê uma olhada neste imóvel incrível!"} />
-        
-        <meta property="og:title" content={property.title || "Imóvel Incrível"} />
-        <meta property="og:description" content={property.description || "Dê uma olhada neste imóvel incrível!"} />
-        <meta property="og:image" content={property.gallery && property.gallery.length > 0 ? property.gallery[0] : "/placeholder-image.jpg"} />
-        <meta property="og:url" content={currentUrl} />
-        <meta property="og:type" content="website" />
-        
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={property.title || "Imóvel Incrível"} />
-        <meta name="twitter:description" content={property.description || "Dê uma olhada neste imóvel incrível!"} />
-        <meta name="twitter:image" content={property.gallery && property.gallery.length > 0 ? property.gallery[0] : "/placeholder-image.jpg"} />
+        <title>{property?.title || "Imóvel Incrível"}</title>
+        <meta
+          name="description"
+          content={property?.description || "Descrição do imóvel"}
+        />
+        <meta
+          name="keywords"
+          content={`imóvel, ${property?.cidade}, ${property?.tipo}, ${property?.status}`}
+        />
+        <link rel="canonical" href={currentUrl} />
       </Head>
-      
+
       <div className="min-h-screen bg-gray-50 text-gray-800 overflow-x-hidden pb-16 md:pb-0">
         {/* Header com breadcrumb */}
         <div className="bg-white border-b border-gray-200 py-3 px-4">
           <div className="max-w-7xl mx-auto">
             <nav className="text-sm text-gray-500">
-              <span>Início</span> / <span>Imóveis</span> / <span>{property.cidade || 'Cidade'}</span> / <span className="text-gray-800 font-medium">{property.title}</span>
+              <span>Início</span> / <span>Imóveis</span> /{" "}
+              <span>{property.cidade || "Cidade"}</span> /{" "}
+              <span className="text-gray-800 font-medium">
+                {property.title}
+              </span>
             </nav>
           </div>
         </div>
@@ -1041,7 +1058,7 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
             allowFullScreen
             referrerPolicy="no-referrer-when-downgrade"
             src={`https://www.google.com/maps?q=${encodeURIComponent(
-              property.endereco ?? ''
+              property.endereco ?? ""
             )}&output=embed`}
           ></iframe>
         </div>
@@ -1066,7 +1083,11 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
 
               <PropertyLocation property={property} />
 
-              <PropertyContact property={property} ownerDetails={ownerDetails.data} user={user} />
+              <PropertyContact
+                property={property}
+                ownerDetails={ownerDetails}
+                user={user}
+              />
             </div>
 
             {/* Sidebar */}
