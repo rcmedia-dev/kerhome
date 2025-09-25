@@ -1025,15 +1025,26 @@ export default function PropertyPage({
     <>
       <Head>
         <title>{property?.title || "Imóvel Incrível"}</title>
+        <meta name="description" content={property?.description || "Descrição do imóvel"} />
+
+        {/* 🔑 OG Tags para redes sociais */}
+        <meta property="og:title" content={property?.title || "Imóvel Incrível"} />
+        <meta property="og:description" content={property?.description || "Descrição do imóvel"} />
         <meta
-          name="description"
-          content={property?.description || "Descrição do imóvel"}
+          property="og:image"
+          content={`${process.env.NEXT_PUBLIC_SITE_URL}/alugar/${property.id}/opengraph-image`}
         />
+        <meta property="og:url" content={currentUrl} />
+        <meta property="og:type" content="article" />
+
+        {/* Para Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={property?.title || "Imóvel Incrível"} />
+        <meta name="twitter:description" content={property?.description || "Descrição do imóvel"} />
         <meta
-          name="keywords"
-          content={`imóvel, ${property?.cidade}, ${property?.tipo}, ${property?.status}`}
+          name="twitter:image"
+          content={`${process.env.NEXT_PUBLIC_SITE_URL}/alugar/${property.id}/opengraph-image`}
         />
-        <link rel="canonical" href={currentUrl} />
       </Head>
 
       <div className="min-h-screen bg-gray-50 text-gray-800 overflow-x-hidden pb-16 md:pb-0">
