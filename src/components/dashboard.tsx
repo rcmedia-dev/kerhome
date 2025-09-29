@@ -30,7 +30,7 @@ import { PlanoCard } from './plano-card';
 import { getImoveisFavoritos } from '@/lib/actions/get-favorited-imoveis';
 import { getSupabaseUserProperties } from '@/lib/actions/get-properties';
 import { supabase } from '@/lib/supabase';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getUserProfile,
   UserProfile,
@@ -43,79 +43,90 @@ import { getMyPropertiesWithViews } from '@/lib/actions/supabase-actions/get-mos
 import { getUserPlan } from '@/lib/actions/supabase-actions/get-user-package-action';
 import { notificateN8n } from '@/lib/actions/supabase-actions/n8n-notification-request';
 
+// ✅ Tipo ajustado para aceitar null
+type UserProfileOrNull = UserProfile | null;
+
 export default function Dashboard() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('properties');
+  const queryClient = useQueryClient();
 
   const [propertyCount, setPropertyCount] = useState(0);
   const [favoriteCount, setFavoriteCount] = useState(0);
   const [invoiceCount, setInvoiceCount] = useState(0);
   const [viewsCount, setViewsCount] = useState(0);
 
-
+  // ✅ Query do perfil com tipo corrigido
   const {
     data: profile,
     isLoading,
     isError,
-  } = useQuery<UserProfile>({
-    queryKey: ['profiles'],
-    queryFn: async () => {
-      const response = await getUserProfile(user?.id);
-      return response;
+  } = useQuery<UserProfileOrNull>({
+    queryKey: ['profile', user?.id],
+    queryFn: async (): Promise<UserProfileOrNull> => {
+      if (!user?.id) return null;
+      return await getUserProfile(user.id);
     },
-    enabled: !!user?.id, // só executa se houver user.id
+    enabled: !!user?.id,
   });
 
-  //fetching user properties views count
+  // ✅ Query das propriedades do usuário
   const userProperties = useQuery({
-    queryKey: ['user-properties'],
-    queryFn: async() => {
-      const response = await getSupabaseUserProperties(user?.id);
-      setPropertyCount(response.length)
-      return response
-    },
-    enabled: !!user?.id, // só executa se houver user.id
-  })
-
-  //fetching user favorites properties
-  const userFavoriteProperties = useQuery({
-    queryKey: ['favorite-properties'],
-    queryFn: async() => {
-      const response = await getImoveisFavoritos(user?.id);
-      setFavoriteCount(response.length)
+    queryKey: ['user-properties', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const response = await getSupabaseUserProperties(user.id);
+      setPropertyCount(response.length);
       return response;
-    }
-  })
+    },
+    enabled: !!user?.id,
+  });
 
-  //fetching user ivoices
+  // ✅ Query das propriedades favoritas
+  const userFavoriteProperties = useQuery({
+    queryKey: ['favorite-properties', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const response = await getImoveisFavoritos(user.id);
+      setFavoriteCount(response.length);
+      return response;
+    },
+    enabled: !!user?.id,
+  });
+
+  // ✅ Query das faturas
   const userInvoices = useQuery({
-    queryKey: ['user-invoices'],
-    queryFn: async() => {
-      const response = await getFaturas(user!.id)
-      setInvoiceCount(response.length)
-      return response
-    }
-  })
+    queryKey: ['user-invoices', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const response = await getFaturas(user.id);
+      setInvoiceCount(response.length);
+      return response;
+    },
+    enabled: !!user?.id,
+  });
 
-  //fetching most viewed properties
-  const mostViewed = useQuery({
-    queryKey: ['most-viewed'],
-    queryFn: async() => {
-      const response = await getMyPropertiesWithViews(user?.id)
-      setViewsCount(response.total_views_all)
-      return response
-    }
-  })
+  // ✅ Query das propriedades mais visualizadas
+  const mostViewed = useQuery<{ total_views_all: number; properties: any[] }>({
+    queryKey: ['most-viewed', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return { total_views_all: 0, properties: [] };
+      const response = await getMyPropertiesWithViews(user.id);
+      setViewsCount(response.total_views_all);
+      return response;
+    },
+    enabled: !!user?.id,
+  });
 
-  //user plan request
+  // ✅ Query do plano do usuário
   const userPlan = useQuery({
-    queryKey: ['user-plan'],
-    queryFn: async() => {
-      const response = await getUserPlan(user!.id)
-      return response
-    }
-  })
-
+    queryKey: ['user-plan', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      return await getUserPlan(user.id);
+    },
+    enabled: !!user?.id,
+  });
 
   if (!user) return null;
 
@@ -168,9 +179,12 @@ export default function Dashboard() {
               ) : isError ? (
                 <span className="text-red-500 text-sm">Erro ao carregar perfil</span>
               ) : profile?.role === "user" ? (
-                <AgentRequestButton userId={user.id} userName={displayName} />
+                <AgentRequestButton 
+                  userId={user.id} 
+                  userName={displayName} 
+                  queryClient={queryClient}
+                />
               ) : profile?.role === "agent" ? (
-                // Botão de enviar propriedade
                 <Link
                   href="/dashboard/cadastrar-imovel"
                   className="flex justify-center items-center px-3 sm:px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition text-sm md:text-base w-full md:w-auto mt-4 md:mt-0"
@@ -182,7 +196,6 @@ export default function Dashboard() {
                 <span className="text-gray-500 text-sm">Perfil sem role definida</span>
               )}
             </div>
-
           </CardHeader>
         </Card>
 
@@ -273,8 +286,7 @@ export default function Dashboard() {
             </div>
 
             <CanSeeIt>
-              
-              <PlanoCard plan={userPlan.data} />
+              <PlanoCard plan={userPlan.data ?? undefined} />
 
               <Card className="shadow border border-orange-100 mt-4 bg-orange-50/60">
                 <CardHeader>
@@ -312,37 +324,37 @@ export default function Dashboard() {
   );
 }
 
-function AgentRequestButton({ userId, userName }: { userId: string, userName: string }) {
+interface AgentRequestButtonProps {
+  userId: string;
+  userName: string;
+  queryClient: any;
+}
+
+function AgentRequestButton({ userId, userName, queryClient }: AgentRequestButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [hasPendingRequest, setHasPendingRequest] = useState(false);
 
+  // ✅ Query da requisição de agente com tipo explícito
+  const { data: pendingRequest, isLoading: isChecking } = useQuery<{ id: string; status: string } | null>({
+    queryKey: ["agent-request", userId],
+    queryFn: async (): Promise<{ id: string; status: string } | null> => {
+      const { data, error } = await supabase
+        .from("agente_requests")
+        .select("id, status")
+        .eq("user_id", userId)
+        .eq("status", "pending")
+        .maybeSingle();
 
-  //useQuery requests
-  //fetching plan requests 
-  const planRequest = useQuery({
-    queryKey: ['plan-request'],
-    queryFn: async() => {
-      const { data, error } = await supabase.from('plan_requests').select('id, status').eq('user_id', userId).eq('status', 'pending').single() 
-      if (data && !error) {
-        setHasPendingRequest(true);
-      }
-
-      return
-    }
-  })
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const handleBecomeAgent = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("plan_requests")
-        .insert([
-          {
-            user_id: userId,
-            status: "pending",
-            plan_id: null,
-          },
-        ])
+      const { error } = await supabase
+        .from("agente_requests")
+        .insert([{ user_id: userId, status: "pending" }])
         .select()
         .single();
 
@@ -352,12 +364,14 @@ function AgentRequestButton({ userId, userName }: { userId: string, userName: st
         return;
       }
 
-      await notificateN8n("agente_solicitation", {
-        agentName: userName
+      // ✅ Atualiza apenas a query da requisição deste usuário
+      await queryClient.invalidateQueries({ 
+        queryKey: ["agent-request", userId] 
       });
 
+      await notificateN8n("agente_solicitation", { agentName: userName });
+
       alert("Solicitação para se tornar agente enviada com sucesso!");
-      setHasPendingRequest(true);
     } catch (err) {
       console.error(err);
       alert("Erro inesperado ao enviar solicitação");
@@ -366,30 +380,26 @@ function AgentRequestButton({ userId, userName }: { userId: string, userName: st
     }
   };
 
-  if (hasPendingRequest) {
-    return (
-      <button
-        disabled
-        className="flex justify-center items-center px-3 sm:px-4 py-2 bg-gray-500 text-white rounded-lg cursor-not-allowed text-sm md:text-base w-full md:w-auto mt-4 md:mt-0"
-      >
-        <User className="w-4 h-4 mr-2" />
-        Aguardando Aprovação
-      </button>
-    );
-  }
+  const hasPendingRequest = Boolean(pendingRequest);
 
   return (
     <button
       onClick={handleBecomeAgent}
-      disabled={isLoading}
+      disabled={isLoading || isChecking || hasPendingRequest}
       className={`flex justify-center items-center px-3 sm:px-4 py-2 rounded-lg transition text-sm md:text-base w-full md:w-auto mt-4 md:mt-0 ${
-        isLoading
-          ? "bg-blue-400 cursor-wait"
-          : "bg-blue-600 hover:bg-blue-700"
+        isLoading || isChecking || hasPendingRequest
+          ? "bg-purple-400 cursor-not-allowed"
+          : "bg-purple-700 hover:bg-purple-800"
       } text-white`}
     >
       <User className="w-4 h-4 mr-2" />
-      {isLoading ? "Enviando..." : "Tornar-se Agente"}
+      {isLoading
+        ? "Enviando..."
+        : isChecking
+        ? "Verificando..."
+        : hasPendingRequest
+        ? "Aguardando Aprovação"
+        : "Tornar-se Agente"}
     </button>
   );
 }

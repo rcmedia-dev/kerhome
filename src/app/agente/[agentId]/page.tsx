@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Mail, Phone, MapPin, Instagram, Linkedin, MessageCircle } from "lucide-react";
+import { Mail, Phone, MapPin, Instagram, Linkedin, MessageCircle, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import React from 'react';
+import Link from 'next/link';
 
 export default function AgentProfilePage(
   params: { params: Promise<{ agentId: string }> }
@@ -60,9 +61,9 @@ export default function AgentProfilePage(
           <div className="lg:w-1/3">
             <Card className="p-6 shadow-sm border-gray-100 sticky top-6 space-y-6">
               <div className="flex flex-col items-center text-center">
-                {profile?.foto ? (
+                {profile?.avatar_url ? (
                   <Image
-                    src={profile.foto}
+                    src={profile.avatar_url}
                     alt="agent profile picture"
                     width={120}
                     height={120}
@@ -191,21 +192,19 @@ export default function AgentProfilePage(
                           </div>
                         </div>
 
-                        <Button className="text-sm bg-orange-500 hover:bg-orange-600 mt-auto">
-                          Ver detalhes
-                        </Button>
+                        <Link
+                          href={`/${prop.status === "arrendar" ? "alugar" : "comprar"}/${prop.id}`}
+                        >
+                          <Button
+                            className="flex gap-2 text-sm mt-auto text-white bg-orange-500 hover:bg-orange-600">
+                              <Sparkles className="w-4 h-4" />
+                              Ver Detalhes
+                          </Button>
+                        </Link>
                       </CardContent>
                     </Card>
                   ))}
                 </div>
-
-                {agentProperties.data && agentProperties.data.length > 3 && (
-                  <div className="text-center pt-4">
-                    <Button variant="outline">
-                      Ver mais
-                    </Button>
-                  </div>
-                )}
               </div>
             )}
 

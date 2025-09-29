@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 
+// =======================
+// Tipos
+// =======================
 interface PlanoAgente {
   id: string
   nome: string
@@ -46,6 +49,9 @@ interface AuthContextType {
   updateUser: (updates: Partial<UserProfile>) => void
 }
 
+// =======================
+// Contexto
+// =======================
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true,
@@ -54,66 +60,16 @@ const AuthContext = createContext<AuthContextType>({
   updateUser: () => {},
 })
 
+const queryClient = new QueryClient()
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
-  const client = new QueryClient()
-
   const supabase = createClient()
 
-  // 🔑 Pega a sessão atual e escuta mudanças
-  useEffect(() => {
-    let isMounted = true // Para evitar state updates em componentes desmontados
-
-    const initializeAuth = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession()
-
-        if (error) {
-          console.error('Error getting session:', error)
-          if (isMounted) setIsLoading(false)
-          return
-        }
-
-        if (session?.user && isMounted) {
-          await fetchUserProfile(session.user.id)
-        } else if (isMounted) {
-          setIsLoading(false)
-        }
-      } catch (error) {
-        console.error('Error in auth initialization:', error)
-        if (isMounted) setIsLoading(false)
-      }
-    }
-
-    initializeAuth()
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!isMounted) return
-
-        if (session?.user) {
-          await fetchUserProfile(session.user.id)
-        } else {
-          setUser(null)
-          // Não redirecionar automaticamente para a página inicial
-          // Isso causa loops de redirecionamento em páginas públicas
-          // router.push('/')
-        }
-        
-        if (isMounted) setIsLoading(false)
-      }
-    )
-
-    return () => {
-      isMounted = false
-      subscription.unsubscribe()
-    }
-  }, [router])
-
-  // 🔎 Busca perfil completo do utilizador
-  const fetchUserProfile = async (userId: string) => {
+  // 🔎 Busca perfil no banco
+  const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
     try {
       const { data: profile, error } = await supabase
         .from('profiles')
@@ -128,7 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw error || new Error('Profile not found')
       }
 
-      setUser({
+      const formattedUser: UserProfile = {
         id: userId,
         email: profile.email || '',
         primeiro_nome: profile.primeiro_nome || '',
@@ -145,37 +101,90 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         sobre_mim: profile.sobre_mim || null,
         pacote_agente: profile.pacote_agente || null,
         role: profile.role || null,
+        avatar_url: profile.avatar_url || null,
         created_at: profile.created_at,
         updated_at: profile.updated_at,
-      })
+      }
+
+      return formattedUser
     } catch (error) {
-      console.error('Error fetching user profile:', error)
-      // Não fazer logout automático - isso causa o problema de redirecionamento
-      // await supabase.auth.signOut()
-    } finally {
-      setIsLoading(false)
+      console.error('❌ Error fetching user profile:', error)
+      return null
     }
   }
 
-  // ✏️ Atualiza dados do utilizador
+  // 🚀 Inicialização
+  useEffect(() => {
+    let isMounted = true
+
+    const initializeAuth = async () => {
+      try {
+        // 1️⃣ Tenta recuperar do localStorage
+        const cached = localStorage.getItem('user-profile')
+        if (cached && isMounted) {
+          setUser(JSON.parse(cached))
+          setIsLoading(false)
+        }
+
+        // 2️⃣ Pega sessão atual do Supabase
+        const { data: { session } } = await supabase.auth.getSession()
+
+        if (session?.user) {
+          const profile = await fetchUserProfile(session.user.id)
+          if (profile && isMounted) {
+            setUser(profile)
+            localStorage.setItem('user-profile', JSON.stringify(profile))
+          }
+        } else if (isMounted) {
+          setUser(null)
+        }
+      } catch (err) {
+        console.error('❌ Auth init error:', err)
+      } finally {
+        if (isMounted) setIsLoading(false)
+      }
+    }
+
+    initializeAuth()
+
+    // 🔔 Listener para mudanças de auth
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!isMounted) return
+
+      if (session?.user) {
+        const profile = await fetchUserProfile(session.user.id)
+        if (profile) {
+          setUser(profile)
+          localStorage.setItem('user-profile', JSON.stringify(profile))
+        }
+      } else {
+        setUser(null)
+        localStorage.removeItem('user-profile')
+      }
+    })
+
+    return () => {
+      isMounted = false
+      subscription.unsubscribe()
+    }
+  }, [])
+
+  // ✏️ Atualiza perfil no state + banco
   const updateUser = async (updates: Partial<UserProfile>) => {
     if (!user) return
 
     try {
-      setUser({ ...user, ...updates })
+      const updatedUser = { ...user, ...updates }
+      setUser(updatedUser)
+      localStorage.setItem('user-profile', JSON.stringify(updatedUser))
 
       await supabase
         .from('profiles')
-        .update({
-          primeiro_nome: updates.primeiro_nome,
-          ultimo_nome: updates.ultimo_nome,
-          username: updates.username,
-          role: updates.role,
-        })
+        .update(updates)
         .eq('id', user.id)
     } catch (error) {
-      console.error('Error updating user:', error)
-      setUser(user) // Revert changes on error
+      console.error('❌ Error updating user:', error)
+      setUser(user) // rollback
     }
   }
 
@@ -184,14 +193,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await supabase.auth.signOut()
       setUser(null)
+      localStorage.removeItem('user-profile')
       router.push('/')
     } catch (error) {
-      console.error('Sign out error:', error)
+      console.error('❌ Sign out error:', error)
     }
   }
 
   return (
-    <QueryClientProvider client={client}>
+    <QueryClientProvider client={queryClient}>
       <AuthContext.Provider value={{ user, isLoading, signOut, setUser, updateUser }}>
         {children}
       </AuthContext.Provider>

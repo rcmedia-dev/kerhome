@@ -1,25 +1,20 @@
 'use client'
 
 import { ReactNode } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { UserProfile } from "@/lib/actions/supabase-actions/get-user-profile";
+import { useAuth } from "@/components/auth-context";
 
 type CanSeeItProps = {
-    children: ReactNode
+  children: ReactNode;
+  role?: string;
+};
+
+export function CanSeeIt({ children, role = "agent" }: CanSeeItProps) {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) return null;
+  if (!user) return null;
+
+  const hasAccess = user.role === role;
+
+  return hasAccess ? <>{children}</> : null;
 }
-
-export function CanSeeIt({ children }: CanSeeItProps){
-
-    const queryClient = useQueryClient();
-
-    const profile = queryClient.getQueryData<UserProfile>(['profiles'])
-    console.log({profile})
-
-    const isAgent = profile?.role == 'agent'
-    if(isAgent) return children
-
-    return(
-        <></>    
-    )
-}
-
