@@ -8,7 +8,6 @@ import {
   UserCircle, 
   X, 
   MessageSquare, 
-  Bell, 
   Search, 
   Home, 
   Building, 
@@ -35,6 +34,9 @@ import {
 import { logout } from '@/lib/logout';
 import { supabase } from '@/lib/supabase';
 import DraggableChat from './floating-chat';
+import CadastrarImovelButton from './cadastrar-imovel-button';
+import { useQuery } from '@tanstack/react-query';
+import { getUserPlan } from '@/lib/actions/supabase-actions/get-user-package-action';
 
 // Função para estilização dos links
 const linkClass = (pathname: string, href: string) =>
@@ -50,10 +52,10 @@ function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: bo
   const { setUser } = useAuth();
 
   const handleDashboardClick = () => {
-    if (user?.role === 'admin') {
-      router.push('/admin/dashboard');
+    if (user?.role === "admin") {
+      router.push("/admin/dashboard");
     } else {
-      router.push('/dashboard');
+      router.push("/dashboard");
     }
   };
 
@@ -62,7 +64,7 @@ function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: bo
       logout();
     } catch (e) {}
     setUser(null);
-    router.push('/');
+    router.push("/");
     router.refresh();
   };
 
@@ -72,46 +74,71 @@ function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: bo
         <button
           aria-label="Menu do usuário"
           aria-haspopup="true"
-          className={`${mobile ? 'w-full justify-center' : ''} flex items-center px-4 py-2.5 border border-purple-200 text-purple-700 bg-white hover:bg-purple-50 text-sm font-medium rounded-xl transition-all duration-200 gap-2 outline-none focus:ring-2 focus:ring-purple-300 cursor-pointer`}
+          className={`${mobile ? "w-full justify-center" : ""} 
+            flex items-center px-4 py-2.5 
+            border border-purple-200 
+            text-purple-700 bg-white 
+            hover:bg-purple-700 hover:text-white 
+            text-sm font-medium 
+            rounded-2xl shadow-sm 
+            transition-all duration-300 
+            gap-2 outline-none 
+            focus:ring-2 focus:ring-purple-400`}
         >
           <UserCircle className="w-5 h-5" />
-          <span className="hidden sm:inline">Minha Conta</span>
+          <span className="hidden sm:inline font-semibold">Minha Conta</span>
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent 
-        align="end" 
-        className="w-56 rounded-xl shadow-lg border border-gray-100 bg-white p-2 mt-1 animate-in fade-in-80"
+      <DropdownMenuContent
+        align="end"
+        className="w-64 rounded-2xl shadow-xl border border-gray-100 bg-white p-2 mt-2 animate-in fade-in-80 slide-in-from-top-2"
       >
-        <div className="px-3 py-2 border-b border-gray-100 mb-1 flex items-center gap-3">
-          <div className="flex items-center justify-center w-9 h-9 rounded-full bg-purple-100">
-            <UserCircle className="w-5 h-5 text-purple-700" />
+        {/* Cabeçalho do usuário */}
+        <div className="px-4 py-3 border-b border-gray-100 mb-2 flex items-center gap-3">
+          <div className="flex items-center justify-center w-11 h-11 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 shadow-md">
+            <UserCircle className="w-6 h-6 text-white" />
           </div>
           <div>
-            <div className="font-semibold text-gray-900 text-sm">{user?.primeiro_nome || 'Usuário'}</div>
+            <div className="font-semibold text-gray-900 text-sm truncate">
+              {user?.primeiro_nome || "Usuário"}
+            </div>
             <div className="text-xs text-gray-500 truncate">{user?.email}</div>
           </div>
         </div>
-        
-        <DropdownMenuItem 
-          onClick={handleDashboardClick} 
-          className="rounded-lg px-3 py-2.5 text-gray-700 hover:bg-purple-50 hover:text-purple-700 font-medium cursor-pointer text-sm"
+
+        {/* Dashboard */}
+        <DropdownMenuItem
+          onClick={handleDashboardClick}
+          className="rounded-lg px-3 py-2.5 
+            text-gray-700 font-medium text-sm 
+            flex items-center gap-2 
+            transition-colors cursor-pointer
+            hover:bg-purple-50 hover:text-purple-700"
         >
+          <span className="w-2 h-2 rounded-full bg-purple-500"></span>
           Dashboard
         </DropdownMenuItem>
-        
-        <DropdownMenuSeparator className="my-1" />
-        
-        <DropdownMenuItem 
-          onClick={handleLogout} 
-          className="rounded-lg px-3 py-2.5 text-red-600 hover:bg-red-50 font-medium cursor-pointer text-sm"
+
+        <DropdownMenuSeparator className="my-2" />
+
+        {/* Sair */}
+        <DropdownMenuItem
+          onClick={handleLogout}
+          className="rounded-lg px-3 py-2.5 
+            text-red-600 font-medium text-sm 
+            flex items-center gap-2 
+            transition-colors cursor-pointer
+            hover:bg-red-50"
         >
+          <span className="w-2 h-2 rounded-full bg-red-500"></span>
           Sair
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
+
 
 // Componente para a barra de pesquisa
 function SearchBar() {
@@ -219,6 +246,11 @@ export default function Header() {
     };
   }, [handleScroll]);
 
+  const userPlanData = useQuery({
+    queryKey: ['imoveis-limite'],
+    queryFn: () => getUserPlan(user?.id)
+  })
+
   // Efeito para subscrever mensagens em tempo real
   useEffect(() => {
     if (!user) return;
@@ -312,15 +344,11 @@ export default function Header() {
             </button>
           )}
           
-          <Link href="/dashboard/cadastrar-imovel">
-            <button
-              className="px-4 py-2.5 bg-purple-700 hover:bg-purple-800 text-sm font-medium text-white rounded-xl border border-purple-700 transition-all duration-200 shadow-sm"
-              onClick={handleCadastrarImovelClick}
-              aria-label="Cadastrar imóvel"
-            >
-              Cadastrar Imóvel
-            </button>
-          </Link>
+          <CadastrarImovelButton
+            user={user}
+            authDialogRef={authDialogRef}
+            userPlan={userPlanData.data || null}
+          />
           
           {user ? (
             <UserDropdown user={user} />

@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import "@n8n/chat/style.css";
 import LayoutClient from "@/components/layout-client";
 import LoaderProviders from "./providers";
+import { MobileMenu } from "@/components/mobile-menu";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,7 +21,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Kercasa - Seu lar, começa aqui",
   icons: {
-    icon: "/favicon.ico", // caminho relativo à pasta /public
+    icon: "/favicon.ico",
   },
 };
 
@@ -28,14 +29,17 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="pt">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AuthProvider>
           <LoaderProviders>
-          <LayoutClient >
-            {children}
-            <Toaster richColors position="top-right" />
-          </LayoutClient>
+            <LayoutClient>
+              <main className="pb-14"> {/* 👈 dá espaço pro menu fixo */}
+                {children}
+              </main>
+              <Toaster richColors position="top-right" />
+              <MobileMenu /> {/* 👈 aqui o menu aparece em todas as páginas */}
+            </LayoutClient>
           </LoaderProviders>
         </AuthProvider>
       </body>

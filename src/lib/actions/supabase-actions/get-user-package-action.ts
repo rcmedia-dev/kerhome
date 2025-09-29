@@ -13,7 +13,7 @@ interface UserPlan {
   pacote_agente_id: string;
 }
 
-export async function getUserPlan(userId: string): Promise<UserPlan> {
+export async function getUserPlan(userId?: string): Promise<UserPlan> {
   noStore();
 
   if (!userId) {

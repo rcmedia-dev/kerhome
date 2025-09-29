@@ -10,7 +10,6 @@ import { PropertyTabs } from "../components/property-tabs";
 import { PropertyDescription } from "../components/property-description";
 import { PropertyLocation } from "../components/property-location";
 import { PropertyContact } from "../components/property-contact";
-import { MobileMenu } from "../components/mobile-menu";
 import { NotFoundState } from "../components/not-found";
 
 // 🔑 METADATA DINÂMICA - CORRIGIDO
@@ -120,8 +119,6 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
           </div>
         </div>
       </div>
-
-      <MobileMenu />
     </div>
   );
 }

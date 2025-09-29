@@ -141,7 +141,7 @@ export const faturaSchema = z.object({
   id: z.string(),
   servico: z.string(),
   valor: z.number(),
-  status: z.enum(['pago', 'pendente']),
+  status: z.string(),
   created_at: z.string()
 });
 

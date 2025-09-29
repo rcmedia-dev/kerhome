@@ -17,7 +17,6 @@ export default function LayoutClient({
     <>
       {!isDashboardPage && <Header />}
       {children}
-      {!isDashboardPage && <N8nChat />} {/* aqui substitui */}
       {!isDashboardPage && <Footer />}
     </>
   );

@@ -29,7 +29,6 @@ import { ConfiguracoesConta } from './account-setting';
 import { PlanoCard } from './plano-card';
 import { getImoveisFavoritos } from '@/lib/actions/get-favorited-imoveis';
 import { getSupabaseUserProperties } from '@/lib/actions/get-properties';
-import { supabase } from '@/lib/supabase';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getUserProfile,
@@ -42,6 +41,8 @@ import { getFaturas } from '@/lib/actions/supabase-actions/user-bills-action';
 import { getMyPropertiesWithViews } from '@/lib/actions/supabase-actions/get-most-seen-propeties';
 import { getUserPlan } from '@/lib/actions/supabase-actions/get-user-package-action';
 import { notificateN8n } from '@/lib/actions/supabase-actions/n8n-notification-request';
+import { supabase } from '@/lib/supabase';
+import { UserAction } from './user-action';
 
 // ✅ Tipo ajustado para aceitar null
 type UserProfileOrNull = UserProfile | null;
@@ -174,27 +175,15 @@ export default function Dashboard() {
             </div>
 
             <div>
-              {isLoading ? (
-                <span className="text-gray-500 text-sm">Carregando...</span>
-              ) : isError ? (
-                <span className="text-red-500 text-sm">Erro ao carregar perfil</span>
-              ) : profile?.role === "user" ? (
-                <AgentRequestButton 
-                  userId={user.id} 
-                  userName={displayName} 
-                  queryClient={queryClient}
-                />
-              ) : profile?.role === "agent" ? (
-                <Link
-                  href="/dashboard/cadastrar-imovel"
-                  className="flex justify-center items-center px-3 sm:px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition text-sm md:text-base w-full md:w-auto mt-4 md:mt-0"
-                >
-                  <Upload className="w-4 h-4 mr-2" />
-                  Enviar Propriedade
-                </Link>
-              ) : (
-                <span className="text-gray-500 text-sm">Perfil sem role definida</span>
-              )}
+              <UserAction 
+                isLoading={isLoading}
+                isError={isError}
+                profile={profile}
+                user={user}
+                displayName={displayName}
+                queryClient={queryClient}
+                housesRemaining={userPlan.data?.restante ?? 0}
+              />
             </div>
           </CardHeader>
         </Card>
@@ -330,7 +319,7 @@ interface AgentRequestButtonProps {
   queryClient: any;
 }
 
-function AgentRequestButton({ userId, userName, queryClient }: AgentRequestButtonProps) {
+export function AgentRequestButton({ userId, userName, queryClient }: AgentRequestButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   // ✅ Query da requisição de agente com tipo explícito

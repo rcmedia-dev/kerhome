@@ -130,7 +130,7 @@ export default function FeaturedCarousel({ property }: FeaturedCarouselProps) {
                     <div className="group relative h-[450px] rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500">
                       {/* Imagem com overlay gradiente */}
                       <Image
-                        src={property.gallery[0]}
+                        src={property.gallery[0]}  
                         fill
                         alt={property.title}
                         className="object-cover group-hover:scale-110 transition-transform duration-700"

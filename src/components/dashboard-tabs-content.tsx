@@ -80,6 +80,17 @@ type FaturasProps = {
 }
 
 export function Faturas({ invoices }: FaturasProps) {
+  function toPascalCase(text: string) {
+    return text
+      .toLowerCase()                         
+      .split(/[\s_-]+/)
+      .map(word =>                        
+        word.charAt(0).toUpperCase() +    
+        word.slice(1)                  
+      )
+      .join(" ");                            
+  }
+
   const hasInvoices = invoices && invoices.length > 0;
 
   return (
@@ -102,21 +113,15 @@ export function Faturas({ invoices }: FaturasProps) {
             <tbody>
               {invoices!.map((fatura) => (
                 <tr key={fatura.id} className="border-b hover:bg-gray-50">
-                  <td className="p-2">{fatura.servico}</td>
+                  <td className="p-2 capitalize">{toPascalCase(fatura.servico)}</td>
                   <td className="p-2">
                     {fatura.valor.toLocaleString("pt-AO")} Kz
                   </td>
                   <td className="p-2 capitalize">
-                    {fatura.status === "pago" ? (
                       <span className="text-green-600 font-medium flex items-center gap-1">
                         <CheckCircle2 className="w-4 h-4" />
                         Pago
                       </span>
-                    ) : (
-                      <span className="text-yellow-600 font-medium">
-                        Pendente
-                      </span>
-                    )}
                   </td>
                   <td className="p-2">
                     {new Date(fatura.created_at).toLocaleDateString("pt-AO")}

@@ -50,13 +50,7 @@ Como posso ajudar você hoje? Você está procurando comprar, vender ou alugar u
   return (
     <div
       id="n8n-chat"
-      style={{
-        position: "fixed",
-        bottom: "20px",
-        right: "20px",
-        zIndex: 9999,
-        maxWidth: "360px",
-      }}
+      className="fixed right-5 bottom-20 z-[9999] max-w-[360px]"
     />
   );
 }

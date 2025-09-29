@@ -75,10 +75,10 @@ export async function approvePlanRequest(
         pacote_agente_id: planId,
         updated_at: new Date().toISOString()
       })
-      .eq("id", userId)
+      .eq("id", userId);
 
     if (updateError) {
-      throw new Error("Erro ao atualizar plano do usuário: " + updateError.message)
+      throw new Error("Erro ao atualizar plano do usuário: " + updateError.message);
     }
 
     // Atualiza status da solicitação para aprovado
@@ -88,21 +88,57 @@ export async function approvePlanRequest(
         status: "approved", 
         updated_at: new Date().toISOString() 
       })
-      .eq("id", requestId)
+      .eq("id", requestId);
 
     if (statusError) {
-      throw new Error("Erro ao aprovar solicitação: " + statusError.message)
+      throw new Error("Erro ao aprovar solicitação: " + statusError.message);
     }
 
-    return { success: true, message: "Solicitação aprovada com sucesso!" }
+    // Buscar o plano aprovado
+    const { data: subscribedPlan, error: subscribedPlanError } = await supabase
+      .from("planos_agente")
+      .select("*")
+      .eq("id", planId)
+      .maybeSingle();
+
+    if (subscribedPlanError || !subscribedPlan) {
+      throw new Error("Erro ao buscar plano selecionado: " + subscribedPlanError?.message);
+    }
+
+    // Mapear o preço local para o plano
+    const planPrices: Record<string, number> = {
+      BÁSICO: 99000.0,
+      PROFESSIONAL: 199000.0,
+      SUPER: 499000.0,
+      FREE: 0,
+    };
+
+    const valor = planPrices[subscribedPlan.nome] ?? 0;
+
+    // Criar fatura
+    const { error: createFaturaErro } = await supabase
+      .from("faturas")
+      .insert({
+        user_id: userId,
+        valor,
+        status: "Pago",
+        servico: `PLANO ${subscribedPlan.nome}`,
+      });
+
+    if (createFaturaErro) {
+      throw new Error("Erro ao criar fatura: " + createFaturaErro.message);
+    }
+
+    return { success: true, message: "Solicitação aprovada com sucesso!" };
   } catch (error) {
-    console.error("Erro ao aprovar solicitação:", error)
+    console.error("Erro ao aprovar solicitação:", error);
     return {
       success: false,
       message: error instanceof Error ? error.message : "Erro desconhecido",
-    }
+    };
   }
 }
+
 
 // Rejeita uma solicitação de plano
 export async function rejectPlanRequest(requestId: string) {
