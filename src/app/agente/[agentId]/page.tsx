@@ -193,7 +193,7 @@ export default function AgentProfilePage(
                         </div>
 
                         <Link
-                          href={`/${prop.status === "arrendar" ? "alugar" : "comprar"}/${prop.id}`}
+                          href={`/propriedades/${prop.id}`}
                         >
                           <Button
                             className="flex gap-2 text-sm mt-auto text-white bg-orange-500 hover:bg-orange-600">
