@@ -32,8 +32,8 @@ export default function Footer() {
           <h4 className="text-lg font-semibold text-white mb-4">Navegação</h4>
           <ul className="space-y-2 text-sm">
             <li><Link href="/" className="hover:text-white">Início</Link></li>
-            <li><Link href="/comprar" className="hover:text-white">Comprar</Link></li>
-            <li><Link href="/alugar" className="hover:text-white">Arrendar</Link></li>
+            <li><Link href="/propriedades" className="hover:text-white">Propriedades</Link></li>
+            <li><Link href="/noticias" className="hover:text-white">Noticias</Link></li>
             <li><Link href="/contato" className="hover:text-white">Contato</Link></li>
           </ul>
         </div>

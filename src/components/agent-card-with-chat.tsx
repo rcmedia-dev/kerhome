@@ -115,7 +115,7 @@ export default function AgentCardWithChat({ userId, ownerData, propertyId }: Age
       {/* Ações */}
       <div className="px-6 pb-4 flex flex-col gap-3">
         <Link
-          href={`/agente?email=${encodeURIComponent(ownerData.email)}`}
+          href={`/agente/${ownerData.id}`}
           className="w-full bg-purple-100 text-purple-700 py-2 px-4 rounded-lg font-semibold hover:bg-purple-200 transition flex items-center justify-center gap-2"
         >
           <Share2 size={16} />

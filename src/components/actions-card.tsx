@@ -2,12 +2,12 @@
 
 import { BadgeDollarSign, HandCoins, KeyRound, ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { useAuth } from "@/components/auth-context";
 import { useRef, useState } from "react";
 import { AuthDialog } from "./login-modal";
+import { useUserStore } from "@/lib/store/user-store";
 
 export default function ActionCardsSection() {
-  const { user } = useAuth();
+  const { user } = useUserStore(); // 🚀 usando a store
   const authDialogRef = useRef<any>(null);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
@@ -28,7 +28,7 @@ export default function ActionCardsSection() {
       gradient: 'from-green-500 to-emerald-600',
       hoverGradient: 'from-green-600 to-emerald-700',
       bgColor: 'bg-gradient-to-br from-green-50 to-emerald-100',
-      href: '/comprar',
+      href: '/propriedades',
     },
     {
       title: 'Arrendar casa',
@@ -38,7 +38,7 @@ export default function ActionCardsSection() {
       gradient: 'from-yellow-500 to-amber-600',
       hoverGradient: 'from-yellow-600 to-amber-700',
       bgColor: 'bg-gradient-to-br from-yellow-50 to-amber-100',
-      href: '/alugar',
+      href: '/propriedades',
     },
     {
       title: 'Vender casa',
@@ -80,9 +80,7 @@ export default function ActionCardsSection() {
             {actions.map((action, index) => (
               <div
                 key={index}
-                className={`relative group cursor-pointer ${
-                  action.special ? 'lg:transform lg:scale-105' : ''
-                }`}
+                className={`relative group cursor-pointer ${action.special ? 'lg:transform lg:scale-105' : ''}`}
                 onMouseEnter={() => setHoveredCard(index)}
                 onMouseLeave={() => setHoveredCard(null)}
               >
@@ -90,9 +88,7 @@ export default function ActionCardsSection() {
                 <div className={`absolute inset-0 bg-gradient-to-r ${action.gradient} rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
                 
                 <div className={`relative rounded-2xl p-8 h-full flex flex-col justify-between transition-all duration-300 ${
-                  hoveredCard === index 
-                    ? 'transform scale-105 shadow-2xl' 
-                    : 'shadow-lg'
+                  hoveredCard === index ? 'transform scale-105 shadow-2xl' : 'shadow-lg'
                 } ${action.bgColor} border border-white/50 backdrop-blur-sm`}>
                   
                   {/* Header do card */}

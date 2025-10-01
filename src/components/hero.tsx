@@ -64,7 +64,7 @@ export default function HeroCarousel( {property}: HeroCarouselProps) {
                   </div>
 
                   <Link
-                    href={`/${property.status === "comprar" ? "comprar" : "alugar"}/${property.id}`}
+                    href={`/propriedades/${property.id}`}
                     className="mt-3 w-full sm:w-auto bg-orange-500 hover:bg-orange-600 px-6 py-2 rounded-lg text-white font-medium transition"
                   >
                     Ver detalhes

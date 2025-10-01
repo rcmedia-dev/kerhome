@@ -75,13 +75,6 @@ export function PropertyHeader ({ property }: { property: TPropertyResponseSchem
             </>
           )}
         </div>
-        
-        <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-orange-500 transition-colors">
-            <Heart size={16} />
-            Favoritar
-          </button>
-        </div>
       </div>
     </div>
   );

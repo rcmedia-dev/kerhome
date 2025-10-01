@@ -27,14 +27,9 @@ export default function ImoveisSemelhantes() {
       </h3>
       <div className="space-y-4">
         {imoveis.map((imovel) => {
-          const destino =
-            imovel.status === 'arrendar'
-              ? `/alugar/${imovel.id}`
-              : `/comprar/${imovel.id}`;
-
           return (
             <Link
-              href={destino}
+              href={`/propriedades/${imovel.id}`}
               key={imovel.id}
               className="block border border-orange-500 rounded-lg overflow-hidden shadow hover:shadow-md transition"
             >

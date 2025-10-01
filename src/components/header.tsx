@@ -30,7 +30,6 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from './ui/dropdown-menu';
-import { logout } from '@/lib/logout';
 import { supabase } from '@/lib/supabase';
 import DraggableChat from './floating-chat';
 import CadastrarImovelButton from './cadastrar-imovel-button';

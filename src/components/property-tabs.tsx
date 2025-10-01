@@ -77,8 +77,11 @@ export function PropertyTabs({ property }: { property: TPropertyResponseSchema }
                 {property.status && (
                   <li className="flex justify-between py-2 border-b border-gray-100">
                     <span>Status</span>
-                    <span className="font-medium capitalize">{property.status}</span>
+                    <span className="font-medium capitalize px-3 py-1 rounded-lg text-white bg-gradient-to-r from-purple-700 to-orange-500 shadow-md">
+                      {property.status}
+                    </span>
                   </li>
+
                 )}
                 {property.price && (
                   <li className="flex justify-between py-2 border-b border-gray-100">
