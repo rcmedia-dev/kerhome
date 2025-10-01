@@ -79,7 +79,7 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
   };
 
   const handleShare = async () => {
-    const url = `${window.location.origin}/${property.status === 'comprar' ? 'comprar' : 'alugar'}/${property.id}`;
+    const url = `${window.location.origin}/propriedades/${property.id}`;
     const shareData = {
       title: property.title,
       text: `Confira este imóvel em ${property.endereco}`,
@@ -222,7 +222,7 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
 
         <div>
           <Link
-            href={`/${property.status === 'comprar' ? 'comprar' : 'alugar'}/${property.id}`}
+            href={`/propriedades/${property.id}`}
             className="flex justify-center cursor-pointer w-full mt-2 bg-purple-700 hover:bg-purple-800 text-white py-2 rounded-lg font-medium transition"
             prefetch={false}
           >

@@ -2,9 +2,9 @@
 
 import React from 'react'
 import Image from 'next/image'
-import { useAuth } from './auth-context'
 import { useRouter } from 'next/navigation'
 import { login } from '@/lib/actions/supabase-actions/login-action'
+import { useUserStore } from '@/lib/store/user-store' // <-- importa zustand
 
 interface Props {
   onSuccess?: () => void
@@ -14,7 +14,7 @@ interface Props {
 export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
   const [error, setError] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(false)
-  const { setUser } = useAuth()
+  const setUser = useUserStore((state) => state.setUser) // <-- pega do zustand
   const router = useRouter()
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -39,7 +39,7 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
   }
 
   const handleLoginSuccess = (userData: any) => {
-    // Salvando usuário no contexto
+    // Salvando usuário no zustand
     setUser({
       id: userData.id,
       email: userData.email || '',
@@ -55,7 +55,7 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
       instagram: userData.instagram || undefined,
       youtube: userData.youtube || undefined,
       sobre_mim: userData.sobre_mim || undefined,
-      role: userData.role || 'user', // <- adicionando role
+      role: userData.role || 'user',
       ...(userData.pacote_agente && {
         pacote_agente: {
           id: userData.pacote_agente.id || '',
@@ -150,6 +150,7 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
   )
 }
 
+// Inputs e botões iguais
 const FormInput = ({ id, name, type, required, label, minLength }: {
   id: string
   name: string

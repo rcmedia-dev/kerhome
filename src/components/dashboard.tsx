@@ -1,6 +1,5 @@
 'use client';
 
-import { useAuth } from './auth-context';
 import {
   BarChart3,
   Eye,
@@ -30,10 +29,6 @@ import { PlanoCard } from './plano-card';
 import { getImoveisFavoritos } from '@/lib/actions/get-favorited-imoveis';
 import { getSupabaseUserProperties } from '@/lib/actions/get-properties';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  getUserProfile,
-  UserProfile,
-} from '@/lib/actions/supabase-actions/get-user-profile';
 import { CanSeeIt } from './can';
 import Link from 'next/link';
 import { UserCard } from './user-card';
@@ -43,12 +38,11 @@ import { getUserPlan } from '@/lib/actions/supabase-actions/get-user-package-act
 import { notificateN8n } from '@/lib/actions/supabase-actions/n8n-notification-request';
 import { supabase } from '@/lib/supabase';
 import { UserAction } from './user-action';
+import { useUserStore } from '@/lib/store/user-store';
 
-// ✅ Tipo ajustado para aceitar null
-type UserProfileOrNull = UserProfile | null;
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, isLoading: userLoading } = useUserStore(); // Usando a user store
   const [activeTab, setActiveTab] = useState('properties');
   const queryClient = useQueryClient();
 
@@ -56,20 +50,6 @@ export default function Dashboard() {
   const [favoriteCount, setFavoriteCount] = useState(0);
   const [invoiceCount, setInvoiceCount] = useState(0);
   const [viewsCount, setViewsCount] = useState(0);
-
-  // ✅ Query do perfil com tipo corrigido
-  const {
-    data: profile,
-    isLoading,
-    isError,
-  } = useQuery<UserProfileOrNull>({
-    queryKey: ['profile', user?.id],
-    queryFn: async (): Promise<UserProfileOrNull> => {
-      if (!user?.id) return null;
-      return await getUserProfile(user.id);
-    },
-    enabled: !!user?.id,
-  });
 
   // ✅ Query das propriedades do usuário
   const userProperties = useQuery({
@@ -129,7 +109,33 @@ export default function Dashboard() {
     enabled: !!user?.id,
   });
 
-  if (!user) return null;
+  // Se ainda está carregando o usuário, mostrar loading
+  if (userLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Carregando dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Usuário não autenticado</p>
+          <Link 
+            href="/login" 
+            className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            Fazer Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const displayName =
     user.primeiro_nome?.trim() || user.email?.split('@')[0] || 'Usuário';
@@ -176,9 +182,9 @@ export default function Dashboard() {
 
             <div>
               <UserAction 
-                isLoading={isLoading}
-                isError={isError}
-                profile={profile}
+                isLoading={userLoading}
+                isError={false} // A user store já trata os erros internamente
+                profile={user} // Agora usamos o user diretamente da store
                 user={user}
                 displayName={displayName}
                 queryClient={queryClient}
@@ -191,15 +197,7 @@ export default function Dashboard() {
         <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6">
           <div className="lg:col-span-4 flex flex-col gap-6 order-1">
             {/* Usando o UserCard componentizado */}
-            {profile ? (
-              <UserCard user={profile} displayName={displayName} stats={stats} />
-            ) : (
-              <Card className="shadow-md p-6 flex items-center justify-center">
-                <span className="text-gray-500 text-sm">
-                  Carregando perfil...
-                </span>
-              </Card>
-            )}
+            <UserCard user={user} displayName={displayName} stats={stats} />
 
             <Card className="shadow-md">
               <CardHeader>
@@ -271,7 +269,7 @@ export default function Dashboard() {
               {activeTab === 'favorites' && <Favoritas userFavoriteProperties={userFavoriteProperties.data ?? []}/>}
               {activeTab === 'invoices' && <Faturas invoices={userInvoices.data ?? []}/>}
               {activeTab === 'views' && <PropriedadesMaisVisualizadas mostViewedProperties={mostViewed.data!}/>}
-              {activeTab === 'settings' && <ConfiguracoesConta profile={profile!}/>}
+              {activeTab === 'settings' && <ConfiguracoesConta profile={user || undefined}/>}
             </div>
 
             <CanSeeIt>
@@ -305,7 +303,7 @@ export default function Dashboard() {
             {activeTab === 'favorites' && <Favoritas userFavoriteProperties={userFavoriteProperties.data ?? []}/>}
             {activeTab === 'invoices' && <Faturas invoices={userInvoices.data ?? []}/>}
             {activeTab === 'views' && <PropriedadesMaisVisualizadas mostViewedProperties={mostViewed.data!}/>}
-            {activeTab === 'settings' && <ConfiguracoesConta profile={profile!}/>}
+            {activeTab === 'settings' && <ConfiguracoesConta profile={user}/>}
           </div>
         </div>
       </div>

@@ -3,14 +3,14 @@ import { getPropertyOwner } from "@/lib/actions/get-agent";
 import { TPropertyResponseSchema } from "@/lib/types/property";
 import ImoveisSemelhantes from "@/components/imoveis-destaque";
 import CorretoresEmDestaque from "@/components/corretores";
-import { PropertyGallery } from "../components/property-gallery";
-import { PropertyHeader } from "../components/property-header";
-import { TechnicalDetails } from "../components/techinical-details";
-import { PropertyTabs } from "../components/property-tabs";
-import { PropertyDescription } from "../components/property-description";
-import { PropertyLocation } from "../components/property-location";
-import { PropertyContact } from "../components/property-contact";
-import { NotFoundState } from "../components/not-found";
+import { NotFoundState } from "@/components/not-found";
+import { PropertyContact } from "@/components/property-contact";
+import { PropertyDescription } from "@/components/property-description";
+import { PropertyGallery } from "@/components/property-gallery";
+import { PropertyHeader } from "@/components/property-header";
+import { PropertyLocation } from "@/components/property-location";
+import { PropertyTabs } from "@/components/property-tabs";
+import { TechnicalDetails } from "@/components/techinical-details";
 
 // 🔑 METADATA DINÂMICA - CORRIGIDO
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     openGraph: {
       title: property.title,
       description: property.description,
-      url: `${siteUrl}/alugar/${property.id}`,
+      url: `${siteUrl}/propriedades/${property.id}`,
       type: "article",
       images: [
         {
@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       card: "summary_large_image",
       title: property.title,
       description: property.description,
-      images: [`${siteUrl}/alugar/${property.id}/opengraph-image`],
+      images: [`${siteUrl}/propriedades/${property.id}/opengraph-image`],
     },
   };
 }

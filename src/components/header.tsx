@@ -1,6 +1,5 @@
 'use client';
 
-import { useAuth, UserProfile } from './auth-context';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { 
@@ -37,6 +36,7 @@ import DraggableChat from './floating-chat';
 import CadastrarImovelButton from './cadastrar-imovel-button';
 import { useQuery } from '@tanstack/react-query';
 import { getUserPlan } from '@/lib/actions/supabase-actions/get-user-package-action';
+import { UserProfile, useUserStore } from '@/lib/store/user-store';
 
 // Função para estilização dos links
 const linkClass = (pathname: string, href: string) =>
@@ -49,7 +49,7 @@ const linkClass = (pathname: string, href: string) =>
 // Componente para o dropdown do usuário
 function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: boolean }) {
   const router = useRouter();
-  const { setUser } = useAuth();
+  const { setUser } = useUserStore(); // Usando a user store
 
   const handleDashboardClick = () => {
     if (user?.role === "admin") {
@@ -59,13 +59,14 @@ function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: bo
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     try {
-      logout();
-    } catch (e) {}
-    setUser(null);
-    router.push("/");
-    router.refresh();
+      await useUserStore.getState().signOut(); // Usando o signOut da store
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   };
 
   return (
@@ -97,13 +98,26 @@ function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: bo
         {/* Cabeçalho do usuário */}
         <div className="px-4 py-3 border-b border-gray-100 mb-2 flex items-center gap-3">
           <div className="flex items-center justify-center w-11 h-11 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 shadow-md">
-            <UserCircle className="w-6 h-6 text-white" />
+            {user?.avatar_url ? (
+              <img 
+                src={user.avatar_url} 
+                alt={`${user.primeiro_nome} ${user.ultimo_nome}`}
+                className="w-full h-full rounded-full object-cover"
+              />
+            ) : (
+              <UserCircle className="w-6 h-6 text-white" />
+            )}
           </div>
           <div>
             <div className="font-semibold text-gray-900 text-sm truncate">
-              {user?.primeiro_nome || "Usuário"}
+              {user?.primeiro_nome || "Usuário"} {user?.ultimo_nome || ""}
             </div>
             <div className="text-xs text-gray-500 truncate">{user?.email}</div>
+            {user?.pacote_agente && (
+              <div className="text-xs text-purple-600 font-medium">
+                {user.pacote_agente.nome}
+              </div>
+            )}
           </div>
         </div>
 
@@ -138,7 +152,6 @@ function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: bo
     </DropdownMenu>
   );
 }
-
 
 // Componente para a barra de pesquisa
 function SearchBar() {
@@ -217,12 +230,14 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { user } = useAuth();
-  const pathname = usePathname();
   const [isChatOpen, setIsChatOpen] = useState(false);
   const authDialogRef = useRef<AuthDialogRef>(null);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const pathname = usePathname();
+
+  // Usando a user store
+  const { user, isLoading, setUser, fetchUserProfile } = useUserStore();
 
   const handleScroll = useCallback(() => {
     if (scrollTimeoutRef.current) {
@@ -246,10 +261,22 @@ export default function Header() {
     };
   }, [handleScroll]);
 
+  // Carregar o perfil do usuário se estiver autenticado
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      if (user?.id) {
+        await fetchUserProfile(user.id);
+      }
+    };
+
+    loadUserProfile();
+  }, [user?.id, fetchUserProfile]);
+
   const userPlanData = useQuery({
-    queryKey: ['imoveis-limite'],
-    queryFn: () => getUserPlan(user?.id)
-  })
+    queryKey: ['imoveis-limite', user?.id],
+    queryFn: () => getUserPlan(user?.id),
+    enabled: !!user?.id // Só executa se o usuário existir
+  });
 
   // Efeito para subscrever mensagens em tempo real
   useEffect(() => {
@@ -289,11 +316,28 @@ export default function Header() {
 
   const navLinks = [
     { id: 'inicio', label: 'ÍNICIO', href: '/', icon: Home },
-    { id: 'alugar', label: 'PARA ALUGAR', href: '/alugar', icon: Building },
-    { id: 'comprar', label: 'PARA COMPRAR', href: '/comprar', icon: Building },
+    { id: 'propriedades', label: 'PROPRIEDADES', href: '/propriedades', icon: Building },
     { id: 'noticias', label: 'NOTÍCIAS', href: '/noticias', icon: Newspaper },
     { id: 'contacto', label: 'CONTACTO', href: '/contato', icon: Phone },
   ];
+
+  // Se ainda está carregando, mostrar um header básico
+  if (isLoading && !user) {
+    return (
+      <header className="sticky top-0 z-40 bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto flex justify-between items-center py-3 px-4 md:px-6">
+          <Link href="/" aria-label="Página inicial" className="flex-shrink-0">
+            <img 
+              src="/kercasa_logo.png" 
+              alt="kerhome logo" 
+              className="w-32 md:w-40 transition-all duration-300" 
+            />
+          </Link>
+          <div className="animate-pulse bg-gray-200 h-10 w-24 rounded-xl"></div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="sticky top-0 z-40 bg-white shadow-sm">
@@ -403,10 +447,6 @@ export default function Header() {
             {user && (
               <button
                 onClick={() => {
-                  if (!user) {
-                    authDialogRef.current?.open();
-                    return;
-                  }
                   setIsChatOpen(true);
                   setUnreadCount(0);
                   setMenuOpen(false);

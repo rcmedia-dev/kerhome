@@ -7,28 +7,10 @@ import { CanSeeIt } from './can';
 import { Pen, Upload } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import imageCompression from "browser-image-compression";
+import { PlanoAgente } from '@/lib/types/agent';
+import { UserProfile } from '@/lib/store/user-store';
 
-export interface UserProfile {
-  id?: string;
-  primeiro_nome?: string;
-  ultimo_nome?: string;
-  username?: string;
-  email?: string;
-  telefone?: string;
-  empresa?: string;
-  licenca?: string;
-  facebook?: string;
-  linkedin?: string;
-  website?: string;
-  instagram?: string;
-  youtube?: string;
-  sobre_mim?: string;
-  pacote_agente_id?: string;
-  role?: string;
-  created_at?: string;
-  updated_at?: string;
-  avatar_url?: string;
-}
+
 
 export type Stat = {
   label: string;
@@ -167,7 +149,7 @@ const SocialLinks = ({ user }: { user: UserProfile }) => {
         {socialLinks.map((link, index) => (
           <a
             key={index}
-            href={link.url}
+            href={link.url || ""}
             target="_blank"
             rel="noopener noreferrer"
             className="text-purple-400 hover:text-purple-600 transition-colors"
@@ -278,7 +260,7 @@ export function UserCard({ user, displayName, stats, onAvatarUpdate }: UserCardP
 
         <CardTitle className="text-lg sm:text-xl text-purple-900 mt-4 flex items-center justify-center">
           {displayName}
-          <RoleBadge role={user.role} />
+          <RoleBadge role={user.role || "User"} />
         </CardTitle>
 
         <CardDescription className="text-purple-700 text-xs sm:text-base">

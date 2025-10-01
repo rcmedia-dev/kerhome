@@ -3,25 +3,25 @@
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Settings } from 'lucide-react';
-import { UserProfile } from '@/lib/actions/supabase-actions/get-user-profile';
 import { updateUserProfile } from '@/lib/actions/supabase-actions/update-user-profile';
 import { toast } from 'sonner';
-
-
+import { UserProfile } from '@/lib/store/user-store';
 
 type SettingsProps = {
-  profile: UserProfile
-}
+  profile: UserProfile;
+};
 
 export function ConfiguracoesConta({ profile }: SettingsProps) {
   const [form, setForm] = useState<Partial<UserProfile>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setForm(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -33,7 +33,7 @@ export function ConfiguracoesConta({ profile }: SettingsProps) {
     try {
       const success = await updateUserProfile({
         userId: profile.id,
-        profileData: form
+        profileData: form,
       });
 
       if (success) {
@@ -42,9 +42,7 @@ export function ConfiguracoesConta({ profile }: SettingsProps) {
     } catch (error) {
       console.error('Erro ao atualizar perfil:', error);
       toast.error(
-        error instanceof Error 
-          ? error.message 
-          : 'Erro ao atualizar perfil'
+        error instanceof Error ? error.message : 'Erro ao atualizar perfil'
       );
     } finally {
       setIsSubmitting(false);
@@ -79,14 +77,19 @@ export function ConfiguracoesConta({ profile }: SettingsProps) {
               { label: 'YouTube', name: 'youtube', type: 'url' },
             ].map(({ label, name, type }) => (
               <div key={name}>
-                <label htmlFor={name} className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor={name}
+                  className="block text-sm font-medium text-gray-700"
+                >
                   {label}
                 </label>
                 <input
                   id={name}
                   name={name}
                   type={type}
-                  value={form[name as keyof UserProfile] || ''}
+                  value={
+                    (form[name as keyof UserProfile] as string | number) || ''
+                  }
                   onChange={handleChange}
                   className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2 focus:border-purple-500 focus:ring-purple-500"
                   disabled={isSubmitting}
@@ -95,14 +98,17 @@ export function ConfiguracoesConta({ profile }: SettingsProps) {
             ))}
 
             <div className="md:col-span-2">
-              <label htmlFor="sobre_mim" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="sobre_mim"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Sobre Mim
               </label>
               <textarea
                 id="sobre_mim"
                 name="sobre_mim"
                 rows={4}
-                value={form.sobre_mim || ''}
+                value={(form.sobre_mim as string) || ''}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 p-2 focus:border-purple-500 focus:ring-purple-500"
                 disabled={isSubmitting}

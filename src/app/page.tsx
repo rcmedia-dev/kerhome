@@ -1,16 +1,14 @@
 import HeroCarousel from '@/components/hero';
 import PropertiesShowcase from '@/components/property-showcase';
 import ActionCardsSection from '@/components/actions-card';
-import FeaturedCarousel from '@/components/featured-houses';
 import TopAgentsSection, { Agent } from '@/components/top-agent';
 import { getLimitedProperties } from '@/lib/actions/get-properties';
 import { TPropertyResponseSchema } from '@/lib/types/property';
 import { getAgents } from '@/lib/actions/get-agent';
 
 export default async function HomePage() {
-  const properties: TPropertyResponseSchema[] = await getLimitedProperties(3);
+  const properties: TPropertyResponseSchema[] = await getLimitedProperties(8);
   const agents: Agent[] = await getAgents()
-  console.log({agents})
 
   if (!properties) {
     return (
@@ -23,10 +21,9 @@ export default async function HomePage() {
   return (
     <>
       <HeroCarousel property={properties} />
-      <PropertiesShowcase property={properties}/>
       <ActionCardsSection />
-      <FeaturedCarousel property={properties} />
       <TopAgentsSection agents={agents}/>
+      <PropertiesShowcase property={properties}/>
     </>
   );
 }
