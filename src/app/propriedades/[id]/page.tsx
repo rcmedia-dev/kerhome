@@ -107,7 +107,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
             <PropertyLocation property={property} />
 
             {/* Contacto */}
-            <PropertyContact property={property} ownerDetails={ownerDetails} user={null} />
+            <PropertyContact property={property} ownerDetails={ownerDetails} />
           </div>
 
           {/* Sidebar */}

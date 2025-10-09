@@ -12,166 +12,182 @@ import { getImoveisFavoritos } from '@/lib/actions/get-favorited-imoveis';
 import { deleteProperty } from '@/lib/actions/supabase-actions/delete-propertie';
 import { toast } from 'sonner';
 
+// =======================
+// Subcomponentes
+// =======================
+const StatusBadge = ({ status }: { status: string }) => {
+  const baseClass =
+    "absolute top-3 left-3 text-white text-xs font-bold px-3 py-1 rounded-full shadow z-10";
+  if (status === 'comprar') return <span className={`${baseClass} bg-green-600`}>À venda</span>;
+  if (status === 'arrendar') return <span className={`${baseClass} bg-blue-600`}>Para alugar</span>;
+  return null;
+};
+
+const OwnerActions = ({ propertyId }: { propertyId: string }) => (
+  <div className="absolute top-3 right-3 z-20 flex gap-2">
+    <Link
+      href={`/dashboard/editar-imovel/${propertyId}`}
+      className="bg-white p-1.5 rounded-full shadow hover:bg-purple-100 transition"
+      title="Editar"
+    >
+      <Pencil className="w-4 h-4 text-purple-700" />
+    </Link>
+    <button
+      onClick={async () => {
+        if (confirm('Tem certeza que deseja eliminar este imóvel?')) {
+          try {
+            await deleteProperty(propertyId);
+            toast.success('Imóvel deletado com sucesso');
+          } catch (e) {
+            toast.error('Erro ao deletar o imóvel');
+            console.error('error:', e);
+          }
+        }
+      }}
+      className="bg-white p-1.5 rounded-full shadow hover:bg-red-100 transition"
+      title="Eliminar"
+    >
+      <Trash className="w-4 h-4 text-red-600" />
+    </button>
+  </div>
+);
+
+const UserActions = ({
+  favorito,
+  loadingFavorito,
+  toggleFavorito,
+  handleShare,
+}: {
+  favorito: boolean;
+  loadingFavorito: boolean;
+  toggleFavorito: () => void;
+  handleShare: () => void;
+}) => (
+  <div className="absolute bottom-3 right-3 flex gap-2">
+    <button
+      onClick={toggleFavorito}
+      className="bg-white rounded-full p-2 shadow-md hover:scale-105 transition"
+      title={favorito ? 'Remover dos favoritos' : 'Guardar imóvel'}
+      disabled={loadingFavorito}
+    >
+      {loadingFavorito ? (
+        <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+      ) : (
+        <Heart className={`w-5 h-5 ${favorito ? 'text-purple-600 fill-purple-600' : 'text-gray-400'}`} />
+      )}
+    </button>
+
+    <button
+      onClick={handleShare}
+      className="bg-white rounded-full p-2 shadow-md hover:scale-105 transition"
+      title="Compartilhar imóvel"
+    >
+      <Share2 className="w-5 h-5 text-gray-500" />
+    </button>
+  </div>
+);
+
+// =======================
+// Main Component
+// =======================
 export function PropertyCard({ property }: { property: TPropertyResponseSchema }) {
   const { user } = useAuth();
-  const router = useRouter();
   const isOwner = user?.id === property.owner_id;
+
   const [favorito, setFavorito] = useState(false);
   const [loadingFavorito, setLoadingFavorito] = useState(true);
 
-  // Verificar status de favorito ao carregar o componente
+  // URL do imóvel (fix SSR)
+  const [shareUrl, setShareUrl] = useState<string>("");
+
   useEffect(() => {
-    async function checkFavoriteStatus() {
-      if (!user) {
-        setLoadingFavorito(false);
-        return;
-      }
-      
+    if (typeof window !== "undefined") {
+      setShareUrl(`${window.location.origin}/propriedades/${property.id}`);
+    }
+  }, [property.id]);
+
+  // Checar se o imóvel é favorito
+  useEffect(() => {
+    if (!user) return setLoadingFavorito(false);
+
+    (async () => {
       try {
         const favoritos = await getImoveisFavoritos(user.id);
-        const isFavorited = favoritos.some(fav => fav.id === property.id);
-        setFavorito(isFavorited);
+        setFavorito(favoritos.some((fav) => fav.id === property.id));
       } catch (error) {
-        console.error("Erro ao verificar favoritos:", error);
+        console.error('Erro ao verificar favoritos:', error);
       } finally {
         setLoadingFavorito(false);
       }
-    }
-
-    checkFavoriteStatus();
+    })();
   }, [user, property.id]);
 
-  const handleDelete = async () => {
-    if (confirm('Tem certeza que deseja eliminar este imóvel?')) {
-      try{
-        await deleteProperty(property.id, user?.id)
-        toast.success('Imóvel deletado com sucesso');
-      }catch(e){
-        toast.error('Erro ao deletar o imóvel');
-        console.log('error:', e);
-      }
-    }
-  };
-
+  // Toggle favorito
   const toggleFavorito = async () => {
     if (!user) {
-      alert("Você precisa estar autenticado para guardar imóveis.");
+      toast.warning('Você precisa estar autenticado para guardar imóveis.');
       return;
     }
-    
-    // Atualização otimista
+
     const novoEstado = !favorito;
     setFavorito(novoEstado);
     setLoadingFavorito(true);
-    
+
     try {
       const result = await toggleFavoritoProperty(user.id, property.id);
       if (!result.success || result.isFavorited !== novoEstado) {
-        // Reverter se houver inconsistência
-        setFavorito(!novoEstado);
+        setFavorito(!novoEstado); // rollback
       }
     } catch (error) {
-      console.error("Erro ao alternar favorito:", error);
-      setFavorito(!novoEstado); // Reverter em caso de erro
+      console.error('Erro ao alternar favorito:', error);
+      setFavorito(!novoEstado);
     } finally {
       setLoadingFavorito(false);
     }
   };
 
+  // Share
   const handleShare = async () => {
-    const url = `${window.location.origin}/propriedades/${property.id}`;
+    if (!shareUrl) return;
+
     const shareData = {
       title: property.title,
       text: `Confira este imóvel em ${property.endereco}`,
-      url,
+      url: shareUrl,
     };
 
     if (navigator.share) {
       try {
         await navigator.share(shareData);
       } catch (error) {
-        console.log("Erro ao compartilhar:", error);
+        console.log('Erro ao compartilhar:', error);
       }
     } else {
       try {
-        await navigator.clipboard.writeText(url);
-        toast.success("Link copiado para a área de transferência!");
-      } catch (error) {
-        toast.error("Não foi possível copiar o link.");
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success('Link copiado para a área de transferência!');
+      } catch {
+        toast.error('Não foi possível copiar o link.');
       }
     }
   };
 
   return (
     <div className="w-[300px] bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 h-full flex flex-col relative group">
-      {/* Badge de status */}
-      {property.status === 'comprar' && (
-        <span className="absolute top-3 left-3 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow z-10">
-          À venda
-        </span>
-      )}
-      {property.status === 'arrendar' && (
-        <span className="absolute top-3 left-3 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow z-10">
-          Para alugar
-        </span>
-      )}
+      <StatusBadge status={property.status} />
 
-      {/* Botões de ação do dono */}
-      {isOwner && (
-        <div className="absolute top-3 right-3 z-20 flex gap-2">
-          <Link
-            href={`/dashboard/editar-imovel/${property.id}`}
-            className="bg-white p-1.5 rounded-full shadow hover:bg-purple-100 transition"
-            title="Editar"
-          >
-            <Pencil className="w-4 h-4 text-purple-700" />
-          </Link>
-          <button
-            onClick={handleDelete}
-            className="bg-white p-1.5 rounded-full shadow hover:bg-red-100 transition"
-            title="Eliminar"
-          >
-            <Trash className="w-4 h-4 text-red-600" />
-          </button>
-        </div>
-      )}
+      {isOwner && <OwnerActions propertyId={property.id} />}
 
       {/* Imagem */}
       <div className="relative h-56 w-full">
-        <Image
-          src={property.image ?? ""}
-          alt={property.title}
-          fill
-          className="object-cover"
-          priority={false}
-        />
-
-        {/* Ícones de ação (favoritar + compartilhar) */}
+        <Image src={property.image ?? '/house.jpg'} alt={property.title} fill className="object-cover" priority={false} />
         {user && !isOwner && (
-          <div className="absolute bottom-3 right-3 flex gap-2">
-            <button
-              onClick={toggleFavorito}
-              className="bg-white rounded-full p-2 shadow-md hover:scale-105 transition"
-              title={favorito ? "Remover dos favoritos" : "Guardar imóvel"}
-              disabled={loadingFavorito}
-              aria-label={favorito ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-            >
-              {loadingFavorito ? (
-                <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <Heart className={`w-5 h-5 ${favorito ? 'text-purple-600 fill-purple-600' : 'text-gray-400'}`} />
-              )}
-            </button>
-
-            <button
-              onClick={handleShare}
-              className="bg-white rounded-full p-2 shadow-md hover:scale-105 transition"
-              title="Compartilhar imóvel"
-              aria-label="Compartilhar imóvel"
-            >
-              <Share2 className="w-5 h-5 text-gray-500" />
-            </button>
-          </div>
+          <UserActions
+            favorito={favorito}
+            loadingFavorito={loadingFavorito}
+            toggleFavorito={toggleFavorito}
+            handleShare={handleShare}
+          />
         )}
       </div>
 
@@ -183,9 +199,7 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
             <span>{property.endereco}</span>
           </div>
 
-          <h3 className="text-xl font-semibold text-gray-900 line-clamp-2">
-            {property.title}
-          </h3>
+          <h3 className="text-xl font-semibold text-gray-900 line-clamp-2">{property.title}</h3>
 
           <div className="flex justify-between text-gray-700 text-sm">
             <div className="flex items-center gap-1">
@@ -213,22 +227,21 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
             <span>
               {property.price?.toLocaleString('pt-AO', {
                 minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              })} Kz
+                maximumFractionDigits: 2,
+              })}{' '}
+              Kz
               {property.status === 'arrendar' && '/mês'}
             </span>
           </div>
         </div>
 
-        <div>
-          <Link
-            href={`/propriedades/${property.id}`}
-            className="flex justify-center cursor-pointer w-full mt-2 bg-purple-700 hover:bg-purple-800 text-white py-2 rounded-lg font-medium transition"
-            prefetch={false}
-          >
-            Ver detalhes
-          </Link>
-        </div>
+        <Link
+          href={`/propriedades/${property.id}`}
+          className="flex justify-center cursor-pointer w-full mt-2 bg-purple-700 hover:bg-purple-800 text-white py-2 rounded-lg font-medium transition"
+          prefetch={false}
+        >
+          Ver detalhes
+        </Link>
       </div>
     </div>
   );

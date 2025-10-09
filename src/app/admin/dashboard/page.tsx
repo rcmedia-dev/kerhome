@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Home, 
   Users, 
@@ -15,8 +15,6 @@ import {
   Sun,
   Moon,
   Mail,
-  Subscript,
-  AwardIcon,
   Award,
   Medal,
 } from 'lucide-react';
@@ -26,11 +24,103 @@ import UserManagement from '../components/users-component';
 import { RenderDashboard } from '../components/dashboard-component';
 import SubscricoesPage from '../components/subscriptions-component';
 import AgentSubscriptionsPage from '../components/agent-subscription-component';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
+
+
+
+type ChartItem = {
+  name: string
+  value: number
+  color: string
+}
 
 const KerHomeDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [darkMode, setDarkMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [chartData, setChartData] = useState<ChartItem[]>([])
+
+  //Dados reais para os gráficos
+const activeProperties = useQuery({
+  queryKey: ['active-properties'],
+  queryFn: async() => {
+    const response = await supabase
+      .from('properties')
+      .select('*')
+      .eq("aprovement_status", 'aprovado')
+
+      return response.data
+  }
+  
+})
+
+const registeredUsers = useQuery({
+  queryKey: ['registered-users'],
+  queryFn: async() => {
+    const response = await supabase
+      .from('profiles')
+      .select('*')
+
+      return response.data
+  }
+  
+})
+
+const agentUsers = useQuery({
+  queryKey: ['agent-users'],
+  queryFn: async() => {
+    const response = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('role', 'agent')
+
+      return response.data
+  }
+  
+})
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["property-type"],
+    queryFn: async () => {
+      const response = await supabase
+        .from("properties")
+        .select("tipo")
+        .eq("aprovement_status", "aprovado")
+
+      if (response.error) throw response.error
+      return response.data
+    },
+  })
+
+  useEffect(() => {
+    if (data) {
+      // Agrupar por tipo
+      const counts: Record<string, number> = {}
+      data.forEach((item) => {
+        const tipo = item.tipo?.trim().toLowerCase() // normaliza
+        if (!tipo) return
+        counts[tipo] = (counts[tipo] || 0) + 1
+      })
+
+      // Converter para o formato do gráfico
+      const mapped = Object.entries(counts).map(([tipo, value]) => ({
+        name: tipo.charAt(0).toUpperCase() + tipo.slice(1), // Capitaliza
+        value,
+        color:
+          tipo === "apartamento"
+            ? "#8B5CF6"
+            : tipo === "casa"
+            ? "#F59E0B"
+            : tipo === "terreno"
+            ? "#10B981"
+            : "#EF4444",
+      }))
+
+      setChartData(mapped)
+    }
+  }, [data])
+
 
   const sidebarItems = [
     { id: 'home', label: 'Pagina Inicial', icon: Home , href: '/' },
@@ -203,7 +293,12 @@ const KerHomeDashboard = () => {
 
   const renderContent = () => {
     switch(activeSection) {
-      case 'dashboard': return <RenderDashboard darkMode={darkMode}/>;
+      case 'dashboard': return <RenderDashboard 
+        activeProperties={activeProperties.data?.length} 
+        registeredUsers={registeredUsers.data?.length} 
+        agentUsers={agentUsers.data?.length}
+        propertyTypeData={chartData}
+        darkMode={darkMode}/>;
       case 'properties': return  <RenderProperties darkMode={darkMode}/>;
       case 'users': return <UserManagement darkMode={darkMode}/>;
       case 'subscriptions': return <SubscricoesPage />;

@@ -1,12 +1,19 @@
+'use client'
+
 import AgentCardWithChat from "@/components/agent-card-with-chat";
+import { useUserStore } from "@/lib/store/user-store";
 import { TPropertyResponseSchema } from "@/lib/types/property";
 
 // ===== COMPONENTE PROPERTY CONTACT =====
-export function PropertyContact ({ property, ownerDetails, user }: { 
-  property: TPropertyResponseSchema; 
-  ownerDetails: any; 
-  user: any;
+export function PropertyContact({
+  property,
+  ownerDetails,
+}: {
+  property: TPropertyResponseSchema;
+  ownerDetails: any;
 }) {
+  const { user } = useUserStore(); // 👈 pega o user da store
+
   console.log("🔍 PropertyContact props:", {
     propertyId: property?.id,
     ownerDetails,
@@ -29,8 +36,8 @@ export function PropertyContact ({ property, ownerDetails, user }: {
       <AgentCardWithChat
         ownerData={ownerDetails}
         propertyId={property.id}
-        userId={user?.id}
+        userId={user?.id} 
       />
     </div>
   );
-};
+}

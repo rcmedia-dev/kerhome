@@ -165,3 +165,56 @@ export async function rejectPlanRequest(requestId: string) {
     }
   }
 }
+
+// Remove uma subscrição de plano de um agente
+export async function removeSubscription(requestId: string, userId: string) {
+  try {
+    // Verificar se a solicitação existe
+    const { data: existingRequest, error: fetchError } = await supabase
+      .from("plan_requests")
+      .select("*")
+      .eq("id", requestId)
+      .single()
+
+    if (fetchError || !existingRequest) {
+      return { 
+        success: false, 
+        message: 'Solicitação não encontrada' 
+      }
+    }
+
+    // Remover a solicitação de plano
+    const { error: deleteError } = await supabase
+      .from("plan_requests")
+      .delete()
+      .eq("id", requestId)
+
+    if (deleteError) {
+      throw new Error("Erro ao remover solicitação: " + deleteError.message)
+    }
+
+    // Atualizar o usuário para remover o plano e definir status como inativo
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({
+        pacote_agente_id: null,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", userId)
+
+    if (updateError) {
+      throw new Error("Erro ao atualizar perfil do usuário: " + updateError.message)
+    }
+
+    return { 
+      success: true, 
+      message: 'Subscrição removida com sucesso' 
+    }
+  } catch (error) {
+    console.error('Erro ao remover subscrição:', error)
+    return { 
+      success: false, 
+      message: error instanceof Error ? error.message : 'Erro interno ao remover subscrição' 
+    }
+  }
+}

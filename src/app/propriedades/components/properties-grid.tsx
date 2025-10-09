@@ -56,8 +56,13 @@ export default function PropertiesGrid({
         initial="hidden"
         animate="visible"
         exit="exit"
-        className="gap-4 w-full mx-auto 
-                   flex flex-col items-center md:grid md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 md:justify-items-center"
+        className="
+          grid gap-6 w-full mx-auto
+          grid-cols-1
+          sm:grid-cols-2
+          md:grid-cols-3
+          lg:grid-cols-4
+        "
       >
         <AnimatePresence mode="popLayout">
           {filteredProperties.map((property) => (
@@ -65,11 +70,9 @@ export default function PropertiesGrid({
               key={property.id}
               variants={cardVariants}
               layout="position"
-              className="w-[90%] sm:w-[90%] md:w-full transform hover:scale-[1.01] transition-transform duration-200"
+              className="transform hover:scale-[1.01] transition-transform duration-200"
             >
-              <PropertyCard
-                property={property}
-              />
+              <PropertyCard property={property} />
             </motion.div>
           ))}
         </AnimatePresence>

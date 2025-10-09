@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Mail, Phone, Clock, CheckCircle, XCircle, Loader2, UserCircle2 } from 'lucide-react';
+import { Mail, Phone, Clock, CheckCircle, XCircle, Loader2, UserCircle2, UserX, ShieldOff } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { aproveAgent, rejectAgent } from '../dashboard/actions/agent';
@@ -65,6 +65,49 @@ const AGENT_PLANS = {
 };
 
 // =========================
+// Funções de Ação
+// =========================
+
+// Remover o status de agente de um usuário
+async function removeAgentRole(userId: string) {
+  try {
+    // 1. Remover a role de agente do perfil
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({ 
+        role: 'user',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userId);
+
+    if (profileError) {
+      throw new Error(`Erro ao atualizar perfil: ${profileError.message}`);
+    }
+
+    // 2. Deletar a solicitação de agente
+    const { error: requestError } = await supabase
+      .from('agente_requests')
+      .delete()
+      .eq('user_id', userId);
+
+    if (requestError) {
+      throw new Error(`Erro ao deletar solicitação: ${requestError.message}`);
+    }
+
+    return { 
+      success: true, 
+      message: 'Status de agente removido com sucesso!' 
+    };
+  } catch (error) {
+    console.error('Erro ao remover status de agente:', error);
+    return { 
+      success: false, 
+      message: error instanceof Error ? error.message : 'Erro interno ao remover status de agente' 
+    };
+  }
+}
+
+// =========================
 // Componentes auxiliares
 // =========================
 const MessageAlert = ({ type, text }: { type: 'success' | 'error'; text: string }) => (
@@ -126,11 +169,13 @@ const AgentCard = ({
   processing,
   handleApprove,
   handleReject,
+  handleRemoveAgent,
 }: {
   agent: AgentSubscription;
   processing: string | null;
   handleApprove: (id: string, userId: string) => void;
   handleReject: (id: string, userId: string) => void;
+  handleRemoveAgent: (id: string, userId: string, agentName: string) => void;
 }) => {
   const plan = AGENT_PLANS["Agente Premium"];
   const formatDate = (dateString: string) =>
@@ -139,6 +184,8 @@ const AgentCard = ({
       month: "2-digit",
       year: "numeric",
     });
+
+  const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
 
   return (
     <div
@@ -152,15 +199,21 @@ const AgentCard = ({
             {plan.badge}
           </span>
         </div>
+        
+        <div className="flex items-center gap-3">
+          <div className={`w-12 h-12 flex items-center justify-center rounded-xl ${plan.iconBg} text-white`}>
+            <UserCircle2 size={20} />
+          </div>
+          <div>
+            <h3 className="font-bold text-gray-900 text-lg">{agent.nome}</h3>
+            <p className="text-sm text-gray-600">Agente Imobiliário</p>
+          </div>
+        </div>
       </div>
 
       {/* Content */}
       <div className="p-6">
         <div className="space-y-3 mb-4">
-          <div className="flex items-center gap-3 font-semibold text-gray-900">
-            <UserCircle2 size={16} />
-            {agent.nome}
-          </div>
           <div className="flex items-center gap-3 text-sm text-gray-600">
             <Mail size={16} className="text-gray-400" />
             {agent.email}
@@ -173,6 +226,18 @@ const AgentCard = ({
             <Clock size={16} className="text-gray-400" />
             Inscrito em {formatDate(agent.dataInscricao)}
           </div>
+          
+          {/* Informações adicionais do agente */}
+          {agent.especialidade && (
+            <div className="text-sm text-gray-600">
+              <span className="font-medium">Especialidade:</span> {agent.especialidade}
+            </div>
+          )}
+          {agent.empresa && (
+            <div className="text-sm text-gray-600">
+              <span className="font-medium">Empresa:</span> {agent.empresa}
+            </div>
+          )}
         </div>
 
         {/* Status & Actions */}
@@ -206,17 +271,75 @@ const AgentCard = ({
             </div>
           )}
 
-          {agent.status === "Aprovados" && (
-            <div className="flex items-center gap-2 text-green-600 font-medium">
-              <CheckCircle size={16} />
-              <span>{statusMap["aproved"].label}</span>
-            </div>
-          )}
-
-          {agent.status === "Rejeitados" && (
-            <div className="flex items-center gap-2 text-red-500 font-medium">
-              <XCircle size={16} />
-              <span>{statusMap["rejected"].label}</span>
+          {(agent.status === "Aprovados" || agent.status === "Rejeitados") && (
+            <div className="space-y-3">
+              <div className={`flex items-center justify-between p-3 rounded-lg ${
+                agent.status === "Aprovados" 
+                  ? "bg-green-50 border border-green-200" 
+                  : "bg-red-50 border border-red-200"
+              }`}>
+                <div className={`flex items-center gap-2 font-medium ${
+                  agent.status === "Aprovados" ? "text-green-600" : "text-red-500"
+                }`}>
+                  {agent.status === "Aprovados" ? <CheckCircle size={16} /> : <XCircle size={16} />}
+                  <span>{agent.status === "Aprovados" ? statusMap["aproved"].label : statusMap["rejected"].label}</span>
+                </div>
+                
+                {/* Botão para remover status de agente (apenas para aprovados) */}
+                {agent.status === "Aprovados" && (
+                  <div className="flex items-center gap-1">
+                    {showRemoveConfirm ? (
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => {
+                            handleRemoveAgent(agent.id, agent.user_id, agent.nome);
+                            setShowRemoveConfirm(false);
+                          }}
+                          disabled={processing === agent.id}
+                          className="px-3 py-1 bg-red-600 text-white text-xs font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center gap-1"
+                        >
+                          {processing === agent.id ? (
+                            <Loader2 size={12} className="animate-spin" />
+                          ) : (
+                            <ShieldOff size={12} />
+                          )}
+                          Confirmar
+                        </button>
+                        <button
+                          onClick={() => setShowRemoveConfirm(false)}
+                          className="px-3 py-1 bg-gray-200 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-300 transition-colors"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setShowRemoveConfirm(true)}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Remover status de agente"
+                      >
+                        <UserX size={16} />
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+              
+              {/* Ação para rejeitados poderem ser aprovados novamente */}
+              {agent.status === "Rejeitados" && (
+                <button
+                  onClick={() => handleApprove(agent.id, agent.user_id)}
+                  disabled={processing === agent.id}
+                  className={`w-full py-2 px-4 rounded-xl text-white font-medium text-sm transition-all duration-200 hover:shadow-lg ${plan.button} disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {processing === agent.id ? (
+                    <Loader2 size={16} className="animate-spin inline mr-1" />
+                  ) : (
+                    <CheckCircle size={16} className="inline mr-1" />
+                  )}
+                  Reaprovar Agente
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -234,7 +357,6 @@ const EmptyState = ({ activeTab }: { activeTab: AgentStatus }) => (
     <p className="text-gray-600">Não há agentes com o status "{activeTab}" no momento.</p>
   </div>
 );
-
 
 export default function AgentSubscriptionsPage() {
   const queryClient = useQueryClient();
@@ -343,6 +465,34 @@ export default function AgentSubscriptionsPage() {
     }
   };
 
+  const handleRemoveAgent = async (requestId: string, userId: string, agentName: string) => {
+    setProcessing(requestId);
+    setMessage(null);
+
+    try {
+      const result = await removeAgentRole(userId);
+      if (result.success) {
+        setMessage({ type: "success", text: result.message });
+
+        // ✅ Remove o agente da lista (já que ele não é mais agente)
+        queryClient.setQueryData(["agents-subscriptions"], (oldData: any) => {
+          if (!oldData) return [];
+          return oldData.filter((agent: any) => agent.id !== requestId);
+        });
+
+        // ✅ Invalida o cache do perfil individual
+        await queryClient.invalidateQueries({ queryKey: ["profile", userId] });
+      } else {
+        setMessage({ type: "error", text: result.message });
+      }
+    } catch (err) {
+      console.error("Erro ao remover status de agente:", err);
+      setMessage({ type: "error", text: "Erro ao processar solicitação" });
+    } finally {
+      setProcessing(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/20 p-6">
       <div className="max-w-7xl mx-auto">
@@ -374,6 +524,7 @@ export default function AgentSubscriptionsPage() {
                   processing={processing}
                   handleApprove={handleApprove}
                   handleReject={handleReject}
+                  handleRemoveAgent={handleRemoveAgent}
                 />
               ))}
             </div>

@@ -3,6 +3,7 @@ import { Area, AreaChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, R
 
 
 
+
  // Dados de exemplo para os gráficos
 const revenueData = [
     { month: 'Jan', revenue: 45000, properties: 120 },
@@ -29,26 +30,21 @@ const revenueData = [
     { month: 'Jun', users: 2380, agents: 67 }
   ];
 
-
-  const properties = [
-    { id: 1, title: 'Apartamento T3 Luanda Sul', agent: 'João Silva', price: '450.000', status: 'pending', type: 'Apartamento' },
-    { id: 2, title: 'Casa Moderna Talatona', agent: 'Maria Santos', price: '780.000', status: 'approved', type: 'Casa' },
-    { id: 3, title: 'Terreno Comercial Maianga', agent: 'Pedro Costa', price: '320.000', status: 'pending', type: 'Terreno' },
-    { id: 4, title: 'Loja Centro Comercial', agent: 'Ana Ferreira', price: '150.000', status: 'rejected', type: 'Comercial' }
-  ];
-
-  const users = [
-    { id: 1, name: 'Carlos Mendes', email: 'carlos@email.com', type: 'Cliente', joined: '2024-06-15', status: 'active' },
-    { id: 2, name: 'Sofia Rodrigues', email: 'sofia@email.com', type: 'Agente', joined: '2024-05-20', status: 'active' },
-    { id: 3, name: 'Miguel Torres', email: 'miguel@email.com', type: 'Cliente', joined: '2024-06-10', status: 'inactive' },
-    { id: 4, name: 'Isabel Nunes', email: 'isabel@email.com', type: 'Parceiro', joined: '2024-04-12', status: 'active' }
-  ];
+type PropertyTypeData = {
+  name: string
+  value: number
+  color: string
+}
 
 type RenderDashboardProps = {
     darkMode: boolean;
+    activeProperties?: number;
+    registeredUsers?: number;
+    propertyTypeData?: PropertyTypeData[] | undefined;
+    agentUsers?: number;
 }
 
-export function RenderDashboard( { darkMode }: RenderDashboardProps){
+export function RenderDashboard( { darkMode, activeProperties, registeredUsers, agentUsers, propertyTypeData }: RenderDashboardProps){
     return(
 
     <div className="space-y-6">
@@ -56,14 +52,14 @@ export function RenderDashboard( { darkMode }: RenderDashboardProps){
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
           title="Imóveis Ativos" 
-          value="1,245" 
+          value={activeProperties} 
           change={12} 
           icon={Building2} 
           color="purple" 
         />
         <StatCard 
           title="Utilizadores Registados" 
-          value="2,380" 
+          value={registeredUsers} 
           change={8} 
           icon={Users} 
           color="orange" 
@@ -77,7 +73,7 @@ export function RenderDashboard( { darkMode }: RenderDashboardProps){
         />
         <StatCard 
           title="Agentes Ativos" 
-          value="67" 
+          value={agentUsers}
           change={5} 
           icon={UserPlus} 
           color="blue" 
@@ -121,7 +117,7 @@ export function RenderDashboard( { darkMode }: RenderDashboardProps){
                 dataKey="value"
                 label={({ name, value }) => `${name}: ${value}%`}
               >
-                {propertyTypeData.map((entry, index) => (
+                {propertyTypeData?.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
@@ -186,7 +182,7 @@ export function RenderDashboard( { darkMode }: RenderDashboardProps){
 
 interface StatCardProps {
     title: string;
-    value: string | number;
+    value?: string | number;
     change: number;
     icon: LucideIcon;  // o tipo para componente de ícone (React component)
     color?: "purple" | "orange" | "green" | "blue";

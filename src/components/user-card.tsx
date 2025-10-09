@@ -4,13 +4,12 @@
 import { useState, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
 import { CanSeeIt } from './can';
-import { Pen, Upload } from 'lucide-react';
+import { Pen, Upload, Globe, Facebook, Instagram, Linkedin, Youtube, Building, BadgeCheck } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import imageCompression from "browser-image-compression";
-import { PlanoAgente } from '@/lib/types/agent';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import { UserProfile } from '@/lib/store/user-store';
-
-
 
 export type Stat = {
   label: string;
@@ -25,7 +24,7 @@ export type UserCardProps = {
   onAvatarUpdate?: (newAvatarUrl: string) => void;
 };
 
-// Componente AvatarSection refeito
+// Componente AvatarSection com animações
 const AvatarSection = ({ 
   user, 
   isUploading,
@@ -38,99 +37,204 @@ const AvatarSection = ({
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className="relative inline-block">
+    <motion.div 
+      className="relative inline-block"
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+    >
       <div 
-        className="relative w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full bg-gradient-to-br from-purple-50 to-amber-50 border-2 border-dashed border-purple-200 cursor-pointer transition-all duration-300 hover:border-orange-400 hover:shadow-lg"
+        className="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-2xl bg-gradient-to-br from-purple-100 to-orange-100 border-2 border-dashed border-purple-300 cursor-pointer transition-all duration-300 hover:border-orange-400 hover:shadow-xl"
         onClick={onUploadClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         {user.avatar_url ? (
           <>
-            <img 
+            <motion.img 
               src={user.avatar_url} 
               alt="Foto de perfil" 
-              className="w-full h-full object-cover rounded-full"
+              className="w-full h-full object-cover rounded-2xl"
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.2 }}
             />
-            {/* Overlay de edição no hover - Laranja suave */}
-            {(isHovered || isUploading) && (
-              <div className="absolute inset-0 bg-black opacity-20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                {isUploading ? (
-                  <div className="text-orange-800 text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700 mx-auto"></div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center">
-                    <Pen className="w-6 h-6 text-purple-700 mb-1" />
-                    <span className="text-xs text-purple-800 font-medium">Editar</span>
-                  </div>
-                )}
-              </div>
-            )}
+            
+            <AnimatePresence>
+              {(isHovered || isUploading) && (
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-orange-500/20 rounded-2xl flex items-center justify-center backdrop-blur-sm"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  {isUploading ? (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="w-8 h-8 border-2 border-white border-t-transparent rounded-full"
+                    />
+                  ) : (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="flex flex-col items-center text-white"
+                    >
+                      <Pen className="w-6 h-6 mb-1" />
+                      <span className="text-xs font-medium">Editar</span>
+                    </motion.div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </>
         ) : (
-          <div className="w-full h-full rounded-full flex flex-col items-center justify-center text-purple-400 hover:text-purple-600 transition-colors">
+          <motion.div 
+            className="w-full h-full rounded-2xl flex flex-col items-center justify-center text-purple-400 hover:text-purple-600 transition-colors"
+            whileHover={{ scale: 1.05 }}
+          >
             {isUploading ? (
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full"
+              />
             ) : (
               <>
-                <Upload className="w-8 h-8 mb-1" />
+                <Upload className="w-8 h-8 mb-2" />
                 <span className="text-xs font-medium text-purple-600">Adicionar foto</span>
               </>
             )}
-          </div>
+          </motion.div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
+// Badge de papel com design moderno
 const RoleBadge = ({ role }: { role?: string }) => {
   if (!role) return null;
 
   const roleConfig = {
-    agente: { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Agente' },
-    admin: { bg: 'bg-red-100', text: 'text-red-800', label: 'Administrador' },
-    default: { bg: 'bg-gray-100', text: 'text-gray-800', label: role }
+    agente: { 
+      bg: 'bg-gradient-to-r from-orange-500 to-amber-500', 
+      text: 'text-white', 
+      label: 'Agente',
+      icon: BadgeCheck
+    },
+    admin: { 
+      bg: 'bg-gradient-to-r from-red-500 to-pink-500', 
+      text: 'text-white', 
+      label: 'Admin',
+      icon: BadgeCheck
+    },
+    user: { 
+      bg: 'bg-gradient-to-r from-purple-500 to-pink-500', 
+      text: 'text-white', 
+      label: 'Usuário',
+      icon: BadgeCheck
+    },
+    default: { 
+      bg: 'bg-gradient-to-r from-gray-500 to-gray-600', 
+      text: 'text-white', 
+      label: role,
+      icon: BadgeCheck
+    }
   };
 
   const config = roleConfig[role as keyof typeof roleConfig] || roleConfig.default;
+  const IconComponent = config.icon;
 
   return (
-    <span className={`ml-2 text-xs ${config.bg} ${config.text} px-2 py-1 rounded-full`}>
-      {config.label}
-    </span>
+    <motion.span 
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      className={cn(
+        "ml-2 text-xs px-3 py-1.5 rounded-full flex items-center space-x-1 shadow-sm",
+        config.bg,
+        config.text
+      )}
+    >
+      <IconComponent className="w-3 h-3" />
+      <span>{config.label}</span>
+    </motion.span>
   );
 };
 
+// Card de estatística com animação
 const StatCard = ({ stat, index }: { stat: Stat; index: number }) => {
   const StatIcon = stat.icon;
+
+  const statContent = (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 }}
+      whileHover={{ 
+        scale: 1.05,
+        y: -2
+      }}
+      className={cn(
+        "p-4 bg-gradient-to-br from-white to-purple-50 rounded-2xl flex items-center justify-between border border-purple-100 transition-all duration-300 hover:shadow-lg",
+        "relative overflow-hidden group"
+      )}
+    >
+      {/* Efeito de brilho no hover */}
+      <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      
+      <div className="relative z-10">
+        <div className="text-lg sm:text-xl font-bold bg-gradient-to-r from-purple-600 to-orange-600 bg-clip-text text-transparent">
+          {stat.value}
+        </div>
+        <div className="text-xs text-gray-600 font-medium">{stat.label}</div>
+      </div>
+      <div className="relative z-10 p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
+        <StatIcon className="w-4 h-4 text-purple-600" />
+      </div>
+    </motion.div>
+  );
 
   if (stat.label === "Visualizações" || stat.label === "Faturas") {
     return (
       <CanSeeIt key={index}>
-        <div className="p-3 sm:p-4 bg-purple-50 rounded-xl flex items-center justify-between border border-purple-100 transition-all duration-300 hover:shadow-md hover:border-purple-200">
-          <div>
-            <div className="text-lg sm:text-2xl font-bold text-purple-700">{stat.value}</div>
-            <div className="text-xs text-purple-600">{stat.label}</div>
-          </div>
-          <StatIcon className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
-        </div>
+        {statContent}
       </CanSeeIt>
     );
   }
 
+  return statContent;
+};
+
+// Ícones das redes sociais
+const SocialIcon = ({ platform, url }: { platform: string; url: string }) => {
+  const icons = {
+    facebook: { icon: Facebook, color: 'hover:text-blue-600' },
+    instagram: { icon: Instagram, color: 'hover:text-pink-600' },
+    linkedin: { icon: Linkedin, color: 'hover:text-blue-700' },
+    youtube: { icon: Youtube, color: 'hover:text-red-600' },
+    website: { icon: Globe, color: 'hover:text-purple-600' }
+  };
+
+  const config = icons[platform as keyof typeof icons] || { icon: Globe, color: 'hover:text-gray-600' };
+  const IconComponent = config.icon;
+
   return (
-    <div className="p-3 sm:p-4 bg-purple-50 rounded-xl flex items-center justify-between border border-purple-100 transition-all duration-300 hover:shadow-md hover:border-purple-200">
-      <div>
-        <div className="text-lg sm:text-2xl font-bold text-purple-700">{stat.value}</div>
-        <div className="text-xs text-purple-600">{stat.label}</div>
-      </div>
-      <StatIcon className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
-    </div>
+    <motion.a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      whileHover={{ scale: 1.2, y: -2 }}
+      whileTap={{ scale: 0.9 }}
+      className={cn(
+        "w-8 h-8 bg-white rounded-lg flex items-center justify-center border border-gray-200 text-gray-400 transition-all duration-200 shadow-sm",
+        config.color
+      )}
+    >
+      <IconComponent className="w-4 h-4" />
+    </motion.a>
   );
 };
 
+// Seção de redes sociais
 const SocialLinks = ({ user }: { user: UserProfile }) => {
   const socialLinks = [
     { platform: 'facebook', url: user.facebook },
@@ -143,26 +247,55 @@ const SocialLinks = ({ user }: { user: UserProfile }) => {
   if (socialLinks.length === 0) return null;
 
   return (
-    <div className="mt-4 pt-4 border-t border-purple-200">
-      <h4 className="text-xs font-semibold text-purple-600 mb-2">Redes Sociais</h4>
-      <div className="flex justify-center space-x-3">
+    <motion.div 
+      className="mt-6 pt-4 border-t border-purple-200"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.5 }}
+    >
+      <h4 className="text-xs font-semibold text-gray-600 mb-3 text-center">Redes Sociais</h4>
+      <div className="flex justify-center space-x-2">
         {socialLinks.map((link, index) => (
-          <a
+          <motion.div
             key={index}
-            href={link.url || ""}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-purple-400 hover:text-purple-600 transition-colors"
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.6 + index * 0.1 }}
           >
-            {link.platform}
-          </a>
+            <SocialIcon platform={link.platform} url={link.url || ""} />
+          </motion.div>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
+// Informações da empresa/licença
+const ProfessionalInfo = ({ user }: { user: UserProfile }) => {
+  if (!user.empresa && !user.licenca) return null;
 
+  return (
+    <motion.div 
+      className="mt-4 space-y-2"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.4 }}
+    >
+      {user.empresa && (
+        <div className="flex items-center justify-center text-sm text-gray-600">
+          <Building className="w-4 h-4 mr-2 text-purple-500" />
+          <span className="font-medium">{user.empresa}</span>
+        </div>
+      )}
+      {user.licenca && (
+        <div className="flex items-center justify-center text-xs text-gray-500">
+          <BadgeCheck className="w-4 h-4 mr-2 text-orange-500" />
+          <span>Licença: {user.licenca}</span>
+        </div>
+      )}
+    </motion.div>
+  );
+};
 
 export function UserCard({ user, displayName, stats, onAvatarUpdate }: UserCardProps) {
   const [isUploading, setIsUploading] = useState(false);
@@ -172,7 +305,7 @@ export function UserCard({ user, displayName, stats, onAvatarUpdate }: UserCardP
     if (user.sobre_mim) return user.sobre_mim;
     if (user.empresa) return user.empresa;
     if (user.username) return `@${user.username}`;
-    return "Usuário";
+    return "Bem-vindo ao seu perfil";
   };
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -187,21 +320,17 @@ export function UserCard({ user, displayName, stats, onAvatarUpdate }: UserCardP
     setIsUploading(true);
 
     try {
-      // 🔹 Opções de compressão
       const options = {
-        maxSizeMB: 2, // máximo ~2MB
-        maxWidthOrHeight: 1024, // redimensiona se for muito grande
+        maxSizeMB: 2,
+        maxWidthOrHeight: 1024,
         useWebWorker: true,
       };
 
-      // 🔹 Comprimir a imagem antes do upload
       const compressedFile = await imageCompression(file, options);
-
       const fileExt = compressedFile.name.split(".").pop();
       const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       const filePath = `avatars/${fileName}`;
 
-      // Upload para Supabase
       const { error: uploadError } = await supabase.storage
         .from("user-avatars")
         .upload(filePath, compressedFile, {
@@ -241,49 +370,65 @@ export function UserCard({ user, displayName, stats, onAvatarUpdate }: UserCardP
   };
 
   return (
-    <Card className="shadow-md border-purple-100">
-      <CardHeader className="text-center pb-2">
-        <AvatarSection
-          user={user}
-          isUploading={isUploading}
-          onUploadClick={handleAvatarClick}
-        />
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+    >
+      <Card className="shadow-lg border-0 bg-gradient-to-br from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm overflow-hidden">
+        {/* Efeito de gradiente no topo */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-orange-500 to-pink-500" />
+        
+        <CardHeader className="text-center pb-4 pt-6">
+          <AvatarSection
+            user={user}
+            isUploading={isUploading}
+            onUploadClick={handleAvatarClick}
+          />
 
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileSelect}
-          className="hidden"
-          ref={fileInputRef}
-          disabled={isUploading}
-        />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileSelect}
+            className="hidden"
+            ref={fileInputRef}
+            disabled={isUploading}
+          />
 
-        <CardTitle className="text-lg sm:text-xl text-purple-900 mt-4 flex items-center justify-center">
-          {displayName}
-          <RoleBadge role={user.role || "User"} />
-        </CardTitle>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mt-4"
+          >
+            <CardTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-orange-600 bg-clip-text text-transparent flex items-center justify-center">
+              {displayName}
+              <RoleBadge role={user.role || "user"} />
+            </CardTitle>
 
-        <CardDescription className="text-purple-700 text-xs sm:text-base">
-          {getProfileDescription()}
-        </CardDescription>
+            <CardDescription className="text-gray-600 text-sm mt-2 leading-relaxed">
+              {getProfileDescription()}
+            </CardDescription>
+          </motion.div>
 
-        {(user.empresa || user.licenca) && (
-          <div className="mt-2 text-xs text-purple-600">
-            {user.empresa && <div>{user.empresa}</div>}
-            {user.licenca && <div>Licença: {user.licenca}</div>}
-          </div>
-        )}
-      </CardHeader>
+          <ProfessionalInfo user={user} />
+        </CardHeader>
 
-      <CardContent>
-        <div className="grid grid-cols-2 gap-2 sm:gap-4">
-          {stats.map((stat, index) => (
-            <StatCard key={index} stat={stat} index={index} />
-          ))}
-        </div>
+        <CardContent className="pt-4">
+          <motion.div 
+            className="grid grid-cols-2 gap-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            {stats.map((stat, index) => (
+              <StatCard key={index} stat={stat} index={index} />
+            ))}
+          </motion.div>
 
-        <SocialLinks user={user} />
-      </CardContent>
-    </Card>
+          <SocialLinks user={user} />
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }

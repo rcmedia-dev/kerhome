@@ -2,8 +2,9 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { CheckCircle, XCircle, Clock, UserCircle2, Mail, Phone, Crown, Zap, Check, ArrowRight, MoreVertical, Star, Loader2 } from "lucide-react"
-import { approvePlanRequest, getPlanRequests, rejectPlanRequest } from "../dashboard/actions/get-plan-requests"
+import { CheckCircle, XCircle, Clock, UserCircle2, Mail, Phone, Crown, Zap, Check, ArrowRight, MoreVertical, Star, Loader2, Trash2, Edit } from "lucide-react"
+import { approvePlanRequest, getPlanRequests, rejectPlanRequest, removeSubscription } from "../dashboard/actions/get-plan-requests"
+
 type SubscriptionStatus = "Todos" | "Pendentes" | "Aprovados" | "Rejeitados"
 
 type UserSubscription = Awaited<ReturnType<typeof getPlanRequests>>[number]
@@ -68,6 +69,7 @@ export default function SubscricoesPage() {
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState<string | null>(null)
   const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
 
   const fetchData = async () => {
     setLoading(true)
@@ -113,7 +115,6 @@ export default function SubscricoesPage() {
       
       if (result.success) {
         setMessage({ type: 'success', text: result.message })
-        // Atualizar a lista
         await fetchData()
       } else {
         setMessage({ type: 'error', text: result.message })
@@ -134,13 +135,33 @@ export default function SubscricoesPage() {
       
       if (result.success) {
         setMessage({ type: 'success', text: result.message })
-        // Atualizar a lista
         await fetchData()
       } else {
         setMessage({ type: 'error', text: result.message })
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'Erro ao processar solicitação' })
+    } finally {
+      setProcessing(null)
+    }
+  }
+
+  const handleRemoveSubscription = async (requestId: string, userId: string) => {
+    setProcessing(requestId)
+    setMessage(null)
+    setShowDeleteConfirm(null)
+    
+    try {
+      const result = await removeSubscription(requestId, userId)
+      
+      if (result.success) {
+        setMessage({ type: 'success', text: result.message })
+        await fetchData()
+      } else {
+        setMessage({ type: 'error', text: result.message })
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Erro ao remover subscrição' })
     } finally {
       setProcessing(null)
     }
@@ -318,26 +339,48 @@ export default function SubscricoesPage() {
                             </button>
                           </div>
                         )}
-                        {user.status === "Aprovados" && (
+                        
+                        {(user.status === "Aprovados" || user.status === "Rejeitados") && (
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-green-600 font-medium">
-                              <CheckCircle size={16} />
-                              <span>Aprovado</span>
+                            <div className={`flex items-center gap-2 font-medium ${
+                              user.status === "Aprovados" ? "text-green-600" : "text-red-500"
+                            }`}>
+                              {user.status === "Aprovados" ? <CheckCircle size={16} /> : <XCircle size={16} />}
+                              <span>{user.status === "Aprovados" ? "Aprovado" : "Rejeitado"}</span>
                             </div>
-                            <button className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
-                              <MoreVertical size={16} />
-                            </button>
-                          </div>
-                        )}
-                        {user.status === "Rejeitados" && (
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-red-500 font-medium">
-                              <XCircle size={16} />
-                              <span>Rejeitado</span>
+                            
+                            <div className="flex items-center gap-1">
+                              {/* Botão de remover com confirmação */}
+                              {showDeleteConfirm === user.id ? (
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={() => handleRemoveSubscription(user.id, user.user_id)}
+                                    disabled={processing === user.id}
+                                    className="p-2 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+                                  >
+                                    {processing === user.id ? (
+                                      <Loader2 size={14} className="animate-spin" />
+                                    ) : (
+                                      "Confirmar"
+                                    )}
+                                  </button>
+                                  <button
+                                    onClick={() => setShowDeleteConfirm(null)}
+                                    className="p-2 bg-gray-200 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-300 transition-colors"
+                                  >
+                                    Cancelar
+                                  </button>
+                                </div>
+                              ) : (
+                                <button 
+                                  onClick={() => setShowDeleteConfirm(user.id)}
+                                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                  title="Remover subscrição"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              )}
                             </div>
-                            <button className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
-                              <MoreVertical size={16} />
-                            </button>
                           </div>
                         )}
                       </div>
