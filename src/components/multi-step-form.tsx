@@ -495,7 +495,7 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
                 <div 
                   className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
                     index === currentStepIndex 
-                      ? "bg-blue-600 border-blue-600 text-white" 
+                      ? "bg-purple-700 border-purple-700 text-white" 
                       : index < currentStepIndex 
                       ? "bg-green-500 border-green-500 text-white" 
                       : "bg-white border-gray-300 text-gray-400"
@@ -581,7 +581,7 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
                 type="button" 
                 onClick={goToNextStep} 
                 disabled={isSubmitting}
-                className="min-w-[120px]"
+                className="min-w-[120px] bg-purple-700 hover:bg-purple-600"
               >
                 Próximo →
               </Button>

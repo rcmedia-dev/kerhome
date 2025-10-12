@@ -1,6 +1,6 @@
 'use client';
 
-import { MapPin, BedDouble, Ruler, Tag, Pencil, Trash, Heart, Share2 } from 'lucide-react';
+import { MapPin, BedDouble, Ruler, Tag, Pencil, Trash, Heart, Share2, Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/components/auth-context';
@@ -172,6 +172,12 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
     }
   };
 
+  // Função para destacar propriedade
+  const handleDestacarPropriedade = () => {
+    // TODO: Implementar lógica para destacar propriedade
+    toast.info('Funcionalidade de destaque em breve!');
+  };
+
   return (
     <div className="w-[300px] bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 h-full flex flex-col relative group">
       <StatusBadge status={property.status} />
@@ -235,13 +241,25 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
           </div>
         </div>
 
-        <Link
-          href={`/propriedades/${property.id}`}
-          className="flex justify-center cursor-pointer w-full mt-2 bg-purple-700 hover:bg-purple-800 text-white py-2 rounded-lg font-medium transition"
-          prefetch={false}
-        >
-          Ver detalhes
-        </Link>
+        <div className="space-y-2">
+          <Link
+            href={`/propriedades/${property.id}`}
+            className="flex justify-center cursor-pointer w-full bg-purple-700 hover:bg-purple-800 text-white py-2 rounded-lg font-medium transition"
+            prefetch={false}
+          >
+            Ver detalhes
+          </Link>
+          
+          {isOwner && (
+            <Link
+              href='/dashboard/destacar'
+              className="flex items-center justify-center gap-2 w-full border border-purple-700 text-purple-700 hover:bg-purple-50 py-2 rounded-lg font-medium transition"
+            >
+              <Star className="w-4 h-4" />
+              Destacar propriedade
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   );
