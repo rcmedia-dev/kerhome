@@ -9,6 +9,8 @@ import {
 } from '@/components/ui/dialog';
 import { CustomSignInForm } from './login-form';
 import { CustomSignUpForm } from './signup-form';
+import { useUserStore } from '@/lib/store/user-store';
+import { supabase } from '@/lib/supabase';
 
 interface AuthDialogProps {
   trigger?: React.ReactNode;
@@ -22,15 +24,29 @@ export const AuthDialog = forwardRef(function AuthDialog(
 ) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSignUp, setIsSignUp] = useState(defaultMode === 'signUp');
+  const { setUser, fetchUserProfile } = useUserStore();
 
   useImperativeHandle(ref, () => ({
     open: () => setIsOpen(true),
     close: () => setIsOpen(false),
   }));
 
-  const handleSuccess = () => {
-    setIsOpen(false);
-    onSuccess?.();
+  const handleSuccess = async () => {
+    try {
+      // Buscar o perfil do usuário após login/signup bem-sucedido
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const userProfile = await fetchUserProfile(user.id);
+        if (userProfile) {
+          setUser(userProfile);
+        }
+      }
+      
+      setIsOpen(false);
+      onSuccess?.();
+    } catch (error) {
+      console.error('Erro ao buscar perfil do usuário:', error);
+    }
   };
 
   return (

@@ -1,16 +1,16 @@
 'use client';
 
-import { MapPin, BedDouble, Ruler, Tag, Pencil, Trash, Heart, Share2, Star } from 'lucide-react';
+import { MapPin, BedDouble, Ruler, Tag, Pencil, Trash, Heart, Share2, Star, Zap } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useAuth } from '@/components/auth-context';
-import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { toggleFavoritoProperty } from '@/lib/actions/toggle-favorite';
 import { TPropertyResponseSchema } from '@/lib/types/property';
 import { getImoveisFavoritos } from '@/lib/actions/get-favorited-imoveis';
 import { deleteProperty } from '@/lib/actions/supabase-actions/delete-propertie';
 import { toast } from 'sonner';
+import { useUserStore } from '@/lib/store/user-store';
+import { createClient } from '@/lib/supabase/client';
 
 // =======================
 // Subcomponentes
@@ -22,6 +22,15 @@ const StatusBadge = ({ status }: { status: string }) => {
   if (status === 'arrendar') return <span className={`${baseClass} bg-blue-600`}>Para alugar</span>;
   return null;
 };
+
+const BoostedBadge = () => (
+  <div className="absolute top-3 left-3 z-10">
+    <div className="bg-gradient-to-r from-orange-500 to-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+      <Zap className="w-3 h-3" />
+      Impulsionado
+    </div>
+  </div>
+);
 
 const OwnerActions = ({ propertyId }: { propertyId: string }) => (
   <div className="absolute top-3 right-3 z-20 flex gap-2">
@@ -87,15 +96,40 @@ const UserActions = ({
   </div>
 );
 
+// Função para verificar se o imóvel está impulsionado
+const checkIfPropertyIsBoosted = async (propertyId: string): Promise<boolean> => {
+  const supabase = createClient();
+  
+  try {
+    const { data, error } = await supabase
+      .from('properties_to_boost')
+      .select('id')
+      .eq('property_id', propertyId)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Erro ao verificar impulsionamento:', error);
+      return false;
+    }
+
+    return !!data;
+  } catch (error) {
+    console.error('Erro ao verificar impulsionamento:', error);
+    return false;
+  }
+};
+
 // =======================
 // Main Component
 // =======================
 export function PropertyCard({ property }: { property: TPropertyResponseSchema }) {
-  const { user } = useAuth();
+  const { user } = useUserStore();
   const isOwner = user?.id === property.owner_id;
 
   const [favorito, setFavorito] = useState(false);
   const [loadingFavorito, setLoadingFavorito] = useState(true);
+  const [isBoosted, setIsBoosted] = useState(false);
+  const [loadingBoost, setLoadingBoost] = useState(true);
 
   // URL do imóvel (fix SSR)
   const [shareUrl, setShareUrl] = useState<string>("");
@@ -121,6 +155,20 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
       }
     })();
   }, [user, property.id]);
+
+  // Checar se o imóvel está impulsionado
+  useEffect(() => {
+    (async () => {
+      try {
+        const boosted = await checkIfPropertyIsBoosted(property.id);
+        setIsBoosted(boosted);
+      } catch (error) {
+        console.error('Erro ao verificar impulsionamento:', error);
+      } finally {
+        setLoadingBoost(false);
+      }
+    })();
+  }, [property.id]);
 
   // Toggle favorito
   const toggleFavorito = async () => {
@@ -172,21 +220,34 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
     }
   };
 
-  // Função para destacar propriedade
-  const handleDestacarPropriedade = () => {
-    // TODO: Implementar lógica para destacar propriedade
-    toast.info('Funcionalidade de destaque em breve!');
-  };
-
   return (
-    <div className="w-[300px] bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 h-full flex flex-col relative group">
-      <StatusBadge status={property.status} />
+    <div className={`w-[300px] bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 h-full flex flex-col relative group ${
+      isBoosted ? 'ring-2 ring-orange-500 ring-opacity-50' : ''
+    }`}>
+      {/* Badge de status e impulsionamento */}
+      {isBoosted ? (
+        <BoostedBadge />
+      ) : (
+        <StatusBadge status={property.status} />
+      )}
 
       {isOwner && <OwnerActions propertyId={property.id} />}
 
       {/* Imagem */}
       <div className="relative h-56 w-full">
-        <Image src={property.image ?? '/house.jpg'} alt={property.title} fill className="object-cover" priority={false} />
+        <Image 
+          src={property.image ?? '/house.jpg'} 
+          alt={property.title} 
+          fill 
+          className="object-cover" 
+          priority={false} 
+        />
+        
+        {/* Overlay sutil para imóveis impulsionados */}
+        {isBoosted && (
+          <div className="absolute inset-0 bg-gradient-to-t from-orange-500/10 to-transparent pointer-events-none" />
+        )}
+        
         {user && !isOwner && (
           <UserActions
             favorito={favorito}
@@ -206,6 +267,14 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
           </div>
 
           <h3 className="text-xl font-semibold text-gray-900 line-clamp-2">{property.title}</h3>
+
+          {/* Indicador de impulsionamento para não-donos */}
+          {!isOwner && isBoosted && (
+            <div className="flex items-center gap-1 text-xs text-orange-600 font-medium">
+              <Zap className="w-3 h-3" />
+              <span>Imóvel Impulsionado</span>
+            </div>
+          )}
 
           <div className="flex justify-between text-gray-700 text-sm">
             <div className="flex items-center gap-1">
@@ -252,11 +321,15 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
           
           {isOwner && (
             <Link
-              href='/dashboard/destacar'
-              className="flex items-center justify-center gap-2 w-full border border-purple-700 text-purple-700 hover:bg-purple-50 py-2 rounded-lg font-medium transition"
+              href={`/dashboard/destacar/${property.id}`}
+              className={`flex items-center justify-center gap-2 w-full border py-2 rounded-lg font-medium transition ${
+                isBoosted
+                  ? 'border-green-600 bg-green-50 text-green-700 hover:bg-green-100'
+                  : 'border-purple-700 text-purple-700 hover:bg-purple-50'
+              }`}
             >
-              <Star className="w-4 h-4" />
-              Destacar propriedade
+              <Star className={`w-4 h-4 ${isBoosted ? 'text-green-600' : ''}`} />
+              {isBoosted ? 'Impulsionado ✓' : 'Destacar propriedade'}
             </Link>
           )}
         </div>

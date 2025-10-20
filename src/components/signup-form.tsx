@@ -2,9 +2,9 @@
 
 import React from 'react'
 import Image from 'next/image'
-import { useAuth } from './auth-context'
 import { signUp } from '@/lib/actions/supabase-actions/signup-action'
 import { useRouter } from 'next/navigation'
+import { useUserStore } from '@/lib/store/user-store'
 
 interface Props {
   onSuccess?: () => void
@@ -14,7 +14,7 @@ interface Props {
 export function CustomSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
   const [error, setError] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(false)
-  const { setUser } = useAuth()
+  const { setUser, fetchUserProfile } = useUserStore()
   const router = useRouter()
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -34,13 +34,24 @@ export function CustomSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
       const result = await signUp(formData)
 
       if (result?.success && result.user) {
-        setUser({
-          id: result.user.id,
-          email: result.user.email,
-          username: `${result.user.primeiro_nome} ${result.user.ultimo_nome}`,
-          primeiro_nome: result.user.primeiro_nome,
-          ultimo_nome: result.user.ultimo_nome
-        })
+        // Buscar o perfil completo do usuário após o cadastro
+        const userProfile = await fetchUserProfile(result.user.id)
+        
+        if (userProfile) {
+          setUser(userProfile)
+        } else {
+          // Fallback caso não consiga buscar o perfil completo
+          setUser({
+            id: result.user.id,
+            email: result.user.email,
+            primeiro_nome: result.user.primeiro_nome,
+            ultimo_nome: result.user.ultimo_nome,
+            username: `${result.user.primeiro_nome} ${result.user.ultimo_nome}`,
+            role: 'user',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+        }
         
         onSuccess?.()
         router.push('/dashboard') // Redireciona após cadastro

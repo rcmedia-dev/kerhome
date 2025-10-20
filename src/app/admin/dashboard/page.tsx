@@ -17,6 +17,8 @@ import {
   Mail,
   Award,
   Medal,
+  Megaphone,
+  Rocket,
 } from 'lucide-react';
 import Link from 'next/link';
 import { RenderProperties } from '../components/properties-component';
@@ -26,6 +28,8 @@ import SubscricoesPage from '../components/subscriptions-component';
 import AgentSubscriptionsPage from '../components/agent-subscription-component';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import PropertiesToBoost from '../components/properties-to-boost';
+import BoostManagement from '../components/properties-to-boost';
 
 
 
@@ -129,6 +133,7 @@ const agentUsers = useQuery({
     { id: 'users', label: 'Utilizadores', icon: Users, href: '#' },
     { id: 'subscriptions', label: 'Subscrições de Planos', icon: Award, href: '#' },
     { id: 'subscriptions2', label: 'Subscrições de Agentes', icon: Medal, href: '#' },
+    { id: 'subscriptions3', label: 'Propriedades Destacadas', icon: Rocket, href: '#' },
     { id: 'messages', label: 'Mensagens', icon: MessageCircle, href: '#' },
     { id: 'settings', label: 'Configurações', icon: Settings, href: '#' }
   ];
@@ -303,6 +308,7 @@ const agentUsers = useQuery({
       case 'users': return <UserManagement darkMode={darkMode}/>;
       case 'subscriptions': return <SubscricoesPage />;
       case 'subscriptions2': return <AgentSubscriptionsPage />
+      case 'subscriptions3': return <BoostManagement darkMode={darkMode} />
       case 'messages': return renderMessages();
       case 'settings': return renderSettings();
       default: return <RenderDashboard darkMode={darkMode}/>;
