@@ -114,7 +114,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
         const startedAt = new Date(boost.created_at);
         const expiresAt = new Date(startedAt);
         
-        if (boost.status === 'approved' && plan?.dias) {
+        if (boost.status === 'active' && plan?.dias) {
           expiresAt.setDate(startedAt.getDate() + plan.dias);
         } else {
           // Para boosts não aprovados, definir como expirado
@@ -171,7 +171,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       // Atualizar status para approved
       const { error } = await supabase
         .from('properties_to_boost')
-        .update({ status: 'approved' })
+        .update({ status: 'active' })
         .eq('id', boostId);
 
       if (error) {

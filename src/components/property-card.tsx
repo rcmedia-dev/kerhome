@@ -32,7 +32,7 @@ const BoostedBadge = () => (
   </div>
 );
 
-const OwnerActions = ({ propertyId }: { propertyId: string }) => (
+const OwnerActions = ({ propertyId, userId }: { propertyId: string; userId: string }) => (
   <div className="absolute top-3 right-3 z-20 flex gap-2">
     <Link
       href={`/dashboard/editar-imovel/${propertyId}`}
@@ -43,15 +43,12 @@ const OwnerActions = ({ propertyId }: { propertyId: string }) => (
     </Link>
     <button
       onClick={async () => {
-        if (confirm('Tem certeza que deseja eliminar este imóvel?')) {
           try {
-            await deleteProperty(propertyId);
-            toast.success('Imóvel deletado com sucesso');
+            await deleteProperty(propertyId, userId);
+            toast.success("Propriedade Deletada Com Sucesso");
           } catch (e) {
-            toast.error('Erro ao deletar o imóvel');
             console.error('error:', e);
           }
-        }
       }}
       className="bg-white p-1.5 rounded-full shadow hover:bg-red-100 transition"
       title="Eliminar"
@@ -231,7 +228,7 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
         <StatusBadge status={property.status} />
       )}
 
-      {isOwner && <OwnerActions propertyId={property.id} />}
+      {isOwner && <OwnerActions propertyId={property.id} userId={user.id}/>}
 
       {/* Imagem */}
       <div className="relative h-56 w-full">
@@ -321,10 +318,13 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
           
           {isOwner && (
             <Link
-              href={`/dashboard/destacar/${property.id}`}
+              href={isBoosted ? '#' : `/dashboard/destacar/${property.id}`}
+              onClick={(e) => {
+                if (isBoosted) e.preventDefault(); // Impede a navegação se estiver desabilitado
+              }}
               className={`flex items-center justify-center gap-2 w-full border py-2 rounded-lg font-medium transition ${
                 isBoosted
-                  ? 'border-green-600 bg-green-50 text-green-700 hover:bg-green-100'
+                  ? 'border-green-600 bg-green-50 text-green-700 opacity-60 cursor-not-allowed'
                   : 'border-purple-700 text-purple-700 hover:bg-purple-50'
               }`}
             >

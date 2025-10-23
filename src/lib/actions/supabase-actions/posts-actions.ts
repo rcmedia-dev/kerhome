@@ -3,9 +3,10 @@ import { GET_POST_BY_SLUG, GET_POSTS } from "@/lib/hygraph-queries";
 import { Noticias } from "@/lib/types/noticia";
 
 
-export async function fetchPosts(): Promise<Noticias[]> {
-  const data = await hygraphClient.request<{ noticias: Noticias[] }>(GET_POSTS);
-  return data.noticias; // aqui sim retorna um array de Noticias
+export async function fetchPosts(page: number = 0, limit: number = 6) {
+  const skip = page * limit;
+  const data = await hygraphClient.request<{ noticias: Noticias[] }>(GET_POSTS, { first: limit, skip });
+  return data.noticias;
 }
 
 export async function fetchPostBySlug(slug: string) {

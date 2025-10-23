@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Calendar, User, ArrowRight, Search } from 'lucide-react';
 import { Noticias } from '@/lib/types/noticia';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchPosts } from '@/lib/actions/supabase-actions/posts-actions';
 import Link from 'next/link';
 import readingTime from 'reading-time';
@@ -295,47 +295,62 @@ const NewsletterSection: React.FC = () => (
   </div>
 );
 
-// Componente principal do blog
+
 const KercasaBlog: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const stripHtml = (html: string): string => {
-    return html.replace(/<[^>]*>/g, '');
-  };
+  const stripHtml = (html: string) => html.replace(/<[^>]*>/g, "");
 
-  const blogPosts = useQuery({
-    queryKey: ['posts'],
-    queryFn: async() => {
-        const posts = await fetchPosts()
-        return posts
-    }
-  })
+  // ✅ Aqui está o uso correto da função com o initialPageParam
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["posts"],
+    initialPageParam: 0, // 👈 OBRIGATÓRIO agora
+    queryFn: async ({ pageParam }) => fetchPosts(pageParam, 10),
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length === 10 ? allPages.length : undefined, // se trouxe menos que 10, acabou
+  });
 
-  console.log(blogPosts)
+  const allPosts = data?.pages.flat() || [];
 
-  const filteredPosts = blogPosts?.data?.filter(post => {
-    const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         stripHtml(post.excerpt.html).toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredPosts = allPosts.filter((post) => {
+    const matchesSearch =
+      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      stripHtml(post.excerpt.html).toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <SearchBar 
-        searchTerm={searchTerm} 
-        setSearchTerm={setSearchTerm} 
-        resultsCount={filteredPosts?.length || 0} 
+      <SearchBar
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        resultsCount={filteredPosts.length}
       />
-      
+
       <main className="container mx-auto px-4 py-6">
-        <FeaturedSection posts={filteredPosts ?? []} />
-        
+        <FeaturedSection posts={filteredPosts.slice(0, 3)} />
+
         <div className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">
-            Todos os Artigos
-          </h2>
-          <PostsGrid posts={filteredPosts ?? []} />
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Todos os Artigos</h2>
+          <PostsGrid posts={filteredPosts} />
+
+          {hasNextPage && (
+            <div className="flex justify-center mt-8">
+              <button
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                className="px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:opacity-50"
+              >
+                {isFetchingNextPage ? "Carregando..." : "Carregar mais artigos"}
+              </button>
+            </div>
+          )}
         </div>
 
         <NewsletterSection />

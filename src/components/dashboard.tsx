@@ -5,6 +5,7 @@ import {
   Eye,
   Heart,
   Home,
+  Rocket,
   Settings,
   Star,
   Upload,
@@ -42,6 +43,7 @@ import { useUserStore } from '@/lib/store/user-store';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Variants, Easing } from "framer-motion";
 import { cn } from '@/lib/utils';
+import PropriedadesImpulsionadasDashboard from './boosted-properties';
 
 // Loading suave e elegante
 const SoftLoading = () => (
@@ -326,6 +328,11 @@ export default function Dashboard() {
       icon: Eye,
       badge: viewsCount,
     },
+    {
+      id: 'boost',
+      label: 'Propriedades Impulsionadas',
+      icon: Rocket,
+    },
     { id: 'settings', label: 'Configurações da Conta', icon: Settings },
   ];
 
@@ -444,6 +451,7 @@ export default function Dashboard() {
                   {activeTab === 'favorites' && <Favoritas userFavoriteProperties={userFavoriteProperties.data ?? []} />}
                   {activeTab === 'invoices' && <Faturas invoices={userInvoices.data ?? []} />}
                   {activeTab === 'views' && <PropriedadesMaisVisualizadas mostViewedProperties={mostViewed.data!} />}
+                  {activeTab === 'boost' && <PropriedadesImpulsionadasDashboard />}
                   {activeTab === 'settings' && <ConfiguracoesConta profile={user || undefined} />}
                 </motion.div>
               </AnimatePresence>
@@ -525,6 +533,7 @@ export default function Dashboard() {
                 {activeTab === 'favorites' && <Favoritas userFavoriteProperties={userFavoriteProperties.data ?? []} />}
                 {activeTab === 'invoices' && <Faturas invoices={userInvoices.data ?? []} />}
                 {activeTab === 'views' && <PropriedadesMaisVisualizadas mostViewedProperties={mostViewed.data!} />}
+                {activeTab === 'boost' && <PropriedadesImpulsionadasDashboard />}
                 {activeTab === 'settings' && <ConfiguracoesConta profile={user} />}
               </motion.div>
             </AnimatePresence>
