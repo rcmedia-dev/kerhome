@@ -1,3 +1,7 @@
+export const revalidate = 0;
+export const dynamic = "force-dynamic";
+
+
 import HeroCarousel from '@/components/hero';
 import PropertiesShowcase from '@/components/property-showcase';
 import ActionCardsSection from '@/components/actions-card';
