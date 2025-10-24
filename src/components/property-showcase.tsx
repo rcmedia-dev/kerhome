@@ -12,7 +12,7 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
   const limitedProperties = property.slice(0, 8);
 
   return (
-    <section className="relative py-16 px-4 sm:px-6 lg:px-10 bg-gradient-to-br from-slate-50 via-white to-orange-50/30">
+    <section className="relative py-16 lg:px-10 bg-gradient-to-br from-slate-50 via-white to-orange-50/30">
       {/* Elementos decorativos de fundo */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-20 -right-20 w-72 h-72 bg-orange-200/20 rounded-full blur-3xl"></div>
@@ -38,19 +38,21 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
         </p>
       </div>
 
-      <div className="relative mx-auto max-w-7xl">
+      <div className="relative flex justify-center mx-auto max-w-7xl">
         {inline ? (
           <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-stretch overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-orange-300 scrollbar-track-orange-100">
             {limitedProperties.map((property) => (
-              <div key={property.id} className="min-w-[300px] flex-1">
+              <div key={property.id} className="min-w-[300px] flex-1 sm:flex-none">
                 <PropertyCard property={property} />
               </div>
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-center">
+          <div className="flex flex-col items-center sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-center">
             {limitedProperties.map((property) => (
-              <PropertyCard key={property.id} property={property} />
+              <div key={property.id} className="w-11/12 sm:w-auto">
+                <PropertyCard property={property} />
+              </div>
             ))}
           </div>
         )}
