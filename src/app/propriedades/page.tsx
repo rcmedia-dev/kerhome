@@ -1,10 +1,7 @@
 'use client'
 
-import React, { useState, useEffect, ReactNode } from 'react';
+import React, { useState, useEffect, ReactNode, useCallback, useRef } from 'react';
 import { 
-  Search, 
-  Home, 
-  Building2, 
   Bed, 
   Bath, 
   Car, 
@@ -12,7 +9,6 @@ import {
   ChevronDown, 
   SlidersHorizontal,
   DollarSign,
-  Filter,
   X,
   Building,
   TrendingUp,
@@ -22,6 +18,107 @@ import {
 import { PropertyCard } from '@/components/property-card';
 import { useQuery } from '@tanstack/react-query';
 import { getProperties } from '@/lib/actions/get-properties';
+
+// Hook personalizado para debounce (sem bibliotecas externas)
+const useDebouncedCallback = (fn: (...args: any[]) => void, wait = 350) => {
+  const timer = useRef<number | null>(null);
+  return useCallback((...args: any[]) => {
+    if (timer.current) window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => {
+      fn(...args);
+      timer.current = null;
+    }, wait);
+  }, [fn, wait]);
+};
+
+// Função para formatar número com separador de milhar
+const formatCurrencyInput = (value: string): string => {
+  // Remove tudo que não é número
+  const numbersOnly = value.replace(/\D/g, '');
+  
+  // Se estiver vazio, retorna vazio
+  if (!numbersOnly) return '';
+  
+  // Formata com separador de milhar
+  return new Intl.NumberFormat('pt-AO', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(Number(numbersOnly));
+};
+
+// Função para remover a formatação e retornar apenas números
+const parseCurrencyInput = (formattedValue: string): string => {
+  return formattedValue.replace(/\D/g, '');
+};
+
+// Componente FilterInput com React.memo para evitar re-renders desnecessários
+const FilterInput = React.memo(({ 
+  Icon, 
+  placeholder, 
+  value, 
+  onChange, 
+  type = 'text', 
+  className = '' 
+}: {
+  Icon: LucideIcon;
+  placeholder: string;
+  value: string | number;
+  onChange: (e: any) => void;
+  type?: string;
+  className?: string;
+}) => (
+  <div className="relative group">
+    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors duration-200 group-focus-within:text-purple-600">
+      <Icon size={16} className="text-gray-400 group-focus-within:text-purple-600" />
+    </div>
+    <input
+      type={type}
+      placeholder={placeholder}
+      className={`w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white text-sm shadow-sm hover:shadow-md group-hover:border-purple-300 ${
+        value ? 'border-purple-200 bg-purple-50' : ''
+      } ${className}`}
+      value={value}
+      onChange={onChange}
+    />
+  </div>
+));
+
+FilterInput.displayName = 'FilterInput';
+
+// Componente FilterSelect com React.memo
+const FilterSelect = React.memo(({ 
+  Icon, 
+  value, 
+  onChange, 
+  children, 
+  className = '' 
+}: {
+  Icon: LucideIcon;
+  value: string | number;
+  onChange: (e: any) => void;
+  children: ReactNode;
+  className?: string;
+}) => (
+  <div className="relative group">
+    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors duration-200 group-focus-within:text-purple-600">
+      <Icon size={16} className="text-gray-400 group-focus-within:text-purple-600" />
+    </div>
+    <select
+      className={`w-full pl-10 pr-8 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 appearance-none bg-white text-sm shadow-sm hover:shadow-md group-hover:border-purple-300 ${
+        value ? 'border-purple-200 bg-purple-50' : ''
+      } ${className}`}
+      value={value}
+      onChange={onChange}
+    >
+      {children}
+    </select>
+    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+      <ChevronDown size={14} className="text-gray-400 transition-transform duration-200 group-hover:scale-110" />
+    </div>
+  </div>
+));
+
+FilterSelect.displayName = 'FilterSelect';
 
 const PropertyListing = () => {
   const [filters, setFilters] = useState({
@@ -36,8 +133,35 @@ const PropertyListing = () => {
     sortBy: 'recent'
   });
   
+  // Estados locais para inputs com debounce
+  const [localLocation, setLocalLocation] = useState(filters.location || '');
+  const [localMinPrice, setLocalMinPrice] = useState(filters.minPrice || '');
+  const [localMaxPrice, setLocalMaxPrice] = useState(filters.maxPrice || '');
+  
+  // Estados para os valores formatados (com máscara)
+  const [formattedMinPrice, setFormattedMinPrice] = useState('');
+  const [formattedMaxPrice, setFormattedMaxPrice] = useState('');
+  
   const [isSticky, setIsSticky] = useState(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  // Sincroniza estados locais quando filters muda externamente (ex: clearFilters)
+  useEffect(() => {
+    setLocalLocation(filters.location || '');
+    
+    // Atualiza os valores formatados quando os filtros são limpos
+    if (filters.minPrice === '') {
+      setFormattedMinPrice('');
+    } else {
+      setFormattedMinPrice(formatCurrencyInput(filters.minPrice));
+    }
+    
+    if (filters.maxPrice === '') {
+      setFormattedMaxPrice('');
+    } else {
+      setFormattedMaxPrice(formatCurrencyInput(filters.maxPrice));
+    }
+  }, [filters.location, filters.minPrice, filters.maxPrice]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -61,9 +185,9 @@ const PropertyListing = () => {
     });
   };
 
-  const hasActiveFilters = Object.values(filters).some(value => value !== '' && value !== '' && value !== 'recent');
+  const hasActiveFilters = Object.values(filters).some(value => value !== '' && value !== 'recent');
 
-  //properties from supabase
+  // Properties from supabase
   const properties = useQuery({
     queryKey: ['properties'],
     queryFn: async() => {
@@ -72,69 +196,132 @@ const PropertyListing = () => {
     }
   })
 
-  console.log({properties})
+  // 🔍 Funções de debounce para localização e preços
+  const updateFilterLocation = useDebouncedCallback((value: string) => {
+    setFilters(prev => ({ ...prev, location: value }));
+  }, 350);
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('pt-AO', {
-      style: 'currency',
-      currency: 'AOA',
-      minimumFractionDigits: 0
-    }).format(price);
-  };
+  const updateFilterMinPrice = useDebouncedCallback((value: string) => {
+    setFilters(prev => ({ ...prev, minPrice: value }));
+  }, 350);
 
-  type FilterInputProps = {
-    Icon: LucideIcon;
-    placeholder: string;
-    value: string | number;
-    onChange: (e: any) => void;
-    type?: string;
-    className?: string;
-  }
+  const updateFilterMaxPrice = useDebouncedCallback((value: string) => {
+    setFilters(prev => ({ ...prev, maxPrice: value }));
+  }, 350);
 
-  const FilterInput = ({ Icon, placeholder, value, onChange, type = 'text', className = '' }: FilterInputProps ) => (
-    <div className="relative group">
-      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors duration-200 group-focus-within:text-purple-600">
-        <Icon size={16} className="text-gray-400 group-focus-within:text-purple-600" />
-      </div>
-      <input
-        type={type}
-        placeholder={placeholder}
-        className={`w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white text-sm shadow-sm hover:shadow-md group-hover:border-purple-300 ${
-          value ? 'border-purple-200 bg-purple-50' : ''
-        } ${className}`}
-        value={value}
-        onChange={onChange}
-      />
-    </div>
-  );
+  // 🎯 Handlers para inputs com debounce - useCallback para manter referência estável
+  const handleLocalLocationChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLocalLocation(value);
+    updateFilterLocation(value);
+  }, [updateFilterLocation]);
 
-  type SelectFilterProps = {
-    Icon: LucideIcon;
-    value: string | number;
-    onChange: (e: any) => void;
-    children: ReactNode;
-    className?: string;
-  }
+  // Handler para preço mínimo com formatação
+  const handleLocalMinPriceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    
+    // Aplica a máscara de formatação
+    const formattedValue = formatCurrencyInput(inputValue);
+    setFormattedMinPrice(formattedValue);
+    
+    // Atualiza o estado local com o valor numérico (sem formatação)
+    const numericValue = parseCurrencyInput(formattedValue);
+    setLocalMinPrice(numericValue);
+    updateFilterMinPrice(numericValue);
+  }, [updateFilterMinPrice]);
 
-  const FilterSelect = ({ Icon, value, onChange, children, className = '' }: SelectFilterProps) => (
-    <div className="relative group">
-      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors duration-200 group-focus-within:text-purple-600">
-        <Icon size={16} className="text-gray-400 group-focus-within:text-purple-600" />
-      </div>
-      <select
-        className={`w-full pl-10 pr-8 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 appearance-none bg-white text-sm shadow-sm hover:shadow-md group-hover:border-purple-300 ${
-          value ? 'border-purple-200 bg-purple-50' : ''
-        } ${className}`}
-        value={value}
-        onChange={onChange}
-      >
-        {children}
-      </select>
-      <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-        <ChevronDown size={14} className="text-gray-400 transition-transform duration-200 group-hover:scale-110" />
-      </div>
-    </div>
-  );
+  // Handler para preço máximo com formatação
+  const handleLocalMaxPriceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    
+    // Aplica a máscara de formatação
+    const formattedValue = formatCurrencyInput(inputValue);
+    setFormattedMaxPrice(formattedValue);
+    
+    // Atualiza o estado local com o valor numérico (sem formatação)
+    const numericValue = parseCurrencyInput(formattedValue);
+    setLocalMaxPrice(numericValue);
+    updateFilterMaxPrice(numericValue);
+  }, [updateFilterMaxPrice]);
+
+  // Handlers para selects sem debounce - useCallback para manter referência estável
+  const handleStatusChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilters(prev => ({ ...prev, status: e.target.value }));
+  }, []);
+
+  const handleTipoChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilters(prev => ({ ...prev, tipo: e.target.value }));
+  }, []);
+
+  const handleBedroomsChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilters(prev => ({ ...prev, bedrooms: e.target.value }));
+  }, []);
+
+  const handleBathroomsChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilters(prev => ({ ...prev, bathrooms: e.target.value }));
+  }, []);
+
+  const handleGaragensChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilters(prev => ({ ...prev, garagens: e.target.value }));
+  }, []);
+
+  const handleSortByChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilters(prev => ({ ...prev, sortBy: e.target.value }));
+  }, []);
+
+  // 🔍 FILTRAGEM NO FRONTEND
+  const filteredProperties = properties?.data?.filter((property: any) => {
+    const {
+      status,
+      minPrice,
+      maxPrice,
+      location,
+      bedrooms,
+      bathrooms,
+      garagens,
+      tipo,
+    } = filters;
+
+    const matchesStatus = !status || property.status === status;
+    const matchesTipo = !tipo || property.tipo === tipo;
+    const matchesLocation = !location || 
+      property.endereco?.toLowerCase().includes(location.toLowerCase());
+    const matchesBedrooms = !bedrooms || property.bedrooms >= Number(bedrooms);
+    const matchesBathrooms = !bathrooms || property.bathrooms >= Number(bathrooms);
+    const matchesGaragens = !garagens || property.garagens >= Number(garagens);
+    const matchesMinPrice = !minPrice || property.price >= Number(minPrice);
+    const matchesMaxPrice = !maxPrice || property.price <= Number(maxPrice);
+
+    return (
+      matchesStatus &&
+      matchesTipo &&
+      matchesLocation &&
+      matchesBedrooms &&
+      matchesBathrooms &&
+      matchesGaragens &&
+      matchesMinPrice &&
+      matchesMaxPrice
+    );
+  });
+
+  // 🎯 ORDENAÇÃO
+  const sortedProperties = React.useMemo(() => {
+    if (!filteredProperties) return [];
+    
+    const sorted = [...filteredProperties];
+    
+    switch (filters.sortBy) {
+      case 'price_asc':
+        return sorted.sort((a, b) => a.price! - b.price!);
+      case 'price_desc':
+        return sorted.sort((a, b) => b.price! - a.price!);
+      case 'area':
+        return sorted.sort((a, b) => (b.area_terreno || 0) - (a.area_terreno || 0));
+      case 'recent':
+      default:
+        return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+  }, [filteredProperties, filters.sortBy]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50/30">
@@ -159,7 +346,7 @@ const PropertyListing = () => {
             </div>
             <div className="flex items-center gap-2 bg-purple-100 text-purple-700 px-3 py-1.5 rounded-full font-semibold text-sm shadow-inner">
               <span className="w-2 h-2 bg-purple-600 rounded-full animate-pulse"></span>
-              {properties?.data?.length} imóveis encontrados
+              {sortedProperties?.length} imóveis encontrados
             </div>
           </div>
 
@@ -168,7 +355,7 @@ const PropertyListing = () => {
             <FilterSelect 
               Icon={Building}
               value={filters.tipo}
-              onChange={(e) => setFilters({...filters, tipo: e.target.value})}
+              onChange={handleTipoChange}
             >
               <option value="">Tipo de Imóvel</option>
               <option value="casa">Casa</option>
@@ -179,24 +366,25 @@ const PropertyListing = () => {
             <FilterSelect 
               Icon={TrendingUp}
               value={filters.status}
-              onChange={(e) => setFilters({...filters, status: e.target.value})}
+              onChange={handleStatusChange}
             >
               <option value="">Status</option>
-              <option value="venda">Venda</option>
-              <option value="aluguel">Aluguel</option>
+              <option value="comprar">Venda</option>
+              <option value="arrendar">Aluguel</option>
             </FilterSelect>
 
+            {/* 🔄 INPUT DE LOCALIZAÇÃO COM DEBOUNCE - AGORA MANTÉM FOCO */}
             <FilterInput 
               Icon={MapPin}
               placeholder="Localização..."
-              value={filters.location}
-              onChange={(e) => setFilters({...filters, location: e.target.value})}
+              value={localLocation}
+              onChange={handleLocalLocationChange}
             />
 
             <FilterSelect 
               Icon={Bed}
               value={filters.bedrooms}
-              onChange={(e) => setFilters({...filters, bedrooms: e.target.value})}
+              onChange={handleBedroomsChange}
             >
               <option value="">Quartos</option>
               <option value="1">1+ Quarto</option>
@@ -208,7 +396,7 @@ const PropertyListing = () => {
             <FilterSelect 
               Icon={Bath}
               value={filters.bathrooms}
-              onChange={(e) => setFilters({...filters, bathrooms: e.target.value})}
+              onChange={handleBathroomsChange}
             >
               <option value="">Banheiros</option>
               <option value="1">1+ Banheiro</option>
@@ -219,7 +407,7 @@ const PropertyListing = () => {
             <FilterSelect 
               Icon={Car}
               value={filters.garagens}
-              onChange={(e) => setFilters({...filters, garagens: e.target.value})}
+              onChange={handleGaragensChange}
             >
               <option value="">Garagens</option>
               <option value="1">1+ Vaga</option>
@@ -230,24 +418,28 @@ const PropertyListing = () => {
 
           {/* Filtros de preço em segunda linha - Melhorados */}
           <div className="grid grid-cols-3 gap-3">
+            {/* 🔄 INPUT DE PREÇO MÍNIMO COM MÁSCARA DE MILHAR */}
             <FilterInput 
               Icon={DollarSign}
-              type="number"
+              type="text" // Mudei para text para aceitar a formatação
               placeholder="Preço mínimo"
-              value={filters.minPrice}
-              onChange={(e) => setFilters({...filters, minPrice: e.target.value})}
+              value={formattedMinPrice}
+              onChange={handleLocalMinPriceChange}
             />
+            
+            {/* 🔄 INPUT DE PREÇO MÁXIMO COM MÁSCARA DE MILHAR */}
             <FilterInput 
               Icon={DollarSign}
-              type="number"
+              type="text" // Mudei para text para aceitar a formatação
               placeholder="Preço máximo"
-              value={filters.maxPrice}
-              onChange={(e) => setFilters({...filters, maxPrice: e.target.value})}
+              value={formattedMaxPrice}
+              onChange={handleLocalMaxPriceChange}
             />
+            
             <FilterSelect 
               Icon={SlidersHorizontal}
               value={filters.sortBy}
-              onChange={(e) => setFilters({...filters, sortBy: e.target.value})}
+              onChange={handleSortByChange}
             >
               <option value="recent">Mais Recentes</option>
               <option value="price_asc">Preço: Menor → Maior</option>
@@ -280,7 +472,7 @@ const PropertyListing = () => {
                 </button>
               )}
               <span className="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-full font-semibold text-xs shadow-inner">
-                {properties?.data?.length}
+                {sortedProperties?.length}
               </span>
             </div>
           </div>
@@ -291,7 +483,7 @@ const PropertyListing = () => {
                 <FilterSelect 
                   Icon={Building}
                   value={filters.tipo}
-                  onChange={(e) => setFilters({...filters, tipo: e.target.value})}
+                  onChange={handleTipoChange}
                 >
                   <option value="">Tipo</option>
                   <option value="casa">Casa</option>
@@ -302,26 +494,27 @@ const PropertyListing = () => {
                 <FilterSelect 
                   Icon={TrendingUp}
                   value={filters.status}
-                  onChange={(e) => setFilters({...filters, status: e.target.value})}
+                  onChange={handleStatusChange}
                 >
                   <option value="">Status</option>
-                  <option value="venda">Venda</option>
-                  <option value="aluguel">Aluguel</option>
+                  <option value="comprar">Venda</option>
+                  <option value="arrendar">Aluguel</option>
                 </FilterSelect>
               </div>
 
+              {/* 🔄 INPUT DE LOCALIZAÇÃO MOBILE COM DEBOUNCE - AGORA MANTÉM FOCO */}
               <FilterInput 
                 Icon={MapPin}
                 placeholder="Onde buscar?"
-                value={filters.location}
-                onChange={(e) => setFilters({...filters, location: e.target.value})}
+                value={localLocation}
+                onChange={handleLocalLocationChange}
               />
 
               <div className="grid grid-cols-3 gap-3">
                 <FilterSelect 
                   Icon={Bed}
                   value={filters.bedrooms}
-                  onChange={(e) => setFilters({...filters, bedrooms: e.target.value})}
+                  onChange={handleBedroomsChange}
                 >
                   <option value="">Quartos</option>
                   <option value="1">1+</option>
@@ -332,7 +525,7 @@ const PropertyListing = () => {
                 <FilterSelect 
                   Icon={Bath}
                   value={filters.bathrooms}
-                  onChange={(e) => setFilters({...filters, bathrooms: e.target.value})}
+                  onChange={handleBathroomsChange}
                 >
                   <option value="">Banhos</option>
                   <option value="1">1+</option>
@@ -343,7 +536,7 @@ const PropertyListing = () => {
                 <FilterSelect 
                   Icon={Car}
                   value={filters.garagens}
-                  onChange={(e) => setFilters({...filters, garagens: e.target.value})}
+                  onChange={handleGaragensChange}
                 >
                   <option value="">Garagens</option>
                   <option value="1">1+</option>
@@ -353,19 +546,22 @@ const PropertyListing = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
+                {/* 🔄 INPUT DE PREÇO MÍNIMO MOBILE COM MÁSCARA DE MILHAR */}
                 <FilterInput 
                   Icon={DollarSign}
-                  type="number"
+                  type="text"
                   placeholder="Preço mínimo"
-                  value={filters.minPrice}
-                  onChange={(e) => setFilters({...filters, minPrice: e.target.value})}
+                  value={formattedMinPrice}
+                  onChange={handleLocalMinPriceChange}
                 />
+                
+                {/* 🔄 INPUT DE PREÇO MÁXIMO MOBILE COM MÁSCARA DE MILHAR */}
                 <FilterInput 
                   Icon={DollarSign}
-                  type="number"
+                  type="text"
                   placeholder="Preço máximo"
-                  value={filters.maxPrice}
-                  onChange={(e) => setFilters({...filters, maxPrice: e.target.value})}
+                  value={formattedMaxPrice}
+                  onChange={handleLocalMaxPriceChange}
                 />
               </div>
             </div>
@@ -379,10 +575,25 @@ const PropertyListing = () => {
       {/* Grid de Propriedades - Refinado */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {properties?.data?.map((property) => (
+          {sortedProperties?.map((property) => (
             <PropertyCard key={property.id} property={property}/>
           ))}
         </div>
+
+        {/* Mensagem quando não há resultados */}
+        {sortedProperties?.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-gray-400 text-lg font-medium">
+              Nenhum imóvel encontrado com os filtros atuais
+            </div>
+            <button 
+              onClick={clearFilters}
+              className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              Limpar Filtros
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
