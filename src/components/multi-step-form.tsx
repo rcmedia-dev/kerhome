@@ -16,7 +16,6 @@ interface MultiStepFormProps {
 }
 
 const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
-  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);

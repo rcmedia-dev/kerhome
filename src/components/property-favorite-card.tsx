@@ -2,7 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { BedDouble, Ruler, MapPin, Tag, Trash } from "lucide-react";
+import { useState } from "react";
+import { BedDouble, Ruler, MapPin, Tag, Trash, Heart } from "lucide-react";
+import { supabase } from '@/lib/supabase';
+import { useUserStore } from "@/lib/store/user-store";
 
 type Property = {
   id: string;
@@ -22,6 +25,7 @@ type Property = {
 
 type Props = {
   property: Property;
+  onRemove?: () => void; // Callback para atualizar a lista após remover
 };
 
 const parseNumber = (value: string | number | null | undefined): number => {
@@ -29,7 +33,11 @@ const parseNumber = (value: string | number | null | undefined): number => {
   return isNaN(Number(n)) ? 0 : Number(n);
 };
 
-export function PropertyFavoritedCard({ property }: Props) {
+export function PropertyFavoritedCard({ property, onRemove }: Props) {
+  const [isRemoving, setIsRemoving] = useState(false);
+  const [isRemoved, setIsRemoved] = useState(false);
+  const { user } = useUserStore()
+
   const precoFormatado = parseNumber(property.price).toLocaleString("pt-AO", {
     style: "currency",
     currency: "AOA",
@@ -38,9 +46,65 @@ export function PropertyFavoritedCard({ property }: Props) {
 
   const galleryImage = property.gallery?.[0];
 
+  const handleRemoveFavorite = async () => {
+    if (isRemoving) return;
+    
+    setIsRemoving(true);
+    
+    try {
+      
+      if (!user) {
+        console.error('Usuário não autenticado');
+        return;
+      }
+
+      // Remover dos favoritos
+      const { error } = await supabase
+        .from('favoritos')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('property_id', property.id);
+
+      if (error) {
+        throw error;
+      }
+
+      setIsRemoved(true);
+      
+      // Chamar callback para atualizar a lista
+      if (onRemove) {
+        onRemove();
+      }
+
+    } catch (error) {
+      console.error('Erro ao remover dos favoritos:', error);
+    } finally {
+      setIsRemoving(false);
+    }
+  };
+
+  // Se foi removido, não renderiza o card
+  if (isRemoved) {
+    return null;
+  }
+
   return (
     <div className="w-[300px] bg-white rounded-2xl shadow-lg hover:shadow-xl transition duration-300 h-full flex flex-col relative group overflow-hidden">
       
+      {/* Botão de remover favorito */}
+      <button
+        onClick={handleRemoveFavorite}
+        disabled={isRemoving}
+        className="absolute top-3 right-3 bg-white/90 hover:bg-red-500 text-red-500 hover:text-white p-2 rounded-full shadow-lg z-20 transition-all duration-300 group/button disabled:opacity-50 disabled:cursor-not-allowed"
+        title="Remover dos favoritos"
+      >
+        {isRemoving ? (
+          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+        ) : (
+          <Heart className="w-4 h-4 fill-current" />
+        )}
+      </button>
+
       {/* Rótulo do status */}
       {property.status === 'para comprar' && (
         <span className="absolute top-3 left-3 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow z-10">
@@ -70,6 +134,8 @@ export function PropertyFavoritedCard({ property }: Props) {
           </div>
         )}
 
+        {/* Overlay na imagem ao passar o mouse */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />
       </div>
 
       {/* Informações do imóvel */}
@@ -77,10 +143,10 @@ export function PropertyFavoritedCard({ property }: Props) {
         <div className="space-y-2 flex-1">
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <MapPin className="w-4 h-4" />
-            <span>{property.endereco}</span>
+            <span className="truncate">{property.endereco}</span>
           </div>
 
-          <h3 className="text-xl font-semibold text-gray-900">{property.title}</h3>
+          <h3 className="text-xl font-semibold text-gray-900 line-clamp-2">{property.title}</h3>
 
           <div className="flex justify-between text-gray-700 text-sm">
             <div className="flex items-center gap-1">
@@ -108,13 +174,27 @@ export function PropertyFavoritedCard({ property }: Props) {
         </div>
 
         {/* Botão de detalhes */}
-        <div>
+        <div className="flex gap-2">
           <Link
             href={`/${property.status === 'para comprar' ? 'comprar' : 'alugar'}/${property.propertyid}`}
-            className="flex justify-center w-full mt-2 bg-purple-700 hover:bg-purple-800 text-white py-2 rounded-lg font-medium transition"
+            className="flex-1 text-center bg-purple-700 hover:bg-purple-800 text-white py-2 rounded-lg font-medium transition"
           >
             Ver detalhes
           </Link>
+          
+          {/* Botão secundário para remover (opcional) */}
+          <button
+            onClick={handleRemoveFavorite}
+            disabled={isRemoving}
+            className="px-3 bg-gray-100 hover:bg-red-100 text-red-500 hover:text-red-700 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            title="Remover dos favoritos"
+          >
+            {isRemoving ? (
+              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Trash className="w-4 h-4" />
+            )}
+          </button>
         </div>
       </div>
     </div>

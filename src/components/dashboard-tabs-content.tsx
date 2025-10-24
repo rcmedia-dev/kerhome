@@ -1,5 +1,5 @@
-import React from 'react';
-import { CheckCircle2, Eye, Heart, TrendingUp, Calendar, DollarSign } from 'lucide-react';
+import React, { useState } from 'react';
+import { CheckCircle2, Eye, Heart, TrendingUp, Calendar, DollarSign, AlertTriangle, Download, Trash2 } from 'lucide-react';
 import { PropertyCard } from './property-card';
 import { TFavoritedPropertyResponseSchema } from '@/lib/types/user';
 import { PropertyFavoritedCard } from './property-favorite-card';
@@ -8,6 +8,9 @@ import { TMyPropertiesWithViews } from '@/lib/actions/supabase-actions/get-most-
 import { PendingPropertyCard } from './pending-property-card';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useUserStore } from '@/lib/store/user-store';
+import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
 
 // Container animado para as seções
 const SectionContainer = ({ 
@@ -35,21 +38,26 @@ const SectionHeader = ({
   title, 
   icon: Icon, 
   description,
-  className 
+  className,
+  children
 }: { 
   title: string; 
   icon: any;
   description?: string;
   className?: string;
+  children?: React.ReactNode;
 }) => (
   <div className={cn("mb-6", className)}>
-    <div className="flex items-center gap-3 mb-2">
-      <div className="p-2 bg-gradient-to-r from-purple-100 to-orange-100 rounded-xl">
-        <Icon className="w-5 h-5 text-purple-700" />
+    <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-gradient-to-r from-purple-100 to-orange-100 rounded-xl">
+          <Icon className="w-5 h-5 text-purple-700" />
+        </div>
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-700 to-orange-500 bg-clip-text text-transparent">
+          {title}
+        </h2>
       </div>
-      <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-700 to-orange-500 bg-clip-text text-transparent">
-        {title}
-      </h2>
+      {children}
     </div>
     {description && (
       <p className="text-gray-600 text-sm ml-11">{description}</p>
@@ -199,6 +207,11 @@ type FaturasProps = {
 }
 
 export function Faturas({ invoices }: FaturasProps) {
+  const { user } = useUserStore();
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [isDeletingAll, setIsDeletingAll] = useState(false);
+  const [localInvoices, setLocalInvoices] = useState<Fatura[] | null>(invoices);
+
   function toPascalCase(text: string) {
     return text
       .toLowerCase()                         
@@ -210,15 +223,153 @@ export function Faturas({ invoices }: FaturasProps) {
       .join(" ");                            
   }
 
-  const hasInvoices = invoices && invoices.length > 0;
+  // Função para eliminar uma fatura específica
+  const handleDeleteFatura = async (faturaId: string) => {
+    if (!user) {
+      toast.error('Usuário não autenticado');
+      return;
+    }
+
+    setIsDeleting(faturaId);
+
+    try {
+      
+      const { error } = await supabase
+        .from('faturas')
+        .delete()
+        .eq('id', faturaId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      // Atualiza o estado local
+      setLocalInvoices(prev => prev?.filter(fatura => fatura.id !== faturaId) || null);
+      
+      toast.success('Fatura eliminada com sucesso');
+    } catch (error) {
+      console.error('Erro ao eliminar fatura:', error);
+      toast.error('Erro ao eliminar fatura');
+    } finally {
+      setIsDeleting(null);
+    }
+  };
+
+  // Função para eliminar todas as faturas
+  const handleDeleteAllFaturas = async () => {
+    if (!user) {
+      toast.error('Usuário não autenticado');
+      return;
+    }
+
+    if (!localInvoices || localInvoices.length === 0) {
+      toast.info('Não há faturas para eliminar');
+      return;
+    }
+
+    // Confirmação antes de eliminar tudo
+    const confirmDelete = window.confirm(
+      `Tem certeza que deseja eliminar todas as ${localInvoices.length} faturas? Esta ação não pode ser desfeita.`
+    );
+
+    if (!confirmDelete) return;
+
+    setIsDeletingAll(true);
+
+    try {
+      
+      const { error } = await supabase
+        .from('faturas')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      // Limpa todas as faturas localmente
+      setLocalInvoices([]);
+      
+      toast.success(`Todas as ${localInvoices.length} faturas foram eliminadas`);
+    } catch (error) {
+      console.error('Erro ao eliminar todas as faturas:', error);
+      toast.error('Erro ao eliminar faturas');
+    } finally {
+      setIsDeletingAll(false);
+    }
+  };
+
+  // Função para baixar/exportar faturas
+  const handleExportFaturas = () => {
+    if (!localInvoices || localInvoices.length === 0) {
+      toast.info('Não há faturas para exportar');
+      return;
+    }
+
+    try {
+      const csvContent = [
+        ['Serviço', 'Valor (Kz)', 'Status', 'Data'],
+        ...localInvoices.map(fatura => [
+          toPascalCase(fatura.servico),
+          fatura.valor.toLocaleString('pt-AO'),
+          fatura.status,
+          new Date(fatura.created_at).toLocaleDateString('pt-AO')
+        ])
+      ].map(row => row.join(',')).join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `faturas_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('Faturas exportadas com sucesso');
+    } catch (error) {
+      console.error('Erro ao exportar faturas:', error);
+      toast.error('Erro ao exportar faturas');
+    }
+  };
+
+  const hasInvoices = localInvoices && localInvoices.length > 0;
 
   return (
     <SectionContainer>
       <SectionHeader 
         title="Minhas Faturas" 
         icon={DollarSign}
-        description={`${invoices?.length || 0} transações realizadas`}
-      />
+        description={`${localInvoices?.length || 0} transações realizadas`}
+      >
+        {/* Botões de ação */}
+        {hasInvoices && (
+          <div className="flex gap-2">
+            <button
+              onClick={handleExportFaturas}
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              title="Exportar faturas"
+            >
+              <Download className="w-4 h-4" />
+              Exportar
+            </button>
+            
+            <button
+              onClick={handleDeleteAllFaturas}
+              disabled={isDeletingAll}
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Eliminar todas as faturas"
+            >
+              {isDeletingAll ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <AlertTriangle className="w-4 h-4" />
+              )}
+              Eliminar Todas
+            </button>
+          </div>
+        )}
+      </SectionHeader>
 
       <AnimatePresence mode="wait">
         {!hasInvoices ? (
@@ -240,11 +391,12 @@ export function Faturas({ invoices }: FaturasProps) {
                     <th className="p-4 text-left font-semibold text-gray-700">Valor</th>
                     <th className="p-4 text-left font-semibold text-gray-700">Status</th>
                     <th className="p-4 text-left font-semibold text-gray-700">Data</th>
+                    <th className="p-4 text-left font-semibold text-gray-700">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
                   <AnimatePresence>
-                    {invoices!.map((fatura, index) => (
+                    {localInvoices!.map((fatura, index) => (
                       <motion.tr
                         key={fatura.id}
                         initial={{ opacity: 0, x: -20 }}
@@ -276,12 +428,39 @@ export function Faturas({ invoices }: FaturasProps) {
                             {new Date(fatura.created_at).toLocaleDateString("pt-AO")}
                           </div>
                         </td>
+                        <td className="p-4">
+                          <button
+                            onClick={() => handleDeleteFatura(fatura.id)}
+                            disabled={isDeleting === fatura.id}
+                            className="flex items-center gap-1 px-3 py-1 text-xs bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Eliminar fatura"
+                          >
+                            {isDeleting === fatura.id ? (
+                              <div className="w-3 h-3 border-2 border-red-700 border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <Trash2 className="w-3 h-3" />
+                            )}
+                            Eliminar
+                          </button>
+                        </td>
                       </motion.tr>
                     ))}
                   </AnimatePresence>
                 </tbody>
               </table>
             </div>
+
+            {/* Footer com estatísticas */}
+            {hasInvoices && (
+              <div className="bg-gray-50 px-4 py-3 border-t border-gray-200">
+                <div className="flex justify-between items-center text-sm text-gray-600">
+                  <span>Total de faturas: {localInvoices.length}</span>
+                  <span className="font-semibold text-green-700">
+                    Valor total: {localInvoices.reduce((sum, fatura) => sum + fatura.valor, 0).toLocaleString('pt-AO')} Kz
+                  </span>
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

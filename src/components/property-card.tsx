@@ -60,12 +60,10 @@ const OwnerActions = ({ propertyId, userId }: { propertyId: string; userId: stri
 
 const UserActions = ({
   favorito,
-  loadingFavorito,
   toggleFavorito,
   handleShare,
 }: {
   favorito: boolean;
-  loadingFavorito: boolean;
   toggleFavorito: () => void;
   handleShare: () => void;
 }) => (
@@ -74,13 +72,10 @@ const UserActions = ({
       onClick={toggleFavorito}
       className="bg-white rounded-full p-2 shadow-md hover:scale-105 transition"
       title={favorito ? 'Remover dos favoritos' : 'Guardar imóvel'}
-      disabled={loadingFavorito}
     >
-      {loadingFavorito ? (
-        <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-      ) : (
-        <Heart className={`w-5 h-5 ${favorito ? 'text-purple-600 fill-purple-600' : 'text-gray-400'}`} />
-      )}
+      <Heart className={`w-5 h-5 transition-colors ${
+        favorito ? 'text-purple-600 fill-purple-600' : 'text-gray-400 hover:text-purple-500'
+      }`} />
     </button>
 
     <button
@@ -123,8 +118,7 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
   const { user } = useUserStore();
   const isOwner = user?.id === property.owner_id;
 
-  const [favorito, setFavorito] = useState(false);
-  const [loadingFavorito, setLoadingFavorito] = useState(true);
+  const [favorito, setFavorito] = useState<boolean>(false);
   const [isBoosted, setIsBoosted] = useState(false);
   const [loadingBoost, setLoadingBoost] = useState(true);
 
@@ -139,7 +133,9 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
 
   // Checar se o imóvel é favorito
   useEffect(() => {
-    if (!user) return setLoadingFavorito(false);
+    if (!user) {
+      return;
+    }
 
     (async () => {
       try {
@@ -147,8 +143,6 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
         setFavorito(favoritos.some((fav) => fav.id === property.id));
       } catch (error) {
         console.error('Erro ao verificar favoritos:', error);
-      } finally {
-        setLoadingFavorito(false);
       }
     })();
   }, [user, property.id]);
@@ -167,27 +161,55 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
     })();
   }, [property.id]);
 
-  // Toggle favorito
+  // Toggle favorito com optimistic updates (sem loading visual)
   const toggleFavorito = async () => {
     if (!user) {
       toast.warning('Você precisa estar autenticado para guardar imóveis.');
       return;
     }
 
+    // Optimistic update - atualiza UI imediatamente SEM loading
+    const previousState = favorito;
     const novoEstado = !favorito;
+    
     setFavorito(novoEstado);
-    setLoadingFavorito(true);
 
     try {
       const result = await toggleFavoritoProperty(user.id, property.id);
-      if (!result.success || result.isFavorited !== novoEstado) {
-        setFavorito(!novoEstado); // rollback
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Erro ao favoritar imóvel');
       }
+
+      // Verifica se o resultado do backend corresponde ao estado otimista
+      if (result.isFavorited !== novoEstado) {
+        console.warn('Estado do favorito não corresponde ao esperado. Fazendo rollback...');
+        setFavorito(result.isFavorited);
+      }
+
+      // Feedback sutil para o usuário (opcional)
+      if (result.isFavorited && result.action === 'added') {
+        toast.success('Imóvel adicionado aos favoritos! ❤️');
+      } else if (!result.isFavorited && result.action === 'removed') {
+        toast.info('Imóvel removido dos favoritos');
+      }
+
     } catch (error) {
       console.error('Erro ao alternar favorito:', error);
-      setFavorito(!novoEstado);
-    } finally {
-      setLoadingFavorito(false);
+      
+      // Rollback em caso de erro - usuário nem percebe que houve tentativa
+      setFavorito(previousState);
+      
+      // Mensagem de erro apenas se for relevante
+      if (error instanceof Error) {
+        if (error.message.includes('já é favorito')) {
+          // Não mostra toast pois o rollback já corrigiu visualmente
+        } else if (error.message.includes('não encontrado')) {
+          toast.error('Imóvel não encontrado');
+        } else {
+          toast.error('Erro ao atualizar favoritos');
+        }
+      }
     }
   };
 
@@ -248,7 +270,6 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
         {user && !isOwner && (
           <UserActions
             favorito={favorito}
-            loadingFavorito={loadingFavorito}
             toggleFavorito={toggleFavorito}
             handleShare={handleShare}
           />

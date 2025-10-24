@@ -2,9 +2,10 @@
 
 import { useAuth } from "@/components/auth-context";
 import MultiStepForm from "@/components/multi-step-form";
+import { useUserStore } from "@/lib/store/user-store";
 
 export default function Home() {
-  const { user } = useAuth();
+  const { user } = useUserStore();
 
   return (
     <div className="min-h-screen bg-gray-100 py-12">
