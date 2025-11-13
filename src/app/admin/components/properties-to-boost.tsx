@@ -11,7 +11,11 @@ import {
   Eye,
   CheckCircle,
   XCircle,
-  AlertCircle
+  AlertCircle,
+  Power,
+  PowerOff,
+  ShieldAlert,
+  Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
@@ -33,7 +37,8 @@ interface BoostedProperty {
   property_id: string;
   plan_id: string;
   created_at: string;
-  boost_status: 'approved' | 'pending' | 'rejected';
+  boost_status: 'active' | 'pending' | 'rejected' | 'expired';
+  rejected_reason?: string;
 }
 
 interface BoostManagementProps {
@@ -43,11 +48,14 @@ interface BoostManagementProps {
 export default function BoostManagement({ darkMode }: BoostManagementProps) {
   const [boostedProperties, setBoostedProperties] = useState<BoostedProperty[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'active' | 'expired' | 'pending' | 'rejected' | 'all'>('active');
+  const [activeTab, setActiveTab] = useState<'active' | 'expired' | 'pending' | 'suspended' | 'all'>('active');
   const [renewingId, setRenewingId] = useState<string | null>(null);
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [deboostingId, setDeboostingId] = useState<string | null>(null);
+  const [reactivatingId, setReactivatingId] = useState<string | null>(null);
+  const [deletingPropertyId, setDeletingPropertyId] = useState<string | null>(null);
 
   const { user } = useUserStore()
 
@@ -59,7 +67,6 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
     try {
       setLoading(true);
       
-      // Buscar todos os boosts
       const { data: boostsData, error: boostsError } = await supabase
         .from('properties_to_boost')
         .select('*')
@@ -74,7 +81,6 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
         return;
       }
 
-      // Buscar informações dos pacotes
       const { data: plansData, error: plansError } = await supabase
         .from('pacotes_destaque')
         .select('*');
@@ -83,7 +89,6 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
         throw plansError;
       }
 
-      // Buscar informações das propriedades
       const propertyIds = boostsData.map(boost => boost.property_id);
       const { data: propertiesData, error: propertiesError } = await supabase
         .from('properties')
@@ -94,7 +99,6 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
         throw propertiesError;
       }
 
-      // Criar maps para acesso rápido
       const propertiesMap = new Map();
       propertiesData?.forEach(prop => {
         propertiesMap.set(prop.id, prop);
@@ -105,23 +109,19 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
         plansMap.set(plan.id, plan);
       });
 
-      // Transformar os dados
       const formattedProperties: BoostedProperty[] = boostsData.map(boost => {
         const property = propertiesMap.get(boost.property_id);
         const plan = plansMap.get(boost.plan_id);
         
-        // Calcular datas de expiração apenas para boosts aprovados
         const startedAt = new Date(boost.created_at);
         const expiresAt = new Date(startedAt);
         
         if (boost.status === 'active' && plan?.dias) {
           expiresAt.setDate(startedAt.getDate() + plan.dias);
         } else {
-          // Para boosts não aprovados, definir como expirado
           expiresAt.setDate(startedAt.getDate() - 1);
         }
         
-        // Determinar tipo de boost
         const getBoostType = (planName: string): 'featured' | 'premium' | 'standard' => {
           if (!planName) return 'standard';
           if (planName.toLowerCase().includes('premium')) return 'premium';
@@ -129,11 +129,9 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
           return 'standard';
         };
 
-        // Construir localização
         const location = [property?.bairro, property?.cidade, property?.provincia]
           .filter(Boolean)
           .join(', ') || 'Localização não definida';
-
 
         return {
           id: boost.id.toString(),
@@ -151,7 +149,8 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
           views: property?.views_count || 0,
           clicks: Math.floor((property?.views_count || 0) * 0.1),
           created_at: boost.created_at,
-          boost_status: boost.status || 'pending'
+          boost_status: boost.status as 'active' | 'pending' | 'rejected' | 'expired',
+          rejected_reason: boost.rejected_reason
         };
       });
 
@@ -164,14 +163,70 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
     }
   };
 
+  const handleDeboostProperty = async (boostId: string) => {
+    try {
+      setDeboostingId(boostId);
+      
+      const { error } = await supabase
+        .from('properties_to_boost')
+        .update({ 
+          status: 'rejected',
+          rejected_reason: 'suspicious'
+        })
+        .eq('id', boostId);
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success('Imóvel suspenso com sucesso!');
+      await fetchBoostedProperties();
+    } catch (error) {
+      console.error('Erro ao suspender imóvel:', error);
+      toast.error('Erro ao suspender imóvel');
+    } finally {
+      setDeboostingId(null);
+    }
+  };
+
+  const handleReactivateBoost = async (boostId: string) => {
+    try {
+      setReactivatingId(boostId);
+      
+      const currentBoost = boostedProperties.find(p => p.id === boostId);
+      if (!currentBoost) {
+        throw new Error('Boost não encontrado');
+      }
+
+      const { error } = await supabase
+        .from('properties_to_boost')
+        .update({ 
+          status: 'active',
+          rejected_reason: null
+        })
+        .eq('id', boostId);
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success('Imóvel reativado com sucesso!');
+      await fetchBoostedProperties();
+    } catch (error) {
+      console.error('Erro ao reativar impulso:', error);
+      toast.error('Erro ao reativar impulso');
+    } finally {
+      setReactivatingId(null);
+    }
+  };
+
   const handleApproveBoost = async (boostId: string) => {
     try {
       setApprovingId(boostId);
       
-      // Atualizar status para approved
       const { error } = await supabase
         .from('properties_to_boost')
-        .update({ status: 'active' })
+        .update({ status: 'active', rejected_reason: null })
         .eq('id', boostId);
 
       if (error) {
@@ -179,8 +234,6 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       }
 
       toast.success('Boost aprovado com sucesso!');
-      
-      // Recarregar a lista
       await fetchBoostedProperties();
     } catch (error) {
       console.error('Erro ao aprovar boost:', error);
@@ -194,23 +247,20 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
     try {
       setRejectingId(boostId);
       
-      // Atualizar status para rejected
       const { error } = await supabase
         .from('properties_to_boost')
-        .update({ status: 'rejected' })
+        .update({ status: 'rejected', rejected_reason: 'suspicious' })
         .eq('id', boostId);
 
       if (error) {
         throw error;
       }
 
-      toast.success('Boost rejeitado com sucesso!');
-      
-      // Recarregar a lista
+      toast.success('Boost suspenso com sucesso!');
       await fetchBoostedProperties();
     } catch (error) {
-      console.error('Erro ao rejeitar boost:', error);
-      toast.error('Erro ao rejeitar boost');
+      console.error('Erro ao suspender boost:', error);
+      toast.error('Erro ao suspender boost');
     } finally {
       setRejectingId(null);
     }
@@ -220,13 +270,11 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
     try {
       setRenewingId(boostId);
       
-      // Encontrar o boost atual
       const currentBoost = boostedProperties.find(p => p.id === boostId);
       if (!currentBoost) {
         throw new Error('Boost não encontrado');
       }
 
-      // Buscar informações do plano atual
       const { data: planData, error: planError } = await supabase
         .from('pacotes_destaque')
         .select('*')
@@ -237,14 +285,13 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
         throw planError;
       }
 
-      // Criar novo registro de boost (renovação) com status pending
       const { error: insertError } = await supabase
         .from('properties_to_boost')
         .insert([
           {
             property_id: currentBoost.property_id,
             plan_id: currentBoost.plan_id,
-            status: 'pending' // Nova renovação precisa ser aprovada
+            status: 'pending'
           }
         ]);
 
@@ -253,7 +300,6 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       }
       
       if (user) {
-        // Registrar fatura para a renovação
         const { error: invoiceError } = await supabase
           .from('faturas')
           .insert([
@@ -271,8 +317,6 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       }
 
       toast.success(`Solicitação de renovação enviada! Aguarde aprovação.`);
-      
-      // Recarregar a lista
       await fetchBoostedProperties();
     } catch (error) {
       console.error('Erro ao renovar impulso:', error);
@@ -286,7 +330,6 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
     try {
       setRemovingId(boostId);
       
-      // Deletar o registro de boost
       const { error } = await supabase
         .from('properties_to_boost')
         .delete()
@@ -297,8 +340,6 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       }
 
       toast.success('Impulso removido com sucesso!');
-      
-      // Recarregar a lista
       await fetchBoostedProperties();
     } catch (error) {
       console.error('Erro ao remover impulso:', error);
@@ -308,12 +349,50 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
     }
   };
 
+  const handleDeleteProperty = async (propertyId: string) => {
+    try {
+      setDeletingPropertyId(propertyId);
+      
+      const confirmed = window.confirm('Tem certeza que deseja eliminar este imóvel? Esta ação é irreversível e eliminará também todos os dados associados.');
+      if (!confirmed) return;
+
+      // Primeiro remove os boosts associados
+      const { error: boostError } = await supabase
+        .from('properties_to_boost')
+        .delete()
+        .eq('property_id', propertyId);
+
+      if (boostError) {
+        console.error('Erro ao remover boosts:', boostError);
+      }
+
+      // Depois remove a propriedade
+      const { error } = await supabase
+        .from('properties')
+        .delete()
+        .eq('id', propertyId);
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success('Imóvel eliminado com sucesso!');
+      await fetchBoostedProperties();
+    } catch (error) {
+      console.error('Erro ao eliminar imóvel:', error);
+      toast.error('Erro ao eliminar imóvel');
+    } finally {
+      setDeletingPropertyId(null);
+    }
+  };
+
   const calculateTimeLeft = (expiresAt: string, boostStatus: string) => {
-    // Se não está aprovado, mostrar status em vez de tempo
-    if (boostStatus !== 'approved') {
+    if (boostStatus !== 'active') {
       return { 
         expired: true, 
-        text: boostStatus === 'pending' ? 'Pendente' : 'Rejeitado',
+        text: boostStatus === 'pending' ? 'Pendente' : 
+              boostStatus === 'rejected' ? 'Suspenso' :
+              boostStatus === 'expired' ? 'Desimpulsionado' : 'Inativo',
         percentage: 0 
       };
     }
@@ -362,40 +441,55 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string, rejectedReason?: string) => {
+    if (status === 'rejected' && rejectedReason === 'suspicious') {
+      return 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400';
+    }
     switch (status) {
-      case 'approved':
+      case 'active':
         return 'bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400';
       case 'pending':
         return 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/20 dark:text-yellow-400';
       case 'rejected':
         return 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400';
+      case 'expired':
+        return 'bg-gray-100 text-gray-600 dark:bg-gray-900/20 dark:text-gray-400';
       default:
         return 'bg-gray-100 text-gray-600 dark:bg-gray-900/20 dark:text-gray-400';
     }
   };
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status: string, rejectedReason?: string) => {
+    if (status === 'rejected' && rejectedReason === 'suspicious') {
+      return ShieldAlert;
+    }
     switch (status) {
-      case 'approved':
+      case 'active':
         return CheckCircle;
       case 'pending':
         return AlertCircle;
       case 'rejected':
         return XCircle;
+      case 'expired':
+        return PowerOff;
       default:
         return AlertCircle;
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status: string, rejectedReason?: string) => {
+    if (status === 'rejected' && rejectedReason === 'suspicious') {
+      return 'Suspenso';
+    }
     switch (status) {
-      case 'approved':
-        return 'Aprovado';
+      case 'active':
+        return 'Ativo';
       case 'pending':
         return 'Pendente';
       case 'rejected':
         return 'Rejeitado';
+      case 'expired':
+        return 'Desimpulsionado';
       default:
         return 'Desconhecido';
     }
@@ -405,32 +499,31 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
     if (activeTab === 'all') return true;
     if (activeTab === 'active') {
       const timeLeft = calculateTimeLeft(property.boost_expires_at, property.boost_status);
-      return property.boost_status === 'approved' && !timeLeft.expired;
+      return property.boost_status === 'active' && !timeLeft.expired;
     }
     if (activeTab === 'expired') {
       const timeLeft = calculateTimeLeft(property.boost_expires_at, property.boost_status);
-      return property.boost_status === 'approved' && timeLeft.expired;
+      return (property.boost_status === 'active' && timeLeft.expired) || property.boost_status === 'expired';
     }
     if (activeTab === 'pending') return property.boost_status === 'pending';
-    if (activeTab === 'rejected') return property.boost_status === 'rejected';
+    if (activeTab === 'suspended') return property.boost_status === 'rejected' && property.rejected_reason === 'suspicious';
     return true;
   });
 
   const countByStatus = {
     active: boostedProperties.filter(p => {
       const timeLeft = calculateTimeLeft(p.boost_expires_at, p.boost_status);
-      return p.boost_status === 'approved' && !timeLeft.expired;
+      return p.boost_status === 'active' && !timeLeft.expired;
     }).length,
     expired: boostedProperties.filter(p => {
       const timeLeft = calculateTimeLeft(p.boost_expires_at, p.boost_status);
-      return p.boost_status === 'approved' && timeLeft.expired;
+      return (p.boost_status === 'active' && timeLeft.expired) || p.boost_status === 'expired';
     }).length,
     pending: boostedProperties.filter(p => p.boost_status === 'pending').length,
-    rejected: boostedProperties.filter(p => p.boost_status === 'rejected').length,
+    suspended: boostedProperties.filter(p => p.boost_status === 'rejected' && p.rejected_reason === 'suspicious').length,
     all: boostedProperties.length
   };
 
-  // Loading state (mantido igual)
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/20 p-6">
@@ -481,7 +574,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
                 Gestão de Imóveis Impulsionados
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                Aprove, rejeite e gerencie os imóveis em destaque na plataforma
+                Aprove, suspenda, reative e gerencie os imóveis em destaque na plataforma
               </p>
             </div>
             <button
@@ -513,7 +606,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Expirados</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Expirados/Desimpul.</p>
                 <p className="text-2xl font-bold text-orange-600 dark:text-orange-400 mt-1">
                   {countByStatus.expired}
                 </p>
@@ -541,13 +634,13 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Rejeitados</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Suspensos</p>
                 <p className="text-2xl font-bold text-red-600 dark:text-red-400 mt-1">
-                  {countByStatus.rejected}
+                  {countByStatus.suspended}
                 </p>
               </div>
               <div className="p-3 bg-red-100 dark:bg-red-900/20 rounded-xl">
-                <XCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
+                <ShieldAlert className="w-6 h-6 text-red-600 dark:text-red-400" />
               </div>
             </div>
           </div>
@@ -572,9 +665,9 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
           <div className="flex gap-1 bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
             {[
               { key: 'active', label: 'Ativos', count: countByStatus.active, icon: Zap },
-              { key: 'expired', label: 'Expirados', count: countByStatus.expired, icon: Clock },
+              { key: 'expired', label: 'Expirados/Desimpul.', count: countByStatus.expired, icon: Clock },
               { key: 'pending', label: 'Pendentes', count: countByStatus.pending, icon: AlertCircle },
-              { key: 'rejected', label: 'Rejeitados', count: countByStatus.rejected, icon: XCircle },
+              { key: 'suspended', label: 'Suspensos', count: countByStatus.suspended, icon: ShieldAlert },
               { key: 'all', label: 'Todos', count: countByStatus.all, icon: BarChart3 },
             ].map(tab => {
               const Icon = tab.icon;
@@ -616,11 +709,11 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
               {activeTab === 'active' 
                 ? 'Não há imóveis atualmente em destaque ativo'
                 : activeTab === 'expired'
-                ? 'Não há imóveis com destaque expirado'
+                ? 'Não há imóveis com destaque expirado ou desimpulsionado'
                 : activeTab === 'pending'
                 ? 'Não há solicitações de destaque pendentes'
-                : activeTab === 'rejected'
-                ? 'Não há solicitações de destaque rejeitadas'
+                : activeTab === 'suspended'
+                ? 'Não há imóveis com impulsionamento suspenso'
                 : 'Não há imóveis impulsionados'
               }
             </p>
@@ -630,12 +723,17 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
             {filteredProperties.map(property => {
               const timeLeft = calculateTimeLeft(property.boost_expires_at, property.boost_status);
               const isExpired = timeLeft.expired;
-              const StatusIcon = getStatusIcon(property.boost_status);
+              const StatusIcon = getStatusIcon(property.boost_status, property.rejected_reason);
+              const isSuspended = property.boost_status === 'rejected' && property.rejected_reason === 'suspicious';
+              const isDeboosted = property.boost_status === 'expired';
               
               return (
                 <div
                   key={property.id}
-                  className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-200 group"
+                  className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-200 group ${
+                    isSuspended ? 'ring-2 ring-red-500 ring-opacity-50' :
+                    isDeboosted ? 'opacity-75' : ''
+                  }`}
                 >
                   {/* Property Image */}
                   <div className="relative h-48 bg-gray-200 dark:bg-gray-700 overflow-hidden">
@@ -657,13 +755,13 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
                     </div>
 
                     {/* Status Badge */}
-                    <div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${getStatusColor(property.boost_status)}`}>
+                    <div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${getStatusColor(property.boost_status, property.rejected_reason)}`}>
                       <StatusIcon size={12} />
-                      {getStatusText(property.boost_status)}
+                      {getStatusText(property.boost_status, property.rejected_reason)}
                     </div>
 
-                    {/* Progress Bar - apenas para boosts aprovados e ativos */}
-                    {property.boost_status === 'approved' && !isExpired && (
+                    {/* Progress Bar - apenas para boosts ativos e não expirados */}
+                    {property.boost_status === 'active' && !isExpired && (
                       <div className="absolute bottom-0 left-0 right-0 bg-gray-200 dark:bg-gray-700 h-1">
                         <div 
                           className={`h-full ${
@@ -710,20 +808,21 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600 dark:text-gray-400">Status:</span>
-                        <span className={`font-medium ${getStatusColor(property.boost_status)} px-2 py-1 rounded-full text-xs`}>
-                          {getStatusText(property.boost_status)}
+                        <span className={`font-medium ${getStatusColor(property.boost_status, property.rejected_reason)} px-2 py-1 rounded-full text-xs`}>
+                          {getStatusText(property.boost_status, property.rejected_reason)}
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600 dark:text-gray-400">
-                          {property.boost_status === 'approved' ? 'Tempo:' : 'Solicitado em:'}
+                          {property.boost_status === 'active' ? 'Tempo:' : 
+                           property.boost_status === 'expired' ? 'Desimpul. em:' : 'Solicitado em:'}
                         </span>
                         <span className={`font-medium ${
-                          property.boost_status === 'approved' 
+                          property.boost_status === 'active' 
                             ? (isExpired ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400')
                             : 'text-gray-600 dark:text-gray-400'
                         }`}>
-                          {property.boost_status === 'approved' 
+                          {property.boost_status === 'active' 
                             ? timeLeft.text 
                             : new Date(property.created_at).toLocaleDateString('pt-AO')
                           }
@@ -756,65 +855,76 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
                             {rejectingId === property.id ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
                             ) : (
-                              <XCircle className="w-4 h-4" />
+                              <ShieldAlert className="w-4 h-4" />
                             )}
-                            Rejeitar
+                            Suspender
                           </button>
                         </>
                       )}
 
-                      {/* Ações para boosts aprovados */}
-                      {property.boost_status === 'approved' && (
+                      {/* Ações para boosts ativos */}
+                      {property.boost_status === 'active' && (
                         <>
-                          {!isExpired && (
-                            <button
-                              onClick={() => handleRemoveBoost(property.id)}
-                              disabled={removingId === property.id}
-                              className="flex-1 py-2 px-3 bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-2"
-                            >
-                              {removingId === property.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <X className="w-4 h-4" />
-                              )}
-                              Remover
-                            </button>
-                          )}
-                          
                           <button
-                            onClick={() => handleRenewBoost(property.id)}
-                            disabled={renewingId === property.id}
-                            className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-2 ${
-                              isExpired
-                                ? 'bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white'
-                                : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300'
-                            }`}
+                            onClick={() => handleDeboostProperty(property.id)}
+                            disabled={deboostingId === property.id}
+                            className="flex-1 py-2 px-3 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-2"
                           >
-                            {renewingId === property.id ? (
+                            {deboostingId === property.id ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
                             ) : (
-                              <RefreshCw className="w-4 h-4" />
+                              <ShieldAlert className="w-4 h-4" />
                             )}
-                            {isExpired ? 'Renovar' : 'Extender'}
+                            Suspender
+                          </button>
+                          <button
+                            onClick={() => handleDeleteProperty(property.property_id)}
+                            disabled={deletingPropertyId === property.property_id}
+                            className="flex-1 py-2 px-3 bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                          >
+                            {deletingPropertyId === property.property_id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                            Eliminar
                           </button>
                         </>
                       )}
 
-                      {/* Ações para boosts rejeitados */}
-                      {property.boost_status === 'rejected' && (
+                      {/* Ações para boosts suspensos */}
+                      {isSuspended && (
                         <div className="flex gap-2 w-full">
                           <button
-                            onClick={() => handleRemoveBoost(property.id)}
-                            disabled={removingId === property.id}
-                            className="flex-1 py-2 px-3 bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                            onClick={() => handleReactivateBoost(property.id)}
+                            disabled={reactivatingId === property.id}
+                            className="flex-1 py-2 px-3 bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-2"
                           >
-                            {removingId === property.id ? (
+                            {reactivatingId === property.id ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
                             ) : (
-                              <X className="w-4 h-4" />
+                              <Power className="w-4 h-4" />
                             )}
-                            Remover
+                            Reativar
                           </button>
+                          <button
+                            onClick={() => handleDeleteProperty(property.property_id)}
+                            disabled={deletingPropertyId === property.property_id}
+                            className="flex-1 py-2 px-3 bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                          >
+                            {deletingPropertyId === property.property_id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                            Eliminar
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Ações para boosts expirados */}
+                      {property.boost_status === 'expired' && (
+                        <div className="flex gap-2 w-full">
                           <button
                             onClick={() => handleRenewBoost(property.id)}
                             disabled={renewingId === property.id}
@@ -825,7 +935,19 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
                             ) : (
                               <RefreshCw className="w-4 h-4" />
                             )}
-                            Reaplicar
+                            Renovar
+                          </button>
+                          <button
+                            onClick={() => handleDeleteProperty(property.property_id)}
+                            disabled={deletingPropertyId === property.property_id}
+                            className="flex-1 py-2 px-3 bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                          >
+                            {deletingPropertyId === property.property_id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                            Eliminar
                           </button>
                         </div>
                       )}

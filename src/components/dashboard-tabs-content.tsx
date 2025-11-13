@@ -1,19 +1,50 @@
-import React, { useState } from 'react';
-import { CheckCircle2, Eye, Heart, TrendingUp, Calendar, DollarSign, AlertTriangle, Download, Trash2 } from 'lucide-react';
+import React, { useState, useTransition, useCallback } from 'react';
+import { CheckCircle2, Eye, Heart, TrendingUp, Calendar, DollarSign, AlertTriangle, Download, Trash2, RefreshCw, ShieldAlert } from 'lucide-react';
 import { PropertyCard } from './property-card';
 import { TFavoritedPropertyResponseSchema } from '@/lib/types/user';
 import { PropertyFavoritedCard } from './property-favorite-card';
 import { Fatura, TPropertyResponseSchema } from '@/lib/types/property';
-import { TMyPropertiesWithViews } from '@/lib/actions/supabase-actions/get-most-seen-propeties';
+import { TMyPropertiesWithViews } from '@/lib/functions/supabase-actions/get-most-seen-propeties';
 import { PendingPropertyCard } from './pending-property-card';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { useUserStore } from '@/lib/store/user-store';
 import { toast } from 'sonner';
-import { supabase } from '@/lib/supabase';
+import { useQueryClient } from '@tanstack/react-query';
+import { LoadingSpinner } from './ui/loading-spinner';
+import LoadingState from '@/app/propriedades/components/loading-state';
+import { useInvoiceManagement } from '@/hooks/use-invoice-management';
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from './ui/dialog';
+import { RejectedPropertyCard } from './rejected-property-card';
 
-// Container animado para as seções
-const SectionContainer = ({ 
+// Create ErrorBoundary component
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-4 text-red-500">
+          Algo deu errado. Por favor, recarregue a página.
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+// Optimize reusable components with memo
+const SectionContainer = React.memo(({ 
   children, 
   className 
 }: { 
@@ -31,7 +62,7 @@ const SectionContainer = ({
   >
     {children}
   </motion.div>
-);
+));
 
 // Header das seções com ícone
 const SectionHeader = ({ 
@@ -103,51 +134,151 @@ const AnimatedGrid = ({ children }: { children: React.ReactNode }) => (
 );
 
 type MinePropertiesProps = {
-  userProperties: TPropertyResponseSchema[]
+  userProperties: TPropertyResponseSchema[];
 }
 
 export function MinhasPropriedades({ userProperties }: MinePropertiesProps) {
+  const [isRefreshing, startTransition] = useTransition();
+  const queryClient = useQueryClient();
+
   const pendingProperties = userProperties.filter(p => p.aprovement_status === 'pending');
-  const approvedProperties = userProperties.filter(p => p.aprovement_status === 'approved');
+  const approvedProperties = userProperties.filter(p => p.aprovement_status === 'aprovado');
+  
+  // Verificar propriedades com boost suspenso
+  const suspendedProperties = userProperties.filter(
+    (p: any) => p.rejected_reason === 'suspicious' || p.is_boost_suspended
+  );
+  const hasSuspendedProperties = suspendedProperties.length > 0;
+  const hasMultipleSuspended = suspendedProperties.length > 1;
+
+  const handleRefresh = useCallback(() => {
+    startTransition(async () => {
+      try {
+        await queryClient.invalidateQueries({ queryKey: ['user-properties'] });
+        toast.success('Lista de propriedades atualizada!');
+      } catch (error) {
+        toast.error('Erro ao atualizar a lista');
+      }
+    });
+  }, [queryClient]);
+
+  if (!userProperties) {
+    return <LoadingState.LoadingSpinner />;
+  }
 
   return (
-    <SectionContainer>
-      <SectionHeader 
-        title="Minhas Propriedades" 
-        icon={TrendingUp}
-        description={`${approvedProperties.length} aprovadas • ${pendingProperties.length} pendentes`}
-      />
+    <ErrorBoundary>
+      <SectionContainer>
+        <SectionHeader 
+          title="Minhas Propriedades" 
+          icon={TrendingUp}
+          description={`${approvedProperties.length} aprovadas • ${pendingProperties.length} pendentes${
+            hasSuspendedProperties ? ` • ${suspendedProperties.length} suspensas` : ''
+          }`}
+        >
+          {/* Botão de refresh como children */}
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefreshing ? 'Atualizando...' : 'Atualizar'}
+          </button>
+        </SectionHeader>
 
-      <AnimatePresence mode="wait">
-        {userProperties.length === 0 ? (
-          <EmptyState 
-            message="Nenhum imóvel cadastrado ainda."
-            icon={TrendingUp}
-          />
-        ) : (
-          <AnimatedGrid>
-            <AnimatePresence>
-              {userProperties.map((property, index) => (
-                <motion.div
-                  key={property.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                  layout
-                >
-                  {property.aprovement_status === 'pending' ? (
-                    <PendingPropertyCard property={property} />
-                  ) : (
-                    <PropertyCard property={property} />
-                  )}
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </AnimatedGrid>
+        {/* Alerta de propriedades suspensas */}
+        {hasSuspendedProperties && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  <ShieldAlert className="w-5 h-5 text-red-600 mt-0.5" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-red-800 font-semibold mb-1">
+                    Impulsionamento Suspenso
+                  </h4>
+                  <p className="text-red-700 text-sm">
+                    {hasMultipleSuspended ? (
+                      <>
+                        Você tem {suspendedProperties.length} propriedades com impulsionamento suspenso. 
+                        Enquanto houver múltiplas propriedades suspensas, você não poderá impulsionar novas propriedades.
+                        {suspendedProperties.length > 2 && ' Esta restrição será aplicada até que a situação seja regularizada.'}
+                      </>
+                    ) : (
+                      <>
+                        Você tem 1 propriedade com impulsionamento suspenso.
+                        {suspendedProperties.length > 1 && ' Enquanto houver múltiplas propriedades suspensas, você não poderá impulsionar novas propriedades.'}
+                      </>
+                    )}
+                  </p>
+                  <p className="text-red-600 text-xs mt-2">
+                    Se acredita que se trata de um erro, entre em contacto connosco.
+                  </p>
+                  
+                  {/* Lista de propriedades suspensas */}
+                  <div className="mt-3 space-y-2">
+                    <p className="text-red-700 text-sm font-medium">
+                      Propriedades suspensas:
+                    </p>
+                    <div className="space-y-1">
+                      {suspendedProperties.map(property => (
+                        <div key={property.id} className="flex items-center gap-2 text-red-600 text-sm">
+                          <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                          <span className="line-clamp-1">{property.title}</span>
+                          <span className="text-red-500 text-xs">• {property.endereco}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         )}
-      </AnimatePresence>
-    </SectionContainer>
+
+        <AnimatePresence mode="wait">
+          {userProperties.length === 0 ? (
+            <EmptyState 
+              message="Nenhum imóvel cadastrado ainda."
+              icon={TrendingUp}
+            />
+          ) : (
+            <AnimatedGrid>
+              <AnimatePresence>
+                {userProperties.map((property, index) => (
+                  <motion.div
+                    key={property.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.4, delay: index * 0.1 }}
+                    layout
+                  >
+                    {property.aprovement_status === 'pending' ? (
+                      <PendingPropertyCard property={property} />
+                    ) : property.aprovement_status === 'rejeitado' ? (
+                      <RejectedPropertyCard property={property} />
+                    ) : (
+                      <PropertyCard 
+                        property={property} 
+                        // Passa informação sobre restrição de boost
+                        canBoost={!hasMultipleSuspended}
+                      />
+                    )}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </AnimatedGrid>
+          )}
+        </AnimatePresence>
+      </SectionContainer>
+    </ErrorBoundary>
   );
 }
 
@@ -207,10 +338,33 @@ type FaturasProps = {
 }
 
 export function Faturas({ invoices }: FaturasProps) {
-  const { user } = useUserStore();
-  const [isDeleting, setIsDeleting] = useState<string | null>(null);
-  const [isDeletingAll, setIsDeletingAll] = useState(false);
-  const [localInvoices, setLocalInvoices] = useState<Fatura[] | null>(invoices);
+  const {
+    isDeleting,
+    isDeletingAll,
+    localInvoices,
+    handleDeleteFatura,
+    handleDeleteAllFaturas
+  } = useInvoiceManagement(invoices);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [faturaToDelete, setFaturaToDelete] = useState<string | null>(null);
+
+  // Memoize calculations
+  const totalValue = React.useMemo(() => 
+    localInvoices?.reduce((sum, fatura) => sum + fatura.valor, 0) || 0
+  , [localInvoices]);
+
+  const handleDeleteClick = (faturaId: string) => {
+    setFaturaToDelete(faturaId);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (faturaToDelete) {
+      await handleDeleteFatura(faturaToDelete);
+      setShowDeleteConfirm(false);
+      setFaturaToDelete(null);
+    }
+  };
 
   function toPascalCase(text: string) {
     return text
@@ -223,82 +377,9 @@ export function Faturas({ invoices }: FaturasProps) {
       .join(" ");                            
   }
 
-  // Função para eliminar uma fatura específica
-  const handleDeleteFatura = async (faturaId: string) => {
-    if (!user) {
-      toast.error('Usuário não autenticado');
-      return;
-    }
-
-    setIsDeleting(faturaId);
-
-    try {
-      
-      const { error } = await supabase
-        .from('faturas')
-        .delete()
-        .eq('id', faturaId)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
-      // Atualiza o estado local
-      setLocalInvoices(prev => prev?.filter(fatura => fatura.id !== faturaId) || null);
-      
-      toast.success('Fatura eliminada com sucesso');
-    } catch (error) {
-      console.error('Erro ao eliminar fatura:', error);
-      toast.error('Erro ao eliminar fatura');
-    } finally {
-      setIsDeleting(null);
-    }
-  };
-
-  // Função para eliminar todas as faturas
-  const handleDeleteAllFaturas = async () => {
-    if (!user) {
-      toast.error('Usuário não autenticado');
-      return;
-    }
-
-    if (!localInvoices || localInvoices.length === 0) {
-      toast.info('Não há faturas para eliminar');
-      return;
-    }
-
-    // Confirmação antes de eliminar tudo
-    const confirmDelete = window.confirm(
-      `Tem certeza que deseja eliminar todas as ${localInvoices.length} faturas? Esta ação não pode ser desfeita.`
-    );
-
-    if (!confirmDelete) return;
-
-    setIsDeletingAll(true);
-
-    try {
-      
-      const { error } = await supabase
-        .from('faturas')
-        .delete()
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
-      // Limpa todas as faturas localmente
-      setLocalInvoices([]);
-      
-      toast.success(`Todas as ${localInvoices.length} faturas foram eliminadas`);
-    } catch (error) {
-      console.error('Erro ao eliminar todas as faturas:', error);
-      toast.error('Erro ao eliminar faturas');
-    } finally {
-      setIsDeletingAll(false);
-    }
-  };
-
   // Função para baixar/exportar faturas
-  const handleExportFaturas = () => {
-    if (!localInvoices || localInvoices.length === 0) {
+  const handleExportFaturas = useCallback(() => {
+    if (!localInvoices?.length) {
       toast.info('Não há faturas para exportar');
       return;
     }
@@ -331,71 +412,76 @@ export function Faturas({ invoices }: FaturasProps) {
       console.error('Erro ao exportar faturas:', error);
       toast.error('Erro ao exportar faturas');
     }
-  };
+  }, [localInvoices]);
 
   const hasInvoices = localInvoices && localInvoices.length > 0;
 
+  // Add aria labels for accessibility
   return (
-    <SectionContainer>
-      <SectionHeader 
-        title="Minhas Faturas" 
-        icon={DollarSign}
-        description={`${localInvoices?.length || 0} transações realizadas`}
-      >
-        {/* Botões de ação */}
-        {hasInvoices && (
-          <div className="flex gap-2">
-            <button
-              onClick={handleExportFaturas}
-              className="flex items-center gap-2 px-3 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              title="Exportar faturas"
-            >
-              <Download className="w-4 h-4" />
-              Exportar
-            </button>
-            
-            <button
-              onClick={handleDeleteAllFaturas}
-              disabled={isDeletingAll}
-              className="flex items-center gap-2 px-3 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Eliminar todas as faturas"
-            >
-              {isDeletingAll ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <AlertTriangle className="w-4 h-4" />
-              )}
-              Eliminar Todas
-            </button>
-          </div>
-        )}
-      </SectionHeader>
+    <ErrorBoundary>
+      <SectionContainer>
+        <SectionHeader 
+          title="Minhas Faturas" 
+          icon={DollarSign}
+          description={`${localInvoices?.length || 0} transações realizadas`}
+        >
+          {/* Botões de ação */}
+          {hasInvoices && (
+            <div className="flex gap-2">
+              <button
+                onClick={handleExportFaturas}
+                className="flex items-center gap-2 px-3 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                title="Exportar faturas"
+              >
+                <Download className="w-4 h-4" />
+                Exportar
+              </button>
+              
+              <button
+                onClick={handleDeleteAllFaturas}
+                disabled={isDeletingAll}
+                className="flex items-center gap-2 px-3 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Eliminar todas as faturas"
+              >
+                {isDeletingAll ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <AlertTriangle className="w-4 h-4" />
+                )}
+                Eliminar Todas
+              </button>
+            </div>
+          )}
+        </SectionHeader>
 
-      <AnimatePresence mode="wait">
-        {!hasInvoices ? (
-          <EmptyState 
-            message="Nenhuma fatura encontrada."
-            icon={DollarSign}
-          />
-        ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="overflow-hidden rounded-xl border border-gray-200"
-          >
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-gradient-to-r from-purple-50 to-orange-50 border-b border-gray-200">
-                    <th className="p-4 text-left font-semibold text-gray-700">Serviço</th>
-                    <th className="p-4 text-left font-semibold text-gray-700">Valor</th>
-                    <th className="p-4 text-left font-semibold text-gray-700">Status</th>
-                    <th className="p-4 text-left font-semibold text-gray-700">Data</th>
-                    <th className="p-4 text-left font-semibold text-gray-700">Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <AnimatePresence>
+        <AnimatePresence mode="wait">
+          {!hasInvoices ? (
+            <EmptyState 
+              message="Nenhuma fatura encontrada."
+              icon={DollarSign}
+            />
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="overflow-hidden rounded-xl border border-gray-200"
+            >
+              <div 
+                role="table" 
+                aria-label="Faturas"
+                className="overflow-x-auto"
+              >
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gradient-to-r from-purple-50 to-orange-50 border-b border-gray-200">
+                      <th className="p-4 text-left font-semibold text-gray-700">Serviço</th>
+                      <th className="p-4 text-left font-semibold text-gray-700">Valor</th>
+                      <th className="p-4 text-left font-semibold text-gray-700">Status</th>
+                      <th className="p-4 text-left font-semibold text-gray-700">Data</th>
+                      <th className="p-4 text-left font-semibold text-gray-700">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
                     {localInvoices!.map((fatura, index) => (
                       <motion.tr
                         key={fatura.id}
@@ -404,6 +490,8 @@ export function Faturas({ invoices }: FaturasProps) {
                         exit={{ opacity: 0, x: 20 }}
                         transition={{ duration: 0.3, delay: index * 0.05 }}
                         className="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200"
+                        role="row"
+                        aria-rowindex={index + 1}
                       >
                         <td className="p-4 font-medium text-gray-800 capitalize">
                           {toPascalCase(fatura.servico)}
@@ -430,13 +518,13 @@ export function Faturas({ invoices }: FaturasProps) {
                         </td>
                         <td className="p-4">
                           <button
-                            onClick={() => handleDeleteFatura(fatura.id)}
+                            onClick={() => handleDeleteClick(fatura.id)}
                             disabled={isDeleting === fatura.id}
+                            aria-label={`Eliminar fatura ${fatura.servico}`}
                             className="flex items-center gap-1 px-3 py-1 text-xs bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Eliminar fatura"
                           >
                             {isDeleting === fatura.id ? (
-                              <div className="w-3 h-3 border-2 border-red-700 border-t-transparent rounded-full animate-spin" />
+                              <LoadingSpinner className="w-3 h-3 border-red-700" />
                             ) : (
                               <Trash2 className="w-3 h-3" />
                             )}
@@ -445,26 +533,49 @@ export function Faturas({ invoices }: FaturasProps) {
                         </td>
                       </motion.tr>
                     ))}
-                  </AnimatePresence>
-                </tbody>
-              </table>
-            </div>
-
-            {/* Footer com estatísticas */}
-            {hasInvoices && (
-              <div className="bg-gray-50 px-4 py-3 border-t border-gray-200">
-                <div className="flex justify-between items-center text-sm text-gray-600">
-                  <span>Total de faturas: {localInvoices.length}</span>
-                  <span className="font-semibold text-green-700">
-                    Valor total: {localInvoices.reduce((sum, fatura) => sum + fatura.valor, 0).toLocaleString('pt-AO')} Kz
-                  </span>
-                </div>
+                  </tbody>
+                </table>
               </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </SectionContainer>
+
+              {/* Footer com estatísticas */}
+              {hasInvoices && (
+                <div className="bg-gray-50 px-4 py-3 border-t border-gray-200">
+                  <div className="flex justify-between items-center text-sm text-gray-600">
+                    <span>Total de faturas: {localInvoices.length}</span>
+                    <span className="font-semibold text-green-700">
+                      Valor total: {totalValue.toLocaleString('pt-AO')} Kz
+                    </span>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Add confirmation dialog */}
+        <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+          <DialogContent>
+            <DialogTitle>Confirmar Eliminação</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja eliminar esta fatura? Esta ação não pode ser desfeita.
+            </DialogDescription>
+            <div className="flex justify-end gap-2">
+              <DialogClose asChild>
+                <button className="px-4 py-2 text-sm text-gray-600">
+                  Cancelar
+                </button>
+              </DialogClose>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg"
+              >
+                Eliminar
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </SectionContainer>
+    </ErrorBoundary>
   );
 }
 
@@ -539,3 +650,11 @@ export function PropriedadesMaisVisualizadas({
     </SectionContainer>
   );
 }
+
+// Wrap the exported components with ErrorBoundary
+export const DashboardTabs = {
+  MinhasPropriedades: React.memo(MinhasPropriedades),
+  Favoritas: React.memo(Favoritas),
+  Faturas: React.memo(Faturas),
+  PropriedadesMaisVisualizadas: React.memo(PropriedadesMaisVisualizadas)
+};

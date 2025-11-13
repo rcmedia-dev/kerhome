@@ -3,7 +3,7 @@
 import React from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { login } from '@/lib/actions/supabase-actions/login-action'
+import { login } from '@/lib/functions/supabase-actions/login-action'
 import { useUserStore } from '@/lib/store/user-store' // <-- importa zustand
 
 interface Props {

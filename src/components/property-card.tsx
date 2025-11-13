@@ -1,16 +1,19 @@
 'use client';
 
-import { MapPin, BedDouble, Ruler, Tag, Pencil, Trash, Heart, Share2, Star, Zap } from 'lucide-react';
+import { MapPin, BedDouble, Ruler, Tag, Pencil, Trash, Heart, Share2, Star, Zap, AlertCircle, ShieldAlert } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import { toggleFavoritoProperty } from '@/lib/actions/toggle-favorite';
-import { TPropertyResponseSchema } from '@/lib/types/property';
-import { getImoveisFavoritos } from '@/lib/actions/get-favorited-imoveis';
-import { deleteProperty } from '@/lib/actions/supabase-actions/delete-propertie';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { toggleFavoritoProperty } from '@/lib/functions/toggle-favorite';
+import { TPropertyResponseSchema } from '@/lib/types/property';
+import { getImoveisFavoritos } from '@/lib/functions/get-favorited-imoveis';
+import { deleteProperty } from '@/lib/functions/supabase-actions/delete-propertie';
 import { useUserStore } from '@/lib/store/user-store';
 import { createClient } from '@/lib/supabase/client';
+
+const supabase = createClient();
 
 // =======================
 // Subcomponentes
@@ -23,40 +26,83 @@ const StatusBadge = ({ status }: { status: string }) => {
   return null;
 };
 
-const BoostedBadge = () => (
+const BoostedBadge = ({ isExpired, isSuspended }: { isExpired?: boolean; isSuspended?: boolean }) => (
   <div className="absolute top-3 left-3 z-10">
-    <div className="bg-gradient-to-r from-orange-500 to-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
-      <Zap className="w-3 h-3" />
-      Impulsionado
+    <div className={`text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1 ${
+      isSuspended 
+        ? 'bg-red-600' 
+        : isExpired 
+        ? 'bg-gray-500' 
+        : 'bg-gradient-to-r from-orange-500 to-purple-600'
+    }`}>
+      {isSuspended ? <ShieldAlert className="w-3 h-3" /> : <Zap className="w-3 h-3" />}
+      {isSuspended ? 'Suspenso' : isExpired ? 'Expirado' : 'Impulsionado'}
     </div>
   </div>
 );
 
-const OwnerActions = ({ propertyId, userId }: { propertyId: string; userId: string }) => (
-  <div className="absolute top-3 right-3 z-20 flex gap-2">
-    <Link
-      href={`/dashboard/editar-imovel/${propertyId}`}
-      className="bg-white p-1.5 rounded-full shadow hover:bg-purple-100 transition"
-      title="Editar"
-    >
-      <Pencil className="w-4 h-4 text-purple-700" />
-    </Link>
-    <button
-      onClick={async () => {
-          try {
-            await deleteProperty(propertyId, userId);
-            toast.success("Propriedade Deletada Com Sucesso");
-          } catch (e) {
-            console.error('error:', e);
-          }
-      }}
-      className="bg-white p-1.5 rounded-full shadow hover:bg-red-100 transition"
-      title="Eliminar"
-    >
-      <Trash className="w-4 h-4 text-red-600" />
-    </button>
+const ExpiredBoostBadge = () => (
+  <div className="absolute top-12 left-3 z-10">
+    <div className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+      <AlertCircle className="w-3 h-3" />
+      Precisa renovar
+    </div>
   </div>
 );
+
+const SuspendedBoostBadge = () => (
+  <div className="absolute top-12 left-3 z-10">
+    <div className="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+      <ShieldAlert className="w-3 h-3" />
+      Impulsionamento suspenso
+    </div>
+  </div>
+);
+
+const OwnerActions = ({ propertyId, userId }: { propertyId: string; userId: string }) => {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const queryClient = useQueryClient();
+
+  const handleDelete = useCallback(async () => {
+    if (isDeleting) return;
+    const confirmed = window.confirm('Tem certeza que deseja eliminar este imóvel? Esta ação é irreversível.');
+    if (!confirmed) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteProperty(propertyId, userId);
+      toast.success('Propriedade eliminada com sucesso');
+      await queryClient.invalidateQueries({ queryKey: ['user-properties'] });
+      await queryClient.invalidateQueries({ queryKey: ['most-viewed'] });
+    } catch (e) {
+      console.error('Erro ao eliminar propriedade:', e);
+      toast.error('Erro ao eliminar imóvel');
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [isDeleting, propertyId, userId, queryClient]);
+
+  return (
+    <div className="absolute top-3 right-3 z-20 flex gap-2">
+      <Link
+        href={`/dashboard/editar-imovel/${propertyId}`}
+        className="bg-white p-1.5 rounded-full shadow hover:bg-purple-100 transition"
+        title="Editar"
+      >
+        <Pencil className="w-4 h-4 text-purple-700" />
+      </Link>
+      <button
+        onClick={handleDelete}
+        disabled={isDeleting}
+        className={`bg-white p-1.5 rounded-full shadow hover:bg-red-100 transition ${isDeleting ? 'opacity-60 pointer-events-none' : ''}`}
+        title="Eliminar"
+        aria-busy={isDeleting}
+      >
+        <Trash className="w-4 h-4 text-red-600" />
+      </button>
+    </div>
+  );
+};
 
 const UserActions = ({
   favorito,
@@ -88,195 +134,266 @@ const UserActions = ({
   </div>
 );
 
-// Função para verificar se o imóvel está impulsionado
-const checkIfPropertyIsBoosted = async (propertyId: string): Promise<boolean> => {
-  const supabase = createClient();
-  
-  try {
-    const { data, error } = await supabase
-      .from('properties_to_boost')
-      .select('id')
-      .eq('property_id', propertyId)
-      .maybeSingle();
-
-    if (error) {
-      console.error('Erro ao verificar impulsionamento:', error);
-      return false;
-    }
-
-    return !!data;
-  } catch (error) {
-    console.error('Erro ao verificar impulsionamento:', error);
-    return false;
-  }
-};
+// =======================
+// Interface do Componente Principal
+// =======================
+interface PropertyCardProps {
+  property: TPropertyResponseSchema;
+  canBoost?: boolean;
+}
 
 // =======================
-// Main Component
+// Componente Principal
 // =======================
-export function PropertyCard({ property }: { property: TPropertyResponseSchema }) {
+export function PropertyCard({ property, canBoost = true }: PropertyCardProps) {
   const { user } = useUserStore();
   const isOwner = user?.id === property.owner_id;
 
-  const [favorito, setFavorito] = useState<boolean>(false);
-  const [isBoosted, setIsBoosted] = useState(false);
+  const [favorito, setFavorito] = useState(false);
+  const [boostInfo, setBoostInfo] = useState<{
+    isBoosted: boolean;
+    isExpired: boolean;
+    isSuspended: boolean;
+    status: 'active' | 'pending' | 'rejected' | 'expired' | null;
+    rejected_reason?: string;
+  }>({
+    isBoosted: false,
+    isExpired: false,
+    isSuspended: false,
+    status: null
+  });
   const [loadingBoost, setLoadingBoost] = useState(true);
+  const [isTogglingFav, setIsTogglingFav] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
 
-  // URL do imóvel (fix SSR)
-  const [shareUrl, setShareUrl] = useState<string>("");
+  const mountedRef = useRef(true);
 
   useEffect(() => {
+    mountedRef.current = true;
     if (typeof window !== "undefined") {
       setShareUrl(`${window.location.origin}/propriedades/${property.id}`);
     }
+    return () => { mountedRef.current = false; };
   }, [property.id]);
 
-  // Checar se o imóvel é favorito
+  // Check favorito
   useEffect(() => {
-    if (!user) {
-      return;
-    }
-
+    if (!user) { setFavorito(false); return; }
+    let cancelled = false;
     (async () => {
       try {
         const favoritos = await getImoveisFavoritos(user.id);
-        setFavorito(favoritos.some((fav) => fav.id === property.id));
-      } catch (error) {
-        console.error('Erro ao verificar favoritos:', error);
-      }
+        if (!cancelled && mountedRef.current) {
+          setFavorito(favoritos.some(fav => fav.id === property.id));
+        }
+      } catch (e) { console.error(e); }
     })();
+    return () => { cancelled = true; };
   }, [user, property.id]);
 
-  // Checar se o imóvel está impulsionado
+  // Check boosted status
   useEffect(() => {
+    let cancelled = false;
     (async () => {
       try {
-        const boosted = await checkIfPropertyIsBoosted(property.id);
-        setIsBoosted(boosted);
-      } catch (error) {
-        console.error('Erro ao verificar impulsionamento:', error);
-      } finally {
-        setLoadingBoost(false);
+        const { data, error } = await supabase
+          .from('properties_to_boost')
+          .select('id, status, created_at, plan_id, rejected_reason')
+          .eq('property_id', property.id)
+          .maybeSingle();
+
+        if (error) throw error;
+
+        if (data) {
+          // Verificar se o boost está expirado
+          let isExpired = false;
+          let isSuspended = false;
+          
+          // Verificar se está suspenso por motivo suspicious
+          if (data.rejected_reason === 'suspicious') {
+            isSuspended = true;
+          }
+          
+          if (data.status === 'active' && !isSuspended) {
+            // Buscar informações do plano para calcular expiração
+            const { data: planData } = await supabase
+              .from('pacotes_destaque')
+              .select('dias')
+              .eq('id', data.plan_id)
+              .single();
+
+            if (planData?.dias) {
+              const startedAt = new Date(data.created_at);
+              const expiresAt = new Date(startedAt);
+              expiresAt.setDate(startedAt.getDate() + planData.dias);
+              isExpired = new Date() > expiresAt;
+            }
+          } else if (data.status === 'expired') {
+            isExpired = true;
+          }
+
+          if (!cancelled && mountedRef.current) {
+            setBoostInfo({
+              isBoosted: data.status === 'active' && !isExpired && !isSuspended,
+              isExpired: isExpired || data.status === 'expired',
+              isSuspended: isSuspended,
+              status: data.status,
+              rejected_reason: data.rejected_reason
+            });
+          }
+        } else {
+          if (!cancelled && mountedRef.current) {
+            setBoostInfo({
+              isBoosted: false,
+              isExpired: false,
+              isSuspended: false,
+              status: null
+            });
+          }
+        }
+      } catch (e) { 
+        console.error('Erro ao verificar boost:', e); 
+        if (!cancelled && mountedRef.current) {
+          setBoostInfo({
+            isBoosted: false,
+            isExpired: false,
+            isSuspended: false,
+            status: null
+          });
+        }
+      } finally { 
+        if (!cancelled && mountedRef.current) setLoadingBoost(false); 
       }
     })();
+    return () => { cancelled = true; };
   }, [property.id]);
 
-  // Toggle favorito com optimistic updates (sem loading visual)
-  const toggleFavorito = async () => {
-    if (!user) {
-      toast.warning('Você precisa estar autenticado para guardar imóveis.');
-      return;
-    }
+  // Toggle favorito
+  const toggleFavorito = useCallback(async () => {
+    if (!user) { toast.warning('Você precisa estar autenticado para guardar imóveis.'); return; }
+    if (isTogglingFav) return;
 
-    // Optimistic update - atualiza UI imediatamente SEM loading
+    setIsTogglingFav(true);
     const previousState = favorito;
-    const novoEstado = !favorito;
-    
-    setFavorito(novoEstado);
+    setFavorito(!favorito);
 
     try {
       const result = await toggleFavoritoProperty(user.id, property.id);
-      
-      if (!result.success) {
-        throw new Error(result.error || 'Erro ao favoritar imóvel');
-      }
+      if (!result.success) throw new Error(result.error || "Erro ao favoritar");
 
-      // Verifica se o resultado do backend corresponde ao estado otimista
-      if (result.isFavorited !== novoEstado) {
-        console.warn('Estado do favorito não corresponde ao esperado. Fazendo rollback...');
-        setFavorito(result.isFavorited);
-      }
+      setFavorito(result.isFavorited);
+      if (result.isFavorited && result.action === 'added') toast.success('Imóvel adicionado aos favoritos! ❤️');
+      else if (!result.isFavorited && result.action === 'removed') toast.info('Imóvel removido dos favoritos');
+    } catch (e) {
+      console.error(e);
+      if (mountedRef.current) setFavorito(previousState);
+      toast.error(e instanceof Error ? e.message : 'Erro ao atualizar favoritos');
+    } finally { if (mountedRef.current) setIsTogglingFav(false); }
+  }, [user, favorito, property.id, isTogglingFav]);
 
-      // Feedback sutil para o usuário (opcional)
-      if (result.isFavorited && result.action === 'added') {
-        toast.success('Imóvel adicionado aos favoritos! ❤️');
-      } else if (!result.isFavorited && result.action === 'removed') {
-        toast.info('Imóvel removido dos favoritos');
-      }
-
-    } catch (error) {
-      console.error('Erro ao alternar favorito:', error);
-      
-      // Rollback em caso de erro - usuário nem percebe que houve tentativa
-      setFavorito(previousState);
-      
-      // Mensagem de erro apenas se for relevante
-      if (error instanceof Error) {
-        if (error.message.includes('já é favorito')) {
-          // Não mostra toast pois o rollback já corrigiu visualmente
-        } else if (error.message.includes('não encontrado')) {
-          toast.error('Imóvel não encontrado');
-        } else {
-          toast.error('Erro ao atualizar favoritos');
-        }
-      }
+  // Compartilhar
+  const handleShare = useCallback(async () => {
+    if (!shareUrl) return;
+    const shareData = { title: property.title, text: `Confira este imóvel em ${property.endereco}`, url: shareUrl };
+    if (navigator.share) {
+      try { await navigator.share(shareData); } catch { console.log('Erro ao compartilhar'); }
+    } else {
+      try { await navigator.clipboard.writeText(shareUrl); toast.success('Link copiado para a área de transferência!'); }
+      catch { toast.error('Não foi possível copiar o link.'); }
     }
+  }, [shareUrl, property.title, property.endereco]);
+
+  const getBoostButtonText = () => {
+    if (!canBoost) return 'Impulsionamento Bloqueado';
+    if (boostInfo.isSuspended) return 'Impulsionamento suspenso';
+    if (boostInfo.isBoosted) return 'Impulsionado ✓';
+    if (boostInfo.isExpired) return 'Precisa renovar';
+    if (boostInfo.status === 'pending') return 'Aguardando aprovação';
+    if (boostInfo.status === 'rejected') return 'Solicitação rejeitada';
+    return 'Destacar propriedade';
   };
 
-  // Share
-  const handleShare = async () => {
-    if (!shareUrl) return;
+  const getBoostButtonClass = () => {
+    if (!canBoost) return 'border-gray-400 bg-gray-100 text-gray-500 opacity-60 cursor-not-allowed';
+    if (boostInfo.isSuspended) return 'border-red-600 bg-red-50 text-red-700 opacity-60 cursor-not-allowed';
+    if (boostInfo.isBoosted) return 'border-green-600 bg-green-50 text-green-700 opacity-60 cursor-not-allowed';
+    if (boostInfo.isExpired) return 'border-red-600 bg-red-50 text-red-700 hover:bg-red-100';
+    if (boostInfo.status === 'pending') return 'border-yellow-600 bg-yellow-50 text-yellow-700 opacity-60 cursor-not-allowed';
+    if (boostInfo.status === 'rejected') return 'border-red-600 bg-red-50 text-red-700 hover:bg-red-100';
+    return 'border-purple-700 text-purple-700 hover:bg-purple-50';
+  };
 
-    const shareData = {
-      title: property.title,
-      text: `Confira este imóvel em ${property.endereco}`,
-      url: shareUrl,
-    };
+  const getBoostButtonIcon = () => {
+    if (!canBoost) return 'text-gray-500';
+    if (boostInfo.isSuspended) return 'text-red-600';
+    if (boostInfo.isBoosted) return 'text-green-600';
+    if (boostInfo.isExpired) return 'text-red-600';
+    if (boostInfo.status === 'pending') return 'text-yellow-600';
+    if (boostInfo.status === 'rejected') return 'text-red-600';
+    return '';
+  };
 
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (error) {
-        console.log('Erro ao compartilhar:', error);
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(shareUrl);
-        toast.success('Link copiado para a área de transferência!');
-      } catch {
-        toast.error('Não foi possível copiar o link.');
-      }
+  const shouldShowBoostButton = () => {
+    // Não mostrar botão se estiver suspenso
+    if (boostInfo.isSuspended) return false;
+    // Mostrar botão apenas para o proprietário
+    return isOwner;
+  };
+
+  const shouldDisableBoostButton = () => {
+    return !canBoost || boostInfo.isBoosted || boostInfo.status === 'pending' || boostInfo.isSuspended;
+  };
+
+  const handleBoostClick = (e: React.MouseEvent) => {
+    if (!canBoost) {
+      e.preventDefault();
+      toast.error('Você não pode impulsionar propriedades devido a restrições em suas propriedades suspensas.');
+      return;
+    }
+    
+    if (shouldDisableBoostButton()) {
+      e.preventDefault();
     }
   };
 
   return (
     <div className={`w-[300px] bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 h-full flex flex-col relative group ${
-      isBoosted ? 'ring-2 ring-orange-500 ring-opacity-50' : ''
+      boostInfo.isSuspended ? 'ring-2 ring-red-500 ring-opacity-50' :
+      boostInfo.isBoosted ? 'ring-2 ring-orange-500 ring-opacity-50' : 
+      boostInfo.isExpired ? 'ring-2 ring-red-300 ring-opacity-50' : ''
     }`}>
-      {/* Badge de status e impulsionamento */}
-      {isBoosted ? (
-        <BoostedBadge />
-      ) : (
-        <StatusBadge status={property.status} />
+      {/* Badges */}
+      {boostInfo.isSuspended && (
+        <>
+          <BoostedBadge isSuspended={true} />
+          <SuspendedBoostBadge />
+        </>
       )}
-
+      {boostInfo.isBoosted && <BoostedBadge />}
+      {boostInfo.isExpired && (
+        <>
+          <BoostedBadge isExpired={true} />
+          <ExpiredBoostBadge />
+        </>
+      )}
+      {!boostInfo.isBoosted && !boostInfo.isExpired && !boostInfo.isSuspended && <StatusBadge status={property.status} />}
+      
       {isOwner && <OwnerActions propertyId={property.id} userId={user.id}/>}
 
-      {/* Imagem */}
       <div className="relative h-56 w-full">
         <Image 
           src={property.image ?? '/house.jpg'} 
           alt={property.title} 
           fill 
           className="object-cover" 
-          priority={false} 
+          priority={false}
         />
-        
-        {/* Overlay sutil para imóveis impulsionados */}
-        {isBoosted && (
-          <div className="absolute inset-0 bg-gradient-to-t from-orange-500/10 to-transparent pointer-events-none" />
-        )}
-        
-        {user && !isOwner && (
-          <UserActions
-            favorito={favorito}
-            toggleFavorito={toggleFavorito}
-            handleShare={handleShare}
-          />
-        )}
+        {boostInfo.isBoosted && <div className="absolute inset-0 bg-gradient-to-t from-orange-500/10 to-transparent pointer-events-none" />}
+        {boostInfo.isExpired && <div className="absolute inset-0 bg-gradient-to-t from-red-500/10 to-transparent pointer-events-none" />}
+        {boostInfo.isSuspended && <div className="absolute inset-0 bg-gradient-to-t from-red-600/10 to-transparent pointer-events-none" />}
+        {user && !isOwner && <UserActions favorito={favorito} toggleFavorito={toggleFavorito} handleShare={handleShare}/>}
       </div>
 
-      {/* Conteúdo */}
       <div className="p-5 flex flex-col flex-1 space-y-4">
         <div className="space-y-2 flex-1">
           <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -286,72 +403,76 @@ export function PropertyCard({ property }: { property: TPropertyResponseSchema }
 
           <h3 className="text-xl font-semibold text-gray-900 line-clamp-2">{property.title}</h3>
 
-          {/* Indicador de impulsionamento para não-donos */}
-          {!isOwner && isBoosted && (
+          {!isOwner && boostInfo.isBoosted && (
             <div className="flex items-center gap-1 text-xs text-orange-600 font-medium">
               <Zap className="w-3 h-3" />
               <span>Imóvel Impulsionado</span>
             </div>
           )}
 
+          {!isOwner && boostInfo.isExpired && (
+            <div className="flex items-center gap-1 text-xs text-red-600 font-medium">
+              <AlertCircle className="w-3 h-3" />
+              <span>Destaque Expirado</span>
+            </div>
+          )}
+
+          {!isOwner && boostInfo.isSuspended && (
+            <div className="flex items-center gap-1 text-xs text-red-600 font-medium">
+              <ShieldAlert className="w-3 h-3" />
+              <span>Impulsionamento Suspenso</span>
+            </div>
+          )}
+
           <div className="flex justify-between text-gray-700 text-sm">
-            <div className="flex items-center gap-1">
-              <BedDouble className="w-4 h-4" /> {property.bedrooms} Quartos
-            </div>
-            <div className="flex items-center gap-1">
-              <Ruler className="w-4 h-4" /> {property.size}m²
-            </div>
+            <div className="flex items-center gap-1"><BedDouble className="w-4 h-4"/> {property.bedrooms} Quartos</div>
+            <div className="flex items-center gap-1"><Ruler className="w-4 h-4"/> {property.size}m²</div>
           </div>
 
           <div className="flex justify-between text-xs text-gray-500 mt-1">
             <span>{property.tipo || property.status}</span>
-            {property.bathrooms !== undefined && (
-              <span>
-                {property.bathrooms ?? 0} Banheiro{(property.bathrooms ?? 0) > 1 ? 's' : ''}
-              </span>
-            )}
-            {property.garagens != null && property.garagens > 0 && (
-              <span>{property.garagens} Garagem{property.garagens > 1 ? 's' : ''}</span>
-            )}
+            {property.bathrooms != null && <span>{property.bathrooms} Banheiro{property.bathrooms > 1 ? 's' : ''}</span>}
+            {property.garagens != null && property.garagens > 0 && <span>{property.garagens} Garagem{property.garagens > 1 ? 's' : ''}</span>}
           </div>
 
           <div className="flex items-center gap-2 text-orange-500 font-bold mt-2">
             <Tag className="w-5 h-5" />
-            <span>
-              {property.price?.toLocaleString('pt-AO', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}{' '}
-              Kz
-              {property.status === 'arrendar' && '/mês'}
-            </span>
+            <span>{property.price?.toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Kz{property.status === 'arrendar' ? '/mês' : ''}</span>
           </div>
         </div>
 
         <div className="space-y-2">
-          <Link
-            href={`/propriedades/${property.id}`}
-            className="flex justify-center cursor-pointer w-full bg-purple-700 hover:bg-purple-800 text-white py-2 rounded-lg font-medium transition"
+          <Link 
+            href={`/propriedades/${property.id}`} 
+            className="flex justify-center cursor-pointer w-full bg-purple-700 hover:bg-purple-800 text-white py-2 rounded-lg font-medium transition" 
             prefetch={false}
           >
             Ver detalhes
           </Link>
-          
-          {isOwner && (
+
+          {shouldShowBoostButton() && (
             <Link
-              href={isBoosted ? '#' : `/dashboard/destacar/${property.id}`}
-              onClick={(e) => {
-                if (isBoosted) e.preventDefault(); // Impede a navegação se estiver desabilitado
-              }}
-              className={`flex items-center justify-center gap-2 w-full border py-2 rounded-lg font-medium transition ${
-                isBoosted
-                  ? 'border-green-600 bg-green-50 text-green-700 opacity-60 cursor-not-allowed'
-                  : 'border-purple-700 text-purple-700 hover:bg-purple-50'
-              }`}
+              href={shouldDisableBoostButton() ? '#' : `/dashboard/destacar/${property.id}`}
+              onClick={handleBoostClick}
+              className={`flex items-center justify-center gap-2 w-full border py-2 rounded-lg font-medium transition ${getBoostButtonClass()}`}
             >
-              <Star className={`w-4 h-4 ${isBoosted ? 'text-green-600' : ''}`} />
-              {isBoosted ? 'Impulsionado ✓' : 'Destacar propriedade'}
+              <Star className={`w-4 h-4 ${getBoostButtonIcon()}`} />
+              {getBoostButtonText()}
             </Link>
+          )}
+
+          {isOwner && boostInfo.isSuspended && (
+            <div className="text-xs text-red-600 text-center p-2 bg-red-50 rounded-lg border border-red-200">
+              <ShieldAlert className="w-4 h-4 mx-auto mb-1" />
+              Seu impulsionamento foi suspenso por suspeita de atividade. Contacte o suporte.
+            </div>
+          )}
+
+          {isOwner && !canBoost && !boostInfo.isSuspended && (
+            <div className="text-xs text-gray-600 text-center p-2 bg-gray-50 rounded-lg border border-gray-200">
+              <ShieldAlert className="w-4 h-4 mx-auto mb-1" />
+              Impulsionamento bloqueado devido a propriedades suspensas na sua conta.
+            </div>
           )}
         </div>
       </div>

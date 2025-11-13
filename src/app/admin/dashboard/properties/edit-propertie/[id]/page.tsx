@@ -4,8 +4,8 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, useFieldArray, Controller, useFormContext, FormProvider } from 'react-hook-form';
 import { ArrowLeft, Save, Plus, Trash, Loader2, MapPin, Home, DollarSign, Image, FileText, Settings, Building, Bath, Bed, Car, Ruler } from 'lucide-react';
-import { getPropertyById } from '@/lib/actions/get-properties';
-import { updateProperty, deleteGalleryImage } from '@/lib/actions/supabase-actions/update-propertie';
+import { getPropertyById } from '@/lib/functions/get-properties';
+import { updateProperty, deleteGalleryImage } from '@/lib/functions/supabase-actions/update-propertie';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';

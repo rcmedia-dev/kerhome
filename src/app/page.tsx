@@ -6,9 +6,9 @@ import HeroCarousel from '@/components/hero';
 import PropertiesShowcase from '@/components/property-showcase';
 import ActionCardsSection from '@/components/actions-card';
 import TopAgentsSection, { Agent } from '@/components/top-agent';
-import { getLimitedProperties } from '@/lib/actions/get-properties';
+import { getLimitedProperties } from '@/lib/functions/get-properties';
 import { TPropertyResponseSchema } from '@/lib/types/property';
-import { getAgents } from '@/lib/actions/get-agent';
+import { getAgents } from '@/lib/functions/get-agent';
 
 export default async function HomePage() {
   const properties: TPropertyResponseSchema[] = await getLimitedProperties(8);

@@ -4,9 +4,9 @@ import { useEffect, useState, useRef } from 'react';
 import { MessageSquare, X, Send, Smile, Paperclip, ChevronLeft } from 'lucide-react';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
-import { useAuth } from './auth-context';
 import Pusher from 'pusher-js';
 import { toast } from 'sonner';
+import { useUserStore } from '@/lib/store/user-store';
 
 type Message = {
   id: string;
@@ -33,7 +33,7 @@ export default function FloatingChat() {
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [showContacts, setShowContacts] = useState(true);
   const [isSending, setIsSending] = useState(false);
-  const { user } = useAuth();
+  const { user } = useUserStore();
   const pusherRef = useRef<Pusher | null>(null);
 
 

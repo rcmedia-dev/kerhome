@@ -1,6 +1,6 @@
 
 import { PropertyCard } from "@/components/property-card";
-import { searchProperties } from "@/lib/actions/supabase-actions/search-properties-action";
+import { searchProperties } from "@/lib/functions/supabase-actions/search-properties-action";
 
 interface SearchParams {
   q?: string;

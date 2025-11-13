@@ -6,9 +6,8 @@ import { useMultiStepForm } from "@/hooks/use-multi-step-form";
 import { Button } from "@/components/ui/button";
 import { PropertyFormData } from "@/lib/types/property";
 import FormStep from "./form-step";
-import { useRouter } from "next/navigation";
-import { createProperty } from "@/lib/actions/supabase-actions/create-propertie-action";
-import { notificateN8n } from "@/lib/actions/supabase-actions/n8n-notification-request";
+import { createProperty } from "@/lib/functions/supabase-actions/create-propertie-action";
+import { notificateN8n } from "@/lib/functions/supabase-actions/n8n-notification-request";
 
 interface MultiStepFormProps {
   userId?: string;
@@ -131,7 +130,7 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
             { value: "apartamento", label: "Apartamento" },
             { value: "terreno", label: "Terreno" },
             { value: "comercial", label: "Comercial" },
-            { value: "rural", label: "Propriedade Rural" }
+            { value: "Outro", label: "Outra Propriedade" }
           ],
           placeholder: "Selecione o tipo de propriedade",
           validation: {
@@ -452,11 +451,11 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
       if (result.success) {
         setSuccessMessage("Propriedade cadastrada com sucesso! Em breve será revisada pela nossa equipe.");
         setShowSuccess(true);
-        await notificateN8n("imovel", {
-          agentName,
-          imovelName: formData.title,
-          status: formData.status
-        });
+        // await notificateN8n("imovel", {
+        //   agentName,
+        //   imovelName: formData.title,
+        //   status: formData.status
+        // });
       } else {
         setServerError(result.error || "Erro ao criar propriedade. Verifique os dados e tente novamente.");
       }

@@ -1,32 +1,7 @@
 import { CreditCard, X, Sparkles, Building2, CheckCircle2, Clock } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 
-type PaymentModalProps = {
-  showPaymentModal: boolean;
-  selectedPlan: string | null;
-  paymentStatus: "pending" | "confirmed" | null;
-  cancelPayment: () => void;
-  confirmPayment: () => void;
-};
-
-interface PlanConfig {
-  badge: string;
-  iconBg: string;
-  badgeBg: string;
-  titleColor: string;
-  border: string;
-  button: string;
-  limite: number;
-  destaquesPermitidos: number;
-  price: number;
-  benefits: string[];
-}
-
-interface Plans {
-  [key: string]: PlanConfig;
-}
-
-const PLANS: Plans = {
+const PLANS = {
   "Plano Básico": {
     badge: "BÁSICO",
     iconBg: "bg-blue-500",
@@ -36,8 +11,12 @@ const PLANS: Plans = {
     button: "bg-blue-600 hover:bg-blue-700",
     limite: 10,
     destaquesPermitidos: 1,
-    price: 99000.0,
-    benefits: ["Até 10 imóveis ativos", "1 anúncio em destaque", "Suporte prioritário"],
+    price: 69000,
+    benefits: [
+      "Até 10 imóveis ativos",
+      "1 anúncio em destaque",
+      "Suporte via WhatsApp (8h–17h, seg–sex)",
+    ],
   },
   "Plano Professional": {
     badge: "PRO",
@@ -48,7 +27,7 @@ const PLANS: Plans = {
     button: "bg-purple-600 hover:bg-purple-700",
     limite: 50,
     destaquesPermitidos: 3,
-    price: 199000.0,
+    price: 118000,
     benefits: [
       "Até 50 imóveis ativos",
       "3 anúncios em destaque",
@@ -66,7 +45,7 @@ const PLANS: Plans = {
     button: "bg-orange-500 hover:bg-orange-600",
     limite: 1000,
     destaquesPermitidos: 5,
-    price: 499000.0,
+    price: 250000,
     benefits: [
       "Imóveis ilimitados",
       "5 anúncios em destaque",
@@ -75,6 +54,16 @@ const PLANS: Plans = {
       "Exposição em Redes Sociais",
     ],
   },
+} as const;
+
+type PlanKey = keyof typeof PLANS;
+
+type PaymentModalProps = {
+  showPaymentModal: boolean;
+  selectedPlan: PlanKey | null;
+  paymentStatus: "pending" | "confirmed" | null;
+  cancelPayment: () => void;
+  confirmPayment: () => void;
 };
 
 // Componente do Modal de Pagamento
@@ -85,10 +74,12 @@ export function PaymentModal({
   cancelPayment,
   confirmPayment,
 }: PaymentModalProps) {
+  const plan = selectedPlan ? PLANS[selectedPlan] : null;
+
   return (
     <Dialog open={showPaymentModal} onOpenChange={(open) => !open && cancelPayment()}>
       <DialogContent className="sm:max-w-[525px] max-h-[90vh] overflow-y-auto p-0 rounded-2xl border-0 shadow-2xl bg-white">
-        <DialogTitle></DialogTitle>
+        <DialogTitle />
 
         {/* Header fixo */}
         <div className="bg-purple-700 p-6 sticky top-0 z-10">
@@ -99,7 +90,9 @@ export function PaymentModal({
               </div>
               <div>
                 <h2 className="text-xl font-bold tracking-tight">Confirmar Pagamento</h2>
-                <p className="text-purple-100 text-sm mt-1">Ative seu plano agora mesmo</p>
+                <p className="text-purple-100 text-sm mt-1">
+                  Ative seu plano agora mesmo
+                </p>
               </div>
             </div>
             <button
@@ -113,7 +106,7 @@ export function PaymentModal({
         </div>
 
         <div className="p-6 space-y-6">
-          {selectedPlan && (
+          {plan && (
             <>
               {/* Resumo do Plano */}
               <div className="relative overflow-hidden bg-purple-50 p-6 rounded-2xl border border-purple-200 shadow-sm">
@@ -127,7 +120,7 @@ export function PaymentModal({
                   <h3 className="text-2xl font-bold text-gray-900 mb-1">{selectedPlan}</h3>
                   <div className="flex items-baseline gap-2 mt-2">
                     <span className="text-3xl font-bold text-purple-700">
-                      {PLANS[selectedPlan].price.toLocaleString("pt-AO", {
+                      {plan.price.toLocaleString("pt-AO", {
                         style: "currency",
                         currency: "AOA",
                       })}
@@ -135,10 +128,7 @@ export function PaymentModal({
                     <span className="text-gray-600 text-sm">/mês</span>
                   </div>
                   <p className="text-sm text-gray-500 mt-3">
-                    {PLANS[selectedPlan].limite === 1000
-                      ? "Ilimitadas"
-                      : PLANS[selectedPlan].limite}{" "}
-                    propriedades
+                    {plan.limite === 1000 ? "Ilimitadas" : plan.limite} propriedades
                   </p>
                 </div>
               </div>
@@ -149,7 +139,9 @@ export function PaymentModal({
                   <div className="p-2 bg-purple-100 rounded-xl">
                     <Building2 className="w-5 h-5 text-purple-700" />
                   </div>
-                  <h4 className="font-bold text-gray-900 text-lg">Dados para Transferência</h4>
+                  <h4 className="font-bold text-gray-900 text-lg">
+                    Dados para Transferência
+                  </h4>
                 </div>
                 <div className="grid grid-cols-1 gap-2.5">
                   {[
@@ -173,16 +165,16 @@ export function PaymentModal({
                 </div>
               </div>
 
-              {/* WhatsApp para envio do comprovativo */}
+              {/* WhatsApp */}
               <div className="bg-green-50 rounded-2xl p-5 border border-green-200">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
                     <svg
                       className="w-5 h-5 text-white"
                       fill="currentColor"
                       viewBox="0 0 24 24"
                     >
-                      <path d="M17.472 14.382c..."/>
+                      <path d="M17.472 14.382c..." />
                     </svg>
                   </div>
                   <div>
@@ -195,7 +187,9 @@ export function PaymentModal({
 
                 <div className="mb-4 p-3 bg-white rounded-lg border border-green-200">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">Número do WhatsApp:</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      Número do WhatsApp:
+                    </span>
                     <span className="text-sm font-semibold text-green-800 bg-green-100 px-2 py-1 rounded-md">
                       +244 929 884 781
                     </span>
@@ -216,15 +210,16 @@ export function PaymentModal({
               {paymentStatus === "confirmed" ? (
                 <div className="bg-green-50 border border-green-200 rounded-2xl p-5">
                   <div className="flex items-center gap-4">
-                    <div className="flex-shrink-0">
-                      <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                        <CheckCircle2 className="w-7 h-7 text-green-600" />
-                      </div>
+                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                      <CheckCircle2 className="w-7 h-7 text-green-600" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-green-800 mb-1 text-lg">Pagamento Confirmado!</h3>
+                      <h3 className="font-bold text-green-800 mb-1 text-lg">
+                        Pagamento Confirmado!
+                      </h3>
                       <p className="text-sm text-green-700">
-                        Estamos processando seu pagamento. Você receberá uma confirmação por e-mail em breve.
+                        Estamos processando seu pagamento. Você receberá uma confirmação por
+                        e-mail em breve.
                       </p>
                     </div>
                   </div>
@@ -238,13 +233,13 @@ export function PaymentModal({
               ) : paymentStatus === "pending" ? (
                 <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5">
                   <div className="flex items-center gap-4">
-                    <div className="flex-shrink-0">
-                      <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                        <Clock className="w-7 h-7 text-orange-600 animate-spin" />
-                      </div>
+                    <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                      <Clock className="w-7 h-7 text-orange-600 animate-spin" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-orange-800 mb-1 text-lg">Processando Pagamento...</h3>
+                      <h3 className="font-bold text-orange-800 mb-1 text-lg">
+                        Processando Pagamento...
+                      </h3>
                       <p className="text-sm text-orange-700">
                         Aguarde enquanto confirmamos sua transação.
                       </p>

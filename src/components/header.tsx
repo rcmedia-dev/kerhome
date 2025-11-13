@@ -34,8 +34,9 @@ import { supabase } from '@/lib/supabase';
 import DraggableChat from './floating-chat';
 import CadastrarImovelButton from './cadastrar-imovel-button';
 import { useQuery } from '@tanstack/react-query';
-import { getUserPlan } from '@/lib/actions/supabase-actions/get-user-package-action';
+import { getUserPlan } from '@/lib/functions/supabase-actions/get-user-package-action';
 import { UserProfile, useUserStore } from '@/lib/store/user-store';
+import { toast } from 'sonner'; // <-- added import
 
 // Função para estilização dos links
 const linkClass = (pathname: string, href: string) =>
@@ -49,6 +50,7 @@ const linkClass = (pathname: string, href: string) =>
 function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: boolean }) {
   const router = useRouter();
   const { setUser } = useUserStore(); // Usando a user store
+  const [isLoggingOut, setIsLoggingOut] = useState(false); // <-- added local state
 
   const handleDashboardClick = () => {
     if (user?.role === "admin") {
@@ -59,12 +61,30 @@ function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: bo
   };
 
   const handleLogout = async () => {
+    if (isLoggingOut) return; // guard
+    setIsLoggingOut(true);
     try {
-      await useUserStore.getState().signOut(); // Usando o signOut da store
-      router.push("/");
+      // Prefer the store signOut if implemented, fallback to supabase
+      const store = useUserStore.getState();
+      if (typeof store.signOut === 'function') {
+        await store.signOut();
+      } else {
+        await supabase.auth.signOut();
+      }
+
+      // Clear local store user if available
+      if (typeof setUser === 'function') {
+        setUser(null as any);
+      }
+
+      toast.success('Sessão encerrada');
+      router.push('/');
       router.refresh();
     } catch (error) {
       console.error('Error during logout:', error);
+      toast.error('Erro ao encerrar a sessão');
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
@@ -138,14 +158,15 @@ function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: bo
         {/* Sair */}
         <DropdownMenuItem
           onClick={handleLogout}
-          className="rounded-lg px-3 py-2.5 
+          aria-busy={isLoggingOut}
+          className={`rounded-lg px-3 py-2.5 
             text-red-600 font-medium text-sm 
             flex items-center gap-2 
             transition-colors cursor-pointer
-            hover:bg-red-50"
+            hover:bg-red-50 ${isLoggingOut ? 'opacity-60 pointer-events-none' : ''}`}
         >
           <span className="w-2 h-2 rounded-full bg-red-500"></span>
-          Sair
+          {isLoggingOut ? 'Saindo...' : 'Sair'}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

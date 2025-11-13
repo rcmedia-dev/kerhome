@@ -19,6 +19,7 @@ interface LocalUserPlan {
 
 interface PlanoCardProps {
   plan?: LocalUserPlan;
+  userProperties: number;
 }
 
 // Componente de feature item com animação
@@ -193,7 +194,7 @@ const ActionButton = ({
   );
 };
 
-export function PlanoCard({ plan }: PlanoCardProps) {
+export function PlanoCard({ plan, userProperties }: PlanoCardProps) {
   const router = useRouter();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
@@ -253,14 +254,14 @@ export function PlanoCard({ plan }: PlanoCardProps) {
                     color="purple"
                     index={1}
                   />
-                  <ProgressBar used={plan.limite - plan.restante} total={plan.limite} />
+                  <ProgressBar used={userProperties } total={plan.limite} />
                 </div>
 
                 {/* Listagens restantes */}
                 <PlanFeature
                   icon={Eye}
                   label="Listagens Restantes"
-                  value={plan.restante}
+                  value={plan.restante - userProperties}
                   color={isLowQuota ? "orange" : "purple"}
                   index={2}
                 />

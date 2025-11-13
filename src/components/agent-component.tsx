@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Phone } from 'lucide-react';
-import { AgentProfile, getAgentByEmail, getAgentProperties } from '@/lib/actions/get-agent';
+import { AgentProfile, getAgentByEmail, getAgentProperties } from '@/lib/functions/get-agent';
 import { TPropertyResponseSchema } from '@/lib/types/property';
 
 function getInitials(nome: string): string {

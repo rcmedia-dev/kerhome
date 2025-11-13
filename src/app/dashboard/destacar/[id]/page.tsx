@@ -6,9 +6,9 @@ import { toast } from 'sonner';
 
 // Store & Actions
 import { useUserStore } from '@/lib/store/user-store';
-import { getPropertyById, getSupabaseUserProperties } from '@/lib/actions/get-properties';
+import { getPropertyById, getSupabaseUserProperties } from '@/lib/functions/get-properties';
 import { TPropertyResponseSchema } from '@/lib/types/property';
-import { fetchPacotesFromSupabase, addPropertiesToBoost, createFatura } from '@/lib/actions/supabase-actions/boost-functions';
+import { fetchPacotesFromSupabase, addPropertiesToBoost, createFatura } from '@/lib/functions/supabase-actions/boost-functions';
 import { PacoteDestaque, TabType } from '@/lib/types/defaults';
 import { NavigationTabs } from '../components/navigation-tabs';
 import { PropertySelectionModal } from '../components/property-selection-modal';

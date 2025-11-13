@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Settings, Save, User, Mail, Phone, Building, Award, Globe, Facebook, Linkedin, Instagram, Youtube, Edit3, Briefcase, Users, Share2 } from 'lucide-react';
-import { updateUserProfile } from '@/lib/actions/supabase-actions/update-user-profile';
+import { updateUserProfile } from '@/lib/functions/supabase-actions/update-user-profile';
 import { toast } from 'sonner';
 import { UserProfile } from '@/lib/store/user-store';
 import { motion, AnimatePresence } from 'framer-motion';

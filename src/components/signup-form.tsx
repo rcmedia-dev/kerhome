@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Image from 'next/image'
-import { signUp } from '@/lib/actions/supabase-actions/signup-action'
+import { signUp } from '@/lib/functions/supabase-actions/signup-action'
 import { useRouter } from 'next/navigation'
 import { useUserStore } from '@/lib/store/user-store'
 

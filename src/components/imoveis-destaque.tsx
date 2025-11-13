@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { TPropertyResponseSchema } from '@/lib/types/property';
-import { getLimitedProperties } from '@/lib/actions/get-properties';
+import { getLimitedProperties } from '@/lib/functions/get-properties';
 
 export default function ImoveisSemelhantes() {
   const [imoveis, setImoveis] = useState<TPropertyResponseSchema[]>([]);

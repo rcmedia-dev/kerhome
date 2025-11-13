@@ -1,5 +1,5 @@
 // app/blog/[slug]/opengraph-image.tsx
-import { getPropertyById } from '@/lib/actions/get-properties';
+import { getPropertyById } from '@/lib/functions/get-properties';
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';

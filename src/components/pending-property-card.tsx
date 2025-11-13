@@ -3,25 +3,22 @@
 import { MapPin, Pencil, Trash, Clock, EyeOff } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useAuth } from '@/components/auth-context';
 import { TPropertyResponseSchema } from '@/lib/types/property';
-import { deleteProperty } from '@/lib/actions/supabase-actions/delete-propertie';
+import { deleteProperty } from '@/lib/functions/supabase-actions/delete-propertie';
 import { toast } from 'sonner';
+import { useUserStore } from '@/lib/store/user-store';
 
 export function PendingPropertyCard({ property }: { property: TPropertyResponseSchema }) {
-  const { user } = useAuth();
+  const { user } = useUserStore();
   const isOwner = user?.id === property.owner_id;
 
   const handleDelete = async () => {
-    if (confirm('Tem certeza que deseja eliminar este imóvel?')) {
       try {
         await deleteProperty(property.id, user?.id);
         toast.success('Imóvel deletado com sucesso');
       } catch (e) {
-        toast.error('Erro ao deletar o imóvel');
         console.log('error:', e);
       }
-    }
   };
 
   return (

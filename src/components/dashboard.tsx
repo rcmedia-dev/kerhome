@@ -8,12 +8,10 @@ import {
   Rocket,
   Settings,
   Star,
-  Upload,
   User,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
-  Card,
   CardHeader,
   CardTitle,
   CardDescription,
@@ -27,200 +25,36 @@ import {
 } from './dashboard-tabs-content';
 import { ConfiguracoesConta } from './account-setting';
 import { PlanoCard } from './plano-card';
-import { getImoveisFavoritos } from '@/lib/actions/get-favorited-imoveis';
-import { getSupabaseUserProperties } from '@/lib/actions/get-properties';
+import { getImoveisFavoritos } from '@/lib/functions/get-favorited-imoveis';
+import { getSupabaseUserProperties } from '@/lib/functions/get-properties';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CanSeeIt } from './can';
 import Link from 'next/link';
 import { UserCard } from './user-card';
-import { getFaturas } from '@/lib/actions/supabase-actions/user-bills-action';
-import { getMyPropertiesWithViews } from '@/lib/actions/supabase-actions/get-most-seen-propeties';
-import { getUserPlan } from '@/lib/actions/supabase-actions/get-user-package-action';
-import { notificateN8n } from '@/lib/actions/supabase-actions/n8n-notification-request';
-import { supabase } from '@/lib/supabase';
+import { getFaturas } from '@/lib/functions/supabase-actions/user-bills-action';
+import { getMyPropertiesWithViews } from '@/lib/functions/supabase-actions/get-most-seen-propeties';
+import { getUserPlan } from '@/lib/functions/supabase-actions/get-user-package-action';
 import { UserAction } from './user-action';
 import { useUserStore } from '@/lib/store/user-store';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Variants, Easing } from "framer-motion";
-import { cn } from '@/lib/utils';
 import PropriedadesImpulsionadasDashboard from './boosted-properties';
-
-// Loading suave e elegante
-const SoftLoading = () => (
-  <div className="min-h-screen bg-gradient-to-br from-white via-purple-50 to-orange-50 flex items-center justify-center">
-    <div className="text-center">
-      <motion.div
-        animate={{ 
-          rotate: 360,
-          scale: [1, 1.1, 1]
-        }}
-        transition={{ 
-          duration: 2, 
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-        className="rounded-full h-16 w-16 border-4 border-purple-200 border-t-purple-600 mx-auto mb-4"
-      />
-      <motion.p
-        initial={{ y: 10, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="text-gray-600 font-medium"
-      >
-        Carregando seu espaço...
-      </motion.p>
-    </div>
-  </div>
-);
-
-// Card com animação suave
-const SoftCard = ({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5, delay, ease: "easeOut" }}
-    whileHover={{ 
-      y: -2,
-      transition: { duration: 0.2 }
-    }}
-    className={cn(
-      "bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300",
-      className
-    )}
-  >
-    {children}
-  </motion.div>
-);
-
-// Item do menu com animação suave
-const SoftMenuItem = ({ 
-  item, 
-  activeTab, 
-  setActiveTab,
-  index 
-}: { 
-  item: any; 
-  activeTab: string; 
-  setActiveTab: (tab: string) => void;
-  index: number;
-}) => {
-  const isActive = activeTab === item.id;
-  
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 0.1 * index }}
-      whileHover={{ 
-        x: 4,
-        transition: { duration: 0.2 }
-      }}
-      whileTap={{ scale: 0.98 }}
-      onClick={() => setActiveTab(item.id)}
-      className={cn(
-        "flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all duration-300 group",
-        isActive
-          ? "bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200"
-          : "bg-white border border-transparent hover:border-orange-100 hover:bg-orange-50/50"
-      )}
-    >
-      <div className="flex items-center space-x-3">
-        <motion.div
-          animate={isActive ? { 
-            scale: [1, 1.1, 1],
-            rotate: [0, -5, 0]
-          } : {}}
-          transition={{ duration: 0.5 }}
-          className={cn(
-            "p-2 rounded-lg transition-all duration-300",
-            isActive 
-              ? "bg-orange-500 text-white shadow-sm" 
-              : "bg-purple-100 text-purple-600 group-hover:bg-orange-100 group-hover:text-orange-600"
-          )}
-        >
-          <item.icon className="w-4 h-4" />
-        </motion.div>
-        <span className={cn(
-          "font-medium transition-colors",
-          isActive ? "text-orange-700" : "text-gray-700 group-hover:text-orange-600"
-        )}>
-          {item.label}
-        </span>
-      </div>
-      {item.badge !== undefined && (
-        <motion.span
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          whileHover={{ scale: 1.05 }}
-          className={cn(
-            "px-2 py-1 text-xs font-semibold rounded-full transition-colors",
-            isActive 
-              ? "bg-orange-500 text-white" 
-              : "bg-gray-100 text-gray-600 group-hover:bg-orange-500 group-hover:text-white"
-          )}
-        >
-          {item.badge}
-        </motion.span>
-      )}
-    </motion.div>
-  );
-};
-
-// Efeito de partículas suaves para o background
-const SoftBackground = () => {
-  const [dimensions, setDimensions] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setDimensions({ w: window.innerWidth, h: window.innerHeight });
-    }
-  }, []);
-
-  if (dimensions.w === 0 || dimensions.h === 0) return null; // Evita render no SSR
-
-  return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none">
-      {[...Array(8)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-64 h-64 rounded-full bg-gradient-to-r from-purple-100 to-orange-100 opacity-20"
-          initial={{
-            x: Math.random() * dimensions.w,
-            y: Math.random() * dimensions.h,
-          }}
-          animate={{
-            x: [null, Math.random() * dimensions.w],
-            y: [null, Math.random() * dimensions.h],
-          }}
-          transition={{
-            duration: 20 + Math.random() * 20,
-            repeat: Infinity,
-            repeatType: "reverse",
-          }}
-        />
-      ))}
-    </div>
-  );
-};
+import SoftLoading from './soft-loading';
+import SoftCard from './soft-card';
+import SoftMenuItem from './soft-menu-item';
+import SoftBackground from './soft-background';
 
 export default function Dashboard() {
   const { user, isLoading: userLoading } = useUserStore();
   const [activeTab, setActiveTab] = useState('properties');
   const queryClient = useQueryClient();
 
-  const [propertyCount, setPropertyCount] = useState(0);
-  const [favoriteCount, setFavoriteCount] = useState(0);
-  const [invoiceCount, setInvoiceCount] = useState(0);
-  const [viewsCount, setViewsCount] = useState(0);
-
-  // Queries (mantidas as mesmas)
+  // Queries rodando em paralelo
   const userProperties = useQuery({
     queryKey: ['user-properties', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-      const response = await getSupabaseUserProperties(user.id);
-      setPropertyCount(response.length);
-      return response;
+      return await getSupabaseUserProperties(user.id);
     },
     enabled: !!user?.id,
   });
@@ -229,9 +63,7 @@ export default function Dashboard() {
     queryKey: ['favorite-properties', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-      const response = await getImoveisFavoritos(user.id);
-      setFavoriteCount(response.length);
-      return response;
+      return await getImoveisFavoritos(user.id);
     },
     enabled: !!user?.id,
   });
@@ -240,20 +72,16 @@ export default function Dashboard() {
     queryKey: ['user-invoices', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-      const response = await getFaturas(user.id);
-      setInvoiceCount(response.length);
-      return response;
+      return await getFaturas(user.id);
     },
     enabled: !!user?.id,
   });
 
-  const mostViewed = useQuery<{ total_views_all: number; properties: any[] }>({
+  const mostViewed = useQuery({
     queryKey: ['most-viewed', user?.id],
     queryFn: async () => {
       if (!user?.id) return { total_views_all: 0, properties: [] };
-      const response = await getMyPropertiesWithViews(user.id);
-      setViewsCount(response.total_views_all);
-      return response;
+      return await getMyPropertiesWithViews(user.id);
     },
     enabled: !!user?.id,
   });
@@ -267,7 +95,12 @@ export default function Dashboard() {
     enabled: !!user?.id,
   });
 
-  if (userLoading) {
+  // Verificar se as queries principais estão carregando
+  const isLoadingQueries = userProperties.isLoading || 
+                          userFavoriteProperties.isLoading || 
+                          userPlan.isLoading;
+
+  if (userLoading || isLoadingQueries) {
     return <SoftLoading />;
   }
 
@@ -290,14 +123,6 @@ export default function Dashboard() {
           >
             Acesso necessário
           </motion.p>
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <Link 
-              href="/login" 
-              className="bg-gradient-to-r from-purple-600 to-orange-600 text-white px-8 py-3 rounded-xl hover:shadow-lg transition-all duration-200 font-medium inline-block"
-            >
-              Fazer Login
-            </Link>
-          </motion.div>
         </SoftCard>
       </div>
     );
@@ -306,11 +131,28 @@ export default function Dashboard() {
   const displayName =
     user.primeiro_nome?.trim() || user.email?.split('@')[0] || 'Usuário';
 
+  // Stats usando dados diretamente das queries
   const stats = [
-    { label: 'Propriedades', value: propertyCount, icon: Home },
-    { label: 'Favoritas', value: favoriteCount, icon: Heart },
-    { label: 'Faturas', value: invoiceCount, icon: BarChart3 },
-    { label: 'Visualizações', value: viewsCount, icon: Eye },
+    { 
+      label: 'Propriedades', 
+      value: userProperties.data?.length || 0, 
+      icon: Home 
+    },
+    { 
+      label: 'Favoritas', 
+      value: userFavoriteProperties.data?.length || 0, 
+      icon: Heart 
+    },
+    { 
+      label: 'Faturas', 
+      value: userInvoices.data?.length || 0, 
+      icon: BarChart3 
+    },
+    { 
+      label: 'Visualizações', 
+      value: mostViewed.data?.total_views_all || 0, 
+      icon: Eye 
+    },
   ];
 
   const menuItems = [
@@ -318,22 +160,36 @@ export default function Dashboard() {
       id: 'properties',
       label: 'Minhas Propriedades',
       icon: Home,
-      badge: propertyCount,
+      badge: userProperties.data?.length || 0,
     },
-    { id: 'favorites', label: 'Favoritas', icon: Heart, badge: favoriteCount },
-    { id: 'invoices', label: 'Faturas', icon: BarChart3 },
+    { 
+      id: 'favorites', 
+      label: 'Favoritas', 
+      icon: Heart, 
+      badge: userFavoriteProperties.data?.length || 0 
+    },
+    { 
+      id: 'invoices', 
+      label: 'Faturas', 
+      icon: BarChart3,
+      badge: userInvoices.data?.length || 0,
+    },
     {
       id: 'views',
       label: 'Visualizações de Imóveis',
       icon: Eye,
-      badge: viewsCount,
+      badge: mostViewed.data?.total_views_all || 0,
     },
     {
       id: 'boost',
       label: 'Propriedades Impulsionadas',
       icon: Rocket,
     },
-    { id: 'settings', label: 'Configurações da Conta', icon: Settings },
+    { 
+      id: 'settings', 
+      label: 'Configurações da Conta', 
+      icon: Settings 
+    },
   ];
 
   const tabContentVariants: Variants = {
@@ -383,7 +239,7 @@ export default function Dashboard() {
                 user={user}
                 displayName={displayName}
                 queryClient={queryClient}
-                housesRemaining={userPlan.data?.restante ?? 0}
+                housesRemaining={(userPlan.data?.restante ?? 0) - (userProperties.data?.length ?? 0)}
               />
             </motion.div>
           </CardHeader>
@@ -398,7 +254,11 @@ export default function Dashboard() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
             >
-              <UserCard user={user} displayName={displayName} stats={stats} />
+              <UserCard 
+                user={user} 
+                displayName={displayName} 
+                stats={stats} 
+              />
             </motion.div>
 
             {/* Navigation Menu */}
@@ -411,7 +271,7 @@ export default function Dashboard() {
                   Menu
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2 py-">
+              <CardContent className="space-y-2">
                 {menuItems.map((item, index) => {
                   const isProtected = item.id === 'invoices' || item.id === 'views';
                   const menuItem = (
@@ -447,12 +307,32 @@ export default function Dashboard() {
                   animate="visible"
                   exit="exit"
                 >
-                  {activeTab === 'properties' && <MinhasPropriedades userProperties={userProperties.data ?? []} />}
-                  {activeTab === 'favorites' && <Favoritas userFavoriteProperties={userFavoriteProperties.data ?? []} />}
-                  {activeTab === 'invoices' && <Faturas invoices={userInvoices.data ?? []} />}
-                  {activeTab === 'views' && <PropriedadesMaisVisualizadas mostViewedProperties={mostViewed.data!} />}
+                  {activeTab === 'properties' && (
+                    <MinhasPropriedades 
+                      userProperties={userProperties.data ?? []} 
+                    />
+                  )}
+                  {activeTab === 'favorites' && (
+                    <Favoritas 
+                      userFavoriteProperties={userFavoriteProperties.data ?? []} 
+                    />
+                  )}
+                  {activeTab === 'invoices' && (
+                    <Faturas 
+                      invoices={userInvoices.data ?? []} 
+                    />
+                  )}
+                  {activeTab === 'views' && (
+                    <PropriedadesMaisVisualizadas 
+                      mostViewedProperties={mostViewed.data || { total_views_all: 0, properties: [] }} 
+                    />
+                  )}
                   {activeTab === 'boost' && <PropriedadesImpulsionadasDashboard />}
-                  {activeTab === 'settings' && <ConfiguracoesConta profile={user || undefined} />}
+                  {activeTab === 'settings' && (
+                    <ConfiguracoesConta 
+                      profile={user} 
+                    />
+                  )}
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -464,7 +344,7 @@ export default function Dashboard() {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.6 }}
               >
-                <PlanoCard plan={userPlan.data ?? undefined} />
+                <PlanoCard plan={userPlan.data ?? undefined} userProperties={userProperties.data?.length ?? 0} />
               </motion.div>
 
               <SoftCard className="mt-4 bg-gradient-to-r from-orange-50 to-amber-50 py-4 border-orange-200">
@@ -529,105 +409,37 @@ export default function Dashboard() {
                 exit="exit"
                 className="h-full"
               >
-                {activeTab === 'properties' && <MinhasPropriedades userProperties={userProperties.data ?? []} />}
-                {activeTab === 'favorites' && <Favoritas userFavoriteProperties={userFavoriteProperties.data ?? []} />}
-                {activeTab === 'invoices' && <Faturas invoices={userInvoices.data ?? []} />}
-                {activeTab === 'views' && <PropriedadesMaisVisualizadas mostViewedProperties={mostViewed.data!} />}
+                {activeTab === 'properties' && (
+                  <MinhasPropriedades 
+                    userProperties={userProperties.data ?? []} 
+                  />
+                )}
+                {activeTab === 'favorites' && (
+                  <Favoritas 
+                    userFavoriteProperties={userFavoriteProperties.data ?? []} 
+                  />
+                )}
+                {activeTab === 'invoices' && (
+                  <Faturas 
+                    invoices={userInvoices.data ?? []} 
+                  />
+                )}
+                {activeTab === 'views' && (
+                  <PropriedadesMaisVisualizadas 
+                    mostViewedProperties={mostViewed.data || { total_views_all: 0, properties: [] }} 
+                  />
+                )}
                 {activeTab === 'boost' && <PropriedadesImpulsionadasDashboard />}
-                {activeTab === 'settings' && <ConfiguracoesConta profile={user} />}
+                {activeTab === 'settings' && (
+                  <ConfiguracoesConta 
+                    profile={user} 
+                  />
+                )}
               </motion.div>
             </AnimatePresence>
           </div>
         </div>
       </div>
     </div>
-  );
-}
-
-
-type AgentRequestButtonProps = {
-  userId: string;
-  userName: string;
-  queryClient: any;
-}
-
-// AgentRequestButton atualizado com animações suaves
-export function AgentRequestButton({ userId, userName, queryClient }: AgentRequestButtonProps) {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const { data: pendingRequest, isLoading: isChecking } = useQuery<{ id: string; status: string } | null>({
-    queryKey: ["agent-request", userId],
-    queryFn: async (): Promise<{ id: string; status: string } | null> => {
-      const { data, error } = await supabase
-        .from("agente_requests")
-        .select("id, status")
-        .eq("user_id", userId)
-        .eq("status", "pending")
-        .maybeSingle();
-
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const handleBecomeAgent = async () => {
-    setIsLoading(true);
-    try {
-      const { error } = await supabase
-        .from("agente_requests")
-        .insert([{ user_id: userId, status: "pending" }])
-        .select()
-        .single();
-
-      if (error) {
-        console.error("Erro ao criar requisição:", error.message);
-        alert("Erro ao enviar solicitação");
-        return;
-      }
-
-      await queryClient.invalidateQueries({ 
-        queryKey: ["agent-request", userId] 
-      });
-
-      await notificateN8n("agente_solicitation", { agentName: userName });
-
-      alert("Solicitação para se tornar agente enviada com sucesso!");
-    } catch (err) {
-      console.error(err);
-      alert("Erro inesperado ao enviar solicitação");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const hasPendingRequest = Boolean(pendingRequest);
-
-  return (
-    <motion.button
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      onClick={handleBecomeAgent}
-      disabled={isLoading || isChecking || hasPendingRequest}
-      className={cn(
-        "flex justify-center items-center px-4 sm:px-6 py-3 rounded-xl transition-all duration-200 text-sm md:text-base w-full md:w-auto font-medium",
-        isLoading || isChecking || hasPendingRequest
-          ? "bg-gradient-to-r from-purple-400 to-orange-400 cursor-not-allowed shadow-sm"
-          : "bg-gradient-to-r from-purple-600 to-orange-600 hover:shadow-md shadow-sm text-white"
-      )}
-    >
-      <motion.div
-        animate={isLoading ? { rotate: 360 } : {}}
-        transition={{ duration: 1, repeat: isLoading ? Infinity : 0 }}
-      >
-        <User className="w-4 h-4 mr-2" />
-      </motion.div>
-      {isLoading
-        ? "Enviando..."
-        : isChecking
-        ? "Verificando..."
-        : hasPendingRequest
-        ? "Aguardando Aprovação"
-        : "Tornar-se Agente"}
-    </motion.button>
   );
 }

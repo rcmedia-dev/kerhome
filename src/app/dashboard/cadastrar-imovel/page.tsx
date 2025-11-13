@@ -1,6 +1,5 @@
 'use client'
 
-import { useAuth } from "@/components/auth-context";
 import MultiStepForm from "@/components/multi-step-form";
 import { useUserStore } from "@/lib/store/user-store";
 

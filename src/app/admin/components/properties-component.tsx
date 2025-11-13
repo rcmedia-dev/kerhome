@@ -7,8 +7,8 @@ import { getProperties, Property } from "../dashboard/actions/get-properties";
 import Image from "next/image";
 import { toast } from "sonner";
 import { approveProperty, rejectProperty } from "../dashboard/actions/set-properties-status";
-import { useAuth } from "@/components/auth-context";
-import { deleteProperty } from "@/lib/actions/supabase-actions/delete-propertie";
+import { deleteProperty } from "@/lib/functions/supabase-actions/delete-propertie";
+import { useUserStore } from "@/lib/store/user-store";
 
 interface RenderPropertiesProps {
   darkMode?: boolean;
@@ -322,7 +322,7 @@ interface PropertyCardProps {
 }
 
 function ApprovalPropertyCard({ property, darkMode, onUpdate }: PropertyCardProps) {
-  const { user } = useAuth();
+  const { user } = useUserStore();
   const mainImage = property.gallery?.[0] || '';
 
   const handleApprove = async (e: React.MouseEvent) => {
@@ -472,7 +472,7 @@ interface ManagementPropertyCardProps {
 }
 
 function ManagementPropertyCard({ property, darkMode, onUpdate, onDelete }: ManagementPropertyCardProps) {
-  const { user } = useAuth();
+  const { user } = useUserStore();
   const mainImage = property.gallery?.[0] || '';
   const [isDeleting, setIsDeleting] = useState(false);
 

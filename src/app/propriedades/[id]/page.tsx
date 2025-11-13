@@ -1,5 +1,5 @@
-import { getPropertyById } from "@/lib/actions/get-properties";
-import { getPropertyOwner } from "@/lib/actions/get-agent";
+import { getPropertyById } from "@/lib/functions/get-properties";
+import { getPropertyOwner } from "@/lib/functions/get-agent";
 import { TPropertyResponseSchema } from "@/lib/types/property";
 import ImoveisSemelhantes from "@/components/imoveis-destaque";
 import CorretoresEmDestaque from "@/components/corretores";
@@ -11,10 +11,11 @@ import { PropertyHeader } from "@/components/property-header";
 import { PropertyLocation } from "@/components/property-location";
 import { PropertyTabs } from "@/components/property-tabs";
 import { TechnicalDetails } from "@/components/techinical-details";
+import { checkIfPropertyIsBoosted, trackBoostView } from "@/lib/functions/supabase-actions/boost-functions";
 
-// 🔑 METADATA DINÂMICA - CORRIGIDO
+
+// 🔑 METADATA DINÂMICA
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
-  // Aguardar a Promise dos params
   const { id } = await params;
   const property = await getPropertyById(id);
 
@@ -53,9 +54,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
-// ===== COMPONENTE PRINCIPAL (Server Component) - CORRIGIDO =====
+// ===== COMPONENTE PRINCIPAL =====
 export default async function PropertyPage({ params }: { params: Promise<{ id: string }> }) {
-  // Aguardar a Promise dos params
   const { id } = await params;
   const property: TPropertyResponseSchema | null = await getPropertyById(id);
 
@@ -63,6 +63,35 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
     return <NotFoundState />;
   }
 
+  // Verifica se o imóvel está impulsionado
+  const isBoosted = await checkIfPropertyIsBoosted(property.id);
+
+  if (isBoosted) {
+    try {
+      // Evita duplicar views — só roda no lado do cliente
+      if (typeof window !== "undefined") {
+        const viewedBoosts = JSON.parse(localStorage.getItem("boosted_views") || "{}");
+        const lastViewTime = viewedBoosts[property.id];
+        const now = Date.now();
+        const twelveHours = 12 * 60 * 60 * 1000; // 12h em milissegundos
+
+        if (!lastViewTime || now - lastViewTime > twelveHours) {
+          // Registra visualização no Supabase
+          await trackBoostView(property.id);
+
+          // Atualiza registro local
+          viewedBoosts[property.id] = now;
+          localStorage.setItem("boosted_views", JSON.stringify(viewedBoosts));
+        } else {
+          console.log("View já contada recentemente — ignorando.");
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao registrar view impulsionada:", error);
+    }
+  }
+
+  // Dados do proprietário
   const ownerDetails = await getPropertyOwner(property.id);
 
   return (
@@ -96,7 +125,6 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
           <div className="lg:col-span-3 space-y-6 sm:space-y-8">
             <PropertyHeader property={property} />
 
-            {/* Galeria de Fotos */}
             <div className="bg-white rounded-xl p-5 shadow-sm border">
               <PropertyGallery property={property} />
             </div>
@@ -105,8 +133,6 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
             <PropertyTabs property={property} />
             <PropertyDescription property={property} />
             <PropertyLocation property={property} />
-
-            {/* Contacto */}
             <PropertyContact property={property} ownerDetails={ownerDetails} />
           </div>
 

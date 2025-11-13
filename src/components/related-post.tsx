@@ -6,7 +6,7 @@ import Link from 'next/link'
 import React from 'react'
 import Image from 'next/image'
 import { Noticias } from '@/lib/types/noticia'
-import { fetchPosts } from '@/lib/actions/supabase-actions/posts-actions'
+import { fetchPosts } from '@/lib/functions/supabase-actions/posts-actions'
 
 export default function RelatedPosts({ currentPostId }: { currentPostId: string }) {
   const [relatedPosts, setRelatedPosts] = React.useState<Noticias[]>([])

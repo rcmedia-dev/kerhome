@@ -302,7 +302,6 @@ export function UserCard({ user, displayName, stats, onAvatarUpdate }: UserCardP
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const getProfileDescription = () => {
-    if (user.sobre_mim) return user.sobre_mim;
     if (user.empresa) return user.empresa;
     if (user.username) return `@${user.username}`;
     return "Bem-vindo ao seu perfil";

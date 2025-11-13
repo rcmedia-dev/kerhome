@@ -1,7 +1,7 @@
 'use client'
 
 import { ReactNode } from "react";
-import { useAuth } from "@/components/auth-context";
+import { useUserStore } from "@/lib/store/user-store";
 
 type CanSeeItProps = {
   children: ReactNode;
@@ -9,7 +9,7 @@ type CanSeeItProps = {
 };
 
 export function CanSeeIt({ children, role = "agent" }: CanSeeItProps) {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading } = useUserStore();
 
   if (isLoading) return null;
   if (!user) return null;

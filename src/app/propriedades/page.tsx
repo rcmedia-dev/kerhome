@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { PropertyCard } from '@/components/property-card';
 import { useQuery } from '@tanstack/react-query';
-import { getProperties } from '@/lib/actions/get-properties';
+import { getMixedProperties, getProperties } from '@/lib/functions/get-properties';
 
 // Hook personalizado para debounce (sem bibliotecas externas)
 const useDebouncedCallback = (fn: (...args: any[]) => void, wait = 350) => {
@@ -189,12 +189,14 @@ const PropertyListing = () => {
 
   // Properties from supabase
   const properties = useQuery({
-    queryKey: ['properties'],
-    queryFn: async() => {
-      const response = await getProperties()
-      return response
+    queryKey: ['properties', 'mixed'],
+    queryFn: async () => {
+      const response = await getMixedProperties();
+      return response.properties; // ← Retorna array no formato propertyResponseSchema
     }
-  })
+  });
+
+  console.log('Propriedades carregadas:', properties.data);
 
   // 🔍 Funções de debounce para localização e preços
   const updateFilterLocation = useDebouncedCallback((value: string) => {

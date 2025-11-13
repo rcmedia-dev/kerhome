@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import PostPage from "@/components/post-page";
-import { fetchPostBySlug } from "@/lib/actions/supabase-actions/posts-actions";
+import { fetchPostBySlug } from "@/lib/functions/supabase-actions/posts-actions";
 
 // Interface atualizada para Next.js 15
 interface BlogPostPageProps {

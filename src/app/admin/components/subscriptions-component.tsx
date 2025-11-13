@@ -9,7 +9,7 @@ type SubscriptionStatus = "Todos" | "Pendentes" | "Aprovados" | "Rejeitados"
 
 type UserSubscription = Awaited<ReturnType<typeof getPlanRequests>>[number]
 
-const PLANS = {
+export const PLANS = {
   "Plano Básico": {
     badge: "BÁSICO",
     iconBg: "bg-gradient-to-br from-blue-500 to-cyan-500",
@@ -20,11 +20,16 @@ const PLANS = {
     gradient: "from-blue-50 to-cyan-50",
     limite: 10,
     destaquesPermitidos: 1,
-    price: 99000.0,
-    benefits: ["Até 10 imóveis ativos", "1 anúncio em destaque", "Suporte prioritário"],
+    price: 69000,
+    benefits: [
+      "Até 10 imóveis ativos",
+      "1 anúncio nas redes sociais",
+      "Suporte via WhatsApp",
+      "Atendimento das 8h às 17h (Seg. a Sex.)",
+    ],
   },
   "Plano Professional": {
-    badge: "PRO",
+    badge: "PROFESSIONAL",
     iconBg: "bg-gradient-to-br from-purple-600 to-pink-600",
     badgeBg: "bg-purple-100 text-purple-700",
     titleColor: "text-purple-700",
@@ -32,14 +37,13 @@ const PLANS = {
     button: "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700",
     gradient: "from-purple-50 to-pink-50",
     limite: 50,
-    destaquesPermitidos: 3,
-    price: 199000.0,
+    destaquesPermitidos: 10,
+    price: 118000,
     benefits: [
       "Até 50 imóveis ativos",
-      "3 anúncios em destaque",
-      "Relatórios de desempenho",
-      "Suporte prioritário",
-      "Exposição em Redes Sociais",
+      "10 anúncios nas redes sociais",
+      "Suporte via WhatsApp",
+      "Atendimento das 8h às 17h (Seg. a Sex.)",
     ],
   },
   "Plano Super": {
@@ -50,18 +54,19 @@ const PLANS = {
     border: "border-orange-100",
     button: "bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600",
     gradient: "from-orange-50 to-amber-50",
-    limite: 1000,
-    destaquesPermitidos: 5,
-    price: 499000.0,
+    limite: Infinity,
+    destaquesPermitidos: 50,
+    price: 250000,
     benefits: [
       "Imóveis ilimitados",
-      "5 anúncios em destaque",
-      "Consultoria exclusiva",
+      "50 anúncios nas redes sociais",
       "Suporte VIP 24h",
-      "Exposição em Redes Sociais",
     ],
   },
-}
+} as const;
+
+export type PlanName = keyof typeof PLANS;
+
 
 export default function SubscricoesPage() {
   const [activeTab, setActiveTab] = useState<SubscriptionStatus>("Todos")

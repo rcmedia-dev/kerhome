@@ -5,9 +5,9 @@ import Image from 'next/image';
 import { toast } from 'sonner';
 import { Mail, MessageSquare, Phone, Share2 } from 'lucide-react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
-import { PropertyOwner } from '@/lib/actions/get-agent';
-import { createConversation, sendMessage } from '@/lib/actions/message-action';
+import { PropertyOwner } from '@/lib/functions/get-agent';
+import { createConversation, sendMessage } from '@/lib/functions/message-action';
+import { checkIfPropertyIsBoosted, trackBoostClick } from '@/lib/functions/supabase-actions/boost-functions';
 
 type AgentCardWithChatProps = {
   ownerData?: PropertyOwner;
@@ -37,7 +37,6 @@ export default function AgentCardWithChat({ userId, ownerData, propertyId }: Age
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Verificações mais detalhadas
     if (!userId) {
       toast.error('Você precisa estar logado para enviar mensagens');
       return;
@@ -53,31 +52,57 @@ export default function AgentCardWithChat({ userId, ownerData, propertyId }: Age
       return;
     }
 
-    setStatus("enviando");
+    setStatus('enviando');
 
     try {
-      
-      // 1. Cria (ou reutiliza) conversa
-      const conversation = await createConversation(
-        propertyId,
-        ownerData.id, // agente
-        userId        // cliente
-      );
-
-      // 2. Envia a mensagem
+      const conversation = await createConversation(propertyId, ownerData.id, userId);
       await sendMessage(conversation.id, userId, mensagem.trim());
 
-      // 3. Reset
-      setMensagem("");
-      setStatus("sucesso");
-      toast.success("Mensagem enviada com sucesso!");
-
+      setMensagem('');
+      setStatus('sucesso');
+      toast.success('Mensagem enviada com sucesso!');
     } catch (error) {
-      console.error("❌ Erro ao enviar mensagem:", error);
-      setStatus("erro");
-      toast.error("Erro ao enviar a mensagem");
+      console.error('❌ Erro ao enviar mensagem:', error);
+      setStatus('erro');
+      toast.error('Erro ao enviar a mensagem');
     }
   };
+
+  const handleContactClick = async () => {
+  if (!userId) {
+    toast.error('Você precisa estar logado para conversar com o agente');
+    return;
+  }
+
+  try {
+    // ✅ Verifica se o imóvel está impulsionado
+    const isBoosted = await checkIfPropertyIsBoosted(propertyId);
+
+    if (isBoosted) {
+      // Evita contagem duplicada usando localStorage
+      const key = `boost_click_1${propertyId}`;
+      if (!localStorage.getItem(key)) {
+        const result = await trackBoostClick(propertyId);
+        
+        if (result.success) {
+          localStorage.setItem(key, 'true');
+          console.log('✅ Click impulsionado registrado com sucesso!');
+        } else {
+          console.error('❌ Erro ao registrar click:', result.error);
+        }
+      } else {
+        console.log('⚠️ Click já registrado nesta sessão.');
+      }
+    } else {
+      console.log('ℹ️ Imóvel não está impulsionado, pulando tracking.');
+    }
+  } catch (error) {
+    console.error('❌ Erro ao registrar click impulsionado:', error);
+  }
+
+  // Abre ou fecha o chat
+  setShowChat((prev) => !prev);
+};
 
   if (!ownerData) return null;
 
@@ -100,7 +125,9 @@ export default function AgentCardWithChat({ userId, ownerData, propertyId }: Age
                 className="object-cover w-full h-full"
               />
             ) : (
-              <div className={`w-full h-full flex items-center justify-center text-white font-bold text-xl ${color}`}>
+              <div
+                className={`w-full h-full flex items-center justify-center text-white font-bold text-xl ${color}`}
+              >
                 {initials}
               </div>
             )}
@@ -122,35 +149,9 @@ export default function AgentCardWithChat({ userId, ownerData, propertyId }: Age
           Ver outras propriedades
         </Link>
         <button
-          onClick={async () => {
-            if (!userId) {
-              toast.error('Você precisa estar logado para enviar mensagens');
-              return;
-            }
-
-            try {
-              // 👉 incrementa a view (só se não for o dono do imóvel)
-              const { data, error } = await supabase.rpc('register_property_view', {
-                p_property_id: propertyId,
-                p_user_id: userId,
-                p_owner_id: ownerData.id
-              });
-
-              if (error) {
-                console.error('Erro ao registrar visualização:', error);
-              } else {
-                console.log('Visualização registrada com sucesso. Total:', data);
-              }
-
-            } catch (error) {
-              console.error('Erro inesperado:', error);
-            }
-
-            // abre/fecha o chat
-            setShowChat(!showChat);
-          }}
+          onClick={handleContactClick}
           className={`w-full py-2 px-4 rounded-lg font-semibold transition flex items-center justify-center gap-2 ${
-            showChat 
+            showChat
               ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               : 'bg-purple-600 text-white hover:bg-purple-700'
           }`}
@@ -163,7 +164,7 @@ export default function AgentCardWithChat({ userId, ownerData, propertyId }: Age
       {/* Chat */}
       {showChat && (
         <div className="border-t border-gray-200 bg-gray-50 p-4">
-         {/* Informações de contato do agente */}
+          {/* Informações de contato do agente */}
           <div className="mb-4 p-4 bg-white rounded-lg border border-gray-300 shadow-sm">
             <h4 className="font-semibold text-gray-900 mb-3 text-lg">Contato do Agente</h4>
 
@@ -200,6 +201,7 @@ export default function AgentCardWithChat({ userId, ownerData, propertyId }: Age
             </div>
           </div>
 
+          {/* Chat Form */}
           <form onSubmit={handleSubmit} className="space-y-3">
             <textarea
               placeholder={`Digite sua mensagem para ${ownerData.primeiro_nome}...`}
@@ -217,7 +219,9 @@ export default function AgentCardWithChat({ userId, ownerData, propertyId }: Age
             )}
             <div className="flex justify-between items-center">
               <p className="text-xs text-gray-500">
-                {userId ? 'Sua mensagem será enviada ao agente' : 'Faça login para enviar mensagens'}
+                {userId
+                  ? 'Sua mensagem será enviada ao agente'
+                  : 'Faça login para enviar mensagens'}
               </p>
               <button
                 type="submit"
@@ -226,9 +230,25 @@ export default function AgentCardWithChat({ userId, ownerData, propertyId }: Age
               >
                 {status === 'enviando' ? (
                   <>
-                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      className="animate-spin h-4 w-4 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                     Enviando...
                   </>

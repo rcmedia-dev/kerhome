@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Calendar, User, ArrowRight, Search } from 'lucide-react';
 import { Noticias } from '@/lib/types/noticia';
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { fetchPosts } from '@/lib/actions/supabase-actions/posts-actions';
+import { fetchPosts } from '@/lib/functions/supabase-actions/posts-actions';
 import Link from 'next/link';
 import readingTime from 'reading-time';
 

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { getPropertyOwner } from '@/lib/actions/get-agent';
+import { getPropertyOwner } from '@/lib/functions/get-agent';
 import Link from 'next/link';
 
 type Agent = {

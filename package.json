@@ -32,6 +32,7 @@
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.53.0",
     "@tanstack/react-query": "^5.85.8",
+    "aframe": "^1.7.1",
     "bcrypt": "^6.0.0",
     "browser-image-compression": "^2.0.2",
     "class-variance-authority": "^0.7.1",
@@ -47,6 +48,7 @@
     "next-auth": "^5.0.0-beta.29",
     "next-themes": "^0.4.6",
     "nextjs-google-analytics": "^2.3.7",
+    "panolens": "^0.12.1",
     "pusher": "^5.2.0",
     "pusher-js": "^8.4.0",
     "react": "^19.0.0",
@@ -63,6 +65,7 @@
     "sonner": "^2.0.6",
     "swiper": "^11.2.10",
     "tailwind-merge": "^3.3.1",
+    "three": "^0.180.0",
     "uuid": "^11.1.0",
     "zod": "^4.1.5",
     "zustand": "^5.0.8"
@@ -70,6 +73,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.16",
+    "@types/aframe": "^1.2.9",
     "@types/bcrypt": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "20.19.1",

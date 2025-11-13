@@ -3,6 +3,22 @@
 
 import { supabase } from "@/lib/supabase"
 
+// Mapear nomes de planos para exibição e preços
+const PLAN_NAME_MAP: Record<string, string> = {
+  "BÁSICO": "Plano Básico",
+  "PROFESSIONAL": "Plano Professional",
+  "SUPER": "Plano Super",
+  "FREE": "Plano Free",
+};
+
+const PLAN_PRICES: Record<string, number> = {
+  "BÁSICO": 69000,
+  "PROFESSIONAL": 118000,
+  "SUPER": 250000,
+  "FREE": 0,
+}
+
+// Buscar todas as solicitações de plano
 export async function getPlanRequests() {
   const { data: requests, error: reqError } = await supabase
     .from("plan_requests")
@@ -38,7 +54,6 @@ export async function getPlanRequests() {
 
   // Cruzar os pedidos com os planos
   return requests.map((req) => {
-    // 👇 garante que perfis é tratado como array
     const perfil = Array.isArray(req.profiles) ? req.profiles[0] : req.profiles
     const plano = planos.find((p) => p.id === req.plan_id)
 
@@ -47,7 +62,7 @@ export async function getPlanRequests() {
       nome: perfil?.primeiro_nome ?? "Sem nome",
       email: perfil?.email ?? "Sem email",
       telefone: perfil?.telefone ?? "",
-      plano: plano?.nome ?? "Plano não encontrado",
+      plano: plano ? PLAN_NAME_MAP[plano.nome] ?? plano.nome : "Plano não encontrado",
       status:
         req.status === "pending"
           ? ("Pendentes" as const)
@@ -105,15 +120,9 @@ export async function approvePlanRequest(
       throw new Error("Erro ao buscar plano selecionado: " + subscribedPlanError?.message);
     }
 
-    // Mapear o preço local para o plano
-    const planPrices: Record<string, number> = {
-      BÁSICO: 99000.0,
-      PROFESSIONAL: 199000.0,
-      SUPER: 499000.0,
-      FREE: 0,
-    };
-
-    const valor = planPrices[subscribedPlan.nome] ?? 0;
+    // Valor do plano aprovado
+    const valor = PLAN_PRICES[subscribedPlan.nome] ?? 0;
+    const displayName = PLAN_NAME_MAP[subscribedPlan.nome] ?? subscribedPlan.nome;
 
     // Criar fatura
     const { error: createFaturaErro } = await supabase
@@ -122,7 +131,7 @@ export async function approvePlanRequest(
         user_id: userId,
         valor,
         status: "Pago",
-        servico: `PLANO ${subscribedPlan.nome}`,
+        servico: `${displayName}`,
       });
 
     if (createFaturaErro) {
@@ -139,11 +148,9 @@ export async function approvePlanRequest(
   }
 }
 
-
 // Rejeita uma solicitação de plano
 export async function rejectPlanRequest(requestId: string) {
   try {
-    // Atualizar status da solicitação para rejeitado
     const { error } = await supabase
       .from("plan_requests")
       .update({ 
@@ -169,7 +176,6 @@ export async function rejectPlanRequest(requestId: string) {
 // Remove uma subscrição de plano de um agente
 export async function removeSubscription(requestId: string, userId: string) {
   try {
-    // Verificar se a solicitação existe
     const { data: existingRequest, error: fetchError } = await supabase
       .from("plan_requests")
       .select("*")
@@ -183,7 +189,6 @@ export async function removeSubscription(requestId: string, userId: string) {
       }
     }
 
-    // Remover a solicitação de plano
     const { error: deleteError } = await supabase
       .from("plan_requests")
       .delete()
@@ -193,7 +198,6 @@ export async function removeSubscription(requestId: string, userId: string) {
       throw new Error("Erro ao remover solicitação: " + deleteError.message)
     }
 
-    // Atualizar o usuário para remover o plano e definir status como inativo
     const { error: updateError } = await supabase
       .from("profiles")
       .update({
