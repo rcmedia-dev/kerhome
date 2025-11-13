@@ -11,6 +11,8 @@ import { MessageSystem } from '../components/message-system';
 import { MainContent } from '../components/main-content';
 import { Sidebar } from '../components/sidebar';
 import { toast } from 'sonner';
+import { createDirectConversation, sendMessage } from '@/lib/functions/message-action';
+import { useUserStore } from '@/lib/store/user-store';
 
 // Dados de estatísticas
 const agentStats = {
@@ -28,6 +30,8 @@ export default function AgentProfilePage(
   const [showMessageBox, setShowMessageBox] = useState(false);
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const { user } = useUserStore()
+
 
   // Query para perfil
   const agentProfile = useQuery({
@@ -55,35 +59,48 @@ export default function AgentProfilePage(
     }
   });
 
-  const profile = agentProfile.data?.[0];
+  console.log(agentProfile.data);
+
+  const profile = agentProfile.data;
 
   const handleSendMessage = async () => {
-    if (!message.trim() || !profile) return;
+    if (isSending) return;
+    if (!message.trim() || !profile || !user?.id) {
+      console.log({message, profile, userId: user?.id});
+      toast.error("Não foi possível enviar a mensagem.");
+      return;
+    }
 
     setIsSending(true);
-    
+
     try {
-      console.log('Mensagem para:', profile.email);
-      console.log('Conteúdo:', message);
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast.success('Mensagem enviada com sucesso! O agente entrará em contacto consigo brevemente.');
-      setMessage('');
+      // 1️⃣ Criar ou recuperar conversa direta entre o usuário atual e o agente
+      const conversation = await createDirectConversation(user.id, profile[0].id);
+
+      if (!conversation?.id) throw new Error("Falha ao criar conversa.");
+
+      // 2️⃣ Enviar mensagem
+      await sendMessage(conversation.id, user.id, message.trim());
+
+      // 3️⃣ Feedback ao usuário
+      toast.success(
+        "Mensagem enviada com sucesso! O agente entrará em contacto consigo brevemente."
+      );
+      setMessage("");
       setShowMessageBox(false);
-    } catch (error) {
-      console.error('Erro ao enviar mensagem:', error);
-      alert('Erro ao enviar mensagem. Tente novamente.');
+    } catch (error: any) {
+      console.error("❌ Erro ao enviar mensagem:", error);
+      toast.error("Erro ao enviar mensagem. Tente novamente.");
     } finally {
       setIsSending(false);
     }
   };
 
-  const handleOpenMessageBox = () => {
-    setShowMessageBox(true);
-    setTimeout(() => {
-      document.getElementById('message-input')?.focus();
-    }, 400);
+    const handleOpenMessageBox = () => {
+      setShowMessageBox(true);
+      setTimeout(() => {
+        document.getElementById('message-input')?.focus();
+      }, 400);
   };
 
   const handleCloseMessageBox = () => {
@@ -112,8 +129,7 @@ export default function AgentProfilePage(
 
       {/* Conteúdo Principal */}
       <div className="container mx-auto px-6 py-8 -mt-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          
+        <div className="flex flex-col lg:flex-row gap-8">    
           {/* Sidebar */}
           <Sidebar
             profile={profile}

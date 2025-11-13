@@ -1,8 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Home, Users, MapPin, Sparkles, Calendar, MessageCircle } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
+import { Card } from "@/components/ui/card";
 import { PropertiesTab } from "./properties-tab";
 import { AboutTab } from "./about-tabs";
 

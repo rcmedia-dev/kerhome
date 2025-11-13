@@ -98,10 +98,6 @@ function PropertyCard({ property }: { property: any }) {
                 Ver Detalhes
               </Button>
             </Link>
-            <Button variant="outline" className="border-purple-200 text-purple-700 hover:bg-purple-50 rounded-xl">
-              <Calendar className="w-4 h-4 mr-2" />
-              Agendar Visita
-            </Button>
           </div>
         </CardContent>
       </div>

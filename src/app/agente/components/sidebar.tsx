@@ -43,26 +43,26 @@ export function Sidebar({ profile, agentStats, onOpenMessageBox }: SidebarProps)
               <div className="flex items-center p-3 rounded-lg bg-white hover:bg-purple-50 transition-colors border border-purple-100">
                 <Phone className="w-4 h-4 mr-3 text-purple-600" />
                 <span className="text-sm font-medium text-gray-700">
-                  {profile.telefone || "A definir"}
+                  {profile[0].telefone || "A definir"}
                 </span>
               </div>
               
               <div className="flex items-center p-3 rounded-lg bg-white hover:bg-purple-50 transition-colors border border-purple-100">
                 <Mail className="w-4 h-4 mr-3 text-purple-600" />
                 <span className="text-sm font-medium text-gray-700">
-                  {profile.email || "A definir"}
+                  {profile[0].email || "A definir"}
                 </span>
               </div>
             </div>
             
             <div className="flex justify-center gap-4 mt-6 pt-4 border-t border-purple-200">
               {profile.instagram && (
-                <a href={profile.instagram} target="_blank" className="p-2 bg-white hover:bg-pink-100 text-gray-600 hover:text-pink-600 rounded-lg transition-all duration-300 border border-purple-100">
+                <a href={profile[0].instagram} target="_blank" className="p-2 bg-white hover:bg-pink-100 text-gray-600 hover:text-pink-600 rounded-lg transition-all duration-300 border border-purple-100">
                   <Instagram className="w-5 h-5" />
                 </a>
               )}
               {profile.linkedin && (
-                <a href={profile.linkedin} target="_blank" className="p-2 bg-white hover:bg-blue-100 text-gray-600 hover:text-blue-600 rounded-lg transition-all duration-300 border border-purple-100">
+                <a href={profile[0].linkedin} target="_blank" className="p-2 bg-white hover:bg-blue-100 text-gray-600 hover:text-blue-600 rounded-lg transition-all duration-300 border border-purple-100">
                   <Linkedin className="w-5 h-5" />
                 </a>
               )}

@@ -6,7 +6,7 @@ interface MessageSystemProps {
   message: string;
   setMessage: (message: string) => void;
   isSending: boolean;
-  profile: any;
+  profile: any; // pode ser objeto ou undefined
   onSendMessage: () => void;
   onCloseMessageBox: () => void;
 }
@@ -20,12 +20,18 @@ export function MessageSystem({
   onSendMessage,
   onCloseMessageBox
 }: MessageSystemProps) {
+  // Garante que temos um nome válido
+  const nomeAgente =
+    profile?.primeiro_nome ||
+    (Array.isArray(profile) ? profile[0]?.primeiro_nome : null) ||
+    "Agente";
+
   return (
     <>
       {/* Caixa de Mensagem - Desliza para baixo */}
-      <div 
+      <div
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${
-          showMessageBox ? 'translate-y-0' : '-translate-y-full'
+          showMessageBox ? "translate-y-0" : "-translate-y-full"
         }`}
       >
         <div className="bg-white shadow-2xl border-b border-gray-200">
@@ -33,7 +39,7 @@ export function MessageSystem({
             <div className="max-w-2xl mx-auto">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Enviar mensagem para {profile?.primeiro_nome}
+                  Enviar mensagem para {nomeAgente}
                 </h3>
                 <Button
                   variant="ghost"
@@ -44,23 +50,26 @@ export function MessageSystem({
                   <X className="w-5 h-5" />
                 </Button>
               </div>
-              
+
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="message-input" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="message-input"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Sua mensagem
                   </label>
                   <textarea
                     id="message-input"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    placeholder={`Olá ${profile?.primeiro_nome}, gostaria de saber mais sobre os seus serviços imobiliários...`}
+                    placeholder={`Olá ${nomeAgente}, gostaria de saber mais sobre os seus serviços imobiliários...`}
                     rows={4}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none transition-all duration-200"
                     disabled={isSending}
                   />
                 </div>
-                
+
                 <div className="flex gap-3">
                   <Button
                     onClick={onSendMessage}
@@ -79,7 +88,7 @@ export function MessageSystem({
                       </>
                     )}
                   </Button>
-                  
+
                   <Button
                     variant="outline"
                     onClick={onCloseMessageBox}
@@ -89,7 +98,7 @@ export function MessageSystem({
                     Cancelar
                   </Button>
                 </div>
-                
+
                 <p className="text-xs text-gray-500 text-center">
                   O agente será notificado e entrará em contacto consigo brevemente.
                 </p>
@@ -101,7 +110,7 @@ export function MessageSystem({
 
       {/* Overlay quando a caixa de mensagem está aberta */}
       {showMessageBox && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/20 z-40 backdrop-blur-sm transition-opacity duration-300"
           onClick={onCloseMessageBox}
         />

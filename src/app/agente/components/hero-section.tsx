@@ -13,7 +13,7 @@ interface HeroSectionProps {
 
 export function HeroSection({ profile, agentStats }: HeroSectionProps) {
   const initials = profile
-    ? `${profile.primeiro_nome?.[0] || ''}${profile.ultimo_nome?.[0] || ''}`
+    ? `${profile[0].primeiro_nome[0] || ''}${profile[0].ultimo_nome[0] || ''}`
     : '';
 
   return (
@@ -21,10 +21,10 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
       <div className="container mx-auto px-6 py-12">
         <div className="flex flex-col lg:flex-row items-center gap-8">
           <div className="lg:w-1/3 flex justify-center">
-            {profile?.avatar_url ? (
+            {profile[0]?.avatar_url ? (
               <div className="relative">
                 <Image
-                  src={profile.avatar_url}
+                  src={profile[0].avatar_url}
                   alt="agent profile picture"
                   width={200}
                   height={200}
@@ -60,7 +60,7 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
                 </div>
                 
                 <h1 className="text-4xl lg:text-5xl font-bold mb-4">
-                  {profile.primeiro_nome} {profile.ultimo_nome}
+                  {profile[0].primeiro_nome} {profile[0].ultimo_nome}
                 </h1>
                 
                 <p className="text-xl text-purple-100 mb-6 max-w-2xl">
