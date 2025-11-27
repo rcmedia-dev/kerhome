@@ -1,7 +1,7 @@
 'use server'
 
 import { cookies } from 'next/headers'
-import { supabase } from './supabase'
+import { supabase } from '@/lib/supabase'
 
 export async function logout() {
   try {

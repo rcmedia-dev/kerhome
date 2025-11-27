@@ -3,9 +3,9 @@
 'use server';
 
 import z, { unknown } from 'zod';
-import { supabase } from '../supabase';
-import { BoostStats, MixedProperty } from '../types/mixed-properties';
-import { propertyResponseSchema, TPropertyResponseSchema, TPropriedadeFormData } from '../types/property';
+import { supabase } from '@/lib/supabase';
+import { BoostStats, MixedProperty } from '@/lib/types/mixed-properties';
+import { propertyResponseSchema, TPropertyResponseSchema, TPropriedadeFormData } from '@/lib/types/property';
 
 export async function getProperties(): Promise<TPropertyResponseSchema[]> {
   try {

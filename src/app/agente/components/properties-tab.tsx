@@ -3,16 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Home, Users, MapPin, Sparkles, Calendar, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-
-interface PropertiesTabProps {
-  agentProperties: any;
-  onOpenMessageBox: () => void;
-}
+import type { PropertiesTabProps, AgentProperty } from "@/types/agent";
 
 export function PropertiesTab({ agentProperties, onOpenMessageBox }: PropertiesTabProps) {
   return (
     <div className="space-y-6">
-      {agentProperties.data?.length === 0 ? (
+      {!agentProperties || agentProperties.length === 0 ? (
         <Card className="p-12 text-center shadow-lg border-0 rounded-2xl bg-gradient-to-br from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm">
           <Home className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 mb-2">Portfólio em Actualização</h3>
@@ -29,7 +25,7 @@ export function PropertiesTab({ agentProperties, onOpenMessageBox }: PropertiesT
         </Card>
       ) : (
         <div className="grid gap-6">
-          {agentProperties.data?.map((prop: any) => (
+          {agentProperties.map((prop: AgentProperty) => (
             <PropertyCard key={prop.id} property={prop} />
           ))}
         </div>
@@ -38,7 +34,7 @@ export function PropertiesTab({ agentProperties, onOpenMessageBox }: PropertiesT
   );
 }
 
-function PropertyCard({ property }: { property: any }) {
+function PropertyCard({ property }: { property: AgentProperty }) {
   return (
     <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-all duration-500 border-0 rounded-2xl bg-gradient-to-br from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm group">
       <div className="rounded-md px-4 flex flex-col md:flex-row">

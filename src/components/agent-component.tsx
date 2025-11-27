@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Phone } from 'lucide-react';
-import { AgentProfile, getAgentByEmail, getAgentProperties } from '@/lib/functions/get-agent';
+import type { AgentProfile } from '@/types/agent';
+import { getAgentByEmail, getAgentProperties } from '@/lib/functions/get-agent';
 import { TPropertyResponseSchema } from '@/lib/types/property';
 
 function getInitials(nome: string): string {
@@ -21,33 +22,57 @@ function getInitials(nome: string): string {
 export function AgentePageComponent() {
   const [agente, setAgente] = useState<AgentProfile | null>(null);
   const [imoveis, setImoveis] = useState<TPropertyResponseSchema[]>([]);
-  const [outrosAgentes, setOutrosAgentes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [outrosAgentes, setOutrosAgentes] = useState<AgentProfile[]>([]);
   const searchParams = useSearchParams();
   const email = searchParams.get('email');
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     async function fetchData() {
-      if (!email) return;
+      if (!email) {
+        setError('Email do agente não foi fornecido');
+        setLoading(false);
+        return;
+      }
       
       try {
         setLoading(true);
+        setError(null);
         const dadosAgente = await getAgentByEmail(email);
+        
+        if (controller.signal.aborted) return;
+        
         const properties = await getAgentProperties(dadosAgente.id);
+        
+        if (controller.signal.aborted) return;
         
         setAgente(dadosAgente);
         setImoveis(properties);
-        // const destaques = await getAgentesDestaque();
-        // setOutrosAgentes(destaques);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Erro ao carregar dados');
+        if (err instanceof Error && err.name === 'AbortError') {
+          return;
+        }
+        
+        console.error('Erro ao carregar dados do agente:', err);
+        const errorMessage = err instanceof Error 
+          ? 'Não conseguimos carregar os dados do agente. Tente novamente.'
+          : 'Erro desconhecido ao carregar dados';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
     }
     
     fetchData();
+
+    return () => {
+      controller.abort();
+    };
   }, [email]);
 
   if (loading) {
@@ -221,33 +246,38 @@ export function AgentePageComponent() {
           <div className="bg-white rounded-2xl shadow-md p-6">
             <h2 className="text-lg font-semibold mb-4 text-gray-800">Outros agentes em destaque</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {outrosAgentes.map((ag, idx) => (
-                <Link 
-                  href={`/agente?email=${ag.email}`} 
-                  key={idx} 
-                  className="flex flex-col items-center p-3 hover:bg-gray-50 rounded-lg transition"
-                >
-                  {ag.avatar ? (
-                    <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-orange-500 mb-2">
-                      <Image 
-                        src={ag.avatar} 
-                        alt={ag.nome} 
-                        width={64} 
-                        height={64} 
-                        className="object-cover w-full h-full"
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-16 h-16 rounded-full bg-orange-500 text-white font-bold flex items-center justify-center text-sm border-2 border-orange-500 mb-2">
-                      {getInitials(ag.nome)}
-                    </div>
-                  )}
-                  <p className="text-sm font-semibold text-gray-800 text-center">{ag.nome}</p>
-                  <p className="text-xs text-orange-500 font-bold mt-1 text-center">
-                    {ag.vendas} {ag.vendas === 1 ? 'casa vendida' : 'casas vendidas'}
-                  </p>
-                </Link>
-              ))}
+              {outrosAgentes.map((ag, idx) => {
+                const fullName = `${ag.primeiro_nome || ''} ${ag.ultimo_nome || ''}`.trim() || ag.email || 'Agente';
+                const vendas = (ag as any).vendas ?? 0;
+
+                return (
+                  <Link
+                    href={`/agente?email=${ag.email}`}
+                    key={idx}
+                    className="flex flex-col items-center p-3 hover:bg-gray-50 rounded-lg transition"
+                  >
+                    {ag.avatar_url ? (
+                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-orange-500 mb-2">
+                        <Image
+                          src={ag.avatar_url as string}
+                          alt={fullName}
+                          width={64}
+                          height={64}
+                          className="object-cover w-full h-full"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-orange-500 text-white font-bold flex items-center justify-center text-sm border-2 border-orange-500 mb-2">
+                        {getInitials(fullName)}
+                      </div>
+                    )}
+                    <p className="text-sm font-semibold text-gray-800 text-center">{fullName}</p>
+                    <p className="text-xs text-orange-500 font-bold mt-1 text-center">
+                      {vendas} {vendas === 1 ? 'casa vendida' : 'casas vendidas'}
+                    </p>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}

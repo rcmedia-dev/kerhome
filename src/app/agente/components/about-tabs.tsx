@@ -1,12 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Home, Trophy, Users, Shield } from "lucide-react";
-
-interface AboutTabProps {
-  profile: any;
-  agentStats: {
-    yearsExperience: number;
-  };
-}
+import type { AboutTabProps, AgentProfile } from "@/types/agent";
 
 export function AboutTab({ profile, agentStats }: AboutTabProps) {
   return (

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Upload, Loader2, AlertCircle, User, Crown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { AgentRequestButton } from "./agent-request-button";
+import { AgentRequestButton } from "@/components/agent-request-button";
 import { QueryClient } from "@tanstack/react-query";
 import { UserProfile } from "@/lib/store/user-store";
 

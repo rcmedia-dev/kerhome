@@ -1,8 +1,8 @@
 // lib/actions/get-imoveis-favoritos.ts
 'use server';
 
-import { supabase } from '../supabase';
-import { TFavoritedPropertyResponseSchema } from '../types/user';
+import { supabase } from '@/lib/supabase';
+import { TFavoritedPropertyResponseSchema } from '@/lib/types/user';
 
 export async function getImoveisFavoritos(
   userId?: string

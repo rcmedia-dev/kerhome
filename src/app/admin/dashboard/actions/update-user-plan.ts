@@ -54,15 +54,20 @@ export async function handlePlanRequest(
   }
 }
 
-export async function handleRequestPlanChange(userId: string, planName: string) {
+export async function handleRequestPlanChange(
+  userId: string,
+  planName: string,
+  userData?: { nome?: string; email?: string }
+) {
   try {
-    // Mapear nome do plano para ID (você precisa criar esta lógica)
+    // 1️⃣ Mapear nome do plano para ID
     const planId = await getPlanIdByName(planName);
-    
+
     if (!planId) {
       return { success: false, error: "Plano não encontrado" };
     }
 
+    // 2️⃣ Criar solicitação no banco
     const { error } = await supabase
       .from("plan_requests")
       .insert([
@@ -78,12 +83,35 @@ export async function handleRequestPlanChange(userId: string, planName: string) 
       return { success: false, error: error.message };
     }
 
+    // 3️⃣ Enviar notificação via webhook (n8n)
+    try {
+      await fetch("https://n8n.srv1157846.hstgr.cloud/webhook/notificate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          evento: "subscricao_pacote",
+          dados: {
+            user_id: userId,
+            nome: userData?.nome ?? "Usuário",
+            email: userData?.email ?? null,
+            plano: planName,
+            data: new Date().toISOString(),
+          },
+        }),
+      });
+
+      console.log("Webhook enviado: solicitação de plano.");
+    } catch (webhookErr) {
+      console.warn("Falha ao enviar webhook:", webhookErr);
+    }
+
     return { success: true };
   } catch (err) {
     console.error("Erro ao criar solicitação de plano:", err);
     return { success: false, error: "Erro interno do servidor" };
   }
 }
+
 
 // Função auxiliar para obter ID do plano pelo nome
 async function getPlanIdByName(planName: string): Promise<string | null> {

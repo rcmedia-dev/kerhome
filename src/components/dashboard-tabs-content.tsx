@@ -1,20 +1,20 @@
 import React, { useState, useTransition, useCallback } from 'react';
 import { CheckCircle2, Eye, Heart, TrendingUp, Calendar, DollarSign, AlertTriangle, Download, Trash2, RefreshCw, ShieldAlert } from 'lucide-react';
-import { PropertyCard } from './property-card';
+import { PropertyCard } from '@/components/property-card';
 import { TFavoritedPropertyResponseSchema } from '@/lib/types/user';
-import { PropertyFavoritedCard } from './property-favorite-card';
+import { PropertyFavoritedCard } from '@/components/property-favorite-card';
 import { Fatura, TPropertyResponseSchema } from '@/lib/types/property';
 import { TMyPropertiesWithViews } from '@/lib/functions/supabase-actions/get-most-seen-propeties';
-import { PendingPropertyCard } from './pending-property-card';
+import { PendingPropertyCard } from '@/components/pending-property-card';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
-import { LoadingSpinner } from './ui/loading-spinner';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import LoadingState from '@/app/propriedades/components/loading-state';
 import { useInvoiceManagement } from '@/hooks/use-invoice-management';
-import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from './ui/dialog';
-import { RejectedPropertyCard } from './rejected-property-card';
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
+import { RejectedPropertyCard } from '@/components/rejected-property-card';
 
 // Create ErrorBoundary component
 class ErrorBoundary extends React.Component<

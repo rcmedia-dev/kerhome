@@ -1,4 +1,4 @@
-import { TPropertyResponseSchema } from "./types/property";
+import { TPropertyResponseSchema } from "@/lib/types/property";
 
 
 export function parsePrismaProperties(data: TPropertyResponseSchema[]): TPropertyResponseSchema[] {

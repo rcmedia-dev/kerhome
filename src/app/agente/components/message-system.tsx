@@ -1,15 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { X, Send } from "lucide-react";
-
-interface MessageSystemProps {
-  showMessageBox: boolean;
-  message: string;
-  setMessage: (message: string) => void;
-  isSending: boolean;
-  profile: any; // pode ser objeto ou undefined
-  onSendMessage: () => void;
-  onCloseMessageBox: () => void;
-}
+import type { MessageSystemProps, AgentProfile } from "@/types/agent";
 
 export function MessageSystem({
   showMessageBox,
@@ -61,8 +52,8 @@ export function MessageSystem({
                   </label>
                   <textarea
                     id="message-input"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                    value={message ?? ''}
+                    onChange={(e) => setMessage?.(e.target.value)}
                     placeholder={`Olá ${nomeAgente}, gostaria de saber mais sobre os seus serviços imobiliários...`}
                     rows={4}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none transition-all duration-200"
@@ -72,8 +63,8 @@ export function MessageSystem({
 
                 <div className="flex gap-3">
                   <Button
-                    onClick={onSendMessage}
-                    disabled={!message.trim() || isSending}
+                    onClick={() => onSendMessage?.()}
+                    disabled={!message?.trim() || isSending}
                     className="flex-1 bg-gradient-to-r from-purple-600 to-orange-600 hover:from-purple-700 hover:to-orange-700 text-white py-3 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSending ? (
@@ -91,7 +82,7 @@ export function MessageSystem({
 
                   <Button
                     variant="outline"
-                    onClick={onCloseMessageBox}
+                    onClick={() => onCloseMessageBox?.()}
                     disabled={isSending}
                     className="border-gray-300 text-gray-700 hover:bg-gray-50"
                   >
@@ -112,7 +103,7 @@ export function MessageSystem({
       {showMessageBox && (
         <div
           className="fixed inset-0 bg-black/20 z-40 backdrop-blur-sm transition-opacity duration-300"
-          onClick={onCloseMessageBox}
+          onClick={() => onCloseMessageBox?.()}
         />
       )}
     </>

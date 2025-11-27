@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight, FileText, Video, MapPin, CheckCircle, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import Image from 'next/image';
-import { Property } from '../../actions/get-properties';
+import { Property } from '@/app/admin/dashboard/actions/get-properties';
 
 export default function PropertyDetailClient({ property }: { property: Property }) {
   const router = useRouter();

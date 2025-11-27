@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { propertyResponseSchema } from './property';
+import { propertyResponseSchema } from '@/lib/types/property';
 
 export const planoAgenteSchema = z.object({
   id: z.string(),

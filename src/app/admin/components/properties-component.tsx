@@ -3,10 +3,10 @@
 import { CheckCircle, Eye, MapPin, Plus, UserCircle2, XCircle, Clock, Check, X, Building, Settings, Trash2, Edit, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { getProperties, Property } from "../dashboard/actions/get-properties";
+import { getProperties, Property } from "@/app/admin/dashboard/actions/get-properties";
 import Image from "next/image";
 import { toast } from "sonner";
-import { approveProperty, rejectProperty } from "../dashboard/actions/set-properties-status";
+import { approveProperty, rejectProperty } from "@/app/admin/dashboard/actions/set-properties-status";
 import { deleteProperty } from "@/lib/functions/supabase-actions/delete-propertie";
 import { useUserStore } from "@/lib/store/user-store";
 

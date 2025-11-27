@@ -5,8 +5,7 @@ import { Card } from "@/components/ui/card";
 import { useEffect, useState, useCallback } from "react";
 import { getUserPlan } from "@/lib/functions/supabase-actions/get-user-package-action";
 import { useRouter } from "next/navigation";
-import { handleRequestPlanChange } from "../admin/dashboard/actions/update-user-plan";
-import { notificateN8n } from "@/lib/functions/supabase-actions/n8n-notification-request";
+import { handleRequestPlanChange } from "@/app/admin/dashboard/actions/update-user-plan";
 import { PaymentModal } from "@/components/payment-modal";
 import { useUserStore } from "@/lib/store/user-store";
 
@@ -150,7 +149,10 @@ export default function PlanosPage() {
     setError("");
 
     try {
-      const result = await handleRequestPlanChange(user.id, selectedPlan);
+      const result = await handleRequestPlanChange(user.id, selectedPlan, {
+        nome: user.primeiro_nome,
+        email: user.email,
+      });
 
       if (result.success) {
         setPaymentStatus("confirmed");

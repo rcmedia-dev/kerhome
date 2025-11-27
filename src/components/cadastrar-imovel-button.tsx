@@ -11,7 +11,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "./ui/dialog";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 
 interface AuthDialogRef {
   open: () => void;

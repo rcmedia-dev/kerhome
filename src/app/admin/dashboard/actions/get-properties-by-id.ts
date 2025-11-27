@@ -1,7 +1,7 @@
 'use server';
 
 import { supabase } from '@/lib/supabase';
-import { Property } from './get-properties';
+import { Property } from '@/app/admin/dashboard/actions/get-properties';
 
 interface Profile {
   id: string;

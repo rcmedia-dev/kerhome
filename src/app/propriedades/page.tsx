@@ -18,6 +18,7 @@ import {
 import { PropertyCard } from '@/components/property-card';
 import { useQuery } from '@tanstack/react-query';
 import { getMixedProperties, getProperties } from '@/lib/functions/get-properties';
+import { motion, Variants, Transition, AnimatePresence } from 'framer-motion';
 
 // Hook personalizado para debounce (sem bibliotecas externas)
 const useDebouncedCallback = (fn: (...args: any[]) => void, wait = 350) => {
@@ -51,6 +52,105 @@ const parseCurrencyInput = (formattedValue: string): string => {
   return formattedValue.replace(/\D/g, '');
 };
 
+// Configurações de transição
+const springTransition: Transition = {
+  type: "spring",
+  stiffness: 100,
+  damping: 20
+};
+
+const fastSpringTransition: Transition = {
+  type: "spring",
+  stiffness: 400,
+  damping: 10
+};
+
+// Variantes de animação
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants: Variants = {
+  hidden: { 
+    opacity: 0, 
+    y: 20,
+    scale: 0.95
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1
+  }
+};
+
+const filterItemVariants: Variants = {
+  hidden: { 
+    opacity: 0, 
+    y: 10 
+  },
+  visible: {
+    opacity: 1,
+    y: 0
+  }
+};
+
+const mobileFilterVariants: Variants = {
+  closed: {
+    opacity: 0,
+    height: 0,
+    transition: {
+      duration: 0.3
+    }
+  },
+  open: {
+    opacity: 1,
+    height: "auto",
+    transition: {
+      duration: 0.4,
+      staggerChildren: 0.05
+    }
+  }
+};
+
+const badgeVariants: Variants = {
+  hidden: { 
+    opacity: 0, 
+    scale: 0.8 
+  },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      type: "spring",
+      stiffness: 200,
+      damping: 15
+    }
+  }
+};
+
+const buttonVariants: Variants = {
+  rest: {
+    scale: 1
+  },
+  hover: {
+    scale: 1.05,
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 10
+    }
+  },
+  tap: {
+    scale: 0.95
+  }
+};
+
 // Componente FilterInput com React.memo para evitar re-renders desnecessários
 const FilterInput = React.memo(({ 
   Icon, 
@@ -67,11 +167,16 @@ const FilterInput = React.memo(({
   type?: string;
   className?: string;
 }) => (
-  <div className="relative group">
+  <motion.div 
+    variants={filterItemVariants}
+    className="relative group"
+    whileHover={{ y: -2 }}
+    transition={springTransition}
+  >
     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors duration-200 group-focus-within:text-purple-600">
       <Icon size={16} className="text-gray-400 group-focus-within:text-purple-600" />
     </div>
-    <input
+    <motion.input
       type={type}
       placeholder={placeholder}
       className={`w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white text-sm shadow-sm hover:shadow-md group-hover:border-purple-300 ${
@@ -79,8 +184,12 @@ const FilterInput = React.memo(({
       } ${className}`}
       value={value}
       onChange={onChange}
+      whileFocus={{
+        scale: 1.02,
+        transition: { duration: 0.2 }
+      }}
     />
-  </div>
+  </motion.div>
 ));
 
 FilterInput.displayName = 'FilterInput';
@@ -99,23 +208,38 @@ const FilterSelect = React.memo(({
   children: ReactNode;
   className?: string;
 }) => (
-  <div className="relative group">
+  <motion.div 
+    variants={filterItemVariants}
+    className="relative group"
+    whileHover={{ y: -2 }}
+    transition={springTransition}
+  >
     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors duration-200 group-focus-within:text-purple-600">
       <Icon size={16} className="text-gray-400 group-focus-within:text-purple-600" />
     </div>
-    <select
+    <motion.select
       className={`w-full pl-10 pr-8 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 appearance-none bg-white text-sm shadow-sm hover:shadow-md group-hover:border-purple-300 ${
         value ? 'border-purple-200 bg-purple-50' : ''
       } ${className}`}
       value={value}
       onChange={onChange}
+      whileFocus={{
+        scale: 1.02,
+        transition: { duration: 0.2 }
+      }}
     >
       {children}
-    </select>
+    </motion.select>
     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-      <ChevronDown size={14} className="text-gray-400 transition-transform duration-200 group-hover:scale-110" />
+      <motion.div
+        animate={{ rotate: 0 }}
+        whileHover={{ rotate: 180 }}
+        transition={springTransition}
+      >
+        <ChevronDown size={14} className="text-gray-400" />
+      </motion.div>
     </div>
-  </div>
+  </motion.div>
 ));
 
 FilterSelect.displayName = 'FilterSelect';
@@ -326,34 +450,77 @@ const PropertyListing = () => {
   }, [filteredProperties, filters.sortBy]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50/30">
+    <motion.div 
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50/30"
+    >
       {/* Filtros - Desktop - Refinados */}
-      <div className={`${isSticky ? 'fixed top-0 left-0 right-0 z-40 shadow-lg bg-white/95 backdrop-blur-md border-b border-purple-100' : 'bg-white border-b border-gray-100'} transition-all duration-500 hidden lg:block`}>
+      <motion.div 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={springTransition}
+        className={`${isSticky ? 'fixed top-0 left-0 right-0 z-40 shadow-lg bg-white/95 backdrop-blur-md border-b border-purple-100' : 'bg-white border-b border-gray-100'} transition-all duration-500 hidden lg:block`}
+      >
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between mb-4">
+          <motion.div 
+            className="flex items-center justify-between mb-4"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white px-3 py-1.5 rounded-full shadow-lg">
-                <Sparkles size={16} className="text-yellow-200" />
-                <span className="font-semibold text-sm">Filtros</span>
-              </div>
-              {hasActiveFilters && (
-                <button 
-                  onClick={clearFilters}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 hover:scale-105 border border-red-200"
+              <motion.div 
+                variants={badgeVariants}
+                className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white px-3 py-1.5 rounded-full shadow-lg"
+              >
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                 >
-                  <X size={14} />
-                  Limpar Filtros
-                </button>
-              )}
+                  <Sparkles size={16} className="text-yellow-200" />
+                </motion.div>
+                <span className="font-semibold text-sm">Filtros</span>
+              </motion.div>
+              <AnimatePresence>
+                {hasActiveFilters && (
+                  <motion.button 
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    onClick={clearFilters}
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 border border-red-200"
+                  >
+                    <X size={14} />
+                    Limpar Filtros
+                  </motion.button>
+                )}
+              </AnimatePresence>
             </div>
-            <div className="flex items-center gap-2 bg-purple-100 text-purple-700 px-3 py-1.5 rounded-full font-semibold text-sm shadow-inner">
-              <span className="w-2 h-2 bg-purple-600 rounded-full animate-pulse"></span>
+            <motion.div 
+              variants={badgeVariants}
+              className="flex items-center gap-2 bg-purple-100 text-purple-700 px-3 py-1.5 rounded-full font-semibold text-sm shadow-inner"
+            >
+              <motion.span 
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="w-2 h-2 bg-purple-600 rounded-full"
+              ></motion.span>
               {sortedProperties?.length} imóveis encontrados
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Filtros em linha compacta - Melhorados */}
-          <div className="grid grid-cols-6 gap-3 mb-3">
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-6 gap-3 mb-3"
+          >
             <FilterSelect 
               Icon={Building}
               value={filters.tipo}
@@ -416,10 +583,16 @@ const PropertyListing = () => {
               <option value="2">2+ Vagas</option>
               <option value="3">3+ Vagas</option>
             </FilterSelect>
-          </div>
+          </motion.div>
 
           {/* Filtros de preço em segunda linha - Melhorados */}
-          <div className="grid grid-cols-3 gap-3">
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            transition={{ delayChildren: 0.1 }}
+            className="grid grid-cols-3 gap-3"
+          >
             {/* 🔄 INPUT DE PREÇO MÍNIMO COM MÁSCARA DE MILHAR */}
             <FilterInput 
               Icon={DollarSign}
@@ -448,156 +621,232 @@ const PropertyListing = () => {
               <option value="price_desc">Preço: Maior → Menor</option>
               <option value="area">Maior Área</option>
             </FilterSelect>
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Filtros - Mobile - Refinados */}
-      <div className="lg:hidden bg-white border-b border-gray-100 shadow-sm">
+      <motion.div 
+        initial={{ y: -10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={springTransition}
+        className="lg:hidden bg-white border-b border-gray-100 shadow-sm"
+      >
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <button 
+            <motion.button 
+              variants={buttonVariants}
+              whileHover="hover"
+              whileTap="tap"
               onClick={() => setShowMobileFilters(!showMobileFilters)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 font-medium text-sm"
+              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all duration-300 shadow-lg hover:shadow-xl font-medium text-sm"
             >
               <SlidersHorizontal size={16} />
               <span>Filtros</span>
-              <ChevronDown size={14} className={`transition-transform duration-300 ${showMobileFilters ? 'rotate-180' : ''}`} />
-            </button>
+              <motion.div
+                animate={{ rotate: showMobileFilters ? 180 : 0 }}
+                transition={springTransition}
+              >
+                <ChevronDown size={14} />
+              </motion.div>
+            </motion.button>
             <div className="flex items-center gap-2">
-              {hasActiveFilters && (
-                <button 
-                  onClick={clearFilters}
-                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 hover:scale-110 border border-red-200"
-                >
-                  <X size={16} />
-                </button>
-              )}
-              <span className="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-full font-semibold text-xs shadow-inner">
+              <AnimatePresence>
+                {hasActiveFilters && (
+                  <motion.button 
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    onClick={clearFilters}
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 border border-red-200"
+                  >
+                    <X size={16} />
+                  </motion.button>
+                )}
+              </AnimatePresence>
+              <motion.span 
+                variants={badgeVariants}
+                className="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-full font-semibold text-xs shadow-inner"
+              >
                 {sortedProperties?.length}
-              </span>
+              </motion.span>
             </div>
           </div>
 
-          {showMobileFilters && (
-            <div className="pt-4 space-y-3 animate-in fade-in duration-300 border-t border-gray-200 mt-3">
-              <div className="grid grid-cols-2 gap-3">
-                <FilterSelect 
-                  Icon={Building}
-                  value={filters.tipo}
-                  onChange={handleTipoChange}
+          <AnimatePresence>
+            {showMobileFilters && (
+              <motion.div 
+                variants={mobileFilterVariants}
+                initial="closed"
+                animate="open"
+                exit="closed"
+                className="pt-4 space-y-3 border-t border-gray-200 mt-3 overflow-hidden"
+              >
+                <motion.div 
+                  variants={containerVariants}
+                  className="grid grid-cols-2 gap-3"
                 >
-                  <option value="">Tipo</option>
-                  <option value="casa">Casa</option>
-                  <option value="apartamento">Apto</option>
-                  <option value="studio">Studio</option>
-                </FilterSelect>
+                  <FilterSelect 
+                    Icon={Building}
+                    value={filters.tipo}
+                    onChange={handleTipoChange}
+                  >
+                    <option value="">Tipo</option>
+                    <option value="casa">Casa</option>
+                    <option value="apartamento">Apto</option>
+                    <option value="studio">Studio</option>
+                  </FilterSelect>
 
-                <FilterSelect 
-                  Icon={TrendingUp}
-                  value={filters.status}
-                  onChange={handleStatusChange}
-                >
-                  <option value="">Status</option>
-                  <option value="comprar">Venda</option>
-                  <option value="arrendar">Aluguel</option>
-                </FilterSelect>
-              </div>
+                  <FilterSelect 
+                    Icon={TrendingUp}
+                    value={filters.status}
+                    onChange={handleStatusChange}
+                  >
+                    <option value="">Status</option>
+                    <option value="comprar">Venda</option>
+                    <option value="arrendar">Aluguel</option>
+                  </FilterSelect>
+                </motion.div>
 
-              {/* 🔄 INPUT DE LOCALIZAÇÃO MOBILE COM DEBOUNCE - AGORA MANTÉM FOCO */}
-              <FilterInput 
-                Icon={MapPin}
-                placeholder="Onde buscar?"
-                value={localLocation}
-                onChange={handleLocalLocationChange}
-              />
-
-              <div className="grid grid-cols-3 gap-3">
-                <FilterSelect 
-                  Icon={Bed}
-                  value={filters.bedrooms}
-                  onChange={handleBedroomsChange}
-                >
-                  <option value="">Quartos</option>
-                  <option value="1">1+</option>
-                  <option value="2">2+</option>
-                  <option value="3">3+</option>
-                </FilterSelect>
-
-                <FilterSelect 
-                  Icon={Bath}
-                  value={filters.bathrooms}
-                  onChange={handleBathroomsChange}
-                >
-                  <option value="">Banhos</option>
-                  <option value="1">1+</option>
-                  <option value="2">2+</option>
-                  <option value="3">3+</option>
-                </FilterSelect>
-
-                <FilterSelect 
-                  Icon={Car}
-                  value={filters.garagens}
-                  onChange={handleGaragensChange}
-                >
-                  <option value="">Garagens</option>
-                  <option value="1">1+</option>
-                  <option value="2">2+</option>
-                  <option value="3">3+</option>
-                </FilterSelect>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                {/* 🔄 INPUT DE PREÇO MÍNIMO MOBILE COM MÁSCARA DE MILHAR */}
+                {/* 🔄 INPUT DE LOCALIZAÇÃO MOBILE COM DEBOUNCE - AGORA MANTÉM FOCO */}
                 <FilterInput 
-                  Icon={DollarSign}
-                  type="text"
-                  placeholder="Preço mínimo"
-                  value={formattedMinPrice}
-                  onChange={handleLocalMinPriceChange}
+                  Icon={MapPin}
+                  placeholder="Onde buscar?"
+                  value={localLocation}
+                  onChange={handleLocalLocationChange}
                 />
-                
-                {/* 🔄 INPUT DE PREÇO MÁXIMO MOBILE COM MÁSCARA DE MILHAR */}
-                <FilterInput 
-                  Icon={DollarSign}
-                  type="text"
-                  placeholder="Preço máximo"
-                  value={formattedMaxPrice}
-                  onChange={handleLocalMaxPriceChange}
-                />
-              </div>
-            </div>
-          )}
+
+                <motion.div 
+                  variants={containerVariants}
+                  className="grid grid-cols-3 gap-3"
+                >
+                  <FilterSelect 
+                    Icon={Bed}
+                    value={filters.bedrooms}
+                    onChange={handleBedroomsChange}
+                  >
+                    <option value="">Quartos</option>
+                    <option value="1">1+</option>
+                    <option value="2">2+</option>
+                    <option value="3">3+</option>
+                  </FilterSelect>
+
+                  <FilterSelect 
+                    Icon={Bath}
+                    value={filters.bathrooms}
+                    onChange={handleBathroomsChange}
+                  >
+                    <option value="">Banhos</option>
+                    <option value="1">1+</option>
+                    <option value="2">2+</option>
+                    <option value="3">3+</option>
+                  </FilterSelect>
+
+                  <FilterSelect 
+                    Icon={Car}
+                    value={filters.garagens}
+                    onChange={handleGaragensChange}
+                  >
+                    <option value="">Garagens</option>
+                    <option value="1">1+</option>
+                    <option value="2">2+</option>
+                    <option value="3">3+</option>
+                  </FilterSelect>
+                </motion.div>
+
+                <motion.div 
+                  variants={containerVariants}
+                  className="grid grid-cols-2 gap-3"
+                >
+                  {/* 🔄 INPUT DE PREÇO MÍNIMO MOBILE COM MÁSCARA DE MILHAR */}
+                  <FilterInput 
+                    Icon={DollarSign}
+                    type="text"
+                    placeholder="Preço mínimo"
+                    value={formattedMinPrice}
+                    onChange={handleLocalMinPriceChange}
+                  />
+                  
+                  {/* 🔄 INPUT DE PREÇO MÁXIMO MOBILE COM MÁSCARA DE MILHAR */}
+                  <FilterInput 
+                    Icon={DollarSign}
+                    type="text"
+                    placeholder="Preço máximo"
+                    value={formattedMaxPrice}
+                    onChange={handleLocalMaxPriceChange}
+                  />
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </div>
+      </motion.div>
 
       {/* Espaço para quando os filtros ficam fixos */}
       {isSticky && <div className="h-28 lg:h-32"></div>}
 
       {/* Grid de Propriedades - Refinado */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex flex-col items-center md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sortedProperties?.map((property) => (
-            <PropertyCard key={property.id} property={property} />
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="max-w-7xl mx-auto px-4 py-8"
+      >
+        <motion.div 
+          variants={containerVariants}
+          className="flex flex-col items-center md:grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          {sortedProperties?.map((property, index) => (
+            <motion.div
+              key={property.id}
+              variants={itemVariants}
+              transition={{
+                ...springTransition,
+                delay: index * 0.1
+              }}
+              whileHover={{ 
+                y: -5,
+                transition: {
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 20
+                }
+              }}
+            >
+              <PropertyCard property={property} />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Mensagem quando não há resultados */}
-        {sortedProperties?.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-gray-400 text-lg font-medium">
-              Nenhum imóvel encontrado com os filtros atuais
-            </div>
-            <button 
-              onClick={clearFilters}
-              className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+        <AnimatePresence>
+          {sortedProperties?.length === 0 && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="text-center py-12"
             >
-              Limpar Filtros
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
+              <div className="text-gray-400 text-lg font-medium mb-4">
+                Nenhum imóvel encontrado com os filtros atuais
+              </div>
+              <motion.button 
+                variants={buttonVariants}
+                whileHover="hover"
+                whileTap="tap"
+                onClick={clearFilters}
+                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Limpar Filtros
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </motion.div>
   );
 };
 

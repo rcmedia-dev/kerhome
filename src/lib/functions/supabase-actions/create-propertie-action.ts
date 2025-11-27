@@ -83,6 +83,7 @@ export async function processFileUploads(formData: PropertyFormData) {
 }
 
 // Função principal para criar propriedade
+// Função melhorada com dados do proprietário
 export async function createProperty(formData: PropertyFormData) {
   try {
     // Processar uploads de arquivos
@@ -92,6 +93,22 @@ export async function createProperty(formData: PropertyFormData) {
     const generatePropertyId = (): string => {
       return `PROP-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
     };
+
+    // Buscar dados do proprietário
+    let ownerData = null;
+    try {
+      const { data: owner, error: ownerError } = await supabase
+        .from('profiles')
+        .select('primeiro_nome, ultimo_nome, email, telefone')
+        .eq('id', formData.owner_id)
+        .single();
+
+      if (!ownerError) {
+        ownerData = owner;
+      }
+    } catch (ownerError) {
+      console.warn('Erro ao buscar dados do proprietário:', ownerError);
+    }
 
     // Preparar dados para inserção
     const propertyData: PropertyDBData = {
@@ -150,7 +167,31 @@ export async function createProperty(formData: PropertyFormData) {
       console.error("Erro ao criar propriedade:", error);
       return { success: false, error: error.message };
     }
-    
+
+    // 🔔 ENVIAR NOTIFICAÇÃO PARA O WEBHOOK COM DADOS COMPLETOS
+    try {
+      await sendPropertyNotification({
+        property_id: data.id,
+        property_title: formData.title,
+        property_type: formData.tipo,
+        property_status: formData.status,
+        price: formData.price || 0,
+        city: formData.cidade,
+        neighborhood: formData.bairro,
+        address: formData.endereco,
+        bedrooms: formData.bedrooms || 0,
+        bathrooms: formData.bathrooms || 0,
+        size: formData.size || 0,
+        owner_id: formData.owner_id,
+        owner_name: ownerData ? `${ownerData.primeiro_nome} ${ownerData.ultimo_nome}` : 'Não disponível',
+        owner_email: ownerData?.email || 'Não disponível',
+        owner_phone: ownerData?.telefone || 'Não disponível',
+        created_at: new Date().toISOString()
+      });
+    } catch (notificationError) {
+      console.warn('Erro ao enviar notificação:', notificationError);
+      // Não falha o processo principal se a notificação falhar
+    }
 
     revalidatePath("/properties");
     return { success: true, propertyId: data.id, property: data };
@@ -158,6 +199,56 @@ export async function createProperty(formData: PropertyFormData) {
     console.error("Erro ao criar propriedade:", error);
     return { success: false, error: "Erro ao criar propriedade" };
   }
+}
+
+// Função melhorada para enviar notificação
+async function sendPropertyNotification(propertyData: {
+  property_id: string;
+  property_title: string;
+  property_type: string;
+  property_status: string;
+  price: number;
+  city: string;
+  neighborhood?: string;
+  address?: string;
+  bedrooms: number;
+  bathrooms: number;
+  size: number;
+  owner_id: string;
+  owner_name: string;
+  owner_email: string;
+  owner_phone: string;
+  created_at: string;
+}) {
+  const webhookUrl = 'https://n8n.srv1157846.hstgr.cloud/webhook/notificate';
+  
+  const payload = {
+    evento: 'nova_propriedade_cadastrada',
+    dados: {
+      ...propertyData,
+      tipo_solicitacao: 'cadastro_imovel',
+      data_cadastro: new Date().toISOString(),
+      // Formatar preço para exibição
+      price_formatted: new Intl.NumberFormat('pt-AO', {
+        style: 'currency',
+        currency: 'AOA'
+      }).format(propertyData.price)
+    }
+  };
+
+  const response = await fetch(webhookUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return await response.json();
 }
 
 // Função para atualizar propriedade

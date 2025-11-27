@@ -1,6 +1,6 @@
 import { PacoteDestaque } from "@/lib/types/defaults";
 import { Medal, Lock } from "lucide-react";
-import { ProgressStep } from "./progress-step";
+import { ProgressStep } from "@/app/dashboard/destacar/components/progress-step";
 
 interface ProgressSidebarProps {
   selectedProperties: string[];

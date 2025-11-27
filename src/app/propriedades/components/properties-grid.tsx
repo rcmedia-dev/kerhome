@@ -3,7 +3,7 @@
 import { motion, AnimatePresence, easeIn, easeOut } from 'framer-motion';
 import { PropertyCard } from '@/components/property-card';
 import { TPropertyResponseSchema } from '@/lib/types/property';
-import { EmptyState, LoadingGrid, LoadMoreState } from './loading-state';
+import { EmptyState, LoadingGrid, LoadMoreState } from '@/app/propriedades/components/loading-state';
 
 interface PropertiesGridProps {
   loading: boolean;

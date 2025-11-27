@@ -2,8 +2,8 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
-import { CanSeeIt } from './can';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { CanSeeIt } from '@/components/can';
 import { Pen, Upload, Globe, Facebook, Instagram, Linkedin, Youtube, Building, BadgeCheck } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import imageCompression from "browser-image-compression";

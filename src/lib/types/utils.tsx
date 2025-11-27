@@ -1,5 +1,5 @@
 
-import { PacoteDestaque } from "./defaults";
+import { PacoteDestaque } from "@/lib/types/defaults";
 import { Star, Target, TrendingUp, Zap } from "lucide-react";
 
 

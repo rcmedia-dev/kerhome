@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { TPropertyResponseSchema } from '../types/property';
+import { TPropertyResponseSchema } from '@/lib/types/property';
 import { Agent } from '@/components/top-agent';
 
 export interface PropertyOwner {

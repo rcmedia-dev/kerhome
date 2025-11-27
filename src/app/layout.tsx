@@ -5,7 +5,7 @@ import { AuthProvider } from "@/components/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 import "@n8n/chat/style.css";
 import LayoutClient from "@/components/layout-client";
-import LoaderProviders from "./providers";
+import LoaderProviders from "@/app/providers";
 import { MobileMenu } from "@/components/mobile-menu";
 import GoogleAnalyticsClient from "@/components/google-analytics";
 

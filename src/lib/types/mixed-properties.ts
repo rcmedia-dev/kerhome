@@ -1,5 +1,5 @@
 import z from "zod";
-import { propertyResponseSchema, ownerSchema } from "./property";
+import { propertyResponseSchema, ownerSchema } from "@/lib/types/property";
 
 // types/property.ts
 export interface MixedProperty {

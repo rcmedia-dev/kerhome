@@ -1,7 +1,7 @@
 import { TPropertyResponseSchema } from "@/lib/types/property"
 import { Home, Plus } from "lucide-react"
-import { CompactPropertyCard } from "./compact-property-card"
-import EmptyState from "./empty-state"
+import { CompactPropertyCard } from "@/app/dashboard/destacar/components/compact-property-card"
+import EmptyState from "@/app/dashboard/destacar/components/empty-state"
 
 
 interface ImoveisTabProps {

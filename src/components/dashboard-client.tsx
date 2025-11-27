@@ -9,22 +9,22 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-} from './ui/card';
+} from '@/components/ui/card';
 import {
   MinhasPropriedades,
   Favoritas,
   PropriedadesMaisVisualizadas,
   Faturas,
-} from './dashboard-tabs-content';
-import { ConfiguracoesConta } from './account-setting';
-import { PlanoCard } from './plano-card';
-import { CanSeeIt } from './can';
-import { UserCard } from './user-card';
-import { UserAction } from './user-action';
-import PropriedadesImpulsionadasDashboard from './boosted-properties';
-import SoftCard from './soft-card';
-import SoftMenuItem from './soft-menu-item';
-import SoftBackground from './soft-background';
+} from '@/components/dashboard-tabs-content';
+import { ConfiguracoesConta } from '@/components/account-setting';
+import { PlanoCard } from '@/components/plano-card';
+import { CanSeeIt } from '@/components/can';
+import { UserCard } from '@/components/user-card';
+import { UserAction } from '@/components/user-action';
+import PropriedadesImpulsionadasDashboard from '@/components/boosted-properties';
+import SoftCard from '@/components/soft-card';
+import SoftMenuItem from '@/components/soft-menu-item';
+import SoftBackground from '@/components/soft-background';
 import { Star, User } from 'lucide-react';
 
 

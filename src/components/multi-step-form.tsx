@@ -5,7 +5,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { useMultiStepForm } from "@/hooks/use-multi-step-form";
 import { Button } from "@/components/ui/button";
 import { PropertyFormData } from "@/lib/types/property";
-import FormStep from "./form-step";
+import FormStep from "@/components/form-step";
 import { createProperty } from "@/lib/functions/supabase-actions/create-propertie-action";
 import { notificateN8n } from "@/lib/functions/supabase-actions/n8n-notification-request";
 

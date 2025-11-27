@@ -21,15 +21,15 @@ import {
   Rocket,
 } from 'lucide-react';
 import Link from 'next/link';
-import { RenderProperties } from '../components/properties-component';
-import UserManagement from '../components/users-component';
-import { RenderDashboard } from '../components/dashboard-component';
-import SubscricoesPage from '../components/subscriptions-component';
-import AgentSubscriptionsPage from '../components/agent-subscription-component';
+import { RenderProperties } from '@/app/admin/components/properties-component';
+import UserManagement from '@/app/admin/components/users-component';
+import { RenderDashboard } from '@/app/admin/components/dashboard-component';
+import SubscricoesPage from '@/app/admin/components/subscriptions-component';
+import AgentSubscriptionsPage from '@/app/admin/components/agent-subscription-component';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import PropertiesToBoost from '../components/properties-to-boost';
-import BoostManagement from '../components/properties-to-boost';
+import PropertiesToBoost from '@/app/admin/components/properties-to-boost';
+import BoostManagement from '@/app/admin/components/properties-to-boost';
 
 
 
@@ -45,43 +45,61 @@ const KerHomeDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [chartData, setChartData] = useState<ChartItem[]>([])
 
-  //Dados reais para os gráficos
+  //Dados reais para os gráficos - Com tratamento de erros apropriado
 const activeProperties = useQuery({
   queryKey: ['active-properties'],
   queryFn: async() => {
-    const response = await supabase
+    const { data, error } = await supabase
       .from('properties')
       .select('*')
       .eq("aprovement_status", 'aprovado')
 
-      return response.data
-  }
-  
+    if (error) {
+      console.error('Erro ao buscar propriedades ativas:', error);
+      throw error;
+    }
+    return data || [];
+  },
+  staleTime: 5 * 60 * 1000, // 5 minutos
+  gcTime: 10 * 60 * 1000,
+  retry: 2,
 })
 
 const registeredUsers = useQuery({
   queryKey: ['registered-users'],
   queryFn: async() => {
-    const response = await supabase
+    const { data, error } = await supabase
       .from('profiles')
       .select('*')
 
-      return response.data
-  }
-  
+    if (error) {
+      console.error('Erro ao buscar usuários registrados:', error);
+      throw error;
+    }
+    return data || [];
+  },
+  staleTime: 5 * 60 * 1000,
+  gcTime: 10 * 60 * 1000,
+  retry: 2,
 })
 
 const agentUsers = useQuery({
   queryKey: ['agent-users'],
   queryFn: async() => {
-    const response = await supabase
+    const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('role', 'agent')
 
-      return response.data
-  }
-  
+    if (error) {
+      console.error('Erro ao buscar agentes:', error);
+      throw error;
+    }
+    return data || [];
+  },
+  staleTime: 5 * 60 * 1000,
+  gcTime: 10 * 60 * 1000,
+  retry: 2,
 })
 
   const { data, isLoading, error } = useQuery({

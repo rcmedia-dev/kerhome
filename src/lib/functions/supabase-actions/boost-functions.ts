@@ -59,7 +59,15 @@ export async function fetchPacotesFromSupabase() {
   }
 }
 
-export async function addPropertiesToBoost(propertyIds: string[], planId: string) {
+export async function addPropertiesToBoost(
+  propertyIds: string[],
+  planId: string,
+  userData?: {
+    nome: string;
+    email: string;
+    user_id: string;
+  }
+) {
   if (!Array.isArray(propertyIds) || propertyIds.length === 0) {
     throw new Error("Nenhum imóvel selecionado para destaque.");
   }
@@ -89,7 +97,7 @@ export async function addPropertiesToBoost(propertyIds: string[], planId: string
 
     if (fetchError) throw new Error("Erro ao verificar boosts existentes.");
 
-    // 2️⃣ Filtrar imóveis já com boost ativo (data final futura)
+    // 2️⃣ Filtrar imóveis já com boost ativo
     const activeIds = new Set(
       (existingBoosts || [])
         .filter((b) => new Date(b.boost_end) > now)
@@ -102,7 +110,7 @@ export async function addPropertiesToBoost(propertyIds: string[], planId: string
       return { message: "Todos os imóveis já têm um destaque ativo.", inserted: 0 };
     }
 
-    // 3️⃣ Criar os novos boosts
+    // 3️⃣ Criar novos boosts
     const boostData = propertiesToInsert.map((propertyId) => ({
       property_id: propertyId,
       plan_id: planId,
@@ -113,13 +121,36 @@ export async function addPropertiesToBoost(propertyIds: string[], planId: string
       clicks: 0,
     }));
 
-    // 4️⃣ Inserir os novos boosts
+    // 4️⃣ Inserir
     const { data, error: insertError } = await supabase
       .from("properties_to_boost")
       .insert(boostData)
       .select();
 
     if (insertError) throw insertError;
+
+    // 5️⃣ Enviar webhook POST notificando o destaque
+    try {
+      await fetch("https://n8n.srv1157846.hstgr.cloud/webhook/notificate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          evento: "destaque_imovel",
+          dados: {
+            nome: userData?.nome ?? "Usuário Desconhecido",
+            email: userData?.email ?? "",
+            user_id: userData?.user_id ?? "",
+            propriedades_impulsionadas: propertiesToInsert,
+            plano: pacote.nome,
+            data_destaque: now.toISOString(),
+          },
+        }),
+      });
+
+      console.log("Notificação enviada ao webhook.");
+    } catch (notifyErr) {
+      console.warn("Falha ao enviar notificação ao webhook:", notifyErr);
+    }
 
     return {
       message: `Foram destacados ${data?.length || 0} imóveis.`,
@@ -136,6 +167,7 @@ export async function addPropertiesToBoost(propertyIds: string[], planId: string
     throw new Error("Não foi possível processar o destaque no momento.");
   }
 }
+
 
 export async function createFatura(userId: string, total: number, servico: string) {
   try {

@@ -1,5 +1,5 @@
 import { CreditCard, X, Sparkles, Building2, CheckCircle2, Clock } from "lucide-react";
-import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 const PLANS = {
   "Plano Básico": {

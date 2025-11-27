@@ -7,8 +7,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { CustomSignInForm } from './login-form';
-import { CustomSignUpForm } from './signup-form';
+import { CustomSignInForm } from '@/components/login-form';
+import { CustomSignUpForm } from '@/components/signup-form';
 import { useUserStore } from '@/lib/store/user-store';
 import { supabase } from '@/lib/supabase';
 

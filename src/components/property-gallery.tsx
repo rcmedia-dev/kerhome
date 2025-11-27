@@ -3,7 +3,7 @@
 import { Heart, Share2, Maximize2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { FullscreenView } from "./full-screen";
+import { FullscreenView } from "@/components/full-screen";
 
 // ===== COMPONENTE PROPERTY GALLERY =====
 export function PropertyGallery({ property }: { property: any }) {

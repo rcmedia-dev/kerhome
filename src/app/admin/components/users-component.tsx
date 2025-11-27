@@ -2,9 +2,9 @@
 
 import { UserPlus, Eye, Edit, Trash2, CheckCircle, XCircle, Mail, Phone, Building, Shield, User, Calendar, Crown, Zap, Star, Grid, List, Filter, Search, Download, MoreVertical, Ban, ShieldAlert, Clock } from 'lucide-react';
 import { useEffect, useState, useTransition } from 'react';
-import { getUsers } from '../dashboard/actions/get-users';
+import { getUsers } from '@/app/admin/dashboard/actions/get-users';
 import Link from 'next/link';
-import { deleteUser } from '../dashboard/actions/create-user';
+import { deleteUser } from '@/app/admin/dashboard/actions/create-user';
 import { toast } from 'sonner';
 import Image from 'next/image';
 

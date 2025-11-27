@@ -22,34 +22,34 @@ import {
   Favoritas,
   PropriedadesMaisVisualizadas,
   Faturas,
-} from './dashboard-tabs-content';
-import { ConfiguracoesConta } from './account-setting';
-import { PlanoCard } from './plano-card';
+} from '@/components/dashboard-tabs-content';
+import { ConfiguracoesConta } from '@/components/account-setting';
+import { PlanoCard } from '@/components/plano-card';
 import { getImoveisFavoritos } from '@/lib/functions/get-favorited-imoveis';
 import { getSupabaseUserProperties } from '@/lib/functions/get-properties';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { CanSeeIt } from './can';
+import { CanSeeIt } from '@/components/can';
 import Link from 'next/link';
-import { UserCard } from './user-card';
+import { UserCard } from '@/components/user-card';
 import { getFaturas } from '@/lib/functions/supabase-actions/user-bills-action';
 import { getMyPropertiesWithViews } from '@/lib/functions/supabase-actions/get-most-seen-propeties';
 import { getUserPlan } from '@/lib/functions/supabase-actions/get-user-package-action';
-import { UserAction } from './user-action';
+import { UserAction } from '@/components/user-action';
 import { useUserStore } from '@/lib/store/user-store';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Variants, Easing } from "framer-motion";
-import PropriedadesImpulsionadasDashboard from './boosted-properties';
-import SoftLoading from './soft-loading';
-import SoftCard from './soft-card';
-import SoftMenuItem from './soft-menu-item';
-import SoftBackground from './soft-background';
+import PropriedadesImpulsionadasDashboard from '@/components/boosted-properties';
+import SoftLoading from '@/components/soft-loading';
+import SoftCard from '@/components/soft-card';
+import SoftMenuItem from '@/components/soft-menu-item';
+import SoftBackground from '@/components/soft-background';
 
 export default function Dashboard() {
   const { user, isLoading: userLoading } = useUserStore();
   const [activeTab, setActiveTab] = useState('properties');
   const queryClient = useQueryClient();
 
-  // Queries rodando em paralelo
+  // Queries rodando em paralelo com cache strategy
   const userProperties = useQuery({
     queryKey: ['user-properties', user?.id],
     queryFn: async () => {
@@ -57,6 +57,9 @@ export default function Dashboard() {
       return await getSupabaseUserProperties(user.id);
     },
     enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 2,
   });
 
   const userFavoriteProperties = useQuery({
@@ -66,6 +69,9 @@ export default function Dashboard() {
       return await getImoveisFavoritos(user.id);
     },
     enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 2,
   });
 
   const userInvoices = useQuery({
@@ -75,6 +81,9 @@ export default function Dashboard() {
       return await getFaturas(user.id);
     },
     enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 2,
   });
 
   const mostViewed = useQuery({
@@ -84,6 +93,9 @@ export default function Dashboard() {
       return await getMyPropertiesWithViews(user.id);
     },
     enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 2,
   });
 
   const userPlan = useQuery({
@@ -93,6 +105,9 @@ export default function Dashboard() {
       return await getUserPlan(user.id);
     },
     enabled: !!user?.id,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 20 * 60 * 1000,
+    retry: 2,
   });
 
   // Verificar se as queries principais estão carregando

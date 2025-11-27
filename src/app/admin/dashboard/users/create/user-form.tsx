@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useFormStatus } from 'react-dom';
-import { createUser } from '../../actions/create-user';
+import { createUser } from '@/app/admin/dashboard/actions/create-user';
 
 export function UserForm() {
   const router = useRouter();

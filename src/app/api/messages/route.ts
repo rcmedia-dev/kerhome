@@ -4,10 +4,10 @@ import Pusher from "pusher";
 
 // 🔐 Configuração segura do Pusher
 const pusher = new Pusher({
-  appId: process.env.PUSHER_APP_ID || "2033373",
-  key: process.env.NEXT_PUBLIC_PUSHER_APP_KEY || "f4dcc1e6a5f94d4dd4ad",
-  secret: process.env.PUSHER_APP_SECRET || "f8455a55d1afd516e4cc",
-  cluster: process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER || "mt1",
+  appId: process.env.PUSHER_APP_ID!,
+  key: process.env.NEXT_PUBLIC_PUSHER_APP_KEY!,
+  secret: process.env.PUSHER_APP_SECRET!,
+  cluster: process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER!,
   useTLS: true,
 });
 
@@ -23,10 +23,10 @@ export async function POST(req: Request) {
     // 🗄️ 1️⃣ Salvar mensagem no Supabase
     const { data, error } = await supabase
       .from("messages")
-      .insert([{ 
-        conversation_id, 
-        sender_id, 
-        content 
+      .insert([{
+        conversation_id,
+        sender_id,
+        content
       }])
       .select(`
         id,

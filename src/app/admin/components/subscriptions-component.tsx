@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react"
 import { CheckCircle, XCircle, Clock, UserCircle2, Mail, Phone, Crown, Zap, Check, ArrowRight, MoreVertical, Star, Loader2, Trash2, Edit } from "lucide-react"
-import { approvePlanRequest, getPlanRequests, rejectPlanRequest, removeSubscription } from "../dashboard/actions/get-plan-requests"
+import { approvePlanRequest, getPlanRequests, rejectPlanRequest, removeSubscription } from "@/app/admin/dashboard/actions/get-plan-requests"
 
 type SubscriptionStatus = "Todos" | "Pendentes" | "Aprovados" | "Rejeitados"
 

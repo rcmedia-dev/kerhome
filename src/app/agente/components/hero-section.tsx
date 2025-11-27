@@ -2,24 +2,15 @@
 
 import Image from "next/image";
 import { Award, Trophy, Star, Shield, Home } from "lucide-react";
-
-interface HeroSectionProps {
-  profile: any;
-  agentStats: {
-    propertiesSold: number;
-    yearsExperience: number;
-    clientSatisfaction: number;
-    averageDaysOnMarket: number;
-  };
-}
+import type { HeroSectionProps, AgentProfile } from "@/types/agent";
 
 export function HeroSection({ profile, agentStats }: HeroSectionProps) {
-  // Verifica se profile é um array válido com elementos
-  const hasProfile = Array.isArray(profile) && profile.length > 0;
+  // Verifica se profile é válido
+  const hasProfile = profile !== null && profile !== undefined;
 
   // Gera iniciais somente se houver perfil válido
-  const initials = hasProfile
-    ? `${profile[0].primeiro_nome?.[0] || ""}${profile[0].ultimo_nome?.[0] || ""}`
+  const initials = hasProfile && profile
+    ? `${profile.primeiro_nome?.[0] || ""}${profile.ultimo_nome?.[0] || ""}`
     : "";
 
   return (
@@ -29,10 +20,10 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
 
           {/* FOTO OU INICIAIS */}
           <div className="lg:w-1/3 flex justify-center">
-            {hasProfile && profile[0].avatar_url ? (
+            {hasProfile && profile.avatar_url ? (
               <div className="relative">
                 <Image
-                  src={profile[0].avatar_url}
+                  src={profile.avatar_url}
                   alt="agent profile picture"
                   width={200}
                   height={200}
@@ -52,7 +43,7 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
 
           {/* TEXTOS E ESTATÍSTICAS */}
           <div className="lg:w-2/3 text-center lg:text-left">
-            {hasProfile ? (
+            {hasProfile && profile ? (
               <>
                 {/* BADGES */}
                 <div className="flex flex-wrap gap-2 justify-center lg:justify-start mb-4">
@@ -74,7 +65,7 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
 
                 {/* NOME COMPLETO */}
                 <h1 className="text-4xl lg:text-5xl font-bold mb-4">
-                  {profile[0].primeiro_nome} {profile[0].ultimo_nome}
+                  {profile.primeiro_nome} {profile.ultimo_nome}
                 </h1>
 
                 {/* DESCRIÇÃO */}

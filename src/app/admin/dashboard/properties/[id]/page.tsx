@@ -1,5 +1,5 @@
-import { getPropertyById } from '../../actions/get-properties-by-id';
-import PropertyDetailClient from './client-component';
+import { getPropertyById } from '@/app/admin/dashboard/actions/get-properties-by-id';
+import PropertyDetailClient from '@/app/admin/dashboard/properties/[id]/client-component';
 
 
 interface PropertyDetailPageProps {

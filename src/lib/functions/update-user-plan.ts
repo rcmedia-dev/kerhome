@@ -1,8 +1,8 @@
 'use server';
 
-import { supabase } from '../supabase';
+import { supabase } from '@/lib/supabase';
 import { unstable_noStore as noStore } from 'next/cache';
-import { UserPlan } from '../types/agent';
+import { UserPlan } from '@/lib/types/agent';
 
 interface UpdatePlanResult {
   success: boolean;

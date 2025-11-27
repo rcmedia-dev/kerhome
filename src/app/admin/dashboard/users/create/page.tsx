@@ -1,7 +1,7 @@
 'use client'
 
 import { ArrowLeft } from 'lucide-react';
-import { UserForm } from './user-form';
+import { UserForm } from '@/app/admin/dashboard/users/create/user-form';
 import { useRouter } from 'next/navigation';
 
 export default function CreateUserPage() {

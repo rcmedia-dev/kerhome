@@ -19,11 +19,11 @@ import {
   getPerformanceMetrics, 
   PerformanceMetrics,
 } from '@/lib/functions/supabase-actions/boost-functions';
-import SectionContainer from './section-container';
-import SectionHeader from './section-header';
-import { AnimatedGrid, EmptyState } from './empty-state';
-import LoadingSpinner from './loading-spinner';
-import BoostedPropertyCard from './boosted-propertie-card';
+import SectionContainer from '@/components/section-container';
+import SectionHeader from '@/components/section-header';
+import { AnimatedGrid, EmptyState } from '@/components/empty-state';
+import LoadingSpinner from '@/components/loading-spinner';
+import BoostedPropertyCard from '@/components/boosted-propertie-card';
 
 
 

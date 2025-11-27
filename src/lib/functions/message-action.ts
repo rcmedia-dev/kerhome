@@ -1,5 +1,5 @@
-import { pusher } from "../pusher";
-import { supabase } from "../supabase";
+import { pusher } from "@/lib/pusher";
+import { supabase } from "@/lib/supabase";
 
 export async function createConversation(
   propertyId: string,

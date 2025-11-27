@@ -6,10 +6,10 @@ import { supabase } from '@/lib/supabase';
 import React from 'react';
 
 // Subcomponentes
-import { HeroSection } from '../components/hero-section';
-import { MessageSystem } from '../components/message-system';
-import { MainContent } from '../components/main-content';
-import { Sidebar } from '../components/sidebar';
+import { HeroSection } from '@/app/agente/components/hero-section';
+import { MessageSystem } from '@/app/agente/components/message-system';
+import { MainContent } from '@/app/agente/components/main-content';
+import { Sidebar } from '@/app/agente/components/sidebar';
 import { toast } from 'sonner';
 import { createDirectConversation, sendMessage } from '@/lib/functions/message-action';
 import { useUserStore } from '@/lib/store/user-store';
@@ -61,7 +61,7 @@ export default function AgentProfilePage(
 
   console.log(agentProfile.data);
 
-  const profile = agentProfile.data;
+  const profile = agentProfile.data?.[0] || null;
 
   const handleSendMessage = async () => {
     if (isSending) return;
@@ -75,7 +75,7 @@ export default function AgentProfilePage(
 
     try {
       // 1️⃣ Criar ou recuperar conversa direta entre o usuário atual e o agente
-      const conversation = await createDirectConversation(user.id, profile[0].id);
+      const conversation = await createDirectConversation(user.id, profile?.id);
 
       if (!conversation?.id) throw new Error("Falha ao criar conversa.");
 
@@ -88,9 +88,12 @@ export default function AgentProfilePage(
       );
       setMessage("");
       setShowMessageBox(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("❌ Erro ao enviar mensagem:", error);
-      toast.error("Erro ao enviar mensagem. Tente novamente.");
+      const errorMessage = error instanceof Error 
+        ? 'Erro ao enviar mensagem. Tente novamente.'
+        : 'Erro desconhecido ao enviar mensagem';
+      toast.error(errorMessage);
     } finally {
       setIsSending(false);
     }
@@ -142,7 +145,7 @@ export default function AgentProfilePage(
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             profile={profile}
-            agentProperties={agentProperties}
+            agentProperties={agentProperties.data || []}
             agentStats={agentStats}
             onOpenMessageBox={handleOpenMessageBox}
           />

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Mail, Phone, Clock, CheckCircle, XCircle, Loader2, UserCircle2, UserX, ShieldOff } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import { aproveAgent, rejectAgent } from '../dashboard/actions/agent';
+import { aproveAgent, rejectAgent } from '@/app/admin/dashboard/actions/agent';
 
 // =========================
 // Tipos

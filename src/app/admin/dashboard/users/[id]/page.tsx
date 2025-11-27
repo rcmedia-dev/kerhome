@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
-import { getUsersById } from '../../actions/get-users';
-import { UserProfile } from './client-component';
+import { getUsersById } from '@/app/admin/dashboard/actions/get-users';
+import { UserProfile } from '@/app/admin/dashboard/users/[id]/client-component';
 
 export default async function UserPage({ 
   params 

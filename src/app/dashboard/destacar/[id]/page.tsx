@@ -10,14 +10,14 @@ import { getPropertyById, getSupabaseUserProperties } from '@/lib/functions/get-
 import { TPropertyResponseSchema } from '@/lib/types/property';
 import { fetchPacotesFromSupabase, addPropertiesToBoost, createFatura } from '@/lib/functions/supabase-actions/boost-functions';
 import { PacoteDestaque, TabType } from '@/lib/types/defaults';
-import { NavigationTabs } from '../components/navigation-tabs';
-import { PropertySelectionModal } from '../components/property-selection-modal';
+import { NavigationTabs } from '@/app/dashboard/destacar/components/navigation-tabs';
+import { PropertySelectionModal } from '@/app/dashboard/destacar/components/property-selection-modal';
 import { getDefaultPacotes, mapPacotesFromSupabase } from '@/lib/types/utils';
-import PageHeader from '../components/page-header';
-import ImoveisTab from '../components/imoveis-tab';
-import PacotesTab from '../components/pacotes-tab';
-import ResumoTab from '../components/resumo-tab';
-import ProgressSidebar from '../components/progress-sidebar';
+import PageHeader from '@/app/dashboard/destacar/components/page-header';
+import ImoveisTab from '@/app/dashboard/destacar/components/imoveis-tab';
+import PacotesTab from '@/app/dashboard/destacar/components/pacotes-tab';
+import ResumoTab from '@/app/dashboard/destacar/components/resumo-tab';
+import ProgressSidebar from '@/app/dashboard/destacar/components/progress-sidebar';
 
 
 

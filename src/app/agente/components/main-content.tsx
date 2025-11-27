@@ -1,17 +1,7 @@
 import { Card } from "@/components/ui/card";
-import { PropertiesTab } from "./properties-tab";
-import { AboutTab } from "./about-tabs";
-
-interface MainContentProps {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-  profile: any;
-  agentProperties: any;
-  agentStats: {
-    yearsExperience: number;
-  };
-  onOpenMessageBox: () => void;
-}
+import { PropertiesTab } from "@/app/agente/components/properties-tab";
+import { AboutTab } from "@/app/agente/components/about-tabs";
+import type { MainContentProps, AgentProperty, AgentProfile } from "@/types/agent";
 
 export function MainContent({
   activeTab,
@@ -34,8 +24,8 @@ export function MainContent({
             }`}
             onClick={() => setActiveTab('properties')}
           >
-            <div className="font-semibold">Portfólio de Imóveis</div>
-            <div className="text-sm opacity-80">({agentProperties.data?.length || 0} disponíveis)</div>
+              <div className="font-semibold">Portfólio de Imóveis</div>
+              <div className="text-sm opacity-80">({agentProperties?.length || 0} disponíveis)</div>
           </button>
           <button 
             className={`flex-1 py-3 px-4 rounded-xl text-center transition-all duration-300 ${
