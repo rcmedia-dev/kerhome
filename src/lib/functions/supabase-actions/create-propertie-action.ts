@@ -223,7 +223,7 @@ async function sendPropertyNotification(propertyData: {
   const webhookUrl = 'https://n8n.srv1157846.hstgr.cloud/webhook/notificate';
   
   const payload = {
-    evento: 'nova_propriedade_cadastrada',
+    evento: 'cadastro_imovel',
     dados: {
       ...propertyData,
       tipo_solicitacao: 'cadastro_imovel',
