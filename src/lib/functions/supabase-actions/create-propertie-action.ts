@@ -84,7 +84,7 @@ export async function processFileUploads(formData: PropertyFormData) {
 
 // Função principal para criar propriedade
 // Função melhorada com dados do proprietário
-export async function createProperty(formData: PropertyFormData) {
+export async function createProperty(formData: PropertyFormData, userId?: string) {
   try {
     // Processar uploads de arquivos
     const fileData = await processFileUploads(formData);
@@ -100,7 +100,7 @@ export async function createProperty(formData: PropertyFormData) {
       const { data: owner, error: ownerError } = await supabase
         .from('profiles')
         .select('primeiro_nome, ultimo_nome, email, telefone')
-        .eq('id', formData.owner_id)
+        .eq('id', userId)
         .single();
 
       if (!ownerError) {

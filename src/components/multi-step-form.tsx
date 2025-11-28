@@ -446,7 +446,7 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
 
 
       // Chamar a Server Action diretamente com os dados do React Hook Form
-      const result = await createProperty(formData);
+      const result = await createProperty(formData, userId);
 
       if (result.success) {
         setSuccessMessage("Propriedade cadastrada com sucesso! Em breve será revisada pela nossa equipe.");
