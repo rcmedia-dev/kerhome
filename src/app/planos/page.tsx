@@ -6,8 +6,10 @@ import { useEffect, useState, useCallback } from "react";
 import { getUserPlan } from "@/lib/functions/supabase-actions/get-user-package-action";
 import { useRouter } from "next/navigation";
 import { handleRequestPlanChange } from "@/app/admin/dashboard/actions/update-user-plan";
-import { PaymentModal } from "@/components/payment-modal";
+import { PaymentModal, PlanDetails } from "@/components/payment-modal";
 import { useUserStore } from "@/lib/store/user-store";
+import { motion, AnimatePresence } from "framer-motion";
+import { Star, ShieldCheck, Zap } from "lucide-react";
 
 interface PlanConfig {
   badge: string;
@@ -139,7 +141,7 @@ export default function PlanosPage() {
     setShowPaymentModal(true);
     setPaymentStatus(null);
     setError("");
-}, [user, router]);
+  }, [user, router]);
 
   const confirmPayment = useCallback(async () => {
     if (!selectedPlan || !user?.id) return;
@@ -208,85 +210,120 @@ export default function PlanosPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {Object.entries(PLANS).map(([planName, planConfig]) => (
-          <Card
-            key={planName}
-            className={`relative rounded-2xl border-2 ${planConfig.border} bg-white p-8 flex flex-col transition-all duration-300 hover:shadow-xl ${
-              isCurrentPlan(planName)
-                ? "ring-2 ring-purple-700 ring-offset-2 scale-105"
-                : "hover:scale-105"
-            }`}
-          >
-            <div className="flex justify-between items-start mb-6">
-              <span className={`px-4 py-2 rounded-full ${planConfig.badgeBg} text-sm font-bold`}>
-                {planConfig.badge}
-              </span>
-              {isCurrentPlan(planName) && (
-                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                  Atual
-                </span>
+        {Object.entries(PLANS).map(([planName, planConfig]) => {
+          const isRecommended = planName === "Plano Professional";
+          const isCurrent = isCurrentPlan(planName);
+
+          return (
+            <motion.div
+              key={planName}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -8 }}
+              className="relative"
+            >
+              {isRecommended && (
+                <div className="absolute -top-4 left-0 right-0 flex justify-center z-10">
+                  <span className="bg-gradient-to-r from-orange-500 to-pink-500 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1">
+                    <Star className="w-3 h-3 fill-white" />
+                    MAIS POPULAR
+                  </span>
+                </div>
               )}
-            </div>
 
-            <h3 className={`text-2xl font-bold mb-2 ${planConfig.titleColor}`}>
-              {planName.replace("Plano ", "")}
-            </h3>
-
-            <div className="mb-6">
-              <p className="text-4xl font-bold text-gray-900">
-                {planConfig.price.toLocaleString("pt-AO", {
-                  style: "currency",
-                  currency: "AOA",
-                })}
-              </p>
-              <p className="text-gray-500 text-sm">por mês</p>
-            </div>
-
-            <ul className="space-y-4 mb-8 flex-grow">
-              {planConfig.benefits.map((benefit, index) => (
-                <li key={index} className="flex items-start">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700">{benefit}</span>
-                </li>
-              ))}
-            </ul>
-
-            {isCurrentPlan(planName) ? (
-              <button
-                disabled
-                className="w-full py-3 rounded-lg font-medium text-white bg-green-500 flex items-center justify-center gap-2"
+              <Card
+                className={`relative h-full flex flex-col p-8 rounded-3xl transition-all duration-300 ${isCurrent
+                    ? "border-2 border-purple-500 shadow-xl bg-white/80 backdrop-blur-sm"
+                    : isRecommended
+                      ? "border border-orange-200 shadow-xl bg-white"
+                      : "border border-gray-100 shadow-lg bg-white/60 backdrop-blur-sm hover:bg-white"
+                  }`}
               >
-                <CheckCircle2 className="w-5 h-5" />
-                Plano Atual
-              </button>
-            ) : (
-              <button
-                className={`w-full ${planConfig.button} text-white py-3 rounded-lg font-medium transition-all duration-200 hover:shadow-lg flex items-center justify-center ${
-                  isUpgrading(planName)
-                    ? "opacity-75 cursor-not-allowed"
-                    : ""
-                }`}
-                onClick={() => handlePlanSelection(planName as PlanName)}
-                disabled={isUpgrading(planName)}
-              >
-                {isUpgrading(planName) ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Processando...
-                  </>
+                <div className="flex justify-between items-start mb-6">
+                  <div className={`p-3 rounded-2xl ${planConfig.iconBg}`}>
+                    {planName === "Plano Básico" && <ShieldCheck className={`w-6 h-6 ${planConfig.titleColor}`} />}
+                    {planName === "Plano Professional" && <Star className={`w-6 h-6 ${planConfig.titleColor}`} />}
+                    {planName === "Plano Super" && <Zap className={`w-6 h-6 ${planConfig.titleColor}`} />}
+                  </div>
+                  {isCurrent && (
+                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase tracking-wider">
+                      Plano Atual
+                    </span>
+                  )}
+                </div>
+
+                <h3 className="text-xl font-bold text-gray-800 mb-2">
+                  {planName}
+                </h3>
+
+                <div className="flex items-baseline gap-1 mb-6">
+                  <span className="text-4xl font-extrabold text-gray-900 tracking-tight">
+                    {planConfig.price.toLocaleString("pt-AO", {
+                      style: "currency",
+                      currency: "AOA",
+                      maximumFractionDigits: 0
+                    })}
+                  </span>
+                  <span className="text-gray-500 font-medium">/mês</span>
+                </div>
+
+                <div className="space-y-4 mb-8 flex-grow">
+                  <p className="text-sm text-gray-500 font-medium uppercase tracking-wider mb-2">
+                    O que está incluído:
+                  </p>
+                  {planConfig.benefits.map((benefit, index) => (
+                    <div key={index} className="flex items-start gap-3">
+                      <div className="mt-1 min-w-[18px]">
+                        <CheckCircle2 className={`w-4.5 h-4.5 ${isRecommended ? "text-orange-500" : "text-purple-600"
+                          }`} />
+                      </div>
+                      <span className="text-gray-600 text-sm leading-relaxed">{benefit}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {isCurrent ? (
+                  <button
+                    disabled
+                    className="w-full py-4 rounded-xl font-bold text-gray-500 bg-gray-100 border border-gray-200 flex items-center justify-center gap-2 cursor-default"
+                  >
+                    <CheckCircle2 className="w-5 h-5" />
+                    Seu Plano Atual
+                  </button>
                 ) : (
-                  "Escolher Plano"
+                  <button
+                    className={`w-full py-4 rounded-xl font-bold text-white shadow-lg transition-all duration-300 transform active:scale-95 ${planConfig.button
+                      } ${isUpgrading(planName) ? "opacity-75 cursor-not-allowed" : "hover:shadow-xl hover:-translate-y-0.5"
+                      }`}
+                    onClick={() => handlePlanSelection(planName as PlanName)}
+                    disabled={isUpgrading(planName)}
+                  >
+                    {isUpgrading(planName) ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
+                        <span>Processando...</span>
+                      </div>
+                    ) : (
+                      "Começar Agora"
+                    )}
+                  </button>
                 )}
-              </button>
-            )}
-          </Card>
-        ))}
+              </Card>
+            </motion.div>
+          );
+        })}
       </div>
 
       <PaymentModal
         showPaymentModal={showPaymentModal}
         paymentStatus={paymentStatus}
         selectedPlan={selectedPlan}
+        planDetails={selectedPlan ? {
+          name: selectedPlan,
+          price: PLANS[selectedPlan].price,
+          limite: PLANS[selectedPlan].limite,
+          destaquesPermitidos: PLANS[selectedPlan].destaquesPermitidos
+        } : null}
         cancelPayment={cancelPayment}
         confirmPayment={confirmPayment}
       />

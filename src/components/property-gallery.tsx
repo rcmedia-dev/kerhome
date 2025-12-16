@@ -18,10 +18,10 @@ export function PropertyGallery({ property }: { property: any }) {
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkIsMobile();
     window.addEventListener('resize', checkIsMobile);
-    
+
     return () => {
       window.removeEventListener('resize', checkIsMobile);
     };
@@ -41,7 +41,7 @@ export function PropertyGallery({ property }: { property: any }) {
     newThumbs[idx] = mainImage;
     setMainImage(clickedImg);
     setThumbnails(newThumbs);
-    
+
     const clickedIndex = allImages.indexOf(clickedImg);
     if (clickedIndex !== -1) {
       setCurrentIndex(clickedIndex);
@@ -50,13 +50,13 @@ export function PropertyGallery({ property }: { property: any }) {
 
   const handleCarouselNavigation = (direction: 'prev' | 'next') => {
     if (!isMobile) return;
-    
+
     if (direction === 'prev') {
-      setCurrentIndex((prevIndex) => 
+      setCurrentIndex((prevIndex) =>
         prevIndex === 0 ? allImages.length - 1 : prevIndex - 1
       );
     } else {
-      setCurrentIndex((prevIndex) => 
+      setCurrentIndex((prevIndex) =>
         prevIndex === allImages.length - 1 ? 0 : prevIndex + 1
       );
     }
@@ -76,11 +76,11 @@ export function PropertyGallery({ property }: { property: any }) {
 
   const navigateImage = (direction: 'prev' | 'next') => {
     if (direction === 'prev') {
-      setCurrentIndex((prevIndex) => 
+      setCurrentIndex((prevIndex) =>
         prevIndex === 0 ? allImages.length - 1 : prevIndex - 1
       );
     } else {
-      setCurrentIndex((prevIndex) => 
+      setCurrentIndex((prevIndex) =>
         prevIndex === allImages.length - 1 ? 0 : prevIndex + 1
       );
     }
@@ -102,7 +102,7 @@ export function PropertyGallery({ property }: { property: any }) {
                 priority
                 onClick={() => openFullscreen(allImages.indexOf(mainImage))}
               />
-              
+
               <div className="absolute top-4 right-4 flex gap-2">
                 <button className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors">
                   <Heart size={20} className="text-gray-600" />
@@ -111,7 +111,7 @@ export function PropertyGallery({ property }: { property: any }) {
                   <Share2 size={20} className="text-gray-600" />
                 </button>
               </div>
-              
+
               <div className="absolute inset-0 bg-black bg-opacity-60 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-50">
                 <button
                   onClick={() => openFullscreen(allImages.indexOf(mainImage))}
@@ -128,9 +128,11 @@ export function PropertyGallery({ property }: { property: any }) {
                 {thumbnails.map((img, idx) => {
                   const actualIndex = allImages.indexOf(img);
                   return (
-                    <button
+                    <div
                       key={idx}
                       onClick={() => handleSwap(img, idx)}
+                      role="button"
+                      tabIndex={0}
                       className="relative flex-shrink-0 w-20 h-16 sm:w-28 sm:h-20 md:w-32 md:h-24 rounded-xl overflow-hidden border border-gray-200 shadow cursor-pointer hover:ring-2 hover:ring-purple-400 transition group"
                     >
                       <Image
@@ -140,8 +142,8 @@ export function PropertyGallery({ property }: { property: any }) {
                         className="object-cover"
                         sizes="(max-width: 640px) 80px, (max-width: 1024px) 128px, 160px"
                       />
-                      
-                      <div 
+
+                      <div
                         className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-50"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -155,7 +157,7 @@ export function PropertyGallery({ property }: { property: any }) {
                           <Maximize2 size={16} className="text-gray-800" />
                         </button>
                       </div>
-                    </button>
+                    </div>
                   );
                 })}
               </div>
@@ -189,7 +191,7 @@ export function PropertyGallery({ property }: { property: any }) {
               sizes="100vw"
               priority
             />
-            
+
             <div className="absolute top-4 right-4 flex gap-2">
               <button className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors">
                 <Heart size={20} className="text-gray-600" />
@@ -198,7 +200,7 @@ export function PropertyGallery({ property }: { property: any }) {
                 <Share2 size={20} className="text-gray-600" />
               </button>
             </div>
-            
+
             <button
               onClick={() => handleCarouselNavigation('prev')}
               className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all z-10"
@@ -214,7 +216,7 @@ export function PropertyGallery({ property }: { property: any }) {
             >
               <ChevronRight size={24} />
             </button>
-            
+
             <div className="absolute inset-0 bg-black bg-opacity-60 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-50">
               <button
                 onClick={() => openFullscreen(currentIndex)}
@@ -224,14 +226,13 @@ export function PropertyGallery({ property }: { property: any }) {
                 <Maximize2 size={24} className="text-gray-800" />
               </button>
             </div>
-            
+
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
               {allImages.map((_, index) => (
                 <div
                   key={index}
-                  className={`w-2 h-2 rounded-full ${
-                    index === currentIndex ? 'bg-white' : 'bg-gray-400'
-                  }`}
+                  className={`w-2 h-2 rounded-full ${index === currentIndex ? 'bg-white' : 'bg-gray-400'
+                    }`}
                 />
               ))}
             </div>

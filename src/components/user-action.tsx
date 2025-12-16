@@ -169,20 +169,6 @@ export function UserAction({
       {/* Badge do papel do usuário */}
       <div className="flex items-center space-x-3">
         <RoleBadge role={profile.role} />
-        
-        {/* Contador de imóveis restantes para agentes */}
-        {profile.role === "agent" && housesRemaining > 0 && (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="flex items-center space-x-1 bg-green-50 px-2 py-1 rounded-full border border-green-200"
-          >
-            <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-            <span className="text-green-700 text-xs font-medium">
-              {housesRemaining} {housesRemaining === 1 ? 'imóvel' : 'imóveis'} restante
-            </span>
-          </motion.div>
-        )}
       </div>
 
       <AnimatePresence mode="wait">
@@ -195,29 +181,11 @@ export function UserAction({
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
           >
-            <AgentRequestButton 
-              userId={user.id} 
-              userName={displayName} 
-              queryClient={queryClient} 
+            <AgentRequestButton
+              userId={user.id}
+              userName={displayName}
+              queryClient={queryClient}
             />
-          </motion.div>
-        )}
-
-        {/* ===== Agente ===== */}
-        {profile.role === "agent" && (
-          <motion.div
-            key="agent-action"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-            className="flex flex-col items-end space-y-3"
-          >
-            {housesRemaining === 0 ? (
-              <LimitReachedMessage />
-            ) : (
-              <UploadPropertyButton housesRemaining={housesRemaining} />
-            )}
           </motion.div>
         )}
       </AnimatePresence>

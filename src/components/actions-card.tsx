@@ -9,15 +9,15 @@ import { motion, Variants, Transition } from 'framer-motion';
 
 // Configurações de transição reutilizáveis
 const springTransition: Transition = {
-    type: "spring",
-    stiffness: 100,
-    damping: 20
+  type: "spring",
+  stiffness: 100,
+  damping: 20
 };
 
 const fastSpringTransition: Transition = {
-    type: "spring",
-    stiffness: 400,
-    damping: 10
+  type: "spring",
+  stiffness: 400,
+  damping: 10
 };
 
 // Variantes de animação com tipos corretos
@@ -32,8 +32,8 @@ const containerVariants: Variants = {
 };
 
 const itemVariants: Variants = {
-  hidden: { 
-    opacity: 0, 
+  hidden: {
+    opacity: 0,
     y: 30,
     scale: 0.9
   },
@@ -45,9 +45,9 @@ const itemVariants: Variants = {
 };
 
 const headerVariants: Variants = {
-  hidden: { 
-    opacity: 0, 
-    y: 20 
+  hidden: {
+    opacity: 0,
+    y: 20
   },
   visible: {
     opacity: 1,
@@ -56,10 +56,10 @@ const headerVariants: Variants = {
 };
 
 const badgeVariants: Variants = {
-  hidden: { 
-    opacity: 0, 
+  hidden: {
+    opacity: 0,
     scale: 0.8,
-    rotate: -10 
+    rotate: -10
   },
   visible: {
     opacity: 1,
@@ -118,9 +118,9 @@ export default function ActionCardsSection() {
       description: 'Encontre a casa perfeita para você e sua família com segurança e facilidade.',
       button: 'Explorar imóveis',
       icon: <BadgeDollarSign className="w-6 h-6" />,
-      gradient: 'from-green-500 to-emerald-600',
-      hoverGradient: 'from-green-600 to-emerald-700',
-      bgColor: 'bg-gradient-to-br from-green-50 to-emerald-100',
+      gradient: 'from-purple-600 to-indigo-600',
+      hoverGradient: 'from-purple-700 to-indigo-700',
+      bgColor: 'bg-gradient-to-br from-purple-50 to-indigo-50',
       href: '/propriedades',
     },
     {
@@ -128,9 +128,9 @@ export default function ActionCardsSection() {
       description: 'Tem um imóvel disponível? Arrende com total apoio e visibilidade.',
       button: 'Ver opções',
       icon: <KeyRound className="w-6 h-6" />,
-      gradient: 'from-yellow-500 to-amber-600',
-      hoverGradient: 'from-yellow-600 to-amber-700',
-      bgColor: 'bg-gradient-to-br from-yellow-50 to-amber-100',
+      gradient: 'from-orange-500 to-amber-600',
+      hoverGradient: 'from-orange-600 to-amber-700',
+      bgColor: 'bg-gradient-to-br from-orange-50 to-amber-50',
       href: '/propriedades',
     },
     {
@@ -138,9 +138,9 @@ export default function ActionCardsSection() {
       description: 'Anuncie seu imóvel e alcance milhares de potenciais compradores.',
       button: 'Anunciar agora',
       icon: <HandCoins className="w-6 h-6" />,
-      gradient: 'from-blue-500 to-cyan-600',
-      hoverGradient: 'from-blue-600 to-cyan-700',
-      bgColor: 'bg-gradient-to-br from-blue-50 to-cyan-100',
+      gradient: 'from-slate-800 to-gray-900',
+      hoverGradient: 'from-black to-gray-800',
+      bgColor: 'bg-gradient-to-br from-gray-50 to-slate-100',
       href: '#',
       special: true,
     },
@@ -148,7 +148,7 @@ export default function ActionCardsSection() {
 
   return (
     <>
-      <motion.section 
+      <motion.section
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.3 }}
@@ -156,22 +156,22 @@ export default function ActionCardsSection() {
         className="py-20 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden"
       >
         {/* Elementos decorativos de fundo */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 0.3, scale: 1 }}
           transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
-          className="absolute top-0 left-0 w-72 h-72 bg-green-100 rounded-full mix-blend-multiply filter blur-xl"
+          className="absolute top-0 left-0 w-72 h-72 bg-purple-100 rounded-full mix-blend-multiply filter blur-xl"
         ></motion.div>
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 0.3, scale: 1 }}
           transition={{ duration: 2, repeat: Infinity, repeatType: "reverse", delay: 1 }}
-          className="absolute bottom-0 right-0 w-72 h-72 bg-blue-100 rounded-full mix-blend-multiply filter blur-xl"
+          className="absolute bottom-0 right-0 w-72 h-72 bg-orange-100 rounded-full mix-blend-multiply filter blur-xl"
         ></motion.div>
-        
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           {/* Header da seção */}
-          <motion.div 
+          <motion.div
             variants={headerVariants}
             initial="hidden"
             whileInView="visible"
@@ -183,7 +183,7 @@ export default function ActionCardsSection() {
             }}
             className="text-center mb-16"
           >
-            <motion.div 
+            <motion.div
               variants={badgeVariants}
               initial="hidden"
               whileInView="visible"
@@ -199,7 +199,7 @@ export default function ActionCardsSection() {
               <Sparkles className="w-4 h-4 text-orange-500" />
               <span className="text-sm font-medium text-gray-700">Comece sua jornada</span>
             </motion.div>
-            <motion.h2 
+            <motion.h2
               variants={headerVariants}
               initial="hidden"
               whileInView="visible"
@@ -213,7 +213,7 @@ export default function ActionCardsSection() {
             >
               Sua próxima conquista <span className="text-orange-500">imobiliária</span>
             </motion.h2>
-            <motion.p 
+            <motion.p
               variants={headerVariants}
               initial="hidden"
               whileInView="visible"
@@ -231,7 +231,7 @@ export default function ActionCardsSection() {
           </motion.div>
 
           {/* Grid de cards */}
-          <motion.div 
+          <motion.div
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
@@ -254,19 +254,18 @@ export default function ActionCardsSection() {
               >
                 {/* Efeito de brilho no hover */}
                 <div className={`absolute inset-0 bg-gradient-to-r ${action.gradient} rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
-                
+
                 <motion.div
                   variants={cardHoverVariants}
                   transition={fastSpringTransition}
-                  className={`relative rounded-2xl p-8 h-full flex flex-col justify-between transition-all duration-300 ${
-                    hoveredCard === index ? 'shadow-2xl' : 'shadow-lg'
-                  } ${action.bgColor} border border-white/50 backdrop-blur-sm`}
+                  className={`relative rounded-2xl p-8 h-full flex flex-col justify-between transition-all duration-300 ${hoveredCard === index ? 'shadow-2xl' : 'shadow-lg'
+                    } ${action.bgColor} border border-white/50 backdrop-blur-sm`}
                 >
-                  
+
                   {/* Header do card */}
                   <div className="space-y-6">
                     <div className="flex items-center justify-between">
-                      <motion.div 
+                      <motion.div
                         whileHover={{ scale: 1.1, rotate: 5 }}
                         transition={fastSpringTransition}
                         className={`p-3 rounded-xl bg-gradient-to-r ${action.gradient} text-white shadow-lg`}
@@ -274,7 +273,7 @@ export default function ActionCardsSection() {
                         {action.icon}
                       </motion.div>
                       {action.special && (
-                        <motion.span 
+                        <motion.span
                           initial={{ opacity: 0, scale: 0 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{
@@ -289,13 +288,13 @@ export default function ActionCardsSection() {
                       )}
                     </div>
 
-                    <motion.h3 
+                    <motion.h3
                       className="text-2xl font-bold text-gray-800 group-hover:text-gray-900 transition-colors"
                     >
                       {action.title}
                     </motion.h3>
-                    
-                    <motion.p 
+
+                    <motion.p
                       className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors"
                     >
                       {action.description}
@@ -353,7 +352,7 @@ export default function ActionCardsSection() {
           </motion.div>
 
           {/* Texto adicional */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

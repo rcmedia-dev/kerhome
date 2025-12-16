@@ -34,9 +34,18 @@ export function PropertyContact({
         Entre em contato com o corretor
       </h3>
       <AgentCardWithChat
-        ownerData={ownerDetails}
+        ownerData={{
+          id: ownerDetails.id,
+          name: `${ownerDetails.primeiro_nome || ''} ${ownerDetails.ultimo_nome || ''}`.trim() || 'Corretor',
+          email: ownerDetails.email || '',
+          phone: ownerDetails.telefone,
+          avatar_url: ownerDetails.avatar_url,
+          role: 'Corretor'
+        }}
         propertyId={property.id}
-        userId={user?.id} 
+        propertyTitle={property.title}
+        propertyImage={property.image ?? undefined}
+        userId={user?.id}
       />
     </div>
   );

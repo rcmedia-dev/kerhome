@@ -14,7 +14,6 @@ import { useState } from 'react';
 import {
   CardHeader,
   CardTitle,
-  CardDescription,
   CardContent,
 } from './ui/card';
 import {
@@ -43,6 +42,7 @@ import SoftLoading from '@/components/soft-loading';
 import SoftCard from '@/components/soft-card';
 import SoftMenuItem from '@/components/soft-menu-item';
 import SoftBackground from '@/components/soft-background';
+import { DashboardBanner } from '@/components/dashboard-banner';
 
 export default function Dashboard() {
   const { user, isLoading: userLoading } = useUserStore();
@@ -111,9 +111,9 @@ export default function Dashboard() {
   });
 
   // Verificar se as queries principais estão carregando
-  const isLoadingQueries = userProperties.isLoading || 
-                          userFavoriteProperties.isLoading || 
-                          userPlan.isLoading;
+  const isLoadingQueries = userProperties.isLoading ||
+    userFavoriteProperties.isLoading ||
+    userPlan.isLoading;
 
   if (userLoading || isLoadingQueries) {
     return <SoftLoading />;
@@ -148,25 +148,25 @@ export default function Dashboard() {
 
   // Stats usando dados diretamente das queries
   const stats = [
-    { 
-      label: 'Propriedades', 
-      value: userProperties.data?.length || 0, 
-      icon: Home 
+    {
+      label: 'Propriedades',
+      value: userProperties.data?.length || 0,
+      icon: Home
     },
-    { 
-      label: 'Favoritas', 
-      value: userFavoriteProperties.data?.length || 0, 
-      icon: Heart 
+    {
+      label: 'Favoritas',
+      value: userFavoriteProperties.data?.length || 0,
+      icon: Heart
     },
-    { 
-      label: 'Faturas', 
-      value: userInvoices.data?.length || 0, 
-      icon: BarChart3 
+    {
+      label: 'Faturas',
+      value: userInvoices.data?.length || 0,
+      icon: BarChart3
     },
-    { 
-      label: 'Visualizações', 
-      value: mostViewed.data?.total_views_all || 0, 
-      icon: Eye 
+    {
+      label: 'Visualizações',
+      value: mostViewed.data?.total_views_all || 0,
+      icon: Eye
     },
   ];
 
@@ -177,15 +177,15 @@ export default function Dashboard() {
       icon: Home,
       badge: userProperties.data?.length || 0,
     },
-    { 
-      id: 'favorites', 
-      label: 'Favoritas', 
-      icon: Heart, 
-      badge: userFavoriteProperties.data?.length || 0 
+    {
+      id: 'favorites',
+      label: 'Favoritas',
+      icon: Heart,
+      badge: userFavoriteProperties.data?.length || 0
     },
-    { 
-      id: 'invoices', 
-      label: 'Faturas', 
+    {
+      id: 'invoices',
+      label: 'Faturas',
       icon: BarChart3,
       badge: userInvoices.data?.length || 0,
     },
@@ -200,22 +200,22 @@ export default function Dashboard() {
       label: 'Propriedades Impulsionadas',
       icon: Rocket,
     },
-    { 
-      id: 'settings', 
-      label: 'Configurações da Conta', 
-      icon: Settings 
+    {
+      id: 'settings',
+      label: 'Configurações da Conta',
+      icon: Settings
     },
   ];
 
   const tabContentVariants: Variants = {
     hidden: { opacity: 0, x: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       x: 0,
-      transition: { duration: 0.4, ease: "easeOut" as Easing } 
+      transition: { duration: 0.4, ease: "easeOut" as Easing }
     },
-    exit: { 
-      opacity: 0, 
+    exit: {
+      opacity: 0,
       x: -20,
       transition: { duration: 0.3 }
     }
@@ -224,30 +224,99 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-purple-50 to-orange-50 relative">
       <SoftBackground />
-      
+
       <div className="container mx-auto px-4 py-6 relative z-10">
         {/* Header */}
-        <SoftCard delay={0.1} className="mb-8">
-          <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 p-6">
-            <motion.div
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-orange-600 bg-clip-text text-transparent">
-                Olá, {displayName} 👋
-              </CardTitle>
-              <CardDescription className="text-gray-500 text-sm sm:text-base mt-2">
-                Gerencie suas propriedades com facilidade
-              </CardDescription>
-            </motion.div>
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 xl:gap-8">
+          {/* Left Column: Navigation (2 cols) */}
+          <div className="lg:col-span-2 xl:col-span-2 flex flex-col gap-6 order-1">
+            {/* Logo area */}
+            <div className="hidden lg:flex items-center gap-2 px-4 py-2">
+              <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
+                <Home className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xl font-bold text-gray-800 tracking-tight">Kercasa</span>
+            </div>
 
-            <motion.div
-              initial={{ x: 20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              <UserAction 
+            {/* Navigation Menu */}
+            <div className="space-y-1">
+              {menuItems.map((item, index) => {
+                const isProtected = item.id === 'invoices' || item.id === 'views';
+                const menuItem = (
+                  <SoftMenuItem
+                    key={item.id}
+                    item={item}
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                    index={index}
+                  />
+                );
+
+                if (isProtected) {
+                  return (
+                    <CanSeeIt key={item.id}>
+                      {menuItem}
+                    </CanSeeIt>
+                  );
+                }
+
+                return menuItem;
+              })}
+            </div>
+          </div>
+
+          {/* Center Column: Main Content (7 cols) */}
+          <div className="lg:col-span-7 xl:col-span-7 flex flex-col gap-6 order-2">
+            {/* Banner */}
+            <DashboardBanner
+              displayName={displayName}
+              userPlanName={userPlan.data?.nome}
+            />
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                variants={tabContentVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="bg-white/50 backdrop-blur-sm rounded-3xl p-6 min-h-[500px]"
+              >
+                {activeTab === 'properties' && (
+                  <MinhasPropriedades
+                    userProperties={userProperties.data ?? []}
+                  />
+                )}
+                {activeTab === 'favorites' && (
+                  <Favoritas
+                    userFavoriteProperties={userFavoriteProperties.data ?? []}
+                  />
+                )}
+                {activeTab === 'invoices' && (
+                  <Faturas
+                    invoices={userInvoices.data ?? []}
+                  />
+                )}
+                {activeTab === 'views' && (
+                  <PropriedadesMaisVisualizadas
+                    mostViewedProperties={mostViewed.data || { total_views_all: 0, properties: [] }}
+                  />
+                )}
+                {activeTab === 'boost' && <PropriedadesImpulsionadasDashboard />}
+                {activeTab === 'settings' && (
+                  <ConfiguracoesConta
+                    profile={user}
+                  />
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* Right Column: Stats & User (3 cols) */}
+          <div className="lg:col-span-3 xl:col-span-3 flex flex-col gap-6 order-3">
+            {/* Actions & Profile */}
+            <div className="flex justify-end items-center gap-4 mb-2">
+              <UserAction
                 isLoading={userLoading}
                 isError={false}
                 profile={user}
@@ -256,61 +325,41 @@ export default function Dashboard() {
                 queryClient={queryClient}
                 housesRemaining={(userPlan.data?.restante ?? 0) - (userProperties.data?.length ?? 0)}
               />
-            </motion.div>
-          </CardHeader>
-        </SoftCard>
+            </div>
 
-        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6">
-          {/* Sidebar */}
-          <div className="lg:col-span-4 flex flex-col gap-6 order-1">
             {/* User Card */}
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              <UserCard 
-                user={user} 
-                displayName={displayName} 
-                stats={stats} 
-              />
-            </motion.div>
+            <UserCard
+              user={user}
+              displayName={displayName}
+              housesRemaining={(userPlan.data?.restante ?? 0) - (userProperties.data?.length ?? 0)}
+              stats={[]} // Stats are displayed separately below
+            />
 
-            {/* Navigation Menu */}
-            <SoftCard className='py-4'>
-              <CardHeader className="pb-4">
-                <CardTitle className="text-gray-800 flex items-center text-lg">
-                  <div className="p-2 bg-purple-100 rounded-lg mr-3">
-                    <User className="w-5 h-5 text-purple-600" />
-                  </div>
-                  Menu
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {menuItems.map((item, index) => {
-                  const isProtected = item.id === 'invoices' || item.id === 'views';
-                  const menuItem = (
-                    <SoftMenuItem
-                      key={item.id}
-                      item={item}
-                      activeTab={activeTab}
-                      setActiveTab={setActiveTab}
-                      index={index}
-                    />
-                  );
+            {/* Stats List (Vertical) */}
+            <div className="flex flex-col gap-3">
+              <h3 className="text-lg font-bold text-gray-800 px-1">Estatísticas</h3>
+              {stats.map((stat, index) => {
+                const shouldShow = (stat.label !== "Visualizações" && stat.label !== "Faturas");
 
-                  if (isProtected) {
-                    return (
-                      <CanSeeIt key={item.id}>
-                        {menuItem}
-                      </CanSeeIt>
-                    );
-                  }
+                const card = (
+                  <SoftCard key={index} delay={0.2 + index * 0.1} className="p-4 flex items-center justify-between border-none shadow-sm hover:shadow-md bg-white">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-md bg-purple-50 text-purple-600">
+                        <stat.icon className="w-5 h-5" />
+                      </div>
+                      <p className="text-sm text-gray-500 font-medium">{stat.label}</p>
+                    </div>
+                    <p className="text-xl font-bold text-gray-800">{stat.value}</p>
+                  </SoftCard>
+                );
 
-                  return menuItem;
-                })}
-              </CardContent>
-            </SoftCard>
+                if (!shouldShow) {
+                  return <CanSeeIt key={index}>{card}</CanSeeIt>;
+                }
+                return card;
+              })}
+            </div>
+
 
             {/* Mobile Content */}
             <div className="block lg:hidden">
@@ -323,135 +372,112 @@ export default function Dashboard() {
                   exit="exit"
                 >
                   {activeTab === 'properties' && (
-                    <MinhasPropriedades 
-                      userProperties={userProperties.data ?? []} 
+                    <MinhasPropriedades
+                      userProperties={userProperties.data ?? []}
                     />
                   )}
                   {activeTab === 'favorites' && (
-                    <Favoritas 
-                      userFavoriteProperties={userFavoriteProperties.data ?? []} 
+                    <Favoritas
+                      userFavoriteProperties={userFavoriteProperties.data ?? []}
                     />
                   )}
                   {activeTab === 'invoices' && (
-                    <Faturas 
-                      invoices={userInvoices.data ?? []} 
+                    <Faturas
+                      invoices={userInvoices.data ?? []}
                     />
                   )}
                   {activeTab === 'views' && (
-                    <PropriedadesMaisVisualizadas 
-                      mostViewedProperties={mostViewed.data || { total_views_all: 0, properties: [] }} 
+                    <PropriedadesMaisVisualizadas
+                      mostViewedProperties={mostViewed.data || { total_views_all: 0, properties: [] }}
                     />
                   )}
                   {activeTab === 'boost' && <PropriedadesImpulsionadasDashboard />}
                   {activeTab === 'settings' && (
-                    <ConfiguracoesConta 
-                      profile={user} 
+                    <ConfiguracoesConta
+                      profile={user}
                     />
                   )}
                 </motion.div>
               </AnimatePresence>
             </div>
 
-            {/* Upgrade Section */}
-            <CanSeeIt>
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.6 }}
-              >
-                <PlanoCard plan={userPlan.data ?? undefined} userProperties={userProperties.data?.length ?? 0} />
-              </motion.div>
 
-              <SoftCard className="mt-4 bg-gradient-to-r from-orange-50 to-amber-50 py-4 border-orange-200">
-                <CardHeader>
-                  <CardTitle className="text-orange-700 text-lg font-bold flex items-center gap-3">
-                    <motion.div
-                      animate={{ rotate: [0, 5, 0] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="p-2 bg-orange-100 rounded-lg"
-                    >
-                      <Star className="w-5 h-5 text-orange-500" />
-                    </motion.div>
-                    Por que fazer upgrade?
-                  </CardTitle>
+            {/* Plan Status Card - Always Visible */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 }}
+              className="mt-2"
+            >
+              <SoftCard className="py-4 border-0 shadow-lg bg-white overflow-hidden relative group">
+                {/* Gradient Background Effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-orange-500/5 to-purple-500/5 opacity-50" />
+
+                <CardHeader className="pb-2 relative z-10">
+                  <div className="flex items-center justify-between mb-1">
+                    <CardTitle className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                      <Star className="w-4 h-4 text-orange-500 fill-orange-500" />
+                      Seu Plano Atual
+                    </CardTitle>
+                    <span className="text-xs font-semibold bg-purple-100 text-purple-700 px-2 py-1 rounded-full border border-purple-200">
+                      {userPlan.data?.nome || "Carregando..."}
+                    </span>
+                  </div>
                 </CardHeader>
-                <CardContent>
-                  <motion.ul 
-                    className="space-y-3 mb-4"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.7 }}
-                  >
-                    {[
-                      "Publique mais imóveis e alcance mais clientes",
-                      "Tenha seus anúncios em destaque",
-                      "Suporte prioritário e atendimento exclusivo"
-                    ].map((item, index) => (
-                      <motion.li
-                        key={index}
-                        initial={{ x: -10, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: 0.8 + index * 0.1 }}
-                        className="flex items-start text-sm text-gray-700"
-                      >
-                        <div className="w-1.5 h-1.5 bg-orange-400 rounded-full mt-1.5 mr-3 flex-shrink-0" />
-                        {item}
-                      </motion.li>
-                    ))}
-                  </motion.ul>
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1.1 }}
-                    className="text-gray-600 text-sm leading-relaxed"
-                  >
-                    Aproveite todo o potencial da plataforma, aumente sua
-                    visibilidade e conquiste mais resultados.
-                  </motion.p>
+
+                <CardContent className="space-y-4 relative z-10">
+                  {/* Usage Stats */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-medium text-gray-600">
+                      <span>Uso do Limite</span>
+                      <span>
+                        {((userPlan.data?.limite || 0) - (userPlan.data?.restante || 0))} de {userPlan.data?.limite || 0} imóveis
+                      </span>
+                    </div>
+                    {(() => {
+                      const total = userPlan.data?.limite || 1;
+                      const remaining = userPlan.data?.restante || 0;
+                      const used = total - remaining;
+                      const percentage = Math.min(100, Math.max(0, (used / total) * 100));
+
+                      return (
+                        <div className="relative h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                          <motion.div
+                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-orange-500 rounded-full"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${percentage}%` }}
+                            transition={{ duration: 1, ease: "easeOut" }}
+                          />
+                        </div>
+                      );
+                    })()}
+                    <div className="text-xs text-right text-purple-600 font-semibold">
+                      {userPlan.data?.restante || 0} imóveis restantes
+                    </div>
+                  </div>
+
+                  {/* Feature Highlights (Mini) */}
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <div className="w-1 h-1 bg-green-500 rounded-full" />
+                      <span>Fotos ilimitadas</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <div className="w-1 h-1 bg-green-500 rounded-full" />
+                      <span>Suporte prioritário</span>
+                    </div>
+                  </div>
+
+                  {/* Upgrade CTA */}
+                  <Link href="/planos" className="block w-full">
+                    <button className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-orange-600 hover:from-purple-700 hover:to-orange-700 text-white rounded-lg font-bold text-sm shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 group-hover:animate-pulse">
+                      <Rocket className="w-4 h-4" />
+                      Atualizar Meu Plano
+                    </button>
+                  </Link>
                 </CardContent>
               </SoftCard>
-            </CanSeeIt>
-          </div>
-
-          {/* Desktop Content */}
-          <div className="hidden lg:block lg:col-span-8 order-2">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                variants={tabContentVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="h-full"
-              >
-                {activeTab === 'properties' && (
-                  <MinhasPropriedades 
-                    userProperties={userProperties.data ?? []} 
-                  />
-                )}
-                {activeTab === 'favorites' && (
-                  <Favoritas 
-                    userFavoriteProperties={userFavoriteProperties.data ?? []} 
-                  />
-                )}
-                {activeTab === 'invoices' && (
-                  <Faturas 
-                    invoices={userInvoices.data ?? []} 
-                  />
-                )}
-                {activeTab === 'views' && (
-                  <PropriedadesMaisVisualizadas 
-                    mostViewedProperties={mostViewed.data || { total_views_all: 0, properties: [] }} 
-                  />
-                )}
-                {activeTab === 'boost' && <PropriedadesImpulsionadasDashboard />}
-                {activeTab === 'settings' && (
-                  <ConfiguracoesConta 
-                    profile={user} 
-                  />
-                )}
-              </motion.div>
-            </AnimatePresence>
+            </motion.div>
           </div>
         </div>
       </div>

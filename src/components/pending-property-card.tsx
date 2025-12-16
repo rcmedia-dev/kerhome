@@ -8,23 +8,24 @@ import { deleteProperty } from '@/lib/functions/supabase-actions/delete-properti
 import { toast } from 'sonner';
 import { useUserStore } from '@/lib/store/user-store';
 
-export function PendingPropertyCard({ property }: { property: TPropertyResponseSchema }) {
+export function PendingPropertyCard({ property, onDelete }: { property: TPropertyResponseSchema; onDelete?: () => void }) {
   const { user } = useUserStore();
   const isOwner = user?.id === property.owner_id;
 
   const handleDelete = async () => {
-      try {
-        await deleteProperty(property.id, user?.id);
-        toast.success('Imóvel deletado com sucesso');
-      } catch (e) {
-        console.log('error:', e);
-      }
+    try {
+      if (onDelete) onDelete(); // Optimistic update
+      await deleteProperty(property.id, user?.id);
+      toast.success('Imóvel deletado com sucesso');
+    } catch (e) {
+      console.log('error:', e);
+    }
   };
 
   return (
     <div className="w-[320px] bg-white rounded-2xl shadow-lg overflow-hidden h-full flex flex-col relative border-1 transition-all duration-300hover:shadow-xl">
       {/* Overlay e badge de status pendente */}
-      
+
       <span className="absolute top-4 left-4 bg-orange-500 text-white text-sm font-semibold px-3 py-2 rounded-full shadow-lg z-20 flex items-center gap-1.5">
         <Clock className="w-4 h-4" />
         Aguardando aprovação

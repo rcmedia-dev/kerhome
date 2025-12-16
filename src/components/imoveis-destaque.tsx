@@ -21,48 +21,47 @@ export default function ImoveisSemelhantes() {
   if (imoveis.length === 0) return null;
 
   return (
-    <div className="bg-white border shadow-md rounded-2xl p-6">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">
+    <div className="mt-8">
+      <h3 className="text-lg font-semibold text-gray-800 mb-4 px-1">
         Imóveis Semelhantes
       </h3>
-      <div className="space-y-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {imoveis.map((imovel) => {
           return (
             <Link
               href={`/propriedades/${imovel.id}`}
               key={imovel.id}
-              className="block border border-orange-500 rounded-lg overflow-hidden shadow hover:shadow-md transition"
+              className="group block bg-white border border-gray-100 rounded-lg overflow-hidden hover:shadow-md transition-all duration-300"
             >
-              <div className="w-full h-32 relative">
+              <div className="w-full h-32 relative overflow-hidden">
                 <Image
                   src={imovel.gallery[0]}
                   alt={imovel.title}
                   fill
-                  className="object-cover"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
               <div className="p-3">
-                <h4 className="text-sm font-semibold text-gray-800">{imovel.title}</h4>
-                <p className="text-xs text-gray-500">
+                <h4 className="text-xs font-semibold text-gray-900 line-clamp-1 group-hover:text-purple-600 transition-colors">{imovel.title}</h4>
+                <p className="text-[10px] text-gray-500 line-clamp-1 mb-1">
                   {imovel.cidade || 'Localização não informada'}
                 </p>
-                <p className="text-sm font-bold text-orange-500 mt-1">
-                    {imovel.price &&
-                      imovel.price.toLocaleString(
-                        imovel.unidade_preco === "dolar" ? "en-US" : "pt-AO",
-                        {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }
-                      )}{" "}
-                    {imovel.unidade_preco &&
-                      (imovel.unidade_preco === "kwanza"
-                        ? "KZ"
-                        : imovel.unidade_preco === "dolar"
+                <p className="text-xs font-bold text-orange-500">
+                  {imovel.price &&
+                    imovel.price.toLocaleString(
+                      imovel.unidade_preco === "dolar" ? "en-US" : "pt-AO",
+                      {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      }
+                    )}{" "}
+                  {imovel.unidade_preco &&
+                    (imovel.unidade_preco === "kwanza"
+                      ? "KZ"
+                      : imovel.unidade_preco === "dolar"
                         ? "USD"
                         : imovel.unidade_preco)}
                 </p>
-
               </div>
             </Link>
           );

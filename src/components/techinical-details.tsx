@@ -1,48 +1,33 @@
 import { TPropertyResponseSchema } from "@/lib/types/property";
+import { BedDouble, Bath, CarFront, Ruler, LandPlot, Square } from "lucide-react";
 
 // ===== COMPONENTE TECHNICAL DETAILS =====
 export function TechnicalDetails({ property }: { property: TPropertyResponseSchema }) {
+
+  const details = [
+    { label: "Quartos", value: property.bedrooms, icon: BedDouble },
+    { label: "Banheiros", value: property.bathrooms, icon: Bath },
+    { label: "Garagens", value: property.garagens, icon: CarFront },
+    { label: "Área Útil", value: property.size ? `${property.size} m²` : null, icon: Ruler },
+    { label: "Terreno", value: property.area_terreno ? `${property.area_terreno} m²` : null, icon: LandPlot },
+    { label: "Garagem Área", value: property.garagemtamanho ? `${property.garagemtamanho} m²` : null, icon: Square },
+  ].filter(item => item.value !== null && item.value !== undefined);
+
+  if (details.length === 0) return null;
+
   return (
-    <div className="bg-white rounded-xl p-5 shadow-sm border">
-      <h3 className="font-semibold text-gray-700 mb-4 text-lg">Detalhes Técnicos</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {typeof property.area_terreno !== 'undefined' && (
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <span className="font-medium block text-sm text-gray-500">Área do Terreno</span>
-            <span className="text-gray-800">{property.area_terreno}</span>
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {details.map((item, idx) => (
+        <div key={idx} className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+          <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 shrink-0">
+            <item.icon size={24} strokeWidth={1.5} />
           </div>
-        )}
-        {property.size && (
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <span className="font-medium block text-sm text-gray-500">Tamanho</span>
-            <span className="text-gray-800">{property.size}</span>
+          <div>
+            <p className="text-sm text-gray-500 font-medium">{item.label}</p>
+            <p className="text-lg font-bold text-gray-900">{item.value}</p>
           </div>
-        )}
-        {property.garagemtamanho && (
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <span className="font-medium block text-sm text-gray-500">Garagem (m²)</span>
-            <span className="text-gray-800">{property.garagemtamanho}</span>
-          </div>
-        )}
-        {typeof property.bedrooms !== 'undefined' && (
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <span className="font-medium block text-sm text-gray-500">Quartos</span>
-            <span className="text-gray-800">{property.bedrooms}</span>
-          </div>
-        )}
-        {typeof property.bathrooms !== 'undefined' && (
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <span className="font-medium block text-sm text-gray-500">Banheiros</span>
-            <span className="text-gray-800">{property.bathrooms}</span>
-          </div>
-        )}
-        {typeof property.garagens !== 'undefined' && (
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <span className="font-medium block text-sm text-gray-500">Garagens</span>
-            <span className="text-gray-800">{property.garagens}</span>
-          </div>
-        )}
-      </div>
+        </div>
+      ))}
     </div>
   );
 };

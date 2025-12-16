@@ -4,66 +4,66 @@ import useEmblaCarousel from "embla-carousel-react";
 import { BedDouble, Ruler, Tag } from "lucide-react";
 import Image from 'next/image';
 import Link from "next/link";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence, Variants, Transition } from 'framer-motion';
 
 type HeroCarouselProps = {
-    property: any
+  property: any
 }
 
 // Configurações de transição reutilizáveis
 const springTransition: Transition = {
-    type: "spring",
-    stiffness: 100,
-    damping: 20
+  type: "spring",
+  stiffness: 100,
+  damping: 20
 };
 
 const fastSpringTransition: Transition = {
-    type: "spring",
-    stiffness: 400,
-    damping: 10
+  type: "spring",
+  stiffness: 400,
+  damping: 10
 };
 
 // Transições específicas para cada elemento
 const contentTransition: Transition = {
-    ...springTransition,
-    delay: 0.3,
-    duration: 0.7
+  ...springTransition,
+  delay: 0.3,
+  duration: 0.7
 };
 
 const titleTransition: Transition = {
-    ...springTransition,
-    delay: 0.5,
-    stiffness: 120,
-    damping: 15
+  ...springTransition,
+  delay: 0.5,
+  stiffness: 120,
+  damping: 15
 };
 
 const subtitleTransition: Transition = {
-    ...springTransition,
-    delay: 0.6,
-    stiffness: 120,
-    damping: 15
+  ...springTransition,
+  delay: 0.6,
+  stiffness: 120,
+  damping: 15
 };
 
 const featuresTransition: Transition = {
-    ...springTransition,
-    delay: 0.7,
-    stiffness: 120,
-    damping: 15
+  ...springTransition,
+  delay: 0.7,
+  stiffness: 120,
+  damping: 15
 };
 
 const buttonTransition: Transition = {
-    ...springTransition,
-    delay: 0.8,
-    stiffness: 150,
-    damping: 10
+  ...springTransition,
+  delay: 0.8,
+  stiffness: 150,
+  damping: 10
 };
 
 const navigationTransition: Transition = {
-    delay: 1
+  delay: 1
 };
 
-export default function HeroCarousel( {property}: HeroCarouselProps) {
+export default function HeroCarousel({ property }: HeroCarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
 
   const scrollNext = useCallback(() => {
@@ -93,9 +93,9 @@ export default function HeroCarousel( {property}: HeroCarouselProps) {
   };
 
   const itemVariants: Variants = {
-    hidden: { 
-      opacity: 0, 
-      y: 20 
+    hidden: {
+      opacity: 0,
+      y: 20
     },
     visible: (i: number) => ({
       opacity: 1,
@@ -104,9 +104,9 @@ export default function HeroCarousel( {property}: HeroCarouselProps) {
   };
 
   const buttonVariants: Variants = {
-    hidden: { 
-      opacity: 0, 
-      scale: 0.8 
+    hidden: {
+      opacity: 0,
+      scale: 0.8
     },
     visible: {
       opacity: 1,
@@ -121,8 +121,20 @@ export default function HeroCarousel( {property}: HeroCarouselProps) {
     }
   };
 
+  // Estado para controlar a animação de entrada (Headline -> Cards)
+  const [showIntro, setShowIntro] = useState(true);
+
+  useEffect(() => {
+    // Timer para alternar da Headline para os Cards após 4 segundos
+    const timer = setTimeout(() => {
+      setShowIntro(false);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <motion.section 
+    <motion.section
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -130,7 +142,7 @@ export default function HeroCarousel( {property}: HeroCarouselProps) {
     >
       <div className="embla h-full" ref={emblaRef}>
         <div className="embla__container flex h-full">
-          {property.map((property:any, i: any) => (
+          {property.map((property: any, i: any) => (
             <div
               className="embla__slide relative min-w-full h-full"
               key={i}
@@ -138,9 +150,11 @@ export default function HeroCarousel( {property}: HeroCarouselProps) {
               <motion.div
                 initial={{ scale: 1.1 }}
                 animate={{ scale: 1 }}
-                transition={{ 
-                  duration: 1.2,
-                  ease: "easeOut"
+                transition={{
+                  duration: 8,
+                  ease: "linear",
+                  repeat: Infinity,
+                  repeatType: "reverse"
                 }}
                 className="relative w-full h-full"
               >
@@ -151,112 +165,81 @@ export default function HeroCarousel( {property}: HeroCarouselProps) {
                   className="object-cover"
                   priority={i === 0}
                 />
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.4 }}
-                  transition={{ delay: 0.2, duration: 0.8 }}
-                  className="absolute inset-0 bg-black/40" 
-                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/80" />
               </motion.div>
 
-              <div className="absolute inset-0 flex items-center justify-center px-4">
-                <motion.div 
-                  variants={contentVariants}
-                  initial="hidden"
-                  animate="visible"
-                  transition={contentTransition}
-                  className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-6 md:px-8 md:py-8 text-white w-full max-w-xl text-center shadow-xl border border-white/10"
-                >
-                  <motion.h2 
-                    variants={itemVariants}
-                    custom={0}
-                    initial="hidden"
-                    animate="visible"
-                    transition={titleTransition}
-                    className="text-2xl md:text-4xl font-bold"
-                  >
-                    {property.title}
-                  </motion.h2>
-                  
-                  <motion.p 
-                    variants={itemVariants}
-                    custom={1}
-                    initial="hidden"
-                    animate="visible"
-                    transition={subtitleTransition}
-                    className="text-xs md:text-sm text-gray-100 mt-2 mb-4"
-                  >
-                    {property.endereco}
-                  </motion.p>
-
-                  <motion.div 
-                    variants={itemVariants}
-                    custom={2}
-                    initial="hidden"
-                    animate="visible"
-                    transition={featuresTransition}
-                    className="flex flex-wrap justify-center gap-4 text-xs md:text-sm mb-4"
-                  >
-                    <motion.div 
-                      whileHover={{ scale: 1.05 }}
-                      transition={springTransition}
-                      className="flex items-center gap-1 bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm"
+              {/* Property Info (Center) - Só aparece APÓS a intro */}
+              <AnimatePresence>
+                {!showIntro && (
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-lg w-full z-10 hidden md:block px-4">
+                    <motion.div
+                      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.6 }}
+                      className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-3xl text-white shadow-2xl text-center"
                     >
-                      <BedDouble className="w-4 h-4 md:w-5 md:h-5" /> 
-                      {property.bedrooms} Quartos
+                      <h3 className="text-3xl font-bold mb-3 drop-shadow-md">{property.title}</h3>
+                      <p className="text-gray-100 mb-6 flex items-center justify-center gap-2 text-lg">
+                        <span className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.8)]"></span>
+                        {property.endereco}
+                      </p>
+                      <div className="flex justify-center gap-6 text-base font-medium">
+                        <span className="flex items-center gap-2 bg-black/30 px-4 py-2 rounded-full backdrop-blur-sm border border-white/10">
+                          <BedDouble size={18} /> {property.bedrooms} Bed
+                        </span>
+                        <span className="flex items-center gap-2 bg-black/30 px-4 py-2 rounded-full backdrop-blur-sm border border-white/10">
+                          <Ruler size={18} /> {property.size}
+                        </span>
+                        <span className="flex items-center gap-2 bg-orange-600/90 px-4 py-2 rounded-full shadow-lg hover:bg-orange-600 transition-colors">
+                          {property.price}
+                        </span>
+                      </div>
+                      <Link href={`/propriedades/${property.id}`}>
+                        <button className="mt-8 w-full bg-white text-gray-900 hover:bg-gray-100 font-bold py-3 rounded-xl transition-all shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98]">
+                          Ver Detalhes Completos
+                        </button>
+                      </Link>
                     </motion.div>
-                    
-                    <motion.div 
-                      whileHover={{ scale: 1.05 }}
-                      transition={springTransition}
-                      className="flex items-center gap-1 bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm"
-                    >
-                      <Ruler className="w-4 h-4 md:w-5 md:h-5" /> 
-                      {property.size}
-                    </motion.div>
-                    
-                    <motion.div 
-                      whileHover={{ scale: 1.05 }}
-                      transition={springTransition}
-                      className="flex items-center gap-1 bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm"
-                    >
-                      <Tag className="w-4 h-4 md:w-5 md:h-5" /> 
-                      {property.price}
-                    </motion.div>
-                  </motion.div>
-
-                  <motion.div 
-                    variants={itemVariants} 
-                    custom={3}
-                    initial="hidden"
-                    animate="visible"
-                    transition={featuresTransition}
-                  >
-                    <Link
-                      href={`/propriedades/${property.id}`}
-                    >
-                      <motion.button
-                        variants={buttonVariants}
-                        initial="hidden"
-                        animate="visible"
-                        whileHover="hover"
-                        whileTap="tap"
-                        transition={buttonTransition}
-                        className="mt-3 w-full sm:w-auto bg-orange-500 hover:bg-orange-600 px-6 py-2 rounded-lg text-white font-medium transition shadow-lg"
-                      >
-                        Ver detalhes
-                      </motion.button>
-                    </Link>
-                  </motion.div>
-                </motion.div>
-              </div>
+                  </div>
+                )}
+              </AnimatePresence>
             </div>
           ))}
         </div>
       </div>
 
+      {/* Main Hero Content (Headline) - Só aparece DURANTE a intro */}
+      <AnimatePresence>
+        {showIntro && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-4 pointer-events-none">
+            <div className="pointer-events-auto w-full max-w-4xl text-center space-y-6">
+              <motion.div
+                initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -50, scale: 1.1, filter: "blur(10px)" }}
+                transition={{ duration: 1, ease: "easeOut" }}
+              >
+                <span className="inline-block py-1 px-3 rounded-full bg-orange-500/20 border border-orange-500/30 text-orange-200 text-sm font-medium mb-4 backdrop-blur-sm">
+                  #1 Imobiliária em Angola
+                </span>
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight tracking-tight drop-shadow-lg">
+                  Encontre o Lar <br className="hidden md:block" />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-200">
+                    Dos Seus Sonhos
+                  </span>
+                </h1>
+                <p className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto mb-8 font-light drop-shadow-md">
+                  Milhares de propriedades exclusivas esperando por você. Compre, venda ou arrende com total segurança.
+                </p>
+              </motion.div>
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Indicadores de slide */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={navigationTransition}
@@ -268,9 +251,8 @@ export default function HeroCarousel( {property}: HeroCarouselProps) {
             whileHover={{ scale: 1.2 }}
             whileTap={{ scale: 0.9 }}
             transition={springTransition}
-            className={`w-3 h-3 rounded-full transition-colors ${
-              index === 0 ? 'bg-orange-500' : 'bg-white/50'
-            }`}
+            className={`w-3 h-3 rounded-full transition-colors ${index === 0 ? 'bg-orange-500' : 'bg-white/50'
+              }`}
             onClick={() => emblaApi?.scrollTo(index)}
           />
         ))}
@@ -281,9 +263,9 @@ export default function HeroCarousel( {property}: HeroCarouselProps) {
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={navigationTransition}
-        whileHover={{ 
-          scale: 1.1, 
-          backgroundColor: "rgba(255,255,255,0.2)" 
+        whileHover={{
+          scale: 1.1,
+          backgroundColor: "rgba(255,255,255,0.2)"
         }}
         whileTap={{ scale: 0.9 }}
         onClick={() => emblaApi?.scrollPrev()}
@@ -299,9 +281,9 @@ export default function HeroCarousel( {property}: HeroCarouselProps) {
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={navigationTransition}
-        whileHover={{ 
-          scale: 1.1, 
-          backgroundColor: "rgba(255,255,255,0.2)" 
+        whileHover={{
+          scale: 1.1,
+          backgroundColor: "rgba(255,255,255,0.2)"
         }}
         whileTap={{ scale: 0.9 }}
         onClick={() => emblaApi?.scrollNext()}

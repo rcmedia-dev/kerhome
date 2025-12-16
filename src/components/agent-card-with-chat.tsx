@@ -1,270 +1,165 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
+import { MessageCircle, Phone, ArrowRight } from 'lucide-react';
+import { useChatStore } from '@/lib/store/chat-store';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Mail, MessageSquare, Phone, Share2 } from 'lucide-react';
-import Link from 'next/link';
-import { PropertyOwner } from '@/lib/functions/get-agent';
-import { createConversation, sendMessage } from '@/lib/functions/message-action';
-import { checkIfPropertyIsBoosted, trackBoostClick } from '@/lib/functions/supabase-actions/boost-functions';
 
-type AgentCardWithChatProps = {
-  ownerData?: PropertyOwner;
-  propertyId: string;
-  userId?: string;
-};
-
-function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
+interface AgentCardProps {
+    ownerData: {
+        id: string;
+        name: string;
+        email: string;
+        phone?: string;
+        avatar_url?: string;
+        role?: string;
+    };
+    propertyId: string;
+    propertyTitle?: string;
+    propertyImage?: string;
+    userId?: string;
 }
 
-function randomColorFromName(name: string): string {
-  const colors = ['bg-purple-500', 'bg-orange-500', 'bg-blue-500', 'bg-green-500'];
-  const index = name.length % colors.length;
-  return colors[index];
-}
+export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle, propertyImage, userId }: AgentCardProps) {
+    const router = useRouter();
+    const { openChat, checkExistingConversation, createConversation, addMessage } = useChatStore();
+    const [loading, setLoading] = useState(false);
 
-export default function AgentCardWithChat({ userId, ownerData, propertyId }: AgentCardWithChatProps) {
-  const [mensagem, setMensagem] = useState('');
-  const [status, setStatus] = useState<'idle' | 'enviando' | 'sucesso' | 'erro'>('idle');
-  const [showChat, setShowChat] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!userId) {
-      toast.error('Você precisa estar logado para enviar mensagens');
-      return;
-    }
-
-    if (!ownerData) {
-      toast.error('Informações do agente não disponíveis');
-      return;
-    }
-
-    if (!mensagem.trim()) {
-      toast.error('Digite uma mensagem');
-      return;
-    }
-
-    setStatus('enviando');
-
-    try {
-      const conversation = await createConversation(propertyId, ownerData.id, userId);
-      await sendMessage(conversation.id, userId, mensagem.trim());
-
-      setMensagem('');
-      setStatus('sucesso');
-      toast.success('Mensagem enviada com sucesso!');
-    } catch (error) {
-      console.error('❌ Erro ao enviar mensagem:', error);
-      setStatus('erro');
-      toast.error('Erro ao enviar a mensagem');
-    }
-  };
-
-  const handleContactClick = async () => {
-  if (!userId) {
-    toast.error('Você precisa estar logado para conversar com o agente');
-    return;
-  }
-
-  try {
-    // ✅ Verifica se o imóvel está impulsionado
-    const isBoosted = await checkIfPropertyIsBoosted(propertyId);
-
-    if (isBoosted) {
-      // Evita contagem duplicada usando localStorage
-      const key = `boost_click_1${propertyId}`;
-      if (!localStorage.getItem(key)) {
-        const result = await trackBoostClick(propertyId);
-        
-        if (result.success) {
-          localStorage.setItem(key, 'true');
-          console.log('✅ Click impulsionado registrado com sucesso!');
-        } else {
-          console.error('❌ Erro ao registrar click:', result.error);
+    const handleStartChat = async () => {
+        if (!userId) {
+            toast.error('Você precisa estar logado para iniciar um chat.');
+            router.push('/auth/login');
+            return;
         }
-      } else {
-        console.log('⚠️ Click já registrado nesta sessão.');
-      }
-    } else {
-      console.log('ℹ️ Imóvel não está impulsionado, pulando tracking.');
-    }
-  } catch (error) {
-    console.error('❌ Erro ao registrar click impulsionado:', error);
-  }
 
-  // Abre ou fecha o chat
-  setShowChat((prev) => !prev);
-};
+        if (userId === ownerData.id) {
+            toast.info("Você não pode iniciar um chat com você mesmo.");
+            return;
+        }
 
-  if (!ownerData) return null;
+        setLoading(true);
+        try {
+            // 1. Check if conversation exists
+            let conversationId = await checkExistingConversation(userId, ownerData.id);
+            let isNew = false;
 
-  const fullName = `${ownerData.primeiro_nome ?? ''} ${ownerData.ultimo_nome ?? ''}`.trim() || 'Agente';
-  const initials = getInitials(fullName);
-  const color = randomColorFromName(fullName);
+            // 2. If not, create one
+            if (!conversationId) {
+                const newConv = await createConversation(userId, ownerData.id);
+                if (newConv) {
+                    conversationId = newConv.id;
+                    isNew = true;
+                }
+            }
 
-  return (
-    <div className="bg-white border border-gray-200 shadow-lg rounded-2xl overflow-hidden transition-all duration-300">
-      {/* Cabeçalho */}
-      <div className="p-6 mx-auto pb-4">
-        <div className="flex items-start gap-4">
-          <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-purple-600 bg-gray-100">
-            {ownerData.avatar_url ? (
-              <Image
-                src={ownerData.avatar_url}
-                alt={fullName}
-                width={64}
-                height={64}
-                className="object-cover w-full h-full"
-              />
-            ) : (
-              <div
-                className={`w-full h-full flex items-center justify-center text-white font-bold text-xl ${color}`}
-              >
-                {initials}
-              </div>
-            )}
-          </div>
-          <div className="flex-1">
-            <h3 className="text-lg font-bold text-gray-900">{fullName}</h3>
-            <p className="text-sm text-purple-600 font-medium">Agente de Imóveis</p>
-          </div>
-        </div>
-      </div>
+            // 3. Open chat and send/show interest message
+            if (conversationId) {
+                openChat(conversationId);
+                toast.success(`Chat iniciado com ${ownerData.name}`);
 
-      {/* Ações */}
-      <div className="px-6 pb-4 flex flex-col gap-3">
-        <Link
-          href={`/agente/${ownerData.id}`}
-          className="w-full bg-purple-100 text-purple-700 py-2 px-4 rounded-lg font-semibold hover:bg-purple-200 transition flex items-center justify-center gap-2"
-        >
-          <Share2 size={16} />
-          Ver outras propriedades
-        </Link>
-        <button
-          onClick={handleContactClick}
-          className={`w-full py-2 px-4 rounded-lg font-semibold transition flex items-center justify-center gap-2 ${
-            showChat
-              ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              : 'bg-purple-600 text-white hover:bg-purple-700'
-          }`}
-        >
-          <MessageSquare size={16} />
-          {showChat ? 'Fechar chat' : 'Conversar com o agente'}
-        </button>
-      </div>
+                // 4. Send interest message (if new or explicit action)
+                // We send it every time the user explicitly clicks "Send Message" from the property page
+                // to give context to the agent.
+                const messageContent = `Olá ${ownerData.name}, estou interessado neste imóvel: ${propertyTitle}`;
 
-      {/* Chat */}
-      {showChat && (
-        <div className="border-t border-gray-200 bg-gray-50 p-4">
-          {/* Informações de contato do agente */}
-          <div className="mb-4 p-4 bg-white rounded-lg border border-gray-300 shadow-sm">
-            <h4 className="font-semibold text-gray-900 mb-3 text-lg">Contato do Agente</h4>
+                try {
+                    const response = await fetch('/api/messages', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            conversation_id: conversationId,
+                            sender_id: userId,
+                            content: messageContent,
+                            attachment_url: propertyImage,
+                            attachment_type: 'image'
+                        })
+                    });
 
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.message) {
+                            addMessage(data.message);
+                        }
+                    }
+                } catch (msgError) {
+                    console.error("Failed to send interest message", msgError);
+                }
+
+            } else {
+                toast.error('Erro ao iniciar conversa.');
+            }
+        } catch (error) {
+            console.error('Error starting chat:', error);
+            toast.error('Erro ao conectar com o corretor.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="flex flex-col gap-5">
+            {/* Agent Info */}
+            <div className="flex items-center gap-4">
+                <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-purple-100 shadow-sm shrink-0 flex items-center justify-center bg-gray-100">
+                    {ownerData.avatar_url ? (
+                        <Image
+                            src={ownerData.avatar_url}
+                            alt={ownerData.name}
+                            fill
+                            className="object-cover"
+                            onError={(e) => {
+                                // Simple fallback if image fails to load, though Next/Image handles this differently.
+                                // We can just rely on the conditional above, or use a state to switch to fallback.
+                                // For simplicity, let's assume if URL exists it's valid, otherwise show initials.
+                                // A true fallback for 404s needs checking loading state or onError handling in a wrapper.
+                                e.currentTarget.style.display = 'none';
+                                const parent = e.currentTarget.parentElement;
+                                if (parent) {
+                                    // Manually insert initials via DOM/CSS or just let simple logic prevail? 
+                                    // Better: Don't mess with DOM. 
+                                    // Let's us use a helper function to get initials.
+                                }
+                            }}
+                        />
+                    ) : (
+                        <span className="text-purple-600 font-bold text-xl">
+                            {ownerData.name
+                                .split(' ')
+                                .map(n => n[0])
+                                .slice(0, 2)
+                                .join('')
+                                .toUpperCase()}
+                        </span>
+                    )}
+                </div>
+                <div>
+                    <h4 className="font-bold text-gray-900 text-lg leading-tight">{ownerData.name}</h4>
+                    <p className="text-sm text-purple-600 font-medium">{ownerData.role || 'Corretor De Imóveis'}</p>
+                </div>
+            </div>
+
+            {/* Buttons */}
             <div className="space-y-3">
-              {ownerData?.email ? (
-                <a
-                  href={`mailto:${ownerData.email}`}
-                  className="flex items-center gap-2 text-base text-orange-500 font-medium hover:underline"
+                <button
+                    onClick={handleStartChat}
+                    disabled={loading}
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-3 rounded-xl font-semibold shadow-lg shadow-purple-200 transition-all hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed group"
                 >
-                  <Mail className="text-orange-500" size={18} />
-                  <span>{ownerData.email}</span>
-                </a>
-              ) : (
-                <div className="flex items-center gap-2 text-sm text-gray-400 italic">
-                  <Mail className="text-gray-400" size={16} />
-                  <span>Email não disponível</span>
-                </div>
-              )}
+                    <MessageCircle size={20} className="group-hover:animate-pulse" />
+                    {loading ? 'Iniciando...' : 'Enviar Mensagem ao Corretor'}
+                </button>
+            </div>
 
-              {ownerData?.telefone ? (
-                <a
-                  href={`tel:${ownerData.telefone}`}
-                  className="flex items-center gap-2 text-base text-orange-500 font-medium hover:underline"
+            <div className="text-center">
+                <button
+                    onClick={() => router.push(`/agente/${ownerData.id}`)}
+                    className="text-sm text-gray-400 hover:text-purple-600 transition-colors flex items-center justify-center gap-1 mx-auto group"
                 >
-                  <Phone className="text-orange-500" size={18} />
-                  <span>{ownerData.telefone}</span>
-                </a>
-              ) : (
-                <div className="flex items-center gap-2 text-sm text-gray-400 italic">
-                  <Phone className="text-gray-400" size={16} />
-                  <span>Telefone não disponível</span>
-                </div>
-              )}
+                    Ver perfil completo
+                    <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                </button>
             </div>
-          </div>
-
-          {/* Chat Form */}
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <textarea
-              placeholder={`Digite sua mensagem para ${ownerData.primeiro_nome}...`}
-              required
-              rows={3}
-              value={mensagem}
-              onChange={(e) => setMensagem(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all resize-none"
-              disabled={!userId}
-            />
-            {!userId && (
-              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 text-sm text-yellow-700">
-                Você precisa estar logado para enviar mensagens.
-              </div>
-            )}
-            <div className="flex justify-between items-center">
-              <p className="text-xs text-gray-500">
-                {userId
-                  ? 'Sua mensagem será enviada ao agente'
-                  : 'Faça login para enviar mensagens'}
-              </p>
-              <button
-                type="submit"
-                disabled={status === 'enviando' || !userId || !mensagem.trim()}
-                className="px-6 py-2 text-sm font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                {status === 'enviando' ? (
-                  <>
-                    <svg
-                      className="animate-spin h-4 w-4 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Enviando...
-                  </>
-                ) : (
-                  'Enviar Mensagem'
-                )}
-              </button>
-            </div>
-            {status === 'sucesso' && (
-              <div className="mt-2 p-2 bg-green-50 text-green-700 text-sm rounded-lg text-center">
-                Mensagem enviada com sucesso!
-              </div>
-            )}
-          </form>
         </div>
-      )}
-    </div>
-  );
+    );
 }

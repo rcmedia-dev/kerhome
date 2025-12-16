@@ -21,12 +21,13 @@ export type UserCardProps = {
   user: UserProfile;
   displayName: string;
   stats: Stat[];
+  housesRemaining?: number;
   onAvatarUpdate?: (newAvatarUrl: string) => void;
 };
 
 // Componente AvatarSection com animações
-const AvatarSection = ({ 
-  user, 
+const AvatarSection = ({
+  user,
   isUploading,
   onUploadClick
 }: {
@@ -37,12 +38,12 @@ const AvatarSection = ({
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <motion.div 
+    <motion.div
       className="relative inline-block"
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >
-      <div 
+      <div
         className="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-2xl bg-gradient-to-br from-purple-100 to-orange-100 border-2 border-dashed border-purple-300 cursor-pointer transition-all duration-300 hover:border-orange-400 hover:shadow-xl"
         onClick={onUploadClick}
         onMouseEnter={() => setIsHovered(true)}
@@ -50,17 +51,17 @@ const AvatarSection = ({
       >
         {user.avatar_url ? (
           <>
-            <motion.img 
-              src={user.avatar_url} 
-              alt="Foto de perfil" 
+            <motion.img
+              src={user.avatar_url}
+              alt="Foto de perfil"
               className="w-full h-full object-cover rounded-2xl"
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.2 }}
             />
-            
+
             <AnimatePresence>
               {(isHovered || isUploading) && (
-                <motion.div 
+                <motion.div
                   className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-orange-500/20 rounded-2xl flex items-center justify-center backdrop-blur-sm"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -87,7 +88,7 @@ const AvatarSection = ({
             </AnimatePresence>
           </>
         ) : (
-          <motion.div 
+          <motion.div
             className="w-full h-full rounded-2xl flex flex-col items-center justify-center text-purple-400 hover:text-purple-600 transition-colors"
             whileHover={{ scale: 1.05 }}
           >
@@ -115,27 +116,27 @@ const RoleBadge = ({ role }: { role?: string }) => {
   if (!role) return null;
 
   const roleConfig = {
-    agente: { 
-      bg: 'bg-gradient-to-r from-orange-500 to-amber-500', 
-      text: 'text-white', 
+    agente: {
+      bg: 'bg-gradient-to-r from-orange-500 to-amber-500',
+      text: 'text-white',
       label: 'Agente',
       icon: BadgeCheck
     },
-    admin: { 
-      bg: 'bg-gradient-to-r from-red-500 to-pink-500', 
-      text: 'text-white', 
+    admin: {
+      bg: 'bg-gradient-to-r from-red-500 to-pink-500',
+      text: 'text-white',
       label: 'Admin',
       icon: BadgeCheck
     },
-    user: { 
-      bg: 'bg-gradient-to-r from-purple-500 to-pink-500', 
-      text: 'text-white', 
+    user: {
+      bg: 'bg-gradient-to-r from-purple-500 to-pink-500',
+      text: 'text-white',
       label: 'Usuário',
       icon: BadgeCheck
     },
-    default: { 
-      bg: 'bg-gradient-to-r from-gray-500 to-gray-600', 
-      text: 'text-white', 
+    default: {
+      bg: 'bg-gradient-to-r from-gray-500 to-gray-600',
+      text: 'text-white',
       label: role,
       icon: BadgeCheck
     }
@@ -145,7 +146,7 @@ const RoleBadge = ({ role }: { role?: string }) => {
   const IconComponent = config.icon;
 
   return (
-    <motion.span 
+    <motion.span
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       className={cn(
@@ -169,7 +170,7 @@ const StatCard = ({ stat, index }: { stat: Stat; index: number }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
-      whileHover={{ 
+      whileHover={{
         scale: 1.05,
         y: -2
       }}
@@ -180,7 +181,7 @@ const StatCard = ({ stat, index }: { stat: Stat; index: number }) => {
     >
       {/* Efeito de brilho no hover */}
       <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      
+
       <div className="relative z-10">
         <div className="text-lg sm:text-xl font-bold bg-gradient-to-r from-purple-600 to-orange-600 bg-clip-text text-transparent">
           {stat.value}
@@ -247,7 +248,7 @@ const SocialLinks = ({ user }: { user: UserProfile }) => {
   if (socialLinks.length === 0) return null;
 
   return (
-    <motion.div 
+    <motion.div
       className="mt-6 pt-4 border-t border-purple-200"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -275,7 +276,7 @@ const ProfessionalInfo = ({ user }: { user: UserProfile }) => {
   if (!user.empresa && !user.licenca) return null;
 
   return (
-    <motion.div 
+    <motion.div
       className="mt-4 space-y-2"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -297,7 +298,7 @@ const ProfessionalInfo = ({ user }: { user: UserProfile }) => {
   );
 };
 
-export function UserCard({ user, displayName, stats, onAvatarUpdate }: UserCardProps) {
+export function UserCard({ user, displayName, stats, housesRemaining, onAvatarUpdate }: UserCardProps) {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -308,6 +309,7 @@ export function UserCard({ user, displayName, stats, onAvatarUpdate }: UserCardP
   };
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    // ... existing logic ...
     const file = event.target.files?.[0];
     if (!file || !user.id) return;
 
@@ -373,11 +375,12 @@ export function UserCard({ user, displayName, stats, onAvatarUpdate }: UserCardP
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
+      className='p-4'
     >
-      <Card className="shadow-lg border-0 bg-gradient-to-br from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm overflow-hidden">
+      <Card className=" shadow-lg border-0 bg-gradient-to-br from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm overflow-hidden">
         {/* Efeito de gradiente no topo */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-orange-500 to-pink-500" />
-        
+
         <CardHeader className="text-center pb-4 pt-6">
           <AvatarSection
             user={user}
@@ -408,13 +411,23 @@ export function UserCard({ user, displayName, stats, onAvatarUpdate }: UserCardP
             <CardDescription className="text-gray-600 text-sm mt-2 leading-relaxed">
               {getProfileDescription()}
             </CardDescription>
+
+            {/* Exibir Imóveis Restantes se for agente */}
+            {user.role === 'agent' && housesRemaining !== undefined && (
+              <div className="mt-3 inline-flex items-center gap-2 bg-purple-50 px-3 py-1.5 rounded-md border border-purple-100">
+                <div className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-pulse" />
+                <span className="text-xs font-semibold text-purple-700">
+                  {housesRemaining} {housesRemaining === 1 ? 'imóvel restante' : 'imóveis restantes'}
+                </span>
+              </div>
+            )}
           </motion.div>
 
           <ProfessionalInfo user={user} />
         </CardHeader>
 
         <CardContent className="pt-4">
-          <motion.div 
+          <motion.div
             className="grid grid-cols-2 gap-3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

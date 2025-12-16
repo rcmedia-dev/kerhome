@@ -1,66 +1,19 @@
 import { CreditCard, X, Sparkles, Building2, CheckCircle2, Clock } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
-const PLANS = {
-  "Plano Básico": {
-    badge: "BÁSICO",
-    iconBg: "bg-blue-500",
-    badgeBg: "bg-blue-100 text-blue-700",
-    titleColor: "text-blue-800",
-    border: "border-blue-200 bg-blue-50/80",
-    button: "bg-blue-600 hover:bg-blue-700",
-    limite: 10,
-    destaquesPermitidos: 1,
-    price: 69000,
-    benefits: [
-      "Até 10 imóveis ativos",
-      "1 anúncio em destaque",
-      "Suporte via WhatsApp (8h–17h, seg–sex)",
-    ],
-  },
-  "Plano Professional": {
-    badge: "PRO",
-    iconBg: "bg-purple-600",
-    badgeBg: "bg-purple-100 text-purple-700",
-    titleColor: "text-purple-800",
-    border: "border-purple-200 bg-purple-50/80",
-    button: "bg-purple-600 hover:bg-purple-700",
-    limite: 50,
-    destaquesPermitidos: 3,
-    price: 118000,
-    benefits: [
-      "Até 50 imóveis ativos",
-      "3 anúncios em destaque",
-      "Relatórios de desempenho",
-      "Suporte prioritário",
-      "Exposição em Redes Sociais",
-    ],
-  },
-  "Plano Super": {
-    badge: "SUPER",
-    iconBg: "bg-orange-500",
-    badgeBg: "bg-orange-100 text-orange-600",
-    titleColor: "text-orange-600",
-    border: "border-orange-200 bg-orange-50/80",
-    button: "bg-orange-500 hover:bg-orange-600",
-    limite: 1000,
-    destaquesPermitidos: 5,
-    price: 250000,
-    benefits: [
-      "Imóveis ilimitados",
-      "5 anúncios em destaque",
-      "Consultoria exclusiva",
-      "Suporte VIP 24h",
-      "Exposição em Redes Sociais",
-    ],
-  },
-} as const;
 
-type PlanKey = keyof typeof PLANS;
+
+export type PlanDetails = {
+  name: string;
+  price: number;
+  limite: number; // or "Infinity" represented as a number if needed, but handled as logic
+  destaquesPermitidos: number;
+};
 
 type PaymentModalProps = {
   showPaymentModal: boolean;
-  selectedPlan: PlanKey | null;
+  selectedPlan: string | null; // Just the name for display if needed
+  planDetails: PlanDetails | null; // The full details
   paymentStatus: "pending" | "confirmed" | null;
   cancelPayment: () => void;
   confirmPayment: () => void;
@@ -71,10 +24,11 @@ export function PaymentModal({
   showPaymentModal,
   paymentStatus,
   selectedPlan,
+  planDetails,
   cancelPayment,
   confirmPayment,
 }: PaymentModalProps) {
-  const plan = selectedPlan ? PLANS[selectedPlan] : null;
+  const plan = planDetails;
 
   return (
     <Dialog open={showPaymentModal} onOpenChange={(open) => !open && cancelPayment()}>

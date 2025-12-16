@@ -29,36 +29,28 @@ const SoftMenuItem = ({
       whileTap={{ scale: 0.97 }}
       onClick={() => setActiveTab(item.id)}
       className={cn(
-        "relative flex items-center justify-between p-4 rounded-xl cursor-pointer select-none transition-all duration-300 backdrop-blur-sm border shadow-sm",
+        "relative flex items-center justify-between p-3 mb-1 rounded-full cursor-pointer select-none transition-all duration-300",
         isActive
-          ? "bg-gradient-to-r from-orange-100/80 to-orange-200/70 border-orange-300 shadow-md"
-          : "bg-white/60 hover:bg-orange-50/60 hover:border-orange-200 border-transparent"
+          ? "bg-purple-600 text-white shadow-lg shadow-purple-200"
+          : "text-gray-600 hover:bg-white hover:shadow-sm"
       )}
     >
-      {/* Glow decorativo ativo */}
-      {isActive && (
-        <motion.div
-          layoutId="menu-glow"
-          className="absolute inset-0 rounded-xl bg-gradient-to-r from-orange-200/60 to-transparent blur-md -z-10"
-        />
-      )}
-
       <div className="flex items-center space-x-3">
         <motion.div
           animate={
             isActive
               ? {
-                  scale: [1, 1.1, 1],
-                  rotate: [0, -8, 0],
-                }
+                scale: [1, 1.1, 1],
+                rotate: [0, -8, 0],
+              }
               : { scale: 1 }
           }
           transition={{ duration: 0.4 }}
           className={cn(
-            "p-2 rounded-lg transition-all duration-300 shadow-sm",
+            "p-2 rounded-full transition-all duration-300",
             isActive
-              ? "bg-gradient-to-br from-orange-500 to-orange-600 text-white"
-              : "bg-gradient-to-br from-purple-100 to-purple-200 text-purple-700 group-hover:from-orange-100 group-hover:to-orange-200 group-hover:text-orange-600"
+              ? "bg-white/20 text-white"
+              : "bg-gray-100 text-gray-500 group-hover:bg-purple-50 group-hover:text-purple-600"
           )}
         >
           <item.icon className="w-4 h-4" />
@@ -66,8 +58,8 @@ const SoftMenuItem = ({
 
         <span
           className={cn(
-            "font-medium tracking-wide transition-colors duration-200",
-            isActive ? "text-orange-700" : "text-gray-700 group-hover:text-orange-600"
+            "font-medium text-sm transition-colors duration-200",
+            isActive ? "text-white" : "text-gray-600"
           )}
         >
           {item.label}
@@ -80,10 +72,10 @@ const SoftMenuItem = ({
           animate={{ scale: 1 }}
           whileHover={{ scale: 1.05 }}
           className={cn(
-            "px-2 py-1 text-xs font-semibold rounded-full transition-all duration-300 shadow-sm",
+            "px-2 py-0.5 text-[10px] font-bold rounded-full transition-all duration-300",
             isActive
-              ? "bg-orange-500 text-white"
-              : "bg-gray-100 text-gray-600 group-hover:bg-orange-500 group-hover:text-white"
+              ? "bg-white text-purple-600"
+              : "bg-purple-100 text-purple-600"
           )}
         >
           {item.badge}

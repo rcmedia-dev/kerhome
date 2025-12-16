@@ -73,8 +73,8 @@ export async function getConversations(userId: string) {
     conversations.map(async (conv) => {
       // Determinar o outro usuário da conversa
       const otherUserId = conv.user1_id === userId ? conv.user2_id : conv.user1_id;
-      
-      const [propertyRes, userRes, agentRes, clientRes] = await Promise.all([
+
+      const [propertyRes, userRes, agentRes, clientRes, lastMessageRes, unreadCountRes] = await Promise.all([
         // Property data
         conv.property_id
           ? supabase.from("properties").select("id, title").eq("id", conv.property_id).maybeSingle()
@@ -83,41 +83,68 @@ export async function getConversations(userId: string) {
         // Other user data (para conversas diretas)
         otherUserId
           ? supabase
-              .from("profiles")
-              .select("id, primeiro_nome, ultimo_nome, email, avatar_url, username, telefone, status, last_seen_at")
-              .eq("id", otherUserId)
-              .maybeSingle()
+            .from("profiles")
+            .select("id, primeiro_nome, ultimo_nome, email, avatar_url, username, telefone, status, last_seen_at")
+            .eq("id", otherUserId)
+            .maybeSingle()
           : Promise.resolve({ data: null, error: null }),
 
         // Agent data (para compatibilidade)
         conv.agent_id
           ? supabase
-              .from("profiles")
-              .select("id, primeiro_nome, ultimo_nome, email, avatar_url, username, telefone, status, last_seen_at")
-              .eq("id", conv.agent_id)
-              .maybeSingle()
+            .from("profiles")
+            .select("id, primeiro_nome, ultimo_nome, email, avatar_url, username, telefone, status, last_seen_at")
+            .eq("id", conv.agent_id)
+            .maybeSingle()
           : Promise.resolve({ data: null, error: null }),
 
         // Client data (para compatibilidade)
         conv.client_id
           ? supabase
-              .from("profiles")
-              .select("id, primeiro_nome, ultimo_nome, email, avatar_url, username, telefone, status, last_seen_at")
-              .eq("id", conv.client_id)
-              .maybeSingle()
+            .from("profiles")
+            .select("id, primeiro_nome, ultimo_nome, email, avatar_url, username, telefone, status, last_seen_at")
+            .eq("id", conv.client_id)
+            .maybeSingle()
           : Promise.resolve({ data: null, error: null }),
+
+        // Last message
+        supabase
+          .from("messages")
+          .select("content, created_at, sender_id")
+          .eq("conversation_id", conv.id)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+
+        // Unread count
+        supabase
+          .from("messages")
+          .select("*", { count: 'exact', head: true })
+          .eq("conversation_id", conv.id)
+          .eq("read_by_receiver", false)
+          .neq("sender_id", userId),
       ]);
 
       // Para conversas diretas, usar o outro usuário como cliente/agente
       const otherUser = userRes?.data;
       const displayUser = otherUser || clientRes?.data || agentRes?.data;
 
+      // Add display_name to other_user
+      const enrichedOtherUser = otherUser ? {
+        ...otherUser,
+        display_name: otherUser.primeiro_nome && otherUser.ultimo_nome
+          ? `${otherUser.primeiro_nome} ${otherUser.ultimo_nome}`
+          : otherUser.username || otherUser.email
+      } : null;
+
       return {
         ...conv,
         property: propertyRes?.data ?? null,
         agent: agentRes?.data ?? null,
         client: displayUser, // Usar o outro usuário como cliente para display
-        other_user: otherUser, // Novo campo para o outro usuário
+        other_user: enrichedOtherUser, // Novo campo para o outro usuário
+        last_message: lastMessageRes?.data ?? null,
+        unread_count: unreadCountRes?.count ?? 0,
       };
     })
   );
@@ -131,10 +158,10 @@ export async function sendMessage(conversationId: string, senderId: string, cont
     // 🗄️ Inserir mensagem no Supabase
     const { data, error } = await supabase
       .from("messages")
-      .insert([{ 
-        conversation_id: conversationId, 
-        sender_id: senderId, 
-        content 
+      .insert([{
+        conversation_id: conversationId,
+        sender_id: senderId,
+        content
       }])
       .select(`
         id,
@@ -205,7 +232,7 @@ export async function sendMessage(conversationId: string, senderId: string, cont
     }
 
     return message;
-    
+
   } catch (error) {
     console.error("❌ Erro ao enviar mensagem:", error);
     throw error;
@@ -348,8 +375,8 @@ export async function createDirectConversation(user1Id: string, user2Id: string)
 
 // Obter lista de contactos da plataforma com paginação
 export async function getContacts(
-  userId: string, 
-  page: number = 1, 
+  userId: string,
+  page: number = 1,
   limit: number = 10,
   searchTerm: string = ''
 ) {
@@ -400,7 +427,7 @@ export async function getContacts(
           ...contact,
           has_existing_conversation: !!existingConversation,
           conversation_id: existingConversation?.id || null,
-          display_name: contact.primeiro_nome && contact.ultimo_nome 
+          display_name: contact.primeiro_nome && contact.ultimo_nome
             ? `${contact.primeiro_nome} ${contact.ultimo_nome}`
             : contact.username || contact.email
         };
@@ -414,7 +441,7 @@ export async function getContacts(
       currentPage: page,
       totalPages: Math.ceil((count || 0) / limit)
     };
-    
+
   } catch (error) {
     console.error('❌ Erro ao obter contactos:', error);
     throw error;
@@ -469,7 +496,7 @@ export async function getSuggestedContacts(userId: string, limit: number = 10) {
           ...contact,
           has_existing_conversation: !!existingConversation,
           conversation_id: existingConversation?.id || null,
-          display_name: contact.primeiro_nome && contact.ultimo_nome 
+          display_name: contact.primeiro_nome && contact.ultimo_nome
             ? `${contact.primeiro_nome} ${contact.ultimo_nome}`
             : contact.username || contact.email
         };
@@ -492,7 +519,7 @@ export async function deleteConversation(conversationId: string) {
       .eq('id', conversationId);
 
     if (error) throw error;
-    
+
     console.log('✅ Conversa eliminada:', conversationId);
     return { success: true };
   } catch (error) {

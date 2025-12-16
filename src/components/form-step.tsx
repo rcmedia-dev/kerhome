@@ -34,7 +34,7 @@ const ImageUploadField = ({ field, error, value, onChange, onRemove }: {
   onRemove: () => void;
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const handleClick = () => {
     fileInputRef.current?.click();
   };
@@ -48,17 +48,18 @@ const ImageUploadField = ({ field, error, value, onChange, onRemove }: {
         onChange={onChange}
         className="hidden"
       />
-      
+
       {!value ? (
         <div
           onClick={handleClick}
-          className={`flex flex-col items-center justify-center w-full p-8 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
-            error 
-              ? "border-red-300 bg-red-50" 
-              : "border-gray-300 hover:border-blue-400 hover:bg-blue-50"
-          }`}
+          className={`flex flex-col items-center justify-center w-full p-8 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${error
+            ? "border-red-300 bg-red-50"
+            : "border-purple-200 bg-purple-50/50 hover:border-purple-400 hover:bg-purple-50 hover:shadow-md"
+            }`}
         >
-          <Image className="w-12 h-12 text-gray-400 mb-4" />
+          <div className="p-3 bg-white rounded-full shadow-sm mb-4 group-hover:scale-110 transition-transform duration-300">
+            <Image className="w-8 h-8 text-purple-500" />
+          </div>
           <span className="text-lg font-medium text-gray-700 mb-2">
             Upload de Imagem Principal
           </span>
@@ -100,7 +101,7 @@ const ImageUploadField = ({ field, error, value, onChange, onRemove }: {
           </div>
         </div>
       )}
-      
+
       {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
     </div>
   );
@@ -115,7 +116,7 @@ const GalleryUploadField = ({ field, error, value, onChange, onRemove }: {
   onRemove: () => void;
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const handleClick = () => {
     fileInputRef.current?.click();
   };
@@ -127,7 +128,7 @@ const GalleryUploadField = ({ field, error, value, onChange, onRemove }: {
       // Criar um DataTransfer para simular um change event
       const dataTransfer = new DataTransfer();
       newFiles.forEach(file => dataTransfer.items.add(file));
-      
+
       // Disparar o evento change manualmente
       if (fileInputRef.current) {
         fileInputRef.current.files = dataTransfer.files;
@@ -147,17 +148,18 @@ const GalleryUploadField = ({ field, error, value, onChange, onRemove }: {
         onChange={onChange}
         className="hidden"
       />
-      
+
       {(!value || value.length === 0) ? (
         <div
           onClick={handleClick}
-          className={`flex flex-col items-center justify-center w-full p-8 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
-            error 
-              ? "border-red-300 bg-red-50" 
-              : "border-gray-300 hover:border-blue-400 hover:bg-blue-50"
-          }`}
+          className={`flex flex-col items-center justify-center w-full p-8 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-300 group ${error
+            ? "border-red-300 bg-red-50"
+            : "border-purple-200 bg-purple-50/50 hover:border-purple-400 hover:bg-purple-50 hover:shadow-md"
+            }`}
         >
-          <Image className="w-12 h-12 text-gray-400 mb-4" />
+          <div className="p-3 bg-white rounded-full shadow-sm mb-4 group-hover:scale-110 transition-transform duration-300">
+            <Image className="w-8 h-8 text-purple-500" />
+          </div>
           <span className="text-lg font-medium text-gray-700 mb-2">
             Upload de Galeria de Imagens
           </span>
@@ -189,7 +191,7 @@ const GalleryUploadField = ({ field, error, value, onChange, onRemove }: {
               <X className="h-4 w-4 mr-1" /> Remover todas
             </Button>
           </div>
-          
+
           <div className="space-y-2 max-h-60 overflow-y-auto">
             {value.map((file: File, index: number) => (
               <div key={index} className="flex items-center justify-between p-3 bg-white rounded-md border">
@@ -214,7 +216,7 @@ const GalleryUploadField = ({ field, error, value, onChange, onRemove }: {
               </div>
             ))}
           </div>
-          
+
           <Button
             type="button"
             variant="outline"
@@ -226,7 +228,7 @@ const GalleryUploadField = ({ field, error, value, onChange, onRemove }: {
           </Button>
         </div>
       )}
-      
+
       {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
     </div>
   );
@@ -241,7 +243,7 @@ const VideoUploadField = ({ field, error, value, onChange, onRemove }: {
   onRemove: () => void;
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const handleClick = () => {
     fileInputRef.current?.click();
   };
@@ -255,17 +257,18 @@ const VideoUploadField = ({ field, error, value, onChange, onRemove }: {
         onChange={onChange}
         className="hidden"
       />
-      
+
       {!value ? (
         <div
           onClick={handleClick}
-          className={`flex flex-col items-center justify-center w-full p-8 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
-            error 
-              ? "border-red-300 bg-red-50" 
-              : "border-gray-300 hover:border-blue-400 hover:bg-blue-50"
-          }`}
+          className={`flex flex-col items-center justify-center w-full p-8 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-300 group ${error
+            ? "border-red-300 bg-red-50"
+            : "border-purple-200 bg-purple-50/50 hover:border-purple-400 hover:bg-purple-50 hover:shadow-md"
+            }`}
         >
-          <Video className="w-12 h-12 text-gray-400 mb-4" />
+          <div className="p-3 bg-white rounded-full shadow-sm mb-4 group-hover:scale-110 transition-transform duration-300">
+            <Video className="w-8 h-8 text-purple-500" />
+          </div>
           <span className="text-lg font-medium text-gray-700 mb-2">
             Upload de Vídeo
           </span>
@@ -307,7 +310,7 @@ const VideoUploadField = ({ field, error, value, onChange, onRemove }: {
           </div>
         </div>
       )}
-      
+
       {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
     </div>
   );
@@ -322,7 +325,7 @@ const DocumentUploadField = ({ field, error, value, onChange, onRemove }: {
   onRemove: () => void;
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const handleClick = () => {
     fileInputRef.current?.click();
   };
@@ -334,7 +337,7 @@ const DocumentUploadField = ({ field, error, value, onChange, onRemove }: {
       // Criar um DataTransfer para simular um change event
       const dataTransfer = new DataTransfer();
       newFiles.forEach(file => dataTransfer.items.add(file));
-      
+
       // Disparar o evento change manualmente
       if (fileInputRef.current) {
         fileInputRef.current.files = dataTransfer.files;
@@ -354,17 +357,18 @@ const DocumentUploadField = ({ field, error, value, onChange, onRemove }: {
         onChange={onChange}
         className="hidden"
       />
-      
+
       {(!value || value.length === 0) ? (
         <div
           onClick={handleClick}
-          className={`flex flex-col items-center justify-center w-full p-8 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
-            error 
-              ? "border-red-300 bg-red-50" 
-              : "border-gray-300 hover:border-blue-400 hover:bg-blue-50"
-          }`}
+          className={`flex flex-col items-center justify-center w-full p-8 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-300 group ${error
+            ? "border-red-300 bg-red-50"
+            : "border-purple-200 bg-purple-50/50 hover:border-purple-400 hover:bg-purple-50 hover:shadow-md"
+            }`}
         >
-          <FileText className="w-12 h-12 text-gray-400 mb-4" />
+          <div className="p-3 bg-white rounded-full shadow-sm mb-4 group-hover:scale-110 transition-transform duration-300">
+            <FileText className="w-8 h-8 text-purple-500" />
+          </div>
           <span className="text-lg font-medium text-gray-700 mb-2">
             Upload de Documentos
           </span>
@@ -396,7 +400,7 @@ const DocumentUploadField = ({ field, error, value, onChange, onRemove }: {
               <X className="h-4 w-4 mr-1" /> Remover todos
             </Button>
           </div>
-          
+
           <div className="space-y-2 max-h-60 overflow-y-auto">
             {value.map((file: File, index: number) => (
               <div key={index} className="flex items-center justify-between p-3 bg-white rounded-md border">
@@ -421,7 +425,7 @@ const DocumentUploadField = ({ field, error, value, onChange, onRemove }: {
               </div>
             ))}
           </div>
-          
+
           <Button
             type="button"
             variant="outline"
@@ -433,7 +437,7 @@ const DocumentUploadField = ({ field, error, value, onChange, onRemove }: {
           </Button>
         </div>
       )}
-      
+
       {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
     </div>
   );
@@ -461,7 +465,7 @@ const FormStep = ({ title, description, fields }: FormStepProps) => {
     } else {
       setValue(fieldName, files[0] as any);
     }
-    
+
     // Disparar validação após selecionar arquivos
     setTimeout(() => trigger(fieldName), 100);
   };
@@ -474,7 +478,7 @@ const FormStep = ({ title, description, fields }: FormStepProps) => {
 
   return (
     <div>
-      <h2 className="text-xl font-semibold text-gray-800 mb-2">{title}</h2>
+      <h2 className="text-xl font-bold bg-linear-to-r from-purple-700 to-orange-500 bg-clip-text text-transparent mb-2">{title}</h2>
       <p className="text-gray-600 mb-6">{description}</p>
 
       <div className="space-y-6">
@@ -496,7 +500,8 @@ const FormStep = ({ title, description, fields }: FormStepProps) => {
                     placeholder={field.placeholder}
                     rows={4}
                     {...register(field.name, field.validation)}
-                    className={error ? "border-red-500" : ""}
+                    className={`resize-none border-gray-200 focus:border-purple-500 focus:ring-purple-200 rounded-xl transition-all ${error ? "border-red-500 focus:ring-red-200" : ""
+                      }`}
                   />
                   {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
                 </div>
@@ -505,9 +510,8 @@ const FormStep = ({ title, description, fields }: FormStepProps) => {
                   <select
                     id={field.name}
                     {...register(field.name, field.validation)}
-                    className={`w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 ${
-                      error ? "border-red-500" : ""
-                    }`}
+                    className={`w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all ${error ? "border-red-500" : ""
+                      }`}
                   >
                     <option value="">Selecione...</option>
                     {field.options?.map((option) => (
@@ -561,7 +565,8 @@ const FormStep = ({ title, description, fields }: FormStepProps) => {
                       valueAsNumber: field.type === "number",
                       ...field.validation,
                     })}
-                    className={error ? "border-red-500" : ""}
+                    className={`border-gray-200 focus:border-purple-500 focus:ring-purple-200 rounded-xl transition-all ${error ? "border-red-500 focus:ring-red-200" : ""
+                      }`}
                   />
                   {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
                 </div>

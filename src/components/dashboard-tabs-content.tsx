@@ -1,4 +1,4 @@
-import React, { useState, useTransition, useCallback } from 'react';
+import React, { useState, useTransition, useCallback, useEffect } from 'react';
 import { CheckCircle2, Eye, Heart, TrendingUp, Calendar, DollarSign, AlertTriangle, Download, Trash2, RefreshCw, ShieldAlert } from 'lucide-react';
 import { PropertyCard } from '@/components/property-card';
 import { TFavoritedPropertyResponseSchema } from '@/lib/types/user';
@@ -44,11 +44,11 @@ class ErrorBoundary extends React.Component<
 }
 
 // Optimize reusable components with memo
-const SectionContainer = React.memo(({ 
-  children, 
-  className 
-}: { 
-  children: React.ReactNode; 
+const SectionContainer = React.memo(({
+  children,
+  className
+}: {
+  children: React.ReactNode;
   className?: string;
 }) => (
   <motion.div
@@ -56,7 +56,7 @@ const SectionContainer = React.memo(({
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.6 }}
     className={cn(
-      "bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6",
+      "bg-white/50 backdrop-blur-sm rounded-3xl p-6 mb-6",
       className
     )}
   >
@@ -64,15 +64,62 @@ const SectionContainer = React.memo(({
   </motion.div>
 ));
 
+const KanbanColumn = ({
+  title,
+  count,
+  children,
+  color = "purple",
+  icon: Icon
+}: {
+  title: string;
+  count: number;
+  children: React.ReactNode;
+  color?: "purple" | "orange" | "green" | "blue" | "red";
+  icon?: any;
+}) => {
+  const colorStyles = {
+    purple: "bg-purple-50 border-purple-100 text-purple-900",
+    orange: "bg-orange-50 border-orange-100 text-orange-900",
+    green: "bg-green-50 border-green-100 text-green-900",
+    blue: "bg-blue-50 border-blue-100 text-blue-900",
+    red: "bg-red-50 border-red-100 text-red-900",
+  };
+
+  const badgeStyles = {
+    purple: "text-purple-700",
+    orange: "text-orange-700",
+    green: "text-green-700",
+    blue: "text-blue-700",
+    red: "text-red-700",
+  }
+
+  return (
+    <div className="flex flex-col gap-4 min-w-[300px] flex-1">
+      <div className={cn("flex items-center justify-between p-4 rounded-2xl border", colorStyles[color])}>
+        <div className="flex items-center gap-2">
+          {Icon && <Icon className="w-4 h-4 opacity-70" />}
+          <h3 className="font-bold text-sm tracking-wide">{title}</h3>
+        </div>
+        <span className={cn("px-2.5 py-1 rounded-full bg-white text-xs font-bold shadow-sm", badgeStyles[color])}>
+          {count}
+        </span>
+      </div>
+      <div className="flex flex-col gap-3">
+        {children}
+      </div>
+    </div>
+  );
+};
+
 // Header das seções com ícone
-const SectionHeader = ({ 
-  title, 
-  icon: Icon, 
+const SectionHeader = ({
+  title,
+  icon: Icon,
   description,
   className,
   children
-}: { 
-  title: string; 
+}: {
+  title: string;
   icon: any;
   description?: string;
   className?: string;
@@ -97,12 +144,12 @@ const SectionHeader = ({
 );
 
 // Empty state component
-const EmptyState = ({ 
-  message, 
+const EmptyState = ({
+  message,
   icon: Icon,
-  className 
-}: { 
-  message: string; 
+  className
+}: {
+  message: string;
   icon?: any;
   className?: string;
 }) => (
@@ -138,14 +185,23 @@ type MinePropertiesProps = {
 }
 
 export function MinhasPropriedades({ userProperties }: MinePropertiesProps) {
+  const [localProperties, setLocalProperties] = useState(userProperties);
   const [isRefreshing, startTransition] = useTransition();
   const queryClient = useQueryClient();
 
-  const pendingProperties = userProperties.filter(p => p.aprovement_status === 'pending');
-  const approvedProperties = userProperties.filter(p => p.aprovement_status === 'aprovado');
-  
+  useEffect(() => {
+    setLocalProperties(userProperties);
+  }, [userProperties]);
+
+  const handleOptimisticDelete = useCallback((id: string) => {
+    setLocalProperties(prev => prev.filter(p => p.id !== id));
+  }, []);
+
+  const pendingProperties = localProperties.filter(p => p.aprovement_status === 'pending');
+  const approvedProperties = localProperties.filter(p => p.aprovement_status === 'aprovado');
+
   // Verificar propriedades com boost suspenso
-  const suspendedProperties = userProperties.filter(
+  const suspendedProperties = localProperties.filter(
     (p: any) => p.rejected_reason === 'suspicious' || p.is_boost_suspended
   );
   const hasSuspendedProperties = suspendedProperties.length > 0;
@@ -168,113 +224,106 @@ export function MinhasPropriedades({ userProperties }: MinePropertiesProps) {
 
   return (
     <ErrorBoundary>
-      <SectionContainer>
-        <SectionHeader 
-          title="Minhas Propriedades" 
+      <SectionContainer className="bg-transparent border-none p-0 shadow-none">
+        <SectionHeader
+          title="Minhas Propriedades"
           icon={TrendingUp}
-          description={`${approvedProperties.length} aprovadas • ${pendingProperties.length} pendentes${
-            hasSuspendedProperties ? ` • ${suspendedProperties.length} suspensas` : ''
-          }`}
+          description="Gerencie seus imóveis por status."
+          className="mb-8 px-2"
         >
           {/* Botão de refresh como children */}
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm text-sm font-medium"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
             {isRefreshing ? 'Atualizando...' : 'Atualizar'}
           </button>
         </SectionHeader>
 
-        {/* Alerta de propriedades suspensas */}
+        {/* Alerta de propriedades suspensas permanece igual */}
         {hasSuspendedProperties && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6"
-          >
-            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0">
-                  <ShieldAlert className="w-5 h-5 text-red-600 mt-0.5" />
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-red-800 font-semibold mb-1">
-                    Impulsionamento Suspenso
-                  </h4>
-                  <p className="text-red-700 text-sm">
-                    {hasMultipleSuspended ? (
-                      <>
-                        Você tem {suspendedProperties.length} propriedades com impulsionamento suspenso. 
-                        Enquanto houver múltiplas propriedades suspensas, você não poderá impulsionar novas propriedades.
-                        {suspendedProperties.length > 2 && ' Esta restrição será aplicada até que a situação seja regularizada.'}
-                      </>
-                    ) : (
-                      <>
-                        Você tem 1 propriedade com impulsionamento suspenso.
-                        {suspendedProperties.length > 1 && ' Enquanto houver múltiplas propriedades suspensas, você não poderá impulsionar novas propriedades.'}
-                      </>
-                    )}
-                  </p>
-                  <p className="text-red-600 text-xs mt-2">
-                    Se acredita que se trata de um erro, entre em contacto connosco.
-                  </p>
-                  
-                  {/* Lista de propriedades suspensas */}
-                  <div className="mt-3 space-y-2">
-                    <p className="text-red-700 text-sm font-medium">
-                      Propriedades suspensas:
-                    </p>
-                    <div className="space-y-1">
-                      {suspendedProperties.map(property => (
-                        <div key={property.id} className="flex items-center gap-2 text-red-600 text-sm">
-                          <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                          <span className="line-clamp-1">{property.title}</span>
-                          <span className="text-red-500 text-xs">• {property.endereco}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+            <ShieldAlert className="w-5 h-5 text-red-600 mt-0.5" />
+            <div>
+              <h4 className="text-red-800 font-semibold mb-1">Impulsionamento Suspenso</h4>
+              <p className="text-red-700 text-sm">Verifique suas propriedades suspensas abaixo.</p>
             </div>
-          </motion.div>
+          </div>
         )}
 
         <AnimatePresence mode="wait">
-          {userProperties.length === 0 ? (
-            <EmptyState 
+          {localProperties.length === 0 ? (
+            <EmptyState
               message="Nenhum imóvel cadastrado ainda."
               icon={TrendingUp}
             />
           ) : (
-            <AnimatedGrid>
-              <AnimatePresence>
-                {userProperties.map((property, index) => (
-                  <motion.div
-                    key={property.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                    layout
-                  >
-                    {property.aprovement_status === 'pending' ? (
-                      <PendingPropertyCard property={property} />
-                    ) : property.aprovement_status === 'rejeitado' ? (
-                      <RejectedPropertyCard property={property} />
-                    ) : (
-                      <PropertyCard 
-                        property={property} 
-                        // Passa informação sobre restrição de boost
+            <div className="flex flex-col lg:flex-row gap-6 overflow-x-auto pb-4">
+
+              {/* Coluna Em Análise / Pendente / Rejeitado */}
+              <KanbanColumn
+                title="Em Análise & Pendentes"
+                count={pendingProperties.length + suspendedProperties.length}
+                color="orange"
+                icon={AlertTriangle}
+              >
+                <AnimatePresence>
+                  {[...pendingProperties, ...suspendedProperties].map((property, index) => (
+                    <motion.div
+                      key={property.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.2, delay: index * 0.05 }}
+                    >
+                      {property.aprovement_status === 'pending' ? (
+                        <PendingPropertyCard property={property} onDelete={() => handleOptimisticDelete(property.id)} />
+                      ) : (
+                        <RejectedPropertyCard property={property} onDelete={() => handleOptimisticDelete(property.id)} />
+                      )}
+                    </motion.div>
+                  ))}
+                  {pendingProperties.length === 0 && suspendedProperties.length === 0 && (
+                    <div className="p-8 text-center border-2 border-dashed border-gray-200 rounded-2xl">
+                      <p className="text-gray-400 text-sm font-medium">Nenhum imóvel pendente</p>
+                    </div>
+                  )}
+                </AnimatePresence>
+              </KanbanColumn>
+
+              {/* Coluna Publicados */}
+              <KanbanColumn
+                title="Publicados"
+                count={approvedProperties.length}
+                color="purple"
+                icon={CheckCircle2}
+              >
+                <AnimatePresence>
+                  {approvedProperties.map((property, index) => (
+                    <motion.div
+                      key={property.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2, delay: index * 0.05 }}
+                    >
+                      <PropertyCard
+                        property={property}
                         canBoost={!hasMultipleSuspended}
+                        onDelete={() => handleOptimisticDelete(property.id)}
                       />
-                    )}
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </AnimatedGrid>
+                    </motion.div>
+                  ))}
+                  {approvedProperties.length === 0 && (
+                    <div className="p-8 text-center border-2 border-dashed border-gray-200 rounded-2xl">
+                      <p className="text-gray-400 text-sm font-medium">Nenhum imóvel publicado</p>
+                    </div>
+                  )}
+                </AnimatePresence>
+              </KanbanColumn>
+
+            </div>
           )}
         </AnimatePresence>
       </SectionContainer>
@@ -291,15 +340,15 @@ export function Favoritas({ userFavoriteProperties }: FavoritasProps) {
 
   return (
     <SectionContainer>
-      <SectionHeader 
-        title="Imóveis Guardados" 
+      <SectionHeader
+        title="Imóveis Guardados"
         icon={Heart}
         description={`${userFavoriteProperties?.length || 0} propriedades salvas`}
       />
 
       <AnimatePresence mode="wait">
         {!hasFavorites ? (
-          <EmptyState 
+          <EmptyState
             message="Nenhum imóvel guardado ainda."
             icon={Heart}
           />
@@ -349,9 +398,9 @@ export function Faturas({ invoices }: FaturasProps) {
   const [faturaToDelete, setFaturaToDelete] = useState<string | null>(null);
 
   // Memoize calculations
-  const totalValue = React.useMemo(() => 
+  const totalValue = React.useMemo(() =>
     localInvoices?.reduce((sum, fatura) => sum + fatura.valor, 0) || 0
-  , [localInvoices]);
+    , [localInvoices]);
 
   const handleDeleteClick = (faturaId: string) => {
     setFaturaToDelete(faturaId);
@@ -368,13 +417,13 @@ export function Faturas({ invoices }: FaturasProps) {
 
   function toPascalCase(text: string) {
     return text
-      .toLowerCase()                         
+      .toLowerCase()
       .split(/[\s_-]+/)
-      .map(word =>                        
-        word.charAt(0).toUpperCase() +    
-        word.slice(1)                  
+      .map(word =>
+        word.charAt(0).toUpperCase() +
+        word.slice(1)
       )
-      .join(" ");                            
+      .join(" ");
   }
 
   // Função para baixar/exportar faturas
@@ -398,15 +447,15 @@ export function Faturas({ invoices }: FaturasProps) {
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
-      
+
       link.setAttribute('href', url);
       link.setAttribute('download', `faturas_${new Date().toISOString().split('T')[0]}.csv`);
       link.style.visibility = 'hidden';
-      
+
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       toast.success('Faturas exportadas com sucesso');
     } catch (error) {
       console.error('Erro ao exportar faturas:', error);
@@ -416,35 +465,39 @@ export function Faturas({ invoices }: FaturasProps) {
 
   const hasInvoices = localInvoices && localInvoices.length > 0;
 
-  // Add aria labels for accessibility
+  // Invoices categorization
+  const paidInvoices = localInvoices?.filter(i => i.status === 'paid' || i.status === 'pago') || [];
+  const pendingInvoices = localInvoices?.filter(i => i.status !== 'paid' && i.status !== 'pago') || [];
+
   return (
     <ErrorBoundary>
-      <SectionContainer>
-        <SectionHeader 
-          title="Minhas Faturas" 
+      <SectionContainer className="bg-transparent border-none p-0 shadow-none">
+        <SectionHeader
+          title="Minhas Faturas"
           icon={DollarSign}
-          description={`${localInvoices?.length || 0} transações realizadas`}
+          description="Controle seus pagamentos e faturas."
+          className="mb-8 px-2"
         >
           {/* Botões de ação */}
           {hasInvoices && (
             <div className="flex gap-2">
               <button
                 onClick={handleExportFaturas}
-                className="flex items-center gap-2 px-3 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                className="flex items-center gap-2 px-3 py-2 text-sm bg-white border border-green-200 text-green-700 rounded-md hover:bg-green-50 transition-colors shadow-sm font-medium"
                 title="Exportar faturas"
               >
                 <Download className="w-4 h-4" />
                 Exportar
               </button>
-              
+
               <button
                 onClick={handleDeleteAllFaturas}
                 disabled={isDeletingAll}
-                className="flex items-center gap-2 px-3 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-3 py-2 text-sm bg-white border border-red-200 text-red-600 rounded-md hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm font-medium"
                 title="Eliminar todas as faturas"
               >
                 {isDeletingAll ? (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <AlertTriangle className="w-4 h-4" />
                 )}
@@ -456,99 +509,107 @@ export function Faturas({ invoices }: FaturasProps) {
 
         <AnimatePresence mode="wait">
           {!hasInvoices ? (
-            <EmptyState 
+            <EmptyState
               message="Nenhuma fatura encontrada."
               icon={DollarSign}
             />
           ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="overflow-hidden rounded-xl border border-gray-200"
-            >
-              <div 
-                role="table" 
-                aria-label="Faturas"
-                className="overflow-x-auto"
-              >
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-gradient-to-r from-purple-50 to-orange-50 border-b border-gray-200">
-                      <th className="p-4 text-left font-semibold text-gray-700">Serviço</th>
-                      <th className="p-4 text-left font-semibold text-gray-700">Valor</th>
-                      <th className="p-4 text-left font-semibold text-gray-700">Status</th>
-                      <th className="p-4 text-left font-semibold text-gray-700">Data</th>
-                      <th className="p-4 text-left font-semibold text-gray-700">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {localInvoices!.map((fatura, index) => (
-                      <motion.tr
-                        key={fatura.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 20 }}
-                        transition={{ duration: 0.3, delay: index * 0.05 }}
-                        className="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200"
-                        role="row"
-                        aria-rowindex={index + 1}
-                      >
-                        <td className="p-4 font-medium text-gray-800 capitalize">
-                          {toPascalCase(fatura.servico)}
-                        </td>
-                        <td className="p-4">
-                          <span className="font-semibold text-green-700">
-                            {fatura.valor.toLocaleString("pt-AO")} Kz
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <motion.span 
-                            className="inline-flex items-center gap-1 bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium"
-                            whileHover={{ scale: 1.05 }}
-                          >
-                            <CheckCircle2 className="w-3 h-3" />
-                            Pago
-                          </motion.span>
-                        </td>
-                        <td className="p-4 text-gray-600">
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-3 h-3" />
-                            {new Date(fatura.created_at).toLocaleDateString("pt-AO")}
-                          </div>
-                        </td>
-                        <td className="p-4">
-                          <button
-                            onClick={() => handleDeleteClick(fatura.id)}
-                            disabled={isDeleting === fatura.id}
-                            aria-label={`Eliminar fatura ${fatura.servico}`}
-                            className="flex items-center gap-1 px-3 py-1 text-xs bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {isDeleting === fatura.id ? (
-                              <LoadingSpinner className="w-3 h-3 border-red-700" />
-                            ) : (
-                              <Trash2 className="w-3 h-3" />
-                            )}
-                            Eliminar
-                          </button>
-                        </td>
-                      </motion.tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            <div className="flex flex-col lg:flex-row gap-6">
 
-              {/* Footer com estatísticas */}
-              {hasInvoices && (
-                <div className="bg-gray-50 px-4 py-3 border-t border-gray-200">
-                  <div className="flex justify-between items-center text-sm text-gray-600">
-                    <span>Total de faturas: {localInvoices.length}</span>
-                    <span className="font-semibold text-green-700">
-                      Valor total: {totalValue.toLocaleString('pt-AO')} Kz
-                    </span>
+              {/* Coluna Pendentes */}
+              <KanbanColumn
+                title="Pendentes"
+                count={pendingInvoices.length}
+                color="orange"
+                icon={AlertTriangle}
+              >
+                {pendingInvoices.map((fatura, index) => (
+                  <motion.div
+                    key={fatura.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all group"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="font-semibold text-gray-800 capitalize">{toPascalCase(fatura.servico)}</span>
+                      <span className="font-bold text-orange-600">{fatura.valor.toLocaleString('pt-AO')} Kz</span>
+                    </div>
+                    <div className="flex justify-between items-center mt-3">
+                      <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                        <Calendar className="w-3.5 h-3.5" />
+                        {new Date(fatura.created_at).toLocaleDateString('pt-AO')}
+                      </div>
+                      <button
+                        onClick={() => handleDeleteClick(fatura.id)}
+                        disabled={isDeleting === fatura.id}
+                        className="p-1.5 text-red-500 hover:bg-red-50 rounded-md transition-colors opacity-0 group-hover:opacity-100"
+                        title="Eliminar"
+                      >
+                        {isDeleting === fatura.id ? (
+                          <LoadingSpinner className="w-3.5 h-3.5 border-red-500" />
+                        ) : (
+                          <Trash2 className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+                {pendingInvoices.length === 0 && (
+                  <div className="p-8 text-center border-2 border-dashed border-gray-200 rounded-2xl">
+                    <p className="text-gray-400 text-sm font-medium">Nenhuma fatura pendente</p>
                   </div>
-                </div>
-              )}
-            </motion.div>
+                )}
+              </KanbanColumn>
+
+              {/* Coluna Pagas */}
+              <KanbanColumn
+                title="Pagas"
+                count={paidInvoices.length}
+                color="green"
+                icon={CheckCircle2}
+              >
+                {paidInvoices.map((fatura, index) => (
+                  <motion.div
+                    key={fatura.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden"
+                  >
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-green-50 to-transparent -mr-8 -mt-8 rounded-full opacity-50 pointer-events-none" />
+
+                    <div className="flex justify-between items-start mb-2 relative z-10">
+                      <span className="font-semibold text-gray-800 capitalize">{toPascalCase(fatura.servico)}</span>
+                      <span className="font-bold text-green-700">{fatura.valor.toLocaleString('pt-AO')} Kz</span>
+                    </div>
+                    <div className="flex justify-between items-center mt-3 relative z-10">
+                      <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider">
+                        <CheckCircle2 className="w-3 h-3" /> PAGO
+                      </span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-gray-400">
+                          {new Date(fatura.created_at).toLocaleDateString('pt-AO')}
+                        </span>
+                        <button
+                          onClick={() => handleDeleteClick(fatura.id)}
+                          disabled={isDeleting === fatura.id}
+                          className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
+                          title="Eliminar registro"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+                {paidInvoices.length === 0 && (
+                  <div className="p-8 text-center border-2 border-dashed border-gray-200 rounded-2xl">
+                    <p className="text-gray-400 text-sm font-medium">Nenhuma fatura paga</p>
+                  </div>
+                )}
+              </KanbanColumn>
+
+            </div>
           )}
         </AnimatePresence>
 
@@ -567,7 +628,7 @@ export function Faturas({ invoices }: FaturasProps) {
               </DialogClose>
               <button
                 onClick={confirmDelete}
-                className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg"
+                className="px-4 py-2 text-sm bg-red-600 text-white rounded-md"
               >
                 Eliminar
               </button>
@@ -589,12 +650,12 @@ export function PropriedadesMaisVisualizadas({
   return (
     <SectionContainer>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-        <SectionHeader 
-          title="Propriedades Mais Visualizadas" 
+        <SectionHeader
+          title="Propriedades Mais Visualizadas"
           icon={Eye}
           className="mb-0"
         />
-        
+
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -614,7 +675,7 @@ export function PropriedadesMaisVisualizadas({
 
       <AnimatePresence mode="wait">
         {mostViewedProperties.properties.length === 0 ? (
-          <EmptyState 
+          <EmptyState
             message="Nenhuma propriedade visualizada ainda."
             icon={Eye}
           />
@@ -632,7 +693,7 @@ export function PropriedadesMaisVisualizadas({
                   layout
                 >
                   <PropertyCard property={property} />
-                  
+
                   {/* Badge de visualizações */}
                   <motion.div
                     whileHover={{ scale: 1.1 }}

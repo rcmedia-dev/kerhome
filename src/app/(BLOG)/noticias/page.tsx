@@ -42,75 +42,84 @@ interface PostsGridProps {
 
 // Componente para o cabeçalho
 const Header: React.FC = () => (
-  <header className="bg-white shadow-sm">
-    <div className="container mx-auto px-4 py-12">
-      <div className="text-center">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-800">
-          KERCASA BLOG
-        </h1>
-        <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-          Seu guia completo no mercado imobiliário
-        </p>
-      </div>
+  <header className="relative bg-gradient-to-r from-purple-900 via-purple-800 to-indigo-900 text-white overflow-hidden pb-32 pt-20">
+    <div className="absolute inset-0 opacity-10 bg-[url('/grid-pattern.svg')]"></div>
+    <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+    <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+
+    <div className="container mx-auto px-4 relative z-10 text-center">
+      <span className="inline-block py-1 px-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-orange-200 text-sm font-medium mb-6">
+        Insights do Mercado
+      </span>
+      <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight leading-tight">
+        KERCASA <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-200">JOURNAL</span>
+      </h1>
+      <p className="text-xl text-purple-100 max-w-2xl mx-auto font-light leading-relaxed">
+        Seu guia definitivo para investimentos inteligentes, decoração e tendências do mercado imobiliário em Angola.
+      </p>
     </div>
   </header>
 );
 
 // Componente para a barra de pesquisa
 const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, setSearchTerm, resultsCount }) => (
-  <div className="container mx-auto px-4 mt-6">
-    <div className="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-100">
-      <div className="max-w-2xl mx-auto">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
-          Encontre artigos do seu interesse
-        </h2>
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
-          </div>
-          <input
-            type="text"
-            placeholder="Buscar artigos por título ou conteúdo..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="block w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
-          />
+  <div className="container mx-auto px-4 -mt-24 relative z-20">
+    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-white/20 max-w-3xl mx-auto">
+      <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
+        Explore nosso acervo
+      </h2>
+      <div className="relative group">
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <Search className="h-6 w-6 text-gray-400 group-focus-within:text-purple-600 transition-colors" />
         </div>
-        <p className="text-sm text-gray-500 mt-3 text-center">
-          {resultsCount} artigo{resultsCount !== 1 ? 's' : ''} encontrado{resultsCount !== 1 ? 's' : ''}
-        </p>
+        <input
+          type="text"
+          placeholder="O que você quer descobrir hoje?"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="block w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 outline-none transition-all text-lg"
+        />
+        <div className="absolute inset-y-0 right-2 flex items-center">
+          <button className="bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-lg transition-colors">
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
       </div>
+      <p className="text-sm text-gray-500 mt-4 text-center font-medium">
+        {resultsCount} artigos encontrados para sua busca
+      </p>
     </div>
   </div>
 );
 
 // Componente para o badge do redator
 const AuthorBadge: React.FC = () => (
-  <span className="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
-    Redator KerCasa
+  <span className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-purple-50 to-indigo-50 text-purple-700 border border-purple-100">
+    <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+    Redação KerCasa
   </span>
 );
 
-// Componente para informações do post (data e tempo de leitura)
+// Componente para informações do post
 const PostInfo: React.FC<PostInfoProps> = ({ createdAt, readTime }) => {
   const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString('pt-AO', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
     });
   };
 
   return (
-    <div className="flex items-center gap-4 mb-4 flex-wrap">
-      <AuthorBadge />
-      <div className="flex items-center gap-2 text-sm text-gray-500">
-        <Calendar className="w-4 h-4" />
+    <div className="flex items-center gap-4 text-xs font-medium text-gray-400 uppercase tracking-wider">
+      <div className="flex items-center gap-1.5">
+        <Calendar className="w-3.5 h-3.5" />
         {formatDate(createdAt)}
       </div>
-      <div className="flex items-center gap-2 text-sm text-gray-500">
-        <User className="w-4 h-4" />
-        {readTime}m
+      <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+      <div className="flex items-center gap-1.5">
+        <User className="w-3.5 h-3.5" />
+        {readTime}m de leitura
       </div>
     </div>
   );
@@ -130,10 +139,10 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   className = "",
 }) => {
   const baseClasses =
-    "px-6 py-2 rounded-lg font-medium transition-all flex items-center gap-2 group max-w-fit"; // 🔥 max-w-fit
+    "px-5 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 group text-sm";
   const variants = {
-    primary: "bg-purple-700 text-white hover:bg-purple-800",
-    secondary: "text-purple-700 hover:text-orange-500",
+    primary: "bg-gray-900 text-white hover:bg-black shadow-lg hover:shadow-xl",
+    secondary: "text-purple-700 bg-purple-50 hover:bg-purple-100",
   };
 
   return (
@@ -156,41 +165,38 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const estimatedTime = readingTime(post.content.html)
 
   return (
-    <article className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 group">
-      <div className="h-48 overflow-hidden">
-        <img 
-          src={post.coverImage.url} 
+    <article className="group bg-white rounded-2xl overflow-hidden hover:shadow-[0_20px_50px_rgba(8,_112,_184,_0.07)] transition-all duration-500 border border-gray-100 flex flex-col h-full hover:-translate-y-1">
+      <div className="h-56 overflow-hidden relative">
+        <div className="absolute inset-0 bg-gray-900/10 group-hover:bg-transparent transition-colors z-10"></div>
+        <img
+          src={post.coverImage.url}
           alt={post.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
         />
-      </div>
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-3">
-          <AuthorBadge />
-          <span className="text-sm text-gray-500">{estimatedTime.minutes.toString()}m</span>
+        <div className="absolute top-4 left-4 z-20">
+          <span className="bg-white/90 backdrop-blur-sm text-gray-900 text-xs font-bold px-3 py-1 rounded-md shadow-sm uppercase tracking-wide">
+            Artigo
+          </span>
         </div>
-        
-        <h3 className="text-lg font-bold text-gray-800 mb-3 leading-tight group-hover:text-purple-700 transition-colors">
+      </div>
+      <div className="p-6 flex flex-col flex-1">
+        <div className="mb-4">
+          <PostInfo createdAt={post.createdAt} readTime={estimatedTime.minutes.toString()} />
+        </div>
+
+        <h3 className="text-xl font-bold text-gray-900 mb-3 leading-snug group-hover:text-purple-700 transition-colors line-clamp-2">
           {post.title}
         </h3>
-        
-        <p className="text-gray-600 mb-4 text-sm leading-relaxed">
+
+        <p className="text-gray-500 mb-6 text-sm leading-relaxed line-clamp-3">
           {stripHtml(post.excerpt.html)}
         </p>
-        
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Calendar className="w-4 h-4" />
-            {new Date(post.createdAt).toLocaleDateString('pt-BR', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })}
-          </div>
-          
-          <ActionButton href={`/noticias/${post.slug}`} variant="secondary">
-            Ler mais
-          </ActionButton>
+
+        <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
+          <AuthorBadge />
+          <span className="text-purple-600 group-hover:translate-x-1 transition-transform">
+            <ArrowRight className="w-5 h-5" />
+          </span>
         </div>
       </div>
     </article>
@@ -206,26 +212,43 @@ const FeaturedPost: React.FC<FeaturedPostProps> = ({ post }) => {
   const estimatedTime = readingTime(post.content.html)
 
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300">
-      <div className="md:flex">
-        <div className="md:flex-shrink-0 md:w-1/2">
-          <img 
-            src={post.coverImage.url} 
-            alt={post.title}
-            className="h-64 w-full object-cover md:h-full"
-          />
-        </div>
-        <div className="p-8">
-          <PostInfo createdAt={post.createdAt} readTime={estimatedTime.minutes.toString()} />
-          <h3 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800">
+    <div className="relative bg-black rounded-3xl shadow-2xl overflow-hidden mb-16 text-white group">
+      <div className="absolute inset-0">
+        <img
+          src={post.coverImage.url}
+          alt={post.title}
+          className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-700 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+      </div>
+
+      <div className="relative p-8 md:p-16 flex flex-col justify-end h-full min-h-[500px]">
+        <div className="max-w-3xl">
+          <span className="inline-block bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-md mb-6 uppercase tracking-wider">
+            Destaque da Semana
+          </span>
+          <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight drop-shadow-lg">
             {post.title}
-          </h3>
-          <p className="text-gray-600 leading-relaxed mb-6">
+          </h2>
+          <p className="text-gray-200 text-lg md:text-xl leading-relaxed mb-8 line-clamp-3 md:line-clamp-none max-w-2xl font-light">
             {stripHtml(post.excerpt.html)}
           </p>
-          <ActionButton href={`/noticias/${post.slug}`}>
-            Ler Artigo
-          </ActionButton>
+          <div className="flex flex-wrap items-center gap-6 mb-8 text-sm font-medium text-gray-300">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-5 h-5" />
+              {new Date(post.createdAt).toLocaleDateString('pt-AO', { day: 'numeric', month: 'long', year: 'numeric' })}
+            </div>
+            <div className="flex items-center gap-2">
+              <User className="w-5 h-5" />
+              {estimatedTime.minutes.toString()} min de leitura
+            </div>
+          </div>
+          <Link href={`/noticias/${post.slug}`}>
+            <button className="bg-white text-black hover:bg-gray-100 px-8 py-4 rounded-xl font-bold transition-all flex items-center gap-3 group-hover:gap-4">
+              Ler Matéria Completa
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </Link>
         </div>
       </div>
     </div>
@@ -237,10 +260,7 @@ const FeaturedSection: React.FC<FeaturedSectionProps> = ({ posts }) => {
   if (posts.length === 0) return null;
 
   return (
-    <div className="mb-16">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">
-        Post em Destaque
-      </h2>
+    <div className="mb-20">
       <FeaturedPost post={posts[0]} />
     </div>
   );
@@ -250,14 +270,14 @@ const FeaturedSection: React.FC<FeaturedSectionProps> = ({ posts }) => {
 const PostsGrid: React.FC<PostsGridProps> = ({ posts }) => {
   if (posts.length === 0) {
     return (
-      <div className="text-center py-16">
-        <div className="bg-white rounded-xl shadow-sm p-12 max-w-md mx-auto">
-          <Search className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-600 mb-2">
+      <div className="text-center py-24">
+        <div className="bg-gray-50 rounded-3xl p-12 max-w-lg mx-auto border-2 border-dashed border-gray-200">
+          <Search className="w-16 h-16 text-gray-300 mx-auto mb-6" />
+          <h3 className="text-2xl font-bold text-gray-800 mb-3">
             Nenhum artigo encontrado
           </h3>
-          <p className="text-gray-500">
-            Tente ajustar o termo de busca
+          <p className="text-gray-500 text-lg">
+            Parece que não temos nada sobre esse assunto ainda. Tente buscar por outros termos.
           </p>
         </div>
       </div>
@@ -265,7 +285,7 @@ const PostsGrid: React.FC<PostsGridProps> = ({ posts }) => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {posts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
@@ -275,22 +295,30 @@ const PostsGrid: React.FC<PostsGridProps> = ({ posts }) => {
 
 // Componente para a seção de newsletter
 const NewsletterSection: React.FC = () => (
-  <div className="bg-white rounded-xl p-8 md:p-10 shadow-md border border-gray-100 mb-12">
-    <h3 className="text-2xl font-bold text-gray-800 mb-4 text-center">
-      Receba as Novidades do Mercado Imobiliário
-    </h3>
-    <p className="text-gray-600 mb-8 text-center max-w-2xl mx-auto">
-      Assine nossa newsletter и fique por dentro das melhores oportunidades e dicas do setor
-    </p>
-    <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-      <input
-        type="email"
-        placeholder="Seu melhor e-mail"
-        className="flex-1 px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
-      />
-      <button className="bg-purple-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-800 transition-all">
-        Assinar
-      </button>
+  <div className="relative bg-purple-900 rounded-3xl p-10 md:p-20 overflow-hidden mb-20 text-center">
+    <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
+    <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-500 opacity-20 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl"></div>
+
+    <div className="relative z-10 max-w-2xl mx-auto">
+      <h3 className="text-3xl md:text-4xl font-bold text-white mb-6">
+        Fique à frente no mercado
+      </h3>
+      <p className="text-purple-100 mb-10 text-lg leading-relaxed">
+        Junte-se a mais de 5.000 assinantes e receba curadoria exclusiva de imóveis, tendências e análises de mercado diretamente no seu e-mail.
+      </p>
+      <div className="flex flex-col sm:flex-row gap-4 bg-white/10 p-2 rounded-2xl backdrop-blur-sm border border-white/10 transition-all focus-within:bg-white/20 focus-within:border-white/30">
+        <input
+          type="email"
+          placeholder="Digite seu melhor e-mail"
+          className="flex-1 px-6 py-4 bg-transparent text-white placeholder-purple-200 outline-none text-lg"
+        />
+        <button className="bg-white text-purple-900 px-8 py-4 rounded-xl font-bold hover:bg-gray-50 transition-all shadow-lg">
+          Inscrever-se
+        </button>
+      </div>
+      <p className="text-purple-300 text-xs mt-4">
+        Prometemos não enviar spam. Cancele a qualquer momento.
+      </p>
     </div>
   </div>
 );

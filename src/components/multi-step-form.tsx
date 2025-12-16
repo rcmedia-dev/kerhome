@@ -64,13 +64,13 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
   const formatPrice = (value: string): string => {
     // Remove todos os caracteres não numéricos
     const numericValue = value.replace(/\D/g, '');
-    
+
     // Converte para número e formata com separadores de milhar
     if (numericValue === '') return '';
-    
+
     const numberValue = parseInt(numericValue, 10);
     if (isNaN(numberValue)) return '';
-    
+
     return numberValue.toLocaleString('pt-AO');
   };
 
@@ -87,8 +87,8 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
 
   // Definindo os passos do formulário com placeholders descritivos
   const steps = [
-    <FormStep 
-      key="basic" 
+    <FormStep
+      key="basic"
       title="Informações Básicas"
       description="Informações essenciais sobre a propriedade"
       fields={[
@@ -153,9 +153,9 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
         }
       ]}
     />,
-    
-    <FormStep 
-      key="details" 
+
+    <FormStep
+      key="details"
       title="Detalhes da Propriedade"
       description="Características físicas e dimensionais da propriedade"
       fields={[
@@ -164,7 +164,7 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
           label: "Área Construída",
           type: "number",
           placeholder: "Ex: 120 (apenas números em metros quadrados)",
-          
+
         },
         {
           name: "area_terreno",
@@ -230,9 +230,9 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
         }
       ]}
     />,
-    
-    <FormStep 
-      key="price" 
+
+    <FormStep
+      key="price"
       title="Informações de Preço"
       description="Defina o valor e condições comerciais"
       fields={[
@@ -277,9 +277,9 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
         }
       ]}
     />,
-    
-    <FormStep 
-      key="location" 
+
+    <FormStep
+      key="location"
       title="Localização"
       description="Endereço completo para localização precisa"
       fields={[
@@ -339,9 +339,9 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
         }
       ]}
     />,
-    
-    <FormStep 
-      key="media" 
+
+    <FormStep
+      key="media"
       title="Mídia e Documentos"
       description="Adicione imagens, vídeos e documentos para valorizar seu anúncio"
       fields={[
@@ -377,9 +377,9 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
         }
       ]}
     />,
-    
-    <FormStep 
-      key="additional" 
+
+    <FormStep
+      key="additional"
       title="Informações Adicionais"
       description="Detalhes extras que podem fazer a diferença para o comprador"
       fields={[
@@ -405,7 +405,7 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
     />
   ];
 
-  const { currentStepIndex, step, isFirstStep, isLastStep, back, next, goTo } = 
+  const { currentStepIndex, step, isFirstStep, isLastStep, back, next, goTo } =
     useMultiStepForm(steps);
 
   // Reset do formulário após sucesso
@@ -430,7 +430,7 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
     try {
       // Converter o preço formatado para valor numérico
       const numericPrice = parseInt(data.price.toString().replace(/\s/g, ''), 10);
-      
+
       const formData = {
         ...data,
         price: numericPrice
@@ -472,9 +472,9 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
     const fieldNames = steps[currentStepIndex].props.fields.map(
       (field: any) => field.name
     );
-    
+
     const isValid = await trigger(fieldNames as any);
-    
+
     if (isValid) {
       next();
     }
@@ -482,34 +482,32 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
 
   return (
     <FormProvider {...methods}>
-      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Cadastre sua Propriedade</h1>
-          <p className="text-gray-600">Preencha todos os campos com informações detalhadas para atrair mais compradores</p>
-          
+      <div className="max-w-4xl mx-auto p-8 rounded-3xl bg-white/40 backdrop-blur-md border border-white/50 shadow-xl">
+        <div className="mb-10 text-center">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-700 to-orange-500 bg-clip-text text-transparent mb-3">Cadastre sua Propriedade</h1>
+          <p className="text-gray-600 max-w-lg mx-auto">Preencha todos os campos com informações detalhadas para atrair mais compradores</p>
+
           <div className="mt-6 flex items-center">
             {steps.map((_, index) => (
               <React.Fragment key={index}>
-                <div 
-                  className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
-                    index === currentStepIndex 
-                      ? "bg-purple-700 border-purple-700 text-white" 
-                      : index < currentStepIndex 
-                      ? "bg-green-500 border-green-500 text-white" 
-                      : "bg-white border-gray-300 text-gray-400"
-                  } transition-all duration-300`}
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center border-2 shadow-sm font-semibold text-sm ${index === currentStepIndex
+                      ? "bg-gradient-to-r from-purple-600 to-orange-500 border-transparent text-white shadow-purple-200"
+                      : index < currentStepIndex
+                        ? "bg-green-500 border-green-500 text-white"
+                        : "bg-white border-gray-200 text-gray-400"
+                    } transition-all duration-300 z-10 relative`}
                 >
-                  {index + 1}
+                  {index < currentStepIndex ? "✓" : index + 1}
                 </div>
                 {index < steps.length - 1 && (
-                  <div className={`flex-1 h-1 mx-1 ${
-                    index < currentStepIndex ? "bg-green-500" : "bg-gray-200"
-                  } transition-all duration-300`} />
+                  <div className={`flex-1 h-1 mx-2 rounded-full ${index < currentStepIndex ? "bg-gradient-to-r from-green-500 to-green-400" : "bg-gray-100"
+                    } transition-all duration-500`} />
                 )}
               </React.Fragment>
             ))}
           </div>
-          
+
           <div className="mt-4 text-sm text-gray-500 text-center">
             Passo {currentStepIndex + 1} de {steps.length}: {steps[currentStepIndex].props.title}
           </div>
@@ -540,29 +538,30 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
           {/* Campo hidden para garantir que owner_id seja enviado */}
           <input type="hidden" {...methods.register("owner_id")} />
-          
+
           {step}
-          
+
           <div className="flex justify-between mt-10 pt-6 border-t border-gray-100">
             {!isFirstStep ? (
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={back} 
+              <Button
+                type="button"
+                variant="outline"
+                onClick={back}
                 disabled={isSubmitting}
-                className="min-w-[120px]"
+                className="min-w-[120px] rounded-md border-gray-200 hover:bg-gray-50 text-gray-600"
               >
                 ← Voltar
               </Button>
             ) : (
               <div></div>
             )}
-            
+
             {isLastStep ? (
-              <Button 
-                type="submit" 
+              <Button
+                key="submit-form-btn"
+                type="submit"
                 disabled={isSubmitting}
-                className="min-w-[120px] bg-green-600 hover:bg-green-700"
+                className="min-w-[140px] bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 rounded-md shadow-md hover:shadow-lg transition-all"
               >
                 {isSubmitting ? (
                   <>
@@ -575,11 +574,12 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
                 ) : "Publicar Anúncio"}
               </Button>
             ) : (
-              <Button 
-                type="button" 
-                onClick={goToNextStep} 
+              <Button
+                key="next-step-btn"
+                type="button"
+                onClick={goToNextStep}
                 disabled={isSubmitting}
-                className="min-w-[120px] bg-purple-700 hover:bg-purple-600"
+                className="min-w-[140px] bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white border-0 rounded-md shadow-md hover:shadow-lg transition-all"
               >
                 Próximo →
               </Button>

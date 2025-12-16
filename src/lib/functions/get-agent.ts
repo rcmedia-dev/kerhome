@@ -41,7 +41,8 @@ export async function getPropertyOwner(propertyId?: string): Promise<PropertyOwn
         email,
         telefone,
         empresa,
-        sobre_mim
+        sobre_mim,
+        avatar_url
       `)
       .eq('id', property.owner_id)
       .single();
@@ -57,14 +58,15 @@ export async function getPropertyOwner(propertyId?: string): Promise<PropertyOwn
       email: owner.email || '',
       telefone: owner.telefone || '',
       empresa: owner.empresa || undefined,
-      sobre_mim: owner.sobre_mim
+      sobre_mim: owner.sobre_mim,
+      avatar_url: owner.avatar_url || null
     };
 
   } catch (error) {
     console.error('Erro ao buscar proprietário:', error);
     throw new Error(
-      error instanceof Error 
-        ? error.message 
+      error instanceof Error
+        ? error.message
         : 'Erro desconhecido ao buscar proprietário'
     );
   }
@@ -122,8 +124,8 @@ export async function getAgentByEmail(email: string): Promise<AgentProfile> {
   } catch (error) {
     console.error('Erro ao buscar agente:', error);
     throw new Error(
-      error instanceof Error 
-        ? error.message 
+      error instanceof Error
+        ? error.message
         : 'Erro desconhecido ao buscar agente'
     );
   }
@@ -135,7 +137,7 @@ export async function getAgentProperties(userId: string): Promise<TPropertyRespo
       .select('*')
       .eq('owner_id', userId)
       .order('created_at', { ascending: false });
-      
+
 
     return properties.data as TPropertyResponseSchema[];
   } catch (error) {
@@ -149,7 +151,7 @@ export async function getAgents(): Promise<Agent[]> {
     .from("profiles")
     .select("*")
     .eq("role", "agent")
-    .limit(3);
+    .order("created_at", { ascending: false });
 
   if (error) {
     console.error("Erro ao buscar agentes:", error.message);
@@ -157,7 +159,7 @@ export async function getAgents(): Promise<Agent[]> {
   }
 
   // aqui já devolvemos só a parte certa (array de agentes)
-  return data as Agent[]; 
+  return data as Agent[];
 }
 
 

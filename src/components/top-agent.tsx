@@ -60,8 +60,8 @@ const containerVariants: Variants = {
 };
 
 const itemVariants: Variants = {
-  hidden: { 
-    opacity: 0, 
+  hidden: {
+    opacity: 0,
     y: 30,
     scale: 0.95
   },
@@ -73,9 +73,9 @@ const itemVariants: Variants = {
 };
 
 const headerVariants: Variants = {
-  hidden: { 
-    opacity: 0, 
-    y: 20 
+  hidden: {
+    opacity: 0,
+    y: 20
   },
   visible: {
     opacity: 1,
@@ -84,10 +84,10 @@ const headerVariants: Variants = {
 };
 
 const badgeVariants: Variants = {
-  hidden: { 
-    opacity: 0, 
+  hidden: {
+    opacity: 0,
     scale: 0.8,
-    rotate: -5 
+    rotate: -5
   },
   visible: {
     opacity: 1,
@@ -182,7 +182,7 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
   const [hoveredAgent, setHoveredAgent] = useState<string | null>(null);
 
   return (
-    <motion.section 
+    <motion.section
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.1 }}
@@ -190,19 +190,19 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
       className="py-20 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden"
     >
       {/* Elementos decorativos animados */}
-      <motion.div 
+      <motion.div
         variants={backgroundVariants}
         className="absolute top-10 right-10 w-80 h-80 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl"
       ></motion.div>
-      <motion.div 
+      <motion.div
         variants={backgroundVariants}
         transition={{ delay: 1.5 }}
         className="absolute bottom-10 left-10 w-80 h-80 bg-purple-50 rounded-full mix-blend-multiply filter blur-3xl"
       ></motion.div>
-      
+
       <div className="max-w-7xl mx-auto px-4 relative z-10">
         {/* Header elegante */}
-        <motion.div 
+        <motion.div
           variants={headerVariants}
           initial="hidden"
           whileInView="visible"
@@ -213,7 +213,7 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
           }}
           className="text-center mb-16"
         >
-          <motion.div 
+          <motion.div
             variants={badgeVariants}
             initial="hidden"
             whileInView="visible"
@@ -228,7 +228,7 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
             <VerifiedIcon className="w-4 h-4 text-purple-700" />
             <span className="text-sm font-medium text-gray-700">Agentes Verificados</span>
           </motion.div>
-          <motion.h2 
+          <motion.h2
             variants={headerVariants}
             initial="hidden"
             whileInView="visible"
@@ -242,7 +242,7 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
           >
             Nossos <span className="text-purple-700">Corretores</span>
           </motion.h2>
-          <motion.p 
+          <motion.p
             variants={headerVariants}
             initial="hidden"
             whileInView="visible"
@@ -258,14 +258,14 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
           </motion.p>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 justify-items-center"
         >
-          {agents.map((agent) => {
+          {agents.filter(agent => agent.avatar_url).slice(0, 4).map((agent) => {
             const isHovered = hoveredAgent === agent.id;
 
             return (
@@ -286,35 +286,41 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
                 <motion.div
                   variants={cardHoverVariants}
                   transition={fastSpringTransition}
-                  className={`relative bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-xl transition-all duration-500 h-full flex flex-col overflow-hidden ${
-                    isHovered ? 'shadow-lg border-purple-200' : ''
-                  }`}
+                  className={`relative bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-xl transition-all duration-500 h-full flex flex-col overflow-hidden ${isHovered ? 'shadow-lg border-purple-200' : ''
+                    }`}
                 >
-                  
+
                   {/* Header do card com background sutil */}
                   <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-r from-purple-50 to-purple-100 opacity-60"></div>
-                  
+
                   {/* Avatar centralizado */}
                   <div className="relative z-10 mx-auto mb-4 -mt-4">
                     <div className="relative">
-                      <div className={`absolute inset-0 bg-purple-700 rounded-full transition-all duration-500 ${
-                        isHovered ? 'scale-110 opacity-10' : 'scale-100 opacity-0'
-                      }`}></div>
-                      <motion.div 
+                      <div className={`absolute inset-0 bg-purple-700 rounded-full transition-all duration-500 ${isHovered ? 'scale-110 opacity-10' : 'scale-100 opacity-0'
+                        }`}></div>
+                      <motion.div
                         variants={avatarHoverVariants}
                         className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg"
                       >
-                        <Image
-                          src={agent.avatar_url ?? '/default-avatar.jpg'}
-                          alt={`${agent.primeiro_nome} ${agent.ultimo_nome}`}
-                          fill
-                          className="object-cover"
-                        />
+                        {agent.avatar_url ? (
+                          <Image
+                            src={agent.avatar_url}
+                            alt={`${agent.primeiro_nome} ${agent.ultimo_nome}`}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center">
+                            <span className="text-white text-2xl font-bold">
+                              {agent.primeiro_nome?.[0]?.toUpperCase()}{agent.ultimo_nome?.[0]?.toUpperCase()}
+                            </span>
+                          </div>
+                        )}
                       </motion.div>
                     </div>
-                    
+
                     {/* Badge de verificação */}
-                    <motion.div 
+                    <motion.div
                       whileHover={{ scale: 1.2, rotate: 10 }}
                       transition={fastSpringTransition}
                       className="absolute -bottom-1 -right-1 bg-white p-1 rounded-full shadow-md border"
@@ -326,7 +332,7 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
                   {/* Conteúdo principal */}
                   <div className="text-center flex-1 relative z-10 flex flex-col items-center justify-center">
                     {/* Nome */}
-                    <motion.h3 
+                    <motion.h3
                       className="text-lg font-bold text-gray-900 mb-3"
                       whileHover={{ color: "#7c3aed" }}
                       transition={{ duration: 0.2 }}
@@ -336,7 +342,7 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
 
                     {/* Email */}
                     {agent.email && (
-                      <motion.div 
+                      <motion.div
                         whileHover={{ scale: 1.02, backgroundColor: "rgba(243, 244, 246, 1)" }}
                         transition={springTransition}
                         className="flex items-center justify-center gap-2 text-gray-600 mb-6 p-2 bg-gray-50 rounded-lg w-full"
@@ -357,9 +363,8 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
                         initial="rest"
                         whileHover="hover"
                         transition={fastSpringTransition}
-                        className={`w-full py-2.5 px-4 bg-purple-700 text-white font-semibold rounded-lg hover:bg-purple-800 transition-all duration-300 flex items-center justify-center gap-2 text-sm ${
-                          isHovered ? 'shadow-md' : ''
-                        }`}
+                        className={`w-full py-2.5 px-4 bg-purple-700 text-white font-semibold rounded-lg hover:bg-purple-800 transition-all duration-300 flex items-center justify-center gap-2 text-sm ${isHovered ? 'shadow-md' : ''
+                          }`}
                       >
                         <motion.span variants={iconHoverVariants}>
                           <Sparkles className="w-4 h-4" />
@@ -370,15 +375,13 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
                   </div>
 
                   {/* Efeito de hover sutil */}
-                  <div className={`absolute inset-0 bg-purple-700/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
-                    isHovered ? 'opacity-100' : ''
-                  }`}></div>
+                  <div className={`absolute inset-0 bg-purple-700/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${isHovered ? 'opacity-100' : ''
+                    }`}></div>
                 </motion.div>
 
                 {/* Destaque no hover */}
-                <div className={`absolute inset-0 border-2 border-purple-300 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none ${
-                  isHovered ? 'opacity-100' : ''
-                }`}></div>
+                <div className={`absolute inset-0 border-2 border-purple-300 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none ${isHovered ? 'opacity-100' : ''
+                  }`}></div>
               </motion.div>
             );
           })}

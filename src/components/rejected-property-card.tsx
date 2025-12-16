@@ -8,12 +8,13 @@ import { deleteProperty } from '@/lib/functions/supabase-actions/delete-properti
 import { toast } from 'sonner';
 import { useUserStore } from '@/lib/store/user-store';
 
-export function RejectedPropertyCard({ property }: { property: TPropertyResponseSchema }) {
+export function RejectedPropertyCard({ property, onDelete }: { property: TPropertyResponseSchema; onDelete?: () => void }) {
   const { user } = useUserStore();
   const isOwner = user?.id === property.owner_id;
 
   const handleDelete = async () => {
     try {
+      if (onDelete) onDelete(); // Optimistic update
       await deleteProperty(property.id, user?.id);
       toast.success('Imóvel deletado com sucesso');
     } catch (e) {
@@ -23,7 +24,7 @@ export function RejectedPropertyCard({ property }: { property: TPropertyResponse
 
   return (
     <div className="w-[320px] bg-white rounded-2xl shadow-lg overflow-hidden h-full flex flex-col relative border-1 transition-all duration-300 hover:shadow-xl">
-      
+
       {/* Badge de status rejeitado */}
       <span className="absolute top-4 left-4 bg-red-500 text-white text-sm font-semibold px-3 py-2 rounded-full shadow-lg z-20 flex items-center gap-1.5">
         <XCircle className="w-4 h-4" />

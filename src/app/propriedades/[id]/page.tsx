@@ -2,17 +2,14 @@ import { getPropertyById } from "@/lib/functions/get-properties";
 import { getPropertyOwner } from "@/lib/functions/get-agent";
 import { TPropertyResponseSchema } from "@/lib/types/property";
 import ImoveisSemelhantes from "@/components/imoveis-destaque";
-import CorretoresEmDestaque from "@/components/corretores";
 import { NotFoundState } from "@/components/not-found";
 import { PropertyContact } from "@/components/property-contact";
 import { PropertyDescription } from "@/components/property-description";
 import { PropertyGallery } from "@/components/property-gallery";
 import { PropertyHeader } from "@/components/property-header";
 import { PropertyLocation } from "@/components/property-location";
-import { PropertyTabs } from "@/components/property-tabs";
 import { TechnicalDetails } from "@/components/techinical-details";
 import { checkIfPropertyIsBoosted, trackBoostView } from "@/lib/functions/supabase-actions/boost-functions";
-
 
 // 🔑 METADATA DINÂMICA
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -68,22 +65,16 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
 
   if (isBoosted) {
     try {
-      // Evita duplicar views — só roda no lado do cliente
       if (typeof window !== "undefined") {
         const viewedBoosts = JSON.parse(localStorage.getItem("boosted_views") || "{}");
         const lastViewTime = viewedBoosts[property.id];
         const now = Date.now();
-        const twelveHours = 12 * 60 * 60 * 1000; // 12h em milissegundos
+        const twelveHours = 12 * 60 * 60 * 1000;
 
         if (!lastViewTime || now - lastViewTime > twelveHours) {
-          // Registra visualização no Supabase
           await trackBoostView(property.id);
-
-          // Atualiza registro local
           viewedBoosts[property.id] = now;
           localStorage.setItem("boosted_views", JSON.stringify(viewedBoosts));
-        } else {
-          console.log("View já contada recentemente — ignorando.");
         }
       }
     } catch (error) {
@@ -95,54 +86,74 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
   const ownerDetails = await getPropertyOwner(property.id);
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800 overflow-x-hidden pb-16 md:pb-0">
-      {/* Header com breadcrumb */}
-      <div className="bg-white border-b border-gray-200 py-3 px-4">
-        <div className="max-w-7xl mx-auto">
-          <nav className="text-sm text-gray-500">
-            <span>Início</span> / <span>Imóveis</span> /{" "}
-            <span>{property.cidade || "Cidade"}</span> /{" "}
-            <span className="text-gray-800 font-medium">{property.title}</span>
+    <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
+
+      {/* Immersive Gallery Section (Full Width Background) */}
+      <div className="w-full bg-gray-100 border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <nav className="text-sm text-gray-500 mb-6 flex items-center gap-2">
+            <a href="/" className="hover:text-purple-600 transition-colors">Início</a>
+            <span className="text-gray-300">/</span>
+            <a href="/propriedades" className="hover:text-purple-600 transition-colors">Imóveis</a>
+            <span className="text-gray-300">/</span>
+            <span className="text-gray-800 font-medium truncate max-w-[200px]">{property.title}</span>
           </nav>
+          <PropertyGallery property={property} />
         </div>
       </div>
 
-      {/* Mapa no topo */}
-      <div className="w-full h-[250px] sm:h-[350px] overflow-hidden border-b border-gray-200">
-        <iframe
-          className="w-full h-full"
-          loading="lazy"
-          allowFullScreen
-          referrerPolicy="no-referrer-when-downgrade"
-          src={`https://www.google.com/maps?q=${encodeURIComponent(property.endereco ?? "")}&output=embed`}
-        ></iframe>
-      </div>
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="grid lg:grid-cols-12 gap-12">
 
-      {/* Conteúdo principal */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-5 py-6 sm:py-12">
-        <div className="grid lg:grid-cols-4 gap-6 sm:gap-8">
-          {/* Conteúdo principal */}
-          <div className="lg:col-span-3 space-y-6 sm:space-y-8">
+          {/* Main Content (Left Column) */}
+          <div className="lg:col-span-8 space-y-12">
+
+            {/* Header & Title */}
             <PropertyHeader property={property} />
 
-            <div className="bg-white rounded-xl p-5 shadow-sm border">
-              <PropertyGallery property={property} />
+            {/* Content Blocks */}
+            <div className="space-y-12">
+              <TechnicalDetails property={property} />
+
+              <div className="prose max-w-none">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Sobre este imóvel</h3>
+                <PropertyDescription property={property} />
+              </div>
+
+              <div className="border-t border-gray-200 pt-10">
+                <h3 className="text-2xl font-bold text-gray-900 mb-6">Localização</h3>
+                <PropertyLocation property={property} />
+              </div>
             </div>
 
-            <TechnicalDetails property={property} />
-            <PropertyTabs property={property} />
-            <PropertyDescription property={property} />
-            <PropertyLocation property={property} />
-            <PropertyContact property={property} ownerDetails={ownerDetails} />
-          </div>
-
-          {/* Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="sticky top-24 space-y-6">
+            {/* Similar Properties (Below Content) */}
+            <div className="pt-12 border-t border-gray-200">
               <ImoveisSemelhantes />
-              <CorretoresEmDestaque />
             </div>
           </div>
+
+          {/* Sticky Sidebar (Right Column) */}
+          <div className="lg:col-span-4 space-y-8">
+            <div className="sticky top-24 space-y-6">
+
+              {/* Contact Card */}
+              <div className="bg-white rounded-2xl shadow-xl shadow-purple-900/5 border border-purple-100 overflow-hidden transform transition-all hover:scale-[1.01] duration-300">
+                <div className="p-6 bg-gradient-to-br from-purple-50 to-white">
+                  <h3 className="text-lg font-bold text-gray-900 mb-1">Interessado?</h3>
+                  <p className="text-sm text-gray-500 mb-6">Fale direto com o anunciante</p>
+                  <PropertyContact property={property} ownerDetails={ownerDetails} />
+                </div>
+              </div>
+
+              {/* Additional Info / Safety Tips could go here */}
+              <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-100 text-sm text-blue-800">
+                <p className="font-semibold mb-2 flex items-center gap-2">🛡️ Dica de Segurança</p>
+                Nunca faça pagamentos antecipados sem visitar o imóvel e assinar contrato.
+              </div>
+
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

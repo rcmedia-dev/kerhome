@@ -2,27 +2,20 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { 
-  Menu, 
-  UserCircle, 
-  X, 
-  MessageSquare, 
-  Search, 
-  Home, 
-  Building, 
-  Newspaper, 
+import {
+  Menu,
+  UserCircle,
+  X,
+  MessageSquare,
+  Home,
+  Building,
+  Newspaper,
   Phone
 } from 'lucide-react';
 import Link from 'next/link';
 import { AuthDialog } from '@/components/login-modal';
 import React from 'react';
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/ui/select';
+
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -31,7 +24,6 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { supabase } from '@/lib/supabase';
-import DraggableChat from '@/components/floating-chat';
 import CadastrarImovelButton from '@/components/cadastrar-imovel-button';
 import { useQuery } from '@tanstack/react-query';
 import { getUserPlan } from '@/lib/functions/supabase-actions/get-user-package-action';
@@ -39,11 +31,14 @@ import { UserProfile, useUserStore } from '@/lib/store/user-store';
 import { toast } from 'sonner';
 import { motion, AnimatePresence, Transition, Variants } from 'framer-motion';
 
+import { ChatWidget } from './chat/chat-widget';
+import { useChatStore } from '@/lib/store/chat-store';
+
 // Animations with proper TypeScript types
 const headerAnimations: Variants = {
   hidden: { y: -100, opacity: 0 },
-  visible: { 
-    y: 0, 
+  visible: {
+    y: 0,
     opacity: 1,
     transition: {
       type: "spring" as const,
@@ -73,26 +68,17 @@ const menuAnimations: Variants = {
 };
 
 const itemAnimations: Variants = {
-  closed: { 
-    opacity: 0, 
+  closed: {
+    opacity: 0,
     x: -20
   },
-  open: { 
-    opacity: 1, 
+  open: {
+    opacity: 1,
     x: 0
   }
 };
 
-const searchBarAnimations: Variants = {
-  hidden: { 
-    opacity: 0,
-    height: 0
-  },
-  visible: { 
-    opacity: 1,
-    height: "auto"
-  }
-};
+
 
 const dropdownAnimations: Variants = {
   closed: {
@@ -119,10 +105,9 @@ const easeOutTransition: Transition = {
 
 // Função para estilização dos links
 const linkClass = (pathname: string, href: string) =>
-  `flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ease-in-out ${
-    pathname === href 
-      ? 'text-purple-700 bg-purple-50 shadow-sm' 
-      : 'text-gray-700 hover:text-purple-700 hover:bg-purple-50'
+  `relative flex items-center gap-2 px-4 py-2 text-sm font-medium transition-all duration-300 group ${pathname === href
+    ? 'text-purple-700'
+    : 'text-gray-600 hover:text-purple-700'
   }`;
 
 // Componente para o dropdown do usuário
@@ -201,20 +186,20 @@ function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: bo
           transition={springTransition}
         >
           {/* Cabeçalho do usuário */}
-          <motion.div 
+          <motion.div
             className="px-4 py-3 border-b border-gray-100 mb-2 flex items-center gap-3"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <motion.div 
+            <motion.div
               className="flex items-center justify-center w-11 h-11 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 shadow-md"
               whileHover={{ scale: 1.05 }}
               transition={springTransition}
             >
               {user?.avatar_url ? (
-                <img 
-                  src={user.avatar_url} 
+                <img
+                  src={user.avatar_url}
                   alt={`${user.primeiro_nome} ${user.ultimo_nome}`}
                   className="w-full h-full rounded-full object-cover"
                 />
@@ -249,7 +234,7 @@ function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: bo
                 transition-colors cursor-pointer
                 hover:bg-purple-50 hover:text-purple-700"
             >
-              <motion.span 
+              <motion.span
                 className="w-2 h-2 rounded-full bg-purple-500"
                 whileHover={{ scale: 1.5 }}
                 transition={springTransition}
@@ -275,7 +260,7 @@ function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: bo
                 transition-colors cursor-pointer
                 hover:bg-red-50 ${isLoggingOut ? 'opacity-60 pointer-events-none' : ''}`}
             >
-              <motion.span 
+              <motion.span
                 className="w-2 h-2 rounded-full bg-red-500"
                 whileHover={{ scale: 1.5 }}
                 transition={springTransition}
@@ -289,99 +274,7 @@ function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: bo
   );
 }
 
-// Componente para a barra de pesquisa
-function SearchBar() {
-  const router = useRouter();
-  const [q, setQ] = useState('');
-  const [estado, setEstado] = useState('');
-  const [cidade, setCidade] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const params = new URLSearchParams();
-    if (q) params.append('q', q);
-    if (estado) params.append('status', estado);
-    if (cidade) params.append('cidade', cidade);
-    router.push(`/results?${params.toString()}`);
-  };
-
-  return (
-    <section 
-      aria-label="Barra de pesquisa" 
-      className="flex justify-center items-center py-5 bg-purple-700 px-4"
-    >
-      <motion.form
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={easeOutTransition}
-        onSubmit={handleSubmit}
-        className="flex flex-col lg:flex-row bg-white w-full max-w-5xl px-5 py-4 lg:py-3 rounded-2xl gap-4 items-center shadow-lg"
-      >
-        <motion.div 
-          className="relative w-full lg:w-[50%]"
-          whileFocus={{ scale: 1.02 }}
-          transition={springTransition}
-        >
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <input
-            type="text"
-            placeholder="O que deseja procurar?"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border-none focus:outline-none text-sm rounded-lg bg-gray-50"
-            aria-label="Termo de pesquisa"
-          />
-        </motion.div>
-
-        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-[40%]">
-          <motion.div
-            whileFocus={{ scale: 1.02 }}
-            transition={springTransition}
-          >
-            <Select onValueChange={setEstado}>
-              <SelectTrigger className="w-full border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 py-2.5">
-                <SelectValue placeholder="Estado do Imóvel" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="para alugar">Para Alugar</SelectItem>
-                <SelectItem value="para comprar">Para Comprar</SelectItem>
-              </SelectContent>
-            </Select>
-          </motion.div>
-
-          <motion.div
-            whileFocus={{ scale: 1.02 }}
-            transition={springTransition}
-          >
-            <Select onValueChange={setCidade}>
-              <SelectTrigger className="w-full border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 py-2.5">
-                <SelectValue placeholder="Cidades" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Luanda">Luanda</SelectItem>
-                <SelectItem value="Huambo">Huambo</SelectItem>
-              </SelectContent>
-            </Select>
-          </motion.div>
-        </div>
-
-        <motion.button
-          type="submit"
-          whileHover={{ 
-            scale: 1.05,
-            backgroundColor: "#ea580c"
-          }}
-          whileTap={{ scale: 0.95 }}
-          transition={springTransition}
-          className="w-full sm:w-auto bg-orange-500 px-5 py-2.5 rounded-lg text-white font-semibold hover:bg-orange-600 transition-all duration-200 shadow-md"
-          aria-label="Pesquisar imóveis"
-        >
-          Procurar
-        </motion.button>
-      </motion.form>
-    </section>
-  );
-}
 
 // Definir o tipo para a referência do AuthDialog
 interface AuthDialogRef {
@@ -390,49 +283,25 @@ interface AuthDialogRef {
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const authDialogRef = useRef<AuthDialogRef>(null);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [unreadCount, setUnreadCount] = useState(0);
   const pathname = usePathname();
 
   // Usando a user store
   const { user, isLoading, setUser, fetchUserProfile } = useUserStore();
 
-  const handleScroll = useCallback(() => {
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current);
-    }
-    
-    scrollTimeoutRef.current = setTimeout(() => {
-      setIsScrolled(window.scrollY > 5);
-    }, 50);
-  }, []);
+  // Chat store
+  const { toggleChat, messages, isOpen, initializeChat, totalUnreadCount } = useChatStore();
 
-  useEffect(() => {
-    setIsClient(true);
-    window.addEventListener('scroll', handleScroll);
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-    };
-  }, [handleScroll]);
+
 
   // Carregar o perfil do usuário se estiver autenticado
+  // Initialize chat when user is logged in
   useEffect(() => {
-    const loadUserProfile = async () => {
-      if (user?.id) {
-        await fetchUserProfile(user.id);
-      }
-    };
-
-    loadUserProfile();
-  }, [user?.id, fetchUserProfile]);
+    if (user?.id) {
+      fetchUserProfile(user.id);
+      initializeChat(user.id);
+    }
+  }, [user?.id, fetchUserProfile, initializeChat]);
 
   const userPlanData = useQuery({
     queryKey: ['imoveis-limite', user?.id],
@@ -440,33 +309,7 @@ export default function Header() {
     enabled: !!user?.id
   });
 
-  // Efeito para subscrever mensagens em tempo real
-  useEffect(() => {
-    if (!user) return;
 
-    const channel = supabase
-      .channel('global-messages')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages'
-        },
-        async (payload) => {
-          const newMessage = payload.new;
-          
-          if (newMessage.sender_id !== user.id) {
-            setUnreadCount(prev => prev + 1);
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user]);
 
   // Função para verificar autenticação antes de cadastrar imóvel
   const handleCadastrarImovelClick = (e: React.MouseEvent) => {
@@ -486,7 +329,7 @@ export default function Header() {
   // Se ainda está carregando, mostrar um header básico
   if (isLoading && !user) {
     return (
-      <motion.header 
+      <motion.header
         initial="hidden"
         animate="visible"
         variants={headerAnimations}
@@ -494,15 +337,15 @@ export default function Header() {
       >
         <div className="max-w-7xl mx-auto flex justify-between items-center py-3 px-4 md:px-6">
           <Link href="/" aria-label="Página inicial" className="flex-shrink-0">
-            <motion.img 
-              src="/kercasa_logo.png" 
-              alt="kerhome logo" 
-              className="w-32 md:w-40 transition-all duration-300" 
+            <motion.img
+              src="/kercasa_logo.png"
+              alt="kerhome logo"
+              className="w-32 md:w-40 transition-all duration-300"
               whileHover={{ scale: 1.05 }}
               transition={springTransition}
             />
           </Link>
-          <motion.div 
+          <motion.div
             className="animate-pulse bg-gray-200 h-10 w-24 rounded-xl"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -514,271 +357,229 @@ export default function Header() {
   }
 
   return (
-    <motion.header 
-      initial="hidden"
-      animate="visible"
-      variants={headerAnimations}
-      className="sticky top-0 z-40 bg-white shadow-sm"
-    >
-      {/* Navegação principal */}
-      <div className="max-w-7xl mx-auto flex justify-between items-center py-3 px-4 md:px-6">
-        {/* Logo */}
-        <Link href="/" aria-label="Página inicial" className="flex-shrink-0">
-          <motion.img 
-            src="/kercasa_logo.png" 
-            alt="kerhome logo" 
-            className="w-32 md:w-40 transition-all duration-300" 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            transition={springTransition}
-          />
-        </Link>
-
-        {/* Links de navegação - Desktop */}
-        <nav aria-label="Navegação principal" className="hidden lg:flex items-center justify-center flex-1 mx-8">
-          <ul className="flex items-center gap-1">
-            {navLinks.map(({ id, label, href, icon: Icon }, index) => (
-              <motion.li 
-                key={id}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ 
-                  delay: 0.1 + index * 0.1,
-                  type: "spring",
-                  stiffness: 300
-                }}
-              >
-                <Link href={href} className={linkClass(pathname, href)}>
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    transition={springTransition}
-                  >
-                    <Icon className="w-4 h-4" />
-                  </motion.div>
-                  {label}
-                </Link>
-              </motion.li>
-            ))}
-          </ul>
-        </nav>
-
-        {/* Ações do usuário - Desktop */}
-        <div className="hidden md:flex items-center gap-2">
-          {/* Botão de mensagens */}
-          {user && (
-            <motion.button
+    <>
+      <ChatWidget />
+      <motion.header
+        initial="hidden"
+        animate="visible"
+        variants={headerAnimations}
+        className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-white/20 shadow-sm supports-backdrop-filter:bg-white/60"
+      >
+        {/* Navegação principal */}
+        <div className="max-w-7xl mx-auto flex justify-between items-center py-3 px-4 md:px-6">
+          {/* Logo */}
+          <Link href="/" aria-label="Página inicial" className="flex-shrink-0">
+            <motion.img
+              src="/kercasa_logo.png"
+              alt="kerhome logo"
+              className="w-32 md:w-40 transition-all duration-300"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={springTransition}
-              onClick={() => {
-                setIsChatOpen(true);
-                setUnreadCount(0);
-              }}
-              className="relative flex items-center p-2.5 rounded-xl bg-white border border-purple-200 text-purple-700 hover:bg-purple-50 transition-all duration-300"
-              aria-label="Mensagens"
-            >
-              <MessageSquare className="w-5 h-5" />
-              
-              <AnimatePresence>
-                {unreadCount > 0 && (
-                  <motion.span 
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    exit={{ scale: 0 }}
-                    className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
-                  >
-                    {unreadCount}
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </motion.button>
-          )}
-          
-          <CadastrarImovelButton
-            user={user}
-            authDialogRef={authDialogRef}
-            userPlan={userPlanData.data || null}
-          />
-          
-          {user ? (
-            <UserDropdown user={user} />
-          ) : (
-            <AuthDialog 
-              ref={authDialogRef} 
-              trigger={
-                <motion.button 
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  transition={springTransition}
-                  className="flex items-center gap-2 px-4 py-2.5 border border-purple-700 text-purple-700 rounded-xl hover:bg-purple-50 transition-all duration-200"
-                  aria-label="Acessar minha conta"
-                >
-                  <UserCircle className="w-5 h-5" />
-                  <span className="hidden sm:inline">Minha Conta</span>
-                </motion.button>
-              }
             />
-          )}
-        </div>
+          </Link>
 
-        {/* Botão do menu mobile */}
-        <div className="md:hidden">
-          <motion.button 
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            transition={springTransition}
-            onClick={() => setMenuOpen(!menuOpen)} 
-            className="p-2 rounded-lg text-purple-700 hover:bg-purple-50 transition-colors"
-            aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
-            aria-expanded={menuOpen}
-          >
-            {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </motion.button>
-        </div>
-      </div>
-
-      {/* Menu mobile */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.nav 
-            initial="closed"
-            animate="open"
-            exit="closed"
-            variants={menuAnimations}
-            aria-label="Navegação mobile" 
-            className="md:hidden px-4 pb-4 bg-white border-t border-gray-100 overflow-hidden"
-          >
-            <ul className="flex flex-col space-y-2 mb-4">
+          {/* Links de navegação - Desktop */}
+          <nav aria-label="Navegação principal" className="hidden lg:flex items-center justify-center flex-1 mx-8">
+            <ul className="flex items-center gap-1">
               {navLinks.map(({ id, label, href, icon: Icon }, index) => (
-                <motion.li 
+                <motion.li
                   key={id}
-                  variants={itemAnimations}
-                  initial="closed"
-                  animate="open"
-                  exit="closed"
-                  transition={{ 
-                    delay: index * 0.1,
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    delay: 0.1 + index * 0.1,
                     type: "spring",
-                    stiffness: 300,
-                    damping: 24
+                    stiffness: 300
                   }}
                 >
-                  <Link 
-                    href={href} 
-                    className={linkClass(pathname, href)}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      transition={springTransition}
-                    >
-                      <Icon className="w-4 h-4" />
-                    </motion.div>
-                    {label}
+                  <Link href={href} className={linkClass(pathname, href)}>
+                    <span className="relative z-10 flex items-center gap-2">
+                      {label}
+                    </span>
+                    {pathname === href && (
+                      <motion.span
+                        layoutId="activeTab"
+                        className="absolute inset-0 bg-purple-100 rounded-full z-0"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                    {pathname !== href && (
+                      <span className="absolute inset-0 bg-gray-50 rounded-full scale-90 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-300 z-0" />
+                    )}
                   </Link>
                 </motion.li>
               ))}
             </ul>
-            
-            <motion.div 
-              className="flex flex-col gap-3 pt-2 border-t border-gray-100"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-            >
-              {user && (
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  transition={springTransition}
-                  onClick={() => {
-                    setIsChatOpen(true);
-                    setUnreadCount(0);
-                    setMenuOpen(false);
-                  }}
-                  className="relative flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-purple-200 text-purple-700 hover:bg-purple-50 transition-all"
-                >
-                  <MessageSquare className="w-5 h-5" />
-                  Mensagens
-                  
-                  <AnimatePresence>
-                    {unreadCount > 0 && (
-                      <motion.span 
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        exit={{ scale: 0 }}
-                        className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
-                      >
-                        {unreadCount}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </motion.button>
-              )}
-              
-              <Link 
-                href="/dashboard/cadastrar-imovel" 
-                className="w-full"
-                onClick={() => setMenuOpen(false)}
+          </nav>
+
+          {/* Ações do usuário - Desktop */}
+          <div className="hidden md:flex items-center gap-2">
+
+            {/* Message Button */}
+            {user && (
+              <button
+                onClick={toggleChat}
+                className="p-2.5 rounded-full text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors relative"
+                aria-label="Mensagens"
               >
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  transition={springTransition}
-                  className="w-full px-4 py-2.5 bg-purple-700 hover:bg-purple-800 text-sm font-medium text-white rounded-xl border border-purple-700 transition-all duration-200"
-                  onClick={handleCadastrarImovelClick}
-                >
-                  Cadastrar Imóvel
-                </motion.button>
-              </Link>
-              
-              {user ? (
-                <UserDropdown user={user} mobile />
-              ) : (
-                <AuthDialog 
-                  ref={authDialogRef} 
-                  trigger={
-                    <motion.button 
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      transition={springTransition}
-                      className="w-full flex items-center gap-2 px-4 py-2.5 border border-purple-700 text-purple-700 rounded-xl hover:bg-purple-50 transition-all duration-200 justify-center"
-                      aria-label="Acessar minha conta"
+                <div className="relative">
+                  <MessageSquare className="w-5 h-5" />
+                  {totalUnreadCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full animate-pulse">
+                      {totalUnreadCount > 9 ? '9+' : totalUnreadCount}
+                    </span>
+                  )}
+                </div>
+              </button>
+            )}
+
+            <CadastrarImovelButton
+              user={user}
+              authDialogRef={authDialogRef}
+              userPlan={userPlanData.data || null}
+            />
+
+            {user ? (
+              <UserDropdown user={user} />
+            ) : (
+              <AuthDialog
+                ref={authDialogRef}
+                trigger={
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={springTransition}
+                    className="group flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                    aria-label="Acessar minha conta"
+                  >
+                    <UserCircle className="w-5 h-5 text-gray-300 group-hover:text-white transition-colors" />
+                    <span className="hidden sm:inline font-medium">Entrar</span>
+                  </motion.button>
+                }
+              />
+            )}
+          </div>
+
+          {/* Botão do menu mobile */}
+          <div className="md:hidden flex items-center gap-2">
+            {user && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={toggleChat}
+                className="p-2 rounded-lg text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                aria-label="Mensagens"
+              >
+                <MessageSquare className="w-5 h-5" />
+              </motion.button>
+            )}
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              transition={springTransition}
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="p-2 rounded-lg text-purple-700 hover:bg-purple-50 transition-colors"
+              aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
+              aria-expanded={menuOpen}
+            >
+              {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Menu mobile */}
+        <AnimatePresence>
+          {menuOpen && (
+            <motion.nav
+              initial="closed"
+              animate="open"
+              exit="closed"
+              variants={menuAnimations}
+              aria-label="Navegação mobile"
+              className="md:hidden px-4 pb-4 bg-white border-t border-gray-100 overflow-hidden"
+            >
+              <ul className="flex flex-col space-y-2 mb-4">
+                {navLinks.map(({ id, label, href, icon: Icon }, index) => (
+                  <motion.li
+                    key={id}
+                    variants={itemAnimations}
+                    initial="closed"
+                    animate="open"
+                    exit="closed"
+                    transition={{
+                      delay: index * 0.1,
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 24
+                    }}
+                  >
+                    <Link
+                      href={href}
+                      className={linkClass(pathname, href)}
+                      onClick={() => setMenuOpen(false)}
                     >
-                      <UserCircle className="w-5 h-5" />
-                      Minha Conta
-                    </motion.button>
-                  }
-                />
-              )}
-            </motion.div>
-          </motion.nav>
-        )}
-      </AnimatePresence>
+                      <motion.div
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        transition={springTransition}
+                      >
+                        <Icon className="w-4 h-4" />
+                      </motion.div>
+                      {label}
+                    </Link>
+                  </motion.li>
+                ))}
+              </ul>
 
-      {/* Barra de pesquisa que desaparece ao rolar */}
-      <AnimatePresence>
-        {!isScrolled && (
-          <motion.div 
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            variants={searchBarAnimations}
-            transition={easeOutTransition}
-            className="relative z-30"
-          >
-            <SearchBar />
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <motion.div
+                className="flex flex-col gap-3 pt-2 border-t border-gray-100"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+              >
 
-      <DraggableChat 
-        isOpen={isChatOpen} 
-        onClose={() => setIsChatOpen(false)} 
-        userId={user?.id || ""} 
-      />
-    </motion.header>
+
+                <Link
+                  href="/dashboard/cadastrar-imovel"
+                  className="w-full"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={springTransition}
+                    className="w-full px-4 py-2.5 bg-purple-700 hover:bg-purple-800 text-sm font-medium text-white rounded-xl border border-purple-700 transition-all duration-200"
+                    onClick={handleCadastrarImovelClick}
+                  >
+                    Cadastrar Imóvel
+                  </motion.button>
+                </Link>
+
+                {user ? (
+                  <UserDropdown user={user} mobile />
+                ) : (
+                  <AuthDialog
+                    ref={authDialogRef}
+                    trigger={
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        transition={springTransition}
+                        className="w-full flex items-center gap-2 px-4 py-2.5 border border-purple-700 text-purple-700 rounded-xl hover:bg-purple-50 transition-all duration-200 justify-center"
+                        aria-label="Acessar minha conta"
+                      >
+                        <UserCircle className="w-5 h-5" />
+                        Minha Conta
+                      </motion.button>
+                    }
+                  />
+                )}
+              </motion.div>
+            </motion.nav>
+          )}
+        </AnimatePresence>
+      </motion.header>
+    </>
   );
 }

@@ -16,90 +16,43 @@ import { createClient } from '@/lib/supabase/client';
 const supabase = createClient();
 
 // =======================
-// Subcomponentes
+// Subcomponentes (Redesigned)
 // =======================
 const StatusBadge = ({ status }: { status: string }) => {
-  const baseClass =
-    "absolute top-3 left-3 text-white text-xs font-bold px-3 py-1 rounded-full shadow z-10";
-  if (status === 'comprar') return <span className={`${baseClass} bg-green-600`}>À venda</span>;
-  if (status === 'arrendar') return <span className={`${baseClass} bg-blue-600`}>Para alugar</span>;
+  if (status === 'comprar') return (
+    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/90 backdrop-blur-md text-white text-xs font-bold shadow-lg border border-white/20">
+      <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+      À Venda
+    </div>
+  );
+  if (status === 'arrendar') return (
+    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/90 backdrop-blur-md text-white text-xs font-bold shadow-lg border border-white/20">
+      <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+      Arrendar
+    </div>
+  );
   return null;
 };
 
-const BoostedBadge = ({ isExpired, isSuspended }: { isExpired?: boolean; isSuspended?: boolean }) => (
-  <div className="absolute top-3 left-3 z-10">
-    <div className={`text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1 ${
-      isSuspended 
-        ? 'bg-red-600' 
-        : isExpired 
-        ? 'bg-gray-500' 
-        : 'bg-gradient-to-r from-orange-500 to-purple-600'
-    }`}>
-      {isSuspended ? <ShieldAlert className="w-3 h-3" /> : <Zap className="w-3 h-3" />}
-      {isSuspended ? 'Suspenso' : isExpired ? 'Expirado' : 'Impulsionado'}
-    </div>
-  </div>
-);
+const BoostedBadge = ({ isExpired, isSuspended }: { isExpired?: boolean; isSuspended?: boolean }) => {
+  let bgColor = 'bg-gradient-to-r from-orange-500 to-purple-600';
+  let icon = <Zap className="w-3 h-3 text-white" />;
+  let text = 'Destaque';
 
-const ExpiredBoostBadge = () => (
-  <div className="absolute top-12 left-3 z-10">
-    <div className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
-      <AlertCircle className="w-3 h-3" />
-      Precisa renovar
-    </div>
-  </div>
-);
-
-const SuspendedBoostBadge = () => (
-  <div className="absolute top-12 left-3 z-10">
-    <div className="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
-      <ShieldAlert className="w-3 h-3" />
-      Impulsionamento suspenso
-    </div>
-  </div>
-);
-
-const OwnerActions = ({ propertyId, userId }: { propertyId: string; userId: string }) => {
-  const [isDeleting, setIsDeleting] = useState(false);
-  const queryClient = useQueryClient();
-
-  const handleDelete = useCallback(async () => {
-    if (isDeleting) return;
-    const confirmed = window.confirm('Tem certeza que deseja eliminar este imóvel? Esta ação é irreversível.');
-    if (!confirmed) return;
-
-    setIsDeleting(true);
-    try {
-      await deleteProperty(propertyId, userId);
-      toast.success('Propriedade eliminada com sucesso');
-      await queryClient.invalidateQueries({ queryKey: ['user-properties'] });
-      await queryClient.invalidateQueries({ queryKey: ['most-viewed'] });
-    } catch (e) {
-      console.error('Erro ao eliminar propriedade:', e);
-      toast.error('Erro ao eliminar imóvel');
-    } finally {
-      setIsDeleting(false);
-    }
-  }, [isDeleting, propertyId, userId, queryClient]);
+  if (isSuspended) {
+    bgColor = 'bg-red-600';
+    icon = <ShieldAlert className="w-3 h-3 text-white" />;
+    text = 'Suspenso';
+  } else if (isExpired) {
+    bgColor = 'bg-gray-500';
+    icon = <AlertCircle className="w-3 h-3 text-white" />;
+    text = 'Expirado';
+  }
 
   return (
-    <div className="absolute top-3 right-3 z-20 flex gap-2">
-      <Link
-        href={`/dashboard/editar-imovel/${propertyId}`}
-        className="bg-white p-1.5 rounded-full shadow hover:bg-purple-100 transition"
-        title="Editar"
-      >
-        <Pencil className="w-4 h-4 text-purple-700" />
-      </Link>
-      <button
-        onClick={handleDelete}
-        disabled={isDeleting}
-        className={`bg-white p-1.5 rounded-full shadow hover:bg-red-100 transition ${isDeleting ? 'opacity-60 pointer-events-none' : ''}`}
-        title="Eliminar"
-        aria-busy={isDeleting}
-      >
-        <Trash className="w-4 h-4 text-red-600" />
-      </button>
+    <div className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-white text-xs font-bold shadow-lg ${bgColor} backdrop-blur-md border border-white/20`}>
+      {icon}
+      <span>{text}</span>
     </div>
   );
 };
@@ -113,24 +66,49 @@ const UserActions = ({
   toggleFavorito: () => void;
   handleShare: () => void;
 }) => (
-  <div className="absolute bottom-3 right-3 flex gap-2">
+  <div className="absolute top-4 right-4 flex flex-col gap-2 z-20 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
     <button
-      onClick={toggleFavorito}
-      className="bg-white rounded-full p-2 shadow-md hover:scale-105 transition"
-      title={favorito ? 'Remover dos favoritos' : 'Guardar imóvel'}
+      onClick={(e) => { e.preventDefault(); toggleFavorito(); }}
+      className="bg-white/90 backdrop-blur-sm p-2.5 rounded-full shadow-lg hover:bg-white hover:scale-110 transition active:scale-95 group/btn"
     >
-      <Heart className={`w-5 h-5 transition-colors ${
-        favorito ? 'text-purple-600 fill-purple-600' : 'text-gray-400 hover:text-purple-500'
-      }`} />
+      <Heart className={`w-5 h-5 transition-colors ${favorito ? 'text-red-500 fill-red-500' : 'text-gray-600 group-hover/btn:text-red-500'}`} />
     </button>
+    <button
+      onClick={(e) => { e.preventDefault(); handleShare(); }}
+      className="bg-white/90 backdrop-blur-sm p-2.5 rounded-full shadow-lg hover:bg-white hover:scale-110 transition active:scale-95 group/btn"
+    >
+      <Share2 className="w-5 h-5 text-gray-600 group-hover/btn:text-blue-500" />
+    </button>
+  </div>
+);
 
-    <button
-      onClick={handleShare}
-      className="bg-white rounded-full p-2 shadow-md hover:scale-105 transition"
-      title="Compartilhar imóvel"
+const OwnerActions = ({
+  propertyId,
+  userId,
+  onDelete,
+}: {
+  propertyId: string;
+  userId: string;
+  onDelete?: () => void;
+}) => (
+  <div className="absolute top-4 right-4 flex flex-col gap-2 z-20 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
+    <Link
+      href={`/propriedades/${propertyId}/editar`}
+      className="bg-white/90 backdrop-blur-sm p-2.5 rounded-full shadow-lg hover:bg-white hover:scale-110 transition active:scale-95 group/btn"
     >
-      <Share2 className="w-5 h-5 text-gray-500" />
-    </button>
+      <Pencil className="w-5 h-5 text-gray-600 group-hover/btn:text-blue-500" />
+    </Link>
+    {onDelete && (
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          onDelete();
+        }}
+        className="bg-white/90 backdrop-blur-sm p-2.5 rounded-full shadow-lg hover:bg-white hover:scale-110 transition active:scale-95 group/btn"
+      >
+        <Trash className="w-5 h-5 text-gray-600 group-hover/btn:text-red-500" />
+      </button>
+    )}
   </div>
 );
 
@@ -140,12 +118,13 @@ const UserActions = ({
 interface PropertyCardProps {
   property: TPropertyResponseSchema;
   canBoost?: boolean;
+  onDelete?: () => void;
 }
 
 // =======================
 // Componente Principal
 // =======================
-export function PropertyCard({ property, canBoost = true }: PropertyCardProps) {
+export function PropertyCard({ property, canBoost = true, onDelete }: PropertyCardProps) {
   const { user } = useUserStore();
   const isOwner = user?.id === property.owner_id;
 
@@ -162,10 +141,8 @@ export function PropertyCard({ property, canBoost = true }: PropertyCardProps) {
     isSuspended: false,
     status: null
   });
-  const [loadingBoost, setLoadingBoost] = useState(true);
   const [isTogglingFav, setIsTogglingFav] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
-
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -191,7 +168,8 @@ export function PropertyCard({ property, canBoost = true }: PropertyCardProps) {
     return () => { cancelled = true; };
   }, [user, property.id]);
 
-  // Check boosted status
+  // Check boosted status (Logica mantida simplificada aqui, focando no visual)
+  // ... (A lógica de boostInfo original pode ser mantida ou re-inserida se for crítica, aqui mantemos o mesmo hook)
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -205,32 +183,17 @@ export function PropertyCard({ property, canBoost = true }: PropertyCardProps) {
         if (error) throw error;
 
         if (data) {
-          // Verificar se o boost está expirado
           let isExpired = false;
           let isSuspended = false;
-          
-          // Verificar se está suspenso por motivo suspicious
-          if (data.rejected_reason === 'suspicious') {
-            isSuspended = true;
-          }
-          
-          if (data.status === 'active' && !isSuspended) {
-            // Buscar informações do plano para calcular expiração
-            const { data: planData } = await supabase
-              .from('pacotes_destaque')
-              .select('dias')
-              .eq('id', data.plan_id)
-              .single();
+          if (data.rejected_reason === 'suspicious') isSuspended = true;
 
+          if (data.status === 'active' && !isSuspended) {
+            const { data: planData } = await supabase.from('pacotes_destaque').select('dias').eq('id', data.plan_id).single();
             if (planData?.dias) {
-              const startedAt = new Date(data.created_at);
-              const expiresAt = new Date(startedAt);
-              expiresAt.setDate(startedAt.getDate() + planData.dias);
+              const expiresAt = new Date(new Date(data.created_at).setDate(new Date(data.created_at).getDate() + planData.dias));
               isExpired = new Date() > expiresAt;
             }
-          } else if (data.status === 'expired') {
-            isExpired = true;
-          }
+          } else if (data.status === 'expired') isExpired = true;
 
           if (!cancelled && mountedRef.current) {
             setBoostInfo({
@@ -241,239 +204,117 @@ export function PropertyCard({ property, canBoost = true }: PropertyCardProps) {
               rejected_reason: data.rejected_reason
             });
           }
-        } else {
-          if (!cancelled && mountedRef.current) {
-            setBoostInfo({
-              isBoosted: false,
-              isExpired: false,
-              isSuspended: false,
-              status: null
-            });
-          }
         }
-      } catch (e) { 
-        console.error('Erro ao verificar boost:', e); 
-        if (!cancelled && mountedRef.current) {
-          setBoostInfo({
-            isBoosted: false,
-            isExpired: false,
-            isSuspended: false,
-            status: null
-          });
-        }
-      } finally { 
-        if (!cancelled && mountedRef.current) setLoadingBoost(false); 
-      }
+      } catch (e) { console.error(e); }
     })();
     return () => { cancelled = true; };
   }, [property.id]);
+
 
   // Toggle favorito
   const toggleFavorito = useCallback(async () => {
     if (!user) { toast.warning('Você precisa estar autenticado para guardar imóveis.'); return; }
     if (isTogglingFav) return;
-
     setIsTogglingFav(true);
     const previousState = favorito;
     setFavorito(!favorito);
-
     try {
       const result = await toggleFavoritoProperty(user.id, property.id);
       if (!result.success) throw new Error(result.error || "Erro ao favoritar");
-
       setFavorito(result.isFavorited);
-      if (result.isFavorited && result.action === 'added') toast.success('Imóvel adicionado aos favoritos! ❤️');
-      else if (!result.isFavorited && result.action === 'removed') toast.info('Imóvel removido dos favoritos');
     } catch (e) {
-      console.error(e);
-      if (mountedRef.current) setFavorito(previousState);
-      toast.error(e instanceof Error ? e.message : 'Erro ao atualizar favoritos');
+      setFavorito(previousState);
+      toast.error('Erro ao atualizar favoritos');
     } finally { if (mountedRef.current) setIsTogglingFav(false); }
   }, [user, favorito, property.id, isTogglingFav]);
 
   // Compartilhar
   const handleShare = useCallback(async () => {
     if (!shareUrl) return;
-    const shareData = { title: property.title, text: `Confira este imóvel em ${property.endereco}`, url: shareUrl };
     if (navigator.share) {
-      try { await navigator.share(shareData); } catch { console.log('Erro ao compartilhar'); }
+      try { await navigator.share({ title: property.title, url: shareUrl }); } catch { }
     } else {
-      try { await navigator.clipboard.writeText(shareUrl); toast.success('Link copiado para a área de transferência!'); }
-      catch { toast.error('Não foi possível copiar o link.'); }
+      await navigator.clipboard.writeText(shareUrl); toast.success('Link copiado!');
     }
-  }, [shareUrl, property.title, property.endereco]);
+  }, [shareUrl, property.title]);
 
-  const getBoostButtonText = () => {
-    if (!canBoost) return 'Impulsionamento Bloqueado';
-    if (boostInfo.isSuspended) return 'Impulsionamento suspenso';
-    if (boostInfo.isBoosted) return 'Impulsionado ✓';
-    if (boostInfo.isExpired) return 'Precisa renovar';
-    if (boostInfo.status === 'pending') return 'Aguardando aprovação';
-    if (boostInfo.status === 'rejected') return 'Solicitação rejeitada';
-    return 'Destacar propriedade';
-  };
-
-  const getBoostButtonClass = () => {
-    if (!canBoost) return 'border-gray-400 bg-gray-100 text-gray-500 opacity-60 cursor-not-allowed';
-    if (boostInfo.isSuspended) return 'border-red-600 bg-red-50 text-red-700 opacity-60 cursor-not-allowed';
-    if (boostInfo.isBoosted) return 'border-green-600 bg-green-50 text-green-700 opacity-60 cursor-not-allowed';
-    if (boostInfo.isExpired) return 'border-red-600 bg-red-50 text-red-700 hover:bg-red-100';
-    if (boostInfo.status === 'pending') return 'border-yellow-600 bg-yellow-50 text-yellow-700 opacity-60 cursor-not-allowed';
-    if (boostInfo.status === 'rejected') return 'border-red-600 bg-red-50 text-red-700 hover:bg-red-100';
-    return 'border-purple-700 text-purple-700 hover:bg-purple-50';
-  };
-
-  const getBoostButtonIcon = () => {
-    if (!canBoost) return 'text-gray-500';
-    if (boostInfo.isSuspended) return 'text-red-600';
-    if (boostInfo.isBoosted) return 'text-green-600';
-    if (boostInfo.isExpired) return 'text-red-600';
-    if (boostInfo.status === 'pending') return 'text-yellow-600';
-    if (boostInfo.status === 'rejected') return 'text-red-600';
-    return '';
-  };
-
-  const shouldShowBoostButton = () => {
-    // Não mostrar botão se estiver suspenso
-    if (boostInfo.isSuspended) return false;
-    // Mostrar botão apenas para o proprietário
-    return isOwner;
-  };
-
-  const shouldDisableBoostButton = () => {
-    return !canBoost || boostInfo.isBoosted || boostInfo.status === 'pending' || boostInfo.isSuspended;
-  };
-
-  const handleBoostClick = (e: React.MouseEvent) => {
-    if (!canBoost) {
-      e.preventDefault();
-      toast.error('Você não pode impulsionar propriedades devido a restrições em suas propriedades suspensas.');
-      return;
-    }
-    
-    if (shouldDisableBoostButton()) {
-      e.preventDefault();
-    }
-  };
 
   return (
-    <div className={`w-[300px] bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 h-full flex flex-col relative group ${
-      boostInfo.isSuspended ? 'ring-2 ring-red-500 ring-opacity-50' :
-      boostInfo.isBoosted ? 'ring-2 ring-orange-500 ring-opacity-50' : 
-      boostInfo.isExpired ? 'ring-2 ring-red-300 ring-opacity-50' : ''
-    }`}>
-      {/* Badges */}
-      {boostInfo.isSuspended && (
-        <>
-          <BoostedBadge isSuspended={true} />
-          <SuspendedBoostBadge />
-        </>
-      )}
-      {boostInfo.isBoosted && <BoostedBadge />}
-      {boostInfo.isExpired && (
-        <>
-          <BoostedBadge isExpired={true} />
-          <ExpiredBoostBadge />
-        </>
-      )}
-      {!boostInfo.isBoosted && !boostInfo.isExpired && !boostInfo.isSuspended && <StatusBadge status={property.status} />}
-      
-      {isOwner && <OwnerActions propertyId={property.id} userId={user.id}/>}
+    <div className="group relative w-full h-[420px] bg-white rounded-3xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden border border-gray-100">
 
-      <div className="relative h-56 w-full">
-        <Image 
-          src={property.image ?? '/house.jpg'} 
-          alt={property.title} 
-          fill 
-          className="object-cover" 
-          priority={false}
+      {/* IMAGEM & BADGES */}
+      <div className="relative h-[65%] w-full overflow-hidden">
+        <Link href={`/propriedades/${property.id}`} className="absolute inset-0 z-10" />
+
+        <Image
+          src={property.image ?? '/house.jpg'}
+          alt={property.title}
+          fill
+          className="object-cover transition-transform duration-700 group-hover:scale-110"
         />
-        {boostInfo.isBoosted && <div className="absolute inset-0 bg-gradient-to-t from-orange-500/10 to-transparent pointer-events-none" />}
-        {boostInfo.isExpired && <div className="absolute inset-0 bg-gradient-to-t from-red-500/10 to-transparent pointer-events-none" />}
-        {boostInfo.isSuspended && <div className="absolute inset-0 bg-gradient-to-t from-red-600/10 to-transparent pointer-events-none" />}
-        {user && !isOwner && <UserActions favorito={favorito} toggleFavorito={toggleFavorito} handleShare={handleShare}/>}
-      </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
 
-      <div className="p-5 flex flex-col flex-1 space-y-4">
-        <div className="space-y-2 flex-1">
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <MapPin className="w-4 h-4" />
-            <span>{property.endereco}</span>
-          </div>
-
-          <h3 className="text-xl font-semibold text-gray-900 line-clamp-2">{property.title}</h3>
-
-          {!isOwner && boostInfo.isBoosted && (
-            <div className="flex items-center gap-1 text-xs text-orange-600 font-medium">
-              <Zap className="w-3 h-3" />
-              <span>Imóvel Impulsionado</span>
-            </div>
+        {/* Top Badges */}
+        <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
+          {(boostInfo.isBoosted || boostInfo.isSuspended || boostInfo.isExpired) ? (
+            <BoostedBadge isExpired={boostInfo.isExpired} isSuspended={boostInfo.isSuspended} />
+          ) : (
+            <StatusBadge status={property.status} />
           )}
+        </div>
 
-          {!isOwner && boostInfo.isExpired && (
-            <div className="flex items-center gap-1 text-xs text-red-600 font-medium">
-              <AlertCircle className="w-3 h-3" />
-              <span>Destaque Expirado</span>
-            </div>
-          )}
-
-          {!isOwner && boostInfo.isSuspended && (
-            <div className="flex items-center gap-1 text-xs text-red-600 font-medium">
-              <ShieldAlert className="w-3 h-3" />
-              <span>Impulsionamento Suspenso</span>
-            </div>
-          )}
-
-          <div className="flex justify-between text-gray-700 text-sm">
-            <div className="flex items-center gap-1"><BedDouble className="w-4 h-4"/> {property.bedrooms} Quartos</div>
-            <div className="flex items-center gap-1"><Ruler className="w-4 h-4"/> {property.size}m²</div>
-          </div>
-
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>{property.tipo || property.status}</span>
-            {property.bathrooms != null && <span>{property.bathrooms} Banheiro{property.bathrooms > 1 ? 's' : ''}</span>}
-            {property.garagens != null && property.garagens > 0 && <span>{property.garagens} Garagem{property.garagens > 1 ? 's' : ''}</span>}
-          </div>
-
-          <div className="flex items-center gap-2 text-orange-500 font-bold mt-2">
-            <Tag className="w-5 h-5" />
-            <span>{property.price?.toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Kz{property.status === 'arrendar' ? '/mês' : ''}</span>
+        {/* Floating Price Tag */}
+        <div className="absolute bottom-4 left-4 z-20">
+          <div className="bg-white/95 backdrop-blur-md px-4 py-2 rounded-xl shadow-lg border border-white/20 flex items-baseline gap-1">
+            <span className="text-gray-900 font-extrabold text-lg">
+              {property.price?.toLocaleString('pt-AO', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            </span>
+            <span className="text-purple-600 font-bold text-xs uppercase">Kz</span>
+            {property.status === 'arrendar' && <span className="text-gray-500 text-xs font-medium">/ mês</span>}
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Link 
-            href={`/propriedades/${property.id}`} 
-            className="flex justify-center cursor-pointer w-full bg-purple-700 hover:bg-purple-800 text-white py-2 rounded-lg font-medium transition" 
-            prefetch={false}
-          >
-            Ver detalhes
-          </Link>
+        {/* User Actions (Hover only) */}
+        {!isOwner && <UserActions favorito={favorito} toggleFavorito={toggleFavorito} handleShare={handleShare} />}
 
-          {shouldShowBoostButton() && (
-            <Link
-              href={shouldDisableBoostButton() ? '#' : `/dashboard/destacar/${property.id}`}
-              onClick={handleBoostClick}
-              className={`flex items-center justify-center gap-2 w-full border py-2 rounded-lg font-medium transition ${getBoostButtonClass()}`}
-            >
-              <Star className={`w-4 h-4 ${getBoostButtonIcon()}`} />
-              {getBoostButtonText()}
+        {isOwner && <OwnerActions propertyId={property.id} userId={user.id} onDelete={onDelete} />}
+      </div>
+
+      {/* INFO CONTENT */}
+      <div className="flex-1 p-5 flex flex-col justify-between bg-white relative">
+        <div className="space-y-3">
+          {/* Location */}
+          <div className="flex items-center gap-1.5 text-gray-500 text-xs font-medium uppercase tracking-wide">
+            <MapPin className="w-3.5 h-3.5 text-purple-500" />
+            <span className="line-clamp-1">{property.endereco}</span>
+          </div>
+
+          {/* Title */}
+          <h3 className="text-lg font-bold text-gray-900 leading-snug line-clamp-2 group-hover:text-purple-600 transition-colors">
+            <Link href={`/propriedades/${property.id}`}>
+              {property.title}
             </Link>
-          )}
+          </h3>
 
-          {isOwner && boostInfo.isSuspended && (
-            <div className="text-xs text-red-600 text-center p-2 bg-red-50 rounded-lg border border-red-200">
-              <ShieldAlert className="w-4 h-4 mx-auto mb-1" />
-              Seu impulsionamento foi suspenso por suspeita de atividade. Contacte o suporte.
+          {/* Features */}
+          <div className="flex items-center gap-4 text-gray-600 text-sm pt-1">
+            <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1.5 rounded-lg">
+              <BedDouble className="w-4 h-4 text-gray-400" />
+              <span className="font-semibold">{property.bedrooms}</span>
+              <span className="text-xs text-gray-400 font-medium">Quartos</span>
             </div>
-          )}
-
-          {isOwner && !canBoost && !boostInfo.isSuspended && (
-            <div className="text-xs text-gray-600 text-center p-2 bg-gray-50 rounded-lg border border-gray-200">
-              <ShieldAlert className="w-4 h-4 mx-auto mb-1" />
-              Impulsionamento bloqueado devido a propriedades suspensas na sua conta.
+            <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1.5 rounded-lg">
+              <Ruler className="w-4 h-4 text-gray-400" />
+              <span className="font-semibold">{property.size}</span>
+              <span className="text-xs text-gray-400 font-medium">m²</span>
             </div>
-          )}
+            {(property.bathrooms && property.bathrooms > 0) && (
+              <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1.5 rounded-lg hidden md:flex">
+                <div className="w-4 h-4 text-gray-400 flex items-center justify-center font-serif text-xs italic">B</div>
+                <span className="font-semibold">{property.bathrooms}</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
