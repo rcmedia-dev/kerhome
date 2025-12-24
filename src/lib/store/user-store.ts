@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createClient } from "@/lib/supabase/client";
+import { checkAgentRequestStatus } from "../functions/supabase-actions/check-agent-request";
 
 const supabase = createClient();
 
@@ -38,6 +39,7 @@ export interface UserProfile {
   role?: string | null;
   created_at?: string;
   updated_at?: string;
+  current_agent_request_status?: string | null;
 }
 
 type UserStore = {
@@ -88,7 +90,12 @@ export const useUserStore = create<UserStore>()(
             avatar_url: profile.avatar_url || null,
             created_at: profile.created_at,
             updated_at: profile.updated_at,
+            current_agent_request_status: null, // Initial value
           };
+
+          // Fetch agent request status
+          const requestStatus = await checkAgentRequestStatus(userId);
+          formattedUser.current_agent_request_status = requestStatus;
 
           set({ user: formattedUser, isLoading: false });
           return formattedUser;

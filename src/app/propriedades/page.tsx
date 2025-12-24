@@ -521,57 +521,26 @@ const PropertyListing = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
 
-      {/* 🌟 HERO SECTION MODERNA */}
-      <div className="relative bg-[#130f25] text-white pt-20 pb-40 px-4 overflow-hidden">
-        {/* Background Decoration */}
-        <div className="absolute inset-0 z-0 opacity-40">
-          <div className="absolute top-[-20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/30 rounded-full blur-[120px]" />
-          <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-orange-500/20 rounded-full blur-[100px]" />
-        </div>
-
-        <div className="relative z-10 max-w-5xl mx-auto text-center space-y-6 mt-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
-              Encontre o lugar que <br />
-              você pode chamar de <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-orange-400">Lar.</span>
-            </h1>
-          </motion.div>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.6 }}
-            className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto font-light"
-          >
-            Explore milhares de imóveis à venda e para arrendar em Angola com a plataforma mais confiável do mercado.
-          </motion.p>
-        </div>
-      </div>
-
-      {/* 🔍 SEARCH CARD (INLINE) - Only visible when NOT scrolled past threshold is logically implied, but here we keep it in DOM */}
-      <div className="relative z-20 max-w-6xl mx-auto px-4 -mt-24 mb-16 w-full hidden md:block">
+      {/* 🔍 SEARCH CARD (INLINE) */}
+      <div className="relative z-20 max-w-6xl mx-auto px-4 mt-8 mb-12 w-full hidden md:block">
         <motion.div
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.6, type: "spring" }}
-          className="bg-white rounded-3xl shadow-2xl border border-gray-100/50 p-6 md:p-8 backdrop-blur-xl"
+          className="bg-gradient-to-r from-[#130f25] to-purple-900 rounded-3xl shadow-xl border border-white/10 p-6 md:p-8 backdrop-blur-xl"
         >
           {/* Header do Card de Busca */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-gray-100 pb-4">
-            <div className="flex items-center gap-2 text-gray-800">
-              <div className="p-2 bg-purple-100 rounded-lg text-purple-600">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-white/10 pb-4">
+            <div className="flex items-center gap-2 text-white">
+              <div className="p-2 bg-white/10 rounded-lg text-white">
                 <Search size={20} />
               </div>
               <span className="font-semibold text-lg">Filtrar Imóveis</span>
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="text-sm text-gray-500">
-                <span className="font-bold text-gray-900">{sortedProperties?.length || 0}</span> resultados
+              <div className="text-sm text-gray-300">
+                <span className="font-bold text-white">{sortedProperties?.length || 0}</span> resultados
               </div>
               <AnimatePresence>
                 {hasActiveFilters && (
@@ -580,7 +549,7 @@ const PropertyListing = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     onClick={clearFilters}
-                    className="text-xs font-medium text-red-500 hover:bg-red-50 px-3 py-1.5 rounded-full transition-colors flex items-center gap-1"
+                    className="text-xs font-medium text-red-300 hover:bg-white/10 px-3 py-1.5 rounded-full transition-colors flex items-center gap-1"
                   >
                     <X size={12} /> Limpar
                   </motion.button>
@@ -598,7 +567,7 @@ const PropertyListing = () => {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="max-w-7xl mx-auto px-4 w-full pb-20 pt-8 md:pt-0"
+        className="max-w-7xl mx-auto px-4 w-full pb-20 pt-0"
       >
         <motion.div
           variants={containerVariants}

@@ -42,7 +42,7 @@ interface PostsGridProps {
 
 // Componente para o cabeçalho
 const Header: React.FC = () => (
-  <header className="relative bg-gradient-to-r from-purple-900 via-purple-800 to-indigo-900 text-white overflow-hidden pb-32 pt-20">
+  <header className="relative bg-gradient-to-r from-[#130f25] to-purple-900 text-white overflow-hidden pb-32 pt-20">
     <div className="absolute inset-0 opacity-10 bg-[url('/grid-pattern.svg')]"></div>
     <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
     <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
@@ -52,7 +52,7 @@ const Header: React.FC = () => (
         Insights do Mercado
       </span>
       <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight leading-tight">
-        KERCASA <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-200">JOURNAL</span>
+        KERCASA <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-200">BLOG</span>
       </h1>
       <p className="text-xl text-purple-100 max-w-2xl mx-auto font-light leading-relaxed">
         Seu guia definitivo para investimentos inteligentes, decoração e tendências do mercado imobiliário em Angola.

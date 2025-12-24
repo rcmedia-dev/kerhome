@@ -54,13 +54,14 @@ const SectionContainer = React.memo(({
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6 }}
+    transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
     className={cn(
-      "bg-white/50 backdrop-blur-sm rounded-3xl p-6 mb-6",
+      "bg-white/70 backdrop-blur-xl rounded-3xl p-6 mb-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/20 relative overflow-hidden",
+      "before:absolute before:inset-0 before:bg-gradient-to-br before:from-purple-50/30 before:via-transparent before:to-orange-50/30 before:pointer-events-none",
       className
     )}
   >
-    {children}
+    <div className="relative z-10">{children}</div>
   </motion.div>
 ));
 
@@ -156,17 +157,22 @@ const EmptyState = ({
   <motion.div
     initial={{ opacity: 0, scale: 0.9 }}
     animate={{ opacity: 1, scale: 1 }}
+    transition={{ type: "spring", stiffness: 200, damping: 20 }}
     className={cn(
-      "text-center py-12 px-6 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200",
+      "text-center py-16 px-6 rounded-3xl bg-gradient-to-br from-gray-50/80 via-white to-gray-50/80 border border-gray-100 shadow-sm",
+      "flex flex-col items-center justify-center gap-4",
       className
     )}
   >
     {Icon && (
-      <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-        <Icon className="w-8 h-8 text-gray-400" />
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-200 to-orange-200 rounded-full blur-xl opacity-30 transform scale-150" />
+        <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgb(0,0,0,0.06)] relative z-10 border border-white">
+          <Icon className="w-8 h-8 text-gray-400" />
+        </div>
       </div>
     )}
-    <p className="text-gray-500 text-lg font-medium">{message}</p>
+    <p className="text-gray-500 text-lg font-medium max-w-sm mx-auto">{message}</p>
   </motion.div>
 );
 
