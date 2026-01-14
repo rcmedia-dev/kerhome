@@ -13,7 +13,6 @@ import {
   Home,
   Bookmark
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import readingTime from 'reading-time';
 import { toast } from 'sonner';
@@ -159,7 +158,6 @@ const Sidebar: React.FC<{ post: Noticias }> = ({ post }) => {
 };
 
 const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
-  const router = useRouter();
   const estimatedTime = readingTime(post.content.html);
 
   const formatDate = (dateString: string) => {
@@ -186,15 +184,6 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
               transition={{ duration: 0.6 }}
               className="text-left"
             >
-              {/* Mobile/Desktop Back Button */}
-              <button
-                onClick={() => router.back()}
-                className="inline-flex items-center gap-2 text-xs md:text-sm font-bold text-gray-400 hover:text-purple-700 transition-colors mb-6 md:mb-8 bg-gray-50 px-4 py-2 rounded-full md:bg-transparent md:p-0"
-              >
-                <ArrowLeft size={16} />
-                <span>Voltar à página anterior</span>
-              </button>
-
               <div className="flex justify-start mb-6">
                 <Breadcrumbs title={post.title} />
               </div>
