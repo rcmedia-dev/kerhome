@@ -77,7 +77,7 @@ export default function AgentSection({ ownerId }: AgentSectionProps) {
       <p className="text-xs text-gray-500 mb-4">{agent.email}</p>
 
       <Link
-         href={`/agente?email=${encodeURIComponent(agent.email)}`}
+        href={`/agente?email=${encodeURIComponent(agent.email)}`}
         className="w-full bg-purple-700 text-white py-2 px-3 rounded-lg font-semibold hover:bg-purple-800 transition block text-center"
       >
         Ver outras propriedades

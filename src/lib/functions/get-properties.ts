@@ -256,10 +256,10 @@ export async function getLimitedProperties(limit: number): Promise<TPropertyResp
       .limit(limit);
 
     return properties.data as TPropertyResponseSchema[];
-    } catch (e) {
-      console.error(`Erro na propriedade:`, e);
-      throw e;
-    }
+  } catch (e) {
+    console.error(`Erro na propriedade:`, e);
+    throw e;
+  }
 }
 
 export async function getPropertyById(id: string | null): Promise<TPropertyResponseSchema | null> {
@@ -284,7 +284,7 @@ export async function getSupabaseUserProperties(userId?: string): Promise<TPrope
     .select('*')
     .eq('owner_id', userId)
     .order('created_at', { ascending: false });
-    
+
   if (error) {
     console.error('Erro ao buscar propriedades do usuário:', error);
     return [];
@@ -296,7 +296,7 @@ export async function getSupabaseUserProperties(userId?: string): Promise<TPrope
 
   // Buscar informações de boost para as propriedades
   const propertyIds = propertiesData.map(prop => prop.id);
-  
+
   const { data: boostsData, error: boostsError } = await supabase
     .from('properties_to_boost')
     .select('id, property_id, status, rejected_reason, created_at, plan_id')
@@ -323,7 +323,7 @@ export async function getSupabaseUserProperties(userId?: string): Promise<TPrope
   // Combinar as informações
   const propertiesWithBoost = propertiesData.map(property => {
     const boostInfo = boostsMap.get(property.id);
-    
+
     return {
       ...property,
       // Informações de boost (se existirem)
