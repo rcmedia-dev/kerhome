@@ -138,7 +138,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
 
               {/* Contact Card */}
               <div className="bg-white rounded-2xl shadow-xl shadow-purple-900/5 border border-purple-100 overflow-hidden transform transition-all hover:scale-[1.01] duration-300">
-                <div className="p-6 bg-gradient-to-br from-purple-50 to-white">
+                <div className="p-6 bg-linear-to-br from-purple-50 to-white">
                   <h3 className="text-lg font-bold text-gray-900 mb-1">Interessado?</h3>
                   <p className="text-sm text-gray-500 mb-6">Fale direto com o anunciante</p>
                   <PropertyContact property={property} ownerDetails={ownerDetails} />
