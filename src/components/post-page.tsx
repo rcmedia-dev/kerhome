@@ -13,6 +13,7 @@ import {
   Home,
   Bookmark
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import readingTime from 'reading-time';
 import { toast } from 'sonner';
@@ -158,6 +159,7 @@ const Sidebar: React.FC<{ post: Noticias }> = ({ post }) => {
 };
 
 const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
+  const router = useRouter();
   const estimatedTime = readingTime(post.content.html);
 
   const formatDate = (dateString: string) => {
@@ -173,22 +175,31 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
       <ReadingProgress />
 
       {/* Main Layout */}
-      <div className="py-12 md:py-16">
+      <div className="py-8 md:py-16">
         <div className="container mx-auto px-4">
 
           {/* Hero Section */}
-          <div className="max-w-5xl mx-auto mb-16 md:mb-24">
+          <div className="max-w-5xl mx-auto mb-12 md:mb-24">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-center md:text-left"
+              className="text-left"
             >
-              <div className="flex justify-center md:justify-start mb-6">
+              {/* Mobile/Desktop Back Button */}
+              <button
+                onClick={() => router.back()}
+                className="inline-flex items-center gap-2 text-xs md:text-sm font-bold text-gray-400 hover:text-purple-700 transition-colors mb-6 md:mb-8 bg-gray-50 px-4 py-2 rounded-full md:bg-transparent md:p-0"
+              >
+                <ArrowLeft size={16} />
+                <span>Voltar à página anterior</span>
+              </button>
+
+              <div className="flex justify-start mb-6">
                 <Breadcrumbs title={post.title} />
               </div>
 
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-gray-900 tracking-tight leading-[1.1] mb-8 text-balance">
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-gray-900 tracking-tight leading-tight mb-8 text-balance">
                 {post.title}
               </h1>
 
@@ -251,7 +262,7 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
 
                 {/* Article Body */}
                 <article className="prose prose-lg md:prose-xl prose-stone max-w-none
-                     prose-headings:font-black prose-headings:tracking-tight prose-headings:text-gray-900
+                     prose-headings:font-black prose-headings:tracking-tight prose-headings:text-gray-900 prose-headings:mt-12 prose-headings:mb-6
                      prose-p:text-gray-600 prose-p:leading-loose
                      prose-a:text-purple-700 prose-a:no-underline hover:prose-a:underline prose-a:font-bold
                      prose-img:rounded-3xl prose-img:shadow-lg prose-img:my-12
@@ -292,7 +303,7 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
                           <div className="aspect-3/2 rounded-xl overflow-hidden mb-3 bg-gray-100">
                             <img src={rp.coverImage.url} alt={rp.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                           </div>
-                          <h4 className="font-bold text-gray-900 leading-tight group-hover:text-purple-700 transition-colors">
+                          <h4 className="font-bold text-gray-900 text-sm md:text-base leading-snug group-hover:text-purple-700 transition-colors">
                             {rp.title}
                           </h4>
                         </Link>
