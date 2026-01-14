@@ -165,41 +165,44 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const estimatedTime = readingTime(post.content.html)
 
   return (
-    <article className="group bg-white rounded-2xl overflow-hidden hover:shadow-[0_20px_50px_rgba(8,_112,_184,_0.07)] transition-all duration-500 border border-gray-100 flex flex-col h-full hover:-translate-y-1">
-      <div className="h-56 overflow-hidden relative">
-        <div className="absolute inset-0 bg-gray-900/10 group-hover:bg-transparent transition-colors z-10"></div>
-        <img
-          src={post.coverImage.url}
-          alt={post.title}
-          className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-        />
-        <div className="absolute top-4 left-4 z-20">
-          <span className="bg-white/90 backdrop-blur-sm text-gray-900 text-xs font-bold px-3 py-1 rounded-md shadow-sm uppercase tracking-wide">
-            Artigo
-          </span>
+    <Link href={`/noticias/${post.slug}`} className="block h-full">
+      <article className="group bg-white rounded-2xl overflow-hidden hover:shadow-[0_20px_50px_rgba(8,_112,_184,_0.07)] transition-all duration-500 border border-gray-100 flex flex-col h-full hover:-translate-y-1">
+        <div className="h-56 overflow-hidden relative">
+          <div className="absolute inset-0 bg-gray-900/10 group-hover:bg-transparent transition-colors z-10"></div>
+          <img
+            src={post.coverImage.url}
+            alt={post.title}
+            loading="eager"
+            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+          />
+          <div className="absolute top-4 left-4 z-20">
+            <span className="bg-white/90 backdrop-blur-sm text-gray-900 text-xs font-bold px-3 py-1 rounded-md shadow-sm uppercase tracking-wide">
+              Artigo
+            </span>
+          </div>
         </div>
-      </div>
-      <div className="p-6 flex flex-col flex-1">
-        <div className="mb-4">
-          <PostInfo createdAt={post.createdAt} readTime={estimatedTime.minutes.toString()} />
+        <div className="p-6 flex flex-col flex-1">
+          <div className="mb-4">
+            <PostInfo createdAt={post.createdAt} readTime={estimatedTime.minutes.toString()} />
+          </div>
+
+          <h3 className="text-xl font-bold text-gray-900 mb-3 leading-snug group-hover:text-purple-700 transition-colors line-clamp-2">
+            {post.title}
+          </h3>
+
+          <p className="text-gray-500 mb-6 text-sm leading-relaxed line-clamp-3">
+            {stripHtml(post.excerpt.html)}
+          </p>
+
+          <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
+            <AuthorBadge />
+            <span className="text-purple-600 group-hover:translate-x-1 transition-transform">
+              <ArrowRight className="w-5 h-5" />
+            </span>
+          </div>
         </div>
-
-        <h3 className="text-xl font-bold text-gray-900 mb-3 leading-snug group-hover:text-purple-700 transition-colors line-clamp-2">
-          {post.title}
-        </h3>
-
-        <p className="text-gray-500 mb-6 text-sm leading-relaxed line-clamp-3">
-          {stripHtml(post.excerpt.html)}
-        </p>
-
-        <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
-          <AuthorBadge />
-          <span className="text-purple-600 group-hover:translate-x-1 transition-transform">
-            <ArrowRight className="w-5 h-5" />
-          </span>
-        </div>
-      </div>
-    </article>
+      </article>
+    </Link>
   );
 };
 
@@ -212,11 +215,12 @@ const FeaturedPost: React.FC<FeaturedPostProps> = ({ post }) => {
   const estimatedTime = readingTime(post.content.html)
 
   return (
-    <div className="relative bg-black rounded-3xl shadow-2xl overflow-hidden mb-16 text-white group">
+    <Link href={`/noticias/${post.slug}`} className="block relative bg-black rounded-3xl shadow-2xl overflow-hidden mb-16 text-white group cursor-pointer">
       <div className="absolute inset-0">
         <img
           src={post.coverImage.url}
           alt={post.title}
+          loading="eager"
           className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-700 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
@@ -243,15 +247,15 @@ const FeaturedPost: React.FC<FeaturedPostProps> = ({ post }) => {
               {estimatedTime.minutes.toString()} min de leitura
             </div>
           </div>
-          <Link href={`/noticias/${post.slug}`}>
-            <button className="bg-white text-black hover:bg-gray-100 px-8 py-4 rounded-xl font-bold transition-all flex items-center gap-3 group-hover:gap-4">
+          <div className="inline-block">
+            <button className="bg-white text-black hover:bg-gray-100 px-8 py-4 rounded-xl font-bold transition-all flex items-center gap-3 group-hover:gap-4 pointer-events-none">
               Ler Matéria Completa
               <ArrowRight className="w-5 h-5" />
             </button>
-          </Link>
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
