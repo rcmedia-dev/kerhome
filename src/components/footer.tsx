@@ -32,7 +32,7 @@ export default function Footer() {
         </nav>
 
         <div className="mt-12 text-purple-200 text-sm">
-          <Link href="/privacy" className="hover:text-white block mb-2">Política de Privacidade</Link>
+          <Link href="/policy" className="hover:text-white block mb-2">Política de Privacidade</Link>
           <Link href="/terms" className="hover:text-white block">Termos e Condições</Link>
         </div>
       </div>

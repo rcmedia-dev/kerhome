@@ -42,7 +42,7 @@ interface PostsGridProps {
 
 // Componente para o cabeçalho
 const Header: React.FC = () => (
-  <header className="relative bg-gradient-to-r from-[#130f25] to-purple-900 text-white overflow-hidden pb-32 pt-20">
+  <header className="relative bg-linear-to-r from-[#130f25] to-purple-900 text-white overflow-hidden pb-32 pt-20">
     <div className="absolute inset-0 opacity-10 bg-[url('/grid-pattern.svg')]"></div>
     <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
     <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
@@ -52,7 +52,7 @@ const Header: React.FC = () => (
         Insights do Mercado
       </span>
       <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight leading-tight">
-        KERCASA <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-200">BLOG</span>
+        KERCASA <span className="text-transparent bg-clip-text bg-linear-to-r from-orange-400 to-amber-200">BLOG</span>
       </h1>
       <p className="text-xl text-purple-100 max-w-2xl mx-auto font-light leading-relaxed">
         Seu guia definitivo para investimentos inteligentes, decoração e tendências do mercado imobiliário em Angola.
@@ -94,7 +94,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, setSearchTerm, result
 
 // Componente para o badge do redator
 const AuthorBadge: React.FC = () => (
-  <span className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-purple-50 to-indigo-50 text-purple-700 border border-purple-100">
+  <span className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-linear-to-r from-purple-50 to-indigo-50 text-purple-700 border border-purple-100">
     <span className="w-2 h-2 rounded-full bg-purple-500"></span>
     Redação KerCasa
   </span>
@@ -166,7 +166,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
   return (
     <Link href={`/noticias/${post.slug}`} className="block h-full">
-      <article className="group bg-white rounded-2xl overflow-hidden hover:shadow-[0_20px_50px_rgba(8,_112,_184,_0.07)] transition-all duration-500 border border-gray-100 flex flex-col h-full hover:-translate-y-1">
+      <article className="group bg-white rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100 flex flex-col h-full hover:-translate-y-1">
         <div className="h-56 overflow-hidden relative">
           <div className="absolute inset-0 bg-gray-900/10 group-hover:bg-transparent transition-colors z-10"></div>
           <img
@@ -223,7 +223,7 @@ const FeaturedPost: React.FC<FeaturedPostProps> = ({ post }) => {
           loading="eager"
           className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-700 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+        <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 to-transparent"></div>
       </div>
 
       <div className="relative p-8 md:p-16 flex flex-col justify-end h-full min-h-[500px]">

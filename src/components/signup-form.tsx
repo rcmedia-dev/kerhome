@@ -24,7 +24,7 @@ export function CustomSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
 
     try {
       const formData = new FormData(event.currentTarget)
-      
+
       // Validação adicional do lado do cliente
       const password = formData.get('password') as string
       if (password.length < 6) {
@@ -36,7 +36,7 @@ export function CustomSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
       if (result?.success && result.user) {
         // Buscar o perfil completo do usuário após o cadastro
         const userProfile = await fetchUserProfile(result.user.id)
-        
+
         if (userProfile) {
           setUser(userProfile)
         } else {
@@ -52,7 +52,7 @@ export function CustomSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
             updated_at: new Date().toISOString()
           })
         }
-        
+
         onSuccess?.()
         router.push('/dashboard') // Redireciona após cadastro
       } else {
@@ -92,11 +92,11 @@ export function CustomSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
   return (
     <div className="p-6 bg-white rounded-lg w-full max-w-md">
       <div className="flex justify-center mb-4">
-        <Image 
-          src="/kercasa_logo.png" 
-          alt="Kerhome Logo" 
-          width={100} 
-          height={100} 
+        <Image
+          src="/kercasa_logo.png"
+          alt="Kerhome Logo"
+          width={100}
+          height={100}
           priority
         />
       </div>
@@ -108,15 +108,15 @@ export function CustomSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
 
       <form className="space-y-5" onSubmit={handleSubmit}>
         <div className="flex gap-4">
-          <FloatingInput 
+          <FloatingInput
             id="primeiro_nome"
             name="primeiro_nome"
             type="text"
             label="Primeiro nome"
             required
           />
-          
-          <FloatingInput 
+
+          <FloatingInput
             id="ultimo_nome"
             name="ultimo_nome"
             type="text"
@@ -125,7 +125,7 @@ export function CustomSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
           />
         </div>
 
-        <FloatingInput 
+        <FloatingInput
           id="email"
           name="email"
           type="email"
@@ -133,7 +133,7 @@ export function CustomSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
           required
         />
 
-        <FloatingInput 
+        <FloatingInput
           id="password"
           name="password"
           type="password"
@@ -151,9 +151,8 @@ export function CustomSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
         <button
           type="submit"
           disabled={loading}
-          className={`w-full text-white rounded-lg py-4 flex justify-center items-center transition ${
-            loading ? 'bg-purple-400 cursor-not-allowed' : 'bg-purple-700 hover:bg-purple-800'
-          }`}
+          className={`w-full text-white rounded-lg py-4 flex justify-center items-center transition ${loading ? 'bg-purple-400 cursor-not-allowed' : 'bg-purple-700 hover:bg-purple-800'
+            }`}
         >
           {loading && <Spinner />}
           {loading ? 'Criando conta...' : 'Criar Conta'}
@@ -175,7 +174,7 @@ export function CustomSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
             Termos de Serviço
           </a>{' '}
           e{' '}
-          <a href="/privacy" className="text-purple-700 hover:underline">
+          <a href="/policy" className="text-purple-700 hover:underline">
             Política de Privacidade
           </a>.
         </div>
