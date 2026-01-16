@@ -1,7 +1,7 @@
 'use client'
 
 import useEmblaCarousel from "embla-carousel-react";
-import { BedDouble, Ruler, Tag } from "lucide-react";
+import { BedDouble, Maximize } from "lucide-react";
 import Image from 'next/image';
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -10,6 +10,11 @@ import { motion, AnimatePresence, Variants, Transition } from 'framer-motion';
 type HeroCarouselProps = {
   property: any
 }
+
+// Função para formatar números com máscara de pontos
+const formatPrice = (price: number | string) => {
+  return String(price).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+};
 
 // Configurações de transição reutilizáveis
 const springTransition: Transition = {
@@ -199,15 +204,15 @@ export default function HeroCarousel({ property }: HeroCarouselProps) {
                         <span className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.8)]"></span>
                         {property.endereco}
                       </p>
-                      <div className="flex flex-col md:flex-row justify-center gap-2 md:gap-6 text-xs md:text-base font-medium">
-                        <span className="flex items-center justify-center gap-1 md:gap-2 bg-black/30 px-3 md:px-4 py-1 md:py-2 rounded-full backdrop-blur-sm border border-white/10">
-                          <BedDouble size={16} className="hidden md:block" /> {property.bedrooms} Bed
+                      <div className="flex flex-row justify-center gap-2 md:gap-6 text-xs md:text-base font-medium">
+                        <span className="flex items-center justify-center gap-1 md:gap-2 px-3 md:px-4 py-1 md:py-2 rounded-full">
+                          <BedDouble size={16} className="text-orange-400" /> {property.bedrooms} Quarto{property.bedrooms > 1 ? 's' : ''}
                         </span>
-                        <span className="flex items-center justify-center gap-1 md:gap-2 bg-black/30 px-3 md:px-4 py-1 md:py-2 rounded-full backdrop-blur-sm border border-white/10">
-                          <Ruler size={16} className="hidden md:block" /> {property.size}
+                        <span className="flex items-center justify-center gap-1 md:gap-2 px-3 md:px-4 py-1 md:py-2 rounded-full">
+                          <Maximize size={16} className="text-orange-400" /> {property.size}m
                         </span>
                         <span className="flex items-center justify-center gap-1 md:gap-2 bg-orange-600/90 px-3 md:px-4 py-1 md:py-2 rounded-full shadow-lg hover:bg-orange-600 transition-colors">
-                          {property.price}
+                          {formatPrice(property.price)}
                         </span>
                       </div>
                       <Link href={`/propriedades/${property.id}`}>
