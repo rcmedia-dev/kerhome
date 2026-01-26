@@ -158,7 +158,7 @@ const Sidebar: React.FC<{ post: Noticias }> = ({ post }) => {
 };
 
 const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
-  const estimatedTime = readingTime(post.content.html);
+  const estimatedTime = readingTime(post.content?.html || '');
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-AO', {
@@ -227,7 +227,7 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
             className="w-full aspect-video md:aspect-21/9 rounded-3xl overflow-hidden shadow-2xl mb-16 md:mb-24 bg-gray-100 relative"
           >
             <img
-              src={post.coverImage.url}
+              src={post.coverImage?.url || '/house.jpg'}
               alt={post.title}
               className="w-full h-full object-cover"
             />
@@ -246,7 +246,7 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
               >
                 {/* Deck / Excerpt */}
                 <p className="text-xl md:text-2xl leading-relaxed text-gray-500 font-serif italic mb-12 border-l-4 border-purple-500 pl-6 py-1">
-                  {post.excerpt.html.replace(/<[^>]*>/g, '')}
+                  {post.excerpt?.html?.replace(/<[^>]*>/g, '') || ''}
                 </p>
 
                 {/* Article Body */}
@@ -258,7 +258,7 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
                      prose-blockquote:border-l-4 prose-blockquote:border-purple-500 prose-blockquote:pl-6 prose-blockquote:italic
                      first-letter:text-6xl first-letter:font-black first-letter:text-gray-900 first-letter:mr-3 first-letter:float-left first-letter:leading-[0.8]
                    ">
-                  <div dangerouslySetInnerHTML={{ __html: post.content.html }} />
+                  <div dangerouslySetInnerHTML={{ __html: post.content?.html || '' }} />
                 </article>
 
                 {/* Tags Section (Placeholder for now) */}
@@ -290,7 +290,7 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
                       {relatedPosts.slice(0, 2).map((rp) => (
                         <Link href={`/noticias/${rp.slug}`} key={rp.id} className="group block">
                           <div className="aspect-3/2 rounded-xl overflow-hidden mb-3 bg-gray-100">
-                            <img src={rp.coverImage.url} alt={rp.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            <img src={rp.coverImage?.url || '/house.jpg'} alt={rp.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                           </div>
                           <h4 className="font-bold text-gray-900 text-sm md:text-base leading-snug group-hover:text-purple-700 transition-colors">
                             {rp.title}
