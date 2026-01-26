@@ -158,11 +158,11 @@ const ActionButton: React.FC<ActionButtonProps> = ({
 
 // Componente para o card de post individual
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
-  const stripHtml = (html: string): string => {
-    return html.replace(/<[^>]*>/g, '');
+  const stripHtml = (html?: string): string => {
+    return html ? html.replace(/<[^>]*>/g, '') : '';
   };
 
-  const estimatedTime = readingTime(post.content.html)
+  const estimatedTime = readingTime(post.content?.html || '')
 
   return (
     <Link href={`/noticias/${post.slug}`} className="block h-full">
@@ -170,7 +170,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         <div className="h-56 overflow-hidden relative">
           <div className="absolute inset-0 bg-gray-900/10 group-hover:bg-transparent transition-colors z-10"></div>
           <img
-            src={post.coverImage.url}
+            src={post.coverImage?.url || '/house.jpg'}
             alt={post.title}
             loading="eager"
             className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
@@ -190,9 +190,6 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             {post.title}
           </h3>
 
-          <p className="text-gray-500 mb-6 text-sm leading-relaxed line-clamp-3">
-            {stripHtml(post.excerpt.html)}
-          </p>
 
           <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
             <AuthorBadge />
@@ -208,17 +205,17 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
 // Componente para o post em destaque
 const FeaturedPost: React.FC<FeaturedPostProps> = ({ post }) => {
-  const stripHtml = (html: string): string => {
-    return html.replace(/<[^>]*>/g, '');
+  const stripHtml = (html?: string): string => {
+    return html ? html.replace(/<[^>]*>/g, '') : '';
   };
 
-  const estimatedTime = readingTime(post.content.html)
+  const estimatedTime = readingTime(post.content?.html || '')
 
   return (
     <Link href={`/noticias/${post.slug}`} className="block relative bg-black rounded-3xl shadow-2xl overflow-hidden mb-16 text-white group cursor-pointer">
       <div className="absolute inset-0">
         <img
-          src={post.coverImage.url}
+          src={post.coverImage?.url || '/house.jpg'}
           alt={post.title}
           loading="eager"
           className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-700 group-hover:scale-105"
@@ -234,9 +231,6 @@ const FeaturedPost: React.FC<FeaturedPostProps> = ({ post }) => {
           <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight drop-shadow-lg">
             {post.title}
           </h2>
-          <p className="text-gray-200 text-lg md:text-xl leading-relaxed mb-8 line-clamp-3 md:line-clamp-none max-w-2xl font-light">
-            {stripHtml(post.excerpt.html)}
-          </p>
           <div className="flex flex-wrap items-center gap-6 mb-8 text-sm font-medium text-gray-300">
             <div className="flex items-center gap-2">
               <Calendar className="w-5 h-5" />
@@ -331,7 +325,7 @@ const NewsletterSection: React.FC = () => (
 const KercasaBlog: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const stripHtml = (html: string) => html.replace(/<[^>]*>/g, "");
+  const stripHtml = (html?: string) => html ? html.replace(/<[^>]*>/g, "") : "";
 
   // ✅ Aqui está o uso correto da função com o initialPageParam
   const {
@@ -352,7 +346,7 @@ const KercasaBlog: React.FC = () => {
   const filteredPosts = allPosts.filter((post) => {
     const matchesSearch =
       post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      stripHtml(post.excerpt.html).toLowerCase().includes(searchTerm.toLowerCase());
+      stripHtml(post.excerpt?.html).toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
 

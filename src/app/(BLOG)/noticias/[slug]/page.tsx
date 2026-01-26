@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
     return { title: "Post não encontrado | Kercasa Blog" };
   }
 
-  const excerptText = post.excerpt.html.replace(/<[^>]*>/g, "");
+  const excerptText = post.excerpt?.html?.replace(/<[^>]*>/g, "") || "";
 
   return {
     title: `${post.title} | Kercasa Blog`,
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
     openGraph: {
       title: post.title,
       description: excerptText,
-      images: [post.coverImage.url],
+      images: [post.coverImage?.url || '/house.jpg'],
       type: "article",
       publishedTime: post.createdAt,
       authors: ['Redator KerCasa'],
@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
       card: 'summary_large_image',
       title: post.title,
       description: excerptText,
-      images: [post.coverImage.url],
+      images: [post.coverImage?.url || '/house.jpg'],
     },
   };
 }

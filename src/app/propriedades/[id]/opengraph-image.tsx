@@ -9,10 +9,10 @@ export default async function Image({ params }: { params: { id: string } }) {
   const post = await getPropertyById(params.id);
 
   // Escolhe a primeira imagem do imóvel (se existir)
- // Escolhe a primeira imagem do imóvel (se existir)
-const imageUrl =
-  (post?.image as string | undefined) ||
-  "https://via.placeholder.com/1200x630?text=Imóvel";
+  // Escolhe a primeira imagem do imóvel (se existir)
+  const imageUrl =
+    (post?.image as string | undefined) ||
+    "https://via.placeholder.com/1200x630?text=Imóvel";
 
 
   return new ImageResponse(

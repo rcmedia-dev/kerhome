@@ -2,13 +2,13 @@ export type Noticias = {
   id: string;
   title: string;
   slug: string;
-  excerpt: {
+  excerpt?: {
     html: string;
   };
-  coverImage: {
+  coverImage?: {
     url: string;
   };
-  content: {
+  content?: {
     html: string;
   };
   createdAt: string; // pode ser Date se você quiser transformar depois
