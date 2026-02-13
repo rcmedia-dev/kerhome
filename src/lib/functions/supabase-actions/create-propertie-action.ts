@@ -160,7 +160,6 @@ export async function createProperty(formData: PropertyFormData, userId?: string
       pais: formData.pais || "Brasil",
       nota_privada: formData.nota_privada || "",
       detalhes_adicionais: formData.detalhes_adicionais || "",
-      video_url: formData.video_url || "",
       is_featured: formData.is_featured || false,
       rejection_reason: formData.rejection_reason || "",
       aprovement_status: "pending",

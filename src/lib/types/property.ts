@@ -56,7 +56,7 @@ export const propriedadeSchema = z.object({
   nota_da_propriedade: z.string().optional(),
 });
 
-export type TPropriedadeFormData= z.infer<typeof propriedadeSchema>;
+export type TPropriedadeFormData = z.infer<typeof propriedadeSchema>;
 
 export const ownerSchema = z.object({
   id: z.string(),
@@ -177,7 +177,7 @@ export interface PropertyFormData {
   created_at?: string;
   updated_at?: string;
   aprovement_status: string;
-  video_url: string;
+  video_url: string | File;
   is_featured: boolean;
   rejection_reason: string;
   documents: (string | File)[];
