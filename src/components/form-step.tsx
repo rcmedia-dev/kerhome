@@ -5,7 +5,8 @@ import { Label } from "@/components/ui/label";
 import { PropertyFormData } from "@/lib/types/property";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Upload, Image, Video, FileText, X } from "lucide-react";
+import { Upload, Image, Video, FileText, X, Loader2 } from "lucide-react";
+import imageCompression from "browser-image-compression";
 
 interface FormField {
   name: keyof PropertyFormData;
@@ -452,22 +453,56 @@ const FormStep = ({ title, description, fields }: FormStepProps) => {
     trigger,
   } = useFormContext<PropertyFormData>();
 
-  const handleFileChange = (
+  const [isCompressing, setIsCompressing] = React.useState(false);
+
+  const compressImage = async (file: File) => {
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    };
+    try {
+      return await imageCompression(file, options);
+    } catch (error) {
+      console.error("Erro na compressão:", error);
+      return file;
+    }
+  };
+
+  const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     fieldName: keyof PropertyFormData,
     multiple: boolean = false
   ) => {
     const files = e.target.files;
-    if (!files) return;
+    if (!files || files.length === 0) return;
 
-    if (multiple) {
-      setValue(fieldName, Array.from(files) as any);
-    } else {
-      setValue(fieldName, files[0] as any);
+    setIsCompressing(true);
+    try {
+      if (multiple) {
+        const compressedFiles = await Promise.all(
+          Array.from(files).map(async (file) => {
+            if (file.type.startsWith("image/")) {
+              return await compressImage(file);
+            }
+            return file;
+          })
+        );
+        setValue(fieldName, compressedFiles as any);
+      } else {
+        const file = files[0];
+        if (file.type.startsWith("image/")) {
+          const compressed = await compressImage(file);
+          setValue(fieldName, compressed as any);
+        } else {
+          setValue(fieldName, file as any);
+        }
+      }
+    } finally {
+      setIsCompressing(false);
+      // Disparar validação após selecionar arquivos
+      setTimeout(() => trigger(fieldName), 100);
     }
-
-    // Disparar validação após selecionar arquivos
-    setTimeout(() => trigger(fieldName), 100);
   };
 
   const removeFile = (fieldName: keyof PropertyFormData) => {
@@ -481,7 +516,16 @@ const FormStep = ({ title, description, fields }: FormStepProps) => {
       <h2 className="text-xl font-bold bg-linear-to-r from-purple-700 to-orange-500 bg-clip-text text-transparent mb-2">{title}</h2>
       <p className="text-gray-600 mb-6">{description}</p>
 
-      <div className="space-y-6">
+      <div className="space-y-6 relative">
+        {isCompressing && (
+          <div className="absolute inset-0 bg-white/50 backdrop-blur-[2px] z-50 flex items-center justify-center rounded-xl border border-purple-100 shadow-sm">
+            <div className="flex flex-col items-center gap-3 bg-white p-6 rounded-2xl shadow-xl border border-purple-50">
+              <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+              <p className="text-sm font-bold text-gray-700">Otimizando imagens...</p>
+              <p className="text-xs text-gray-500">Isto reduz o tempo de upload</p>
+            </div>
+          </div>
+        )}
         {fields.map((field) => {
           const error = errors[field.name]?.message as string;
           const value = watch(field.name);

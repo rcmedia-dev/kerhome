@@ -1,12 +1,13 @@
 // actions/property-actions.ts
 "use server";
 
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import { PropertyDBData, PropertyFormData } from "@/lib/types/property";
 import { revalidatePath } from "next/cache";
 
 // Função para upload de arquivos para o Supabase Storage
 async function uploadFileToSupabase(file: File, bucket: string, path: string): Promise<string> {
+  const supabase = await createClient();
   const fileExt = file.name.split(".").pop();
   const fileName = `${path}/${Math.random().toString(36).substring(2)}.${fileExt}`;
   const fileBuffer = await file.arrayBuffer();
@@ -79,13 +80,36 @@ export async function processFileUploads(formData: PropertyFormData) {
     processedData.documents = [];
   }
 
+  // Processar vídeo
+  if (formData.video_url && formData.video_url instanceof File && (formData.video_url as File).size > 0) {
+    processedData.video_url = await uploadFileToSupabase(formData.video_url as File, "files", "videos");
+  } else if (typeof formData.video_url === "string") {
+    processedData.video_url = formData.video_url;
+  } else {
+    processedData.video_url = "";
+  }
+
   return processedData;
 }
 
 // Função principal para criar propriedade
 // Função melhorada com dados do proprietário
 export async function createProperty(formData: PropertyFormData, userId?: string) {
+  const supabase = await createClient();
+
   try {
+    // Validar owner_id
+    let ownerIdToUse = formData.owner_id || userId;
+
+    if (!ownerIdToUse || ownerIdToUse.trim() === "") {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        console.error("Erro ao identificar usuário:", userError);
+        return { success: false, error: "Usuário não identificado. Por favor, faça login novamente." };
+      }
+      ownerIdToUse = user.id;
+    }
+
     // Processar uploads de arquivos
     const fileData = await processFileUploads(formData);
 
@@ -100,7 +124,7 @@ export async function createProperty(formData: PropertyFormData, userId?: string
       const { data: owner, error: ownerError } = await supabase
         .from('profiles')
         .select('primeiro_nome, ultimo_nome, email, telefone')
-        .eq('id', userId)
+        .eq('id', ownerIdToUse)
         .single();
 
       if (!ownerError) {
@@ -112,7 +136,7 @@ export async function createProperty(formData: PropertyFormData, userId?: string
 
     // Preparar dados para inserção
     const propertyData: PropertyDBData = {
-      owner_id: formData.owner_id,
+      owner_id: ownerIdToUse,
       title: formData.title,
       description: formData.description,
       tipo: formData.tipo,
@@ -143,11 +167,12 @@ export async function createProperty(formData: PropertyFormData, userId?: string
       caracteristicas: Array.isArray(formData.caracteristicas)
         ? formData.caracteristicas
         : typeof formData.caracteristicas === "string"
-        ? formData.caracteristicas.split(",").map((item) => item.trim()).filter(Boolean)
-        : [],
+          ? formData.caracteristicas.split(",").map((item) => item.trim()).filter(Boolean)
+          : [],
       image: fileData.image || "",
       gallery: fileData.gallery || [],
       documents: fileData.documents || [],
+      video_url: fileData.video_url || "",
     };
 
     // Inserir propriedade no Supabase
@@ -195,9 +220,22 @@ export async function createProperty(formData: PropertyFormData, userId?: string
 
     revalidatePath("/properties");
     return { success: true, propertyId: data.id, property: data };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erro ao criar propriedade:", error);
-    return { success: false, error: "Erro ao criar propriedade" };
+
+    // Erros mais autoexplicativos
+    if (error.message?.includes("exceeded 50mb limit") || error.statusCode === 413) {
+      return {
+        success: false,
+        error: "O tamanho total dos arquivos excede o limite permitido (128MB). Tente enviar menos fotos ou reduzir o tamanho do vídeo."
+      };
+    }
+
+    if (error.message?.includes("Erro no upload")) {
+      return { success: false, error: `Falha ao subir arquivos: ${error.message}` };
+    }
+
+    return { success: false, error: "Erro interno ao processar o cadastro do imóvel. Por favor, tente novamente." };
   }
 }
 
@@ -221,7 +259,7 @@ async function sendPropertyNotification(propertyData: {
   created_at: string;
 }) {
   const webhookUrl = 'https://n8n.srv1157846.hstgr.cloud/webhook/notificate';
-  
+
   const payload = {
     evento: 'cadastro_imovel',
     dados: {
@@ -253,6 +291,8 @@ async function sendPropertyNotification(propertyData: {
 
 // Função para atualizar propriedade
 export async function updateProperty(id: string, formData: Partial<PropertyFormData>) {
+  const supabase = await createClient();
+
   try {
     // Processar uploads de arquivos se fornecidos
     const fileData = await processFileUploads(formData as PropertyFormData);
@@ -289,8 +329,16 @@ export async function updateProperty(id: string, formData: Partial<PropertyFormD
     revalidatePath("/properties");
     revalidatePath(`/properties/${id}`);
     return { success: true, property: data };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erro ao atualizar propriedade:", error);
-    return { success: false, error: "Erro ao atualizar propriedade" };
+
+    if (error.message?.includes("exceeded 50mb limit") || error.statusCode === 413) {
+      return {
+        success: false,
+        error: "O tamanho dos arquivos para atualização excede o limite permitido (128MB)."
+      };
+    }
+
+    return { success: false, error: "Erro ao atualizar a propriedade. Verifique sua conexão e tente novamente." };
   }
 }

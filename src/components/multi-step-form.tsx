@@ -80,6 +80,13 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
     }
   }, [priceValue, setValue]);
 
+  // Atualizar owner_id quando userId estiver disponível
+  useEffect(() => {
+    if (userId) {
+      setValue("owner_id", userId);
+    }
+  }, [userId, setValue]);
+
   const steps = [
     <FormStep
       key="basic"
