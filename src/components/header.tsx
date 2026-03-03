@@ -450,10 +450,10 @@ export default function Header() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     transition={springTransition}
-                    className="group flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                    className="group flex items-center gap-2 px-5 py-2.5 bg-orange-600 text-white rounded-full hover:bg-orange-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                     aria-label="Acessar minha conta"
                   >
-                    <UserCircle className="w-5 h-5 text-gray-300 group-hover:text-white transition-colors" />
+                    <UserCircle className="w-5 h-5 text-white group-hover:text-white transition-colors" />
                     <span className="hidden sm:inline font-medium">Entrar</span>
                   </motion.button>
                 }

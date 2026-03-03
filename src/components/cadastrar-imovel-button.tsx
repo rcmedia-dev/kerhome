@@ -60,7 +60,7 @@ export default function CadastrarImovelButton({
     <>
       <button
         onClick={handleClick}
-        className="px-4 py-2.5 bg-purple-700 hover:bg-purple-800 text-sm font-medium text-white rounded-xl border border-purple-700 transition-all duration-200 shadow-sm"
+        className="px-4 py-2.5 bg-purple-700 hover:bg-purple-800 text-sm font-medium text-white rounded-full border border-purple-700 transition-all duration-200 shadow-sm"
       >
         Cadastrar Imóvel
       </button>
@@ -81,7 +81,7 @@ export default function CadastrarImovelButton({
               Fechar
             </Button>
             <Link href="/planos">
-              <Button className="bg-purple-700 hover:bg-purple-800">
+              <Button className="bg-purple-700 hover:bg-purple-800 rounded-2xl">
                 Atualizar Plano
               </Button>
             </Link>
