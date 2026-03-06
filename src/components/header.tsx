@@ -10,7 +10,9 @@ import {
   Home,
   Building,
   Newspaper,
-  Phone
+  Phone,
+  Calculator,
+  Search
 } from 'lucide-react';
 import Link from 'next/link';
 import { AuthDialog } from '@/components/login-modal';
@@ -500,7 +502,11 @@ export default function Header() {
               className="md:hidden px-4 pb-4 bg-white border-t border-gray-100 overflow-hidden"
             >
               <ul className="flex flex-col space-y-2 mb-4">
-                {navLinks.map(({ id, label, href, icon: Icon }, index) => (
+                {[
+                  ...navLinks,
+                  { id: 'simular', label: 'SIMULAR CRÉDITO', href: '/simular', icon: Calculator },
+                  { id: 'avaliar', label: 'AVALIAR IMÓVEIS', href: '/avaliar', icon: Search },
+                ].map(({ id, label, href, icon: Icon }, index) => (
                   <motion.li
                     key={id}
                     variants={itemAnimations}

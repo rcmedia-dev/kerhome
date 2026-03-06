@@ -591,10 +591,17 @@ export default function AvaliarPage() {
                                     <div className="flex flex-col md:flex-row gap-4 justify-center pt-8">
                                         <Button
                                             onClick={handlePublish}
-                                            className="h-16 px-12 bg-orange-600 hover:bg-orange-700 text-white rounded-[1.5rem] font-black uppercase tracking-widest transition-all shadow-xl shadow-orange-900/30 group"
+                                            className="h-16 px-12 bg-orange-600 hover:bg-orange-700 text-white rounded-[1.5rem] font-black uppercase tracking-widest transition-all shadow-xl shadow-orange-900/30 group relative overflow-hidden active:scale-95"
                                         >
-                                            Vender Imóvel Agora
-                                            <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
+                                            <motion.div
+                                                animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.3, 0.1] }}
+                                                transition={{ repeat: Infinity, duration: 2 }}
+                                                className="absolute inset-0 bg-orange-400"
+                                            />
+                                            <span className="relative z-10 flex items-center gap-2">
+                                                Vender Imóvel Agora
+                                                <ArrowRight className="ml-2 group-hover:translate-x-2 transition-transform" size={20} />
+                                            </span>
                                         </Button>
                                         <Button
                                             onClick={() => setStep(1)}
@@ -604,25 +611,22 @@ export default function AvaliarPage() {
                                             Nova Simulação
                                         </Button>
                                     </div>
+
+                                    {/* New: Integrated Promotion/Ad Area inside Results Section */}
+                                    <div className="max-w-md mx-auto p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-4 group cursor-pointer hover:bg-white/10 transition-colors">
+                                        <div className="w-10 h-10 bg-purple-600/20 rounded-xl flex items-center justify-center text-purple-400">
+                                            <ShieldCheck size={20} />
+                                        </div>
+                                        <div className="flex-1 text-left">
+                                            <p className="text-[8px] font-black text-purple-400 uppercase tracking-widest mb-0.5">Serviço Premium</p>
+                                            <p className="text-[10px] font-bold text-white">Certificação Kercasa</p>
+                                            <p className="text-[9px] text-gray-500">Aumente a confiança na venda em 85%.</p>
+                                        </div>
+                                        <ArrowRight size={14} className="text-purple-400 group-hover:text-white transition-colors" />
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-6">
-                                <div className="flex items-center gap-6 text-center md:text-left">
-                                    <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 flex-shrink-0">
-                                        <Calculator size={32} />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <h4 className="font-black text-gray-900 uppercase text-xs tracking-wider">Simulador de Crédito</h4>
-                                        <p className="text-xs text-gray-500 font-medium">Veja quanto você pode financiar para uma nova casa.</p>
-                                    </div>
-                                </div>
-                                <Link href="/simular">
-                                    <Button className="h-12 px-8 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-purple-900/10">
-                                        Simular Financiamento
-                                    </Button>
-                                </Link>
-                            </div>
                         </motion.div>
                     )}
                 </AnimatePresence>

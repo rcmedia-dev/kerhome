@@ -404,6 +404,19 @@ export default function SimularPage() {
                                 </p>
                                 <p className="text-[9px] text-purple-200 mt-1 italic">(3x o valor da prestação mensal)</p>
                             </div>
+
+                            {/* New: Integrated Promotion/Ad Area inside Results Card */}
+                            <div className="mt-8 p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-4 group cursor-pointer hover:bg-white/10 transition-colors">
+                                <div className="w-10 h-10 bg-orange-500/20 rounded-xl flex items-center justify-center text-orange-400">
+                                    <Sparkles size={20} />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-[8px] font-black text-orange-400 uppercase tracking-widest mb-0.5">Oportunidade</p>
+                                    <p className="text-[10px] font-bold text-white">Crédito Automóvel BAI</p>
+                                    <p className="text-[9px] text-purple-200/60">Taxas especiais para clientes Kerhome.</p>
+                                </div>
+                                <ArrowRight size={14} className="text-purple-400 group-hover:text-white transition-colors" />
+                            </div>
                         </div>
 
                         {/* Aviso Legal (Seção 5.4 / 5.5) */}
@@ -446,6 +459,19 @@ export default function SimularPage() {
                                     <Home size={18} className="text-white" />
                                     Publicar meu imóvel
                                 </Button>
+                            </div>
+
+                            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex items-center gap-4 group cursor-pointer hover:bg-white/10 transition-colors mb-6 relative z-10">
+                                <div className="w-12 h-12 bg-orange-500/20 rounded-2xl flex items-center justify-center text-orange-400">
+                                    <Search size={24} />
+                                </div>
+                                <div className="flex-1 text-left">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Ainda não encontrou?</p>
+                                    <p className="text-sm font-bold text-white">Ver Imóveis Disponíveis</p>
+                                </div>
+                                <Link href="/propriedades" className="w-10 h-10 rounded-full bg-orange-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <ArrowRight size={18} />
+                                </Link>
                             </div>
 
                             <div className="mt-auto bg-orange-600 p-6 rounded-2xl border border-orange-500 relative z-10 shadow-lg">
