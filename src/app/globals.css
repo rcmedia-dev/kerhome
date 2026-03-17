@@ -120,6 +120,12 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Prevent automatic word hyphenation across all browsers */
+  h1, h2, h3, h4, h5, h6, p, span, a {
+    hyphens: none;
+    -webkit-hyphens: none;
+    -ms-hyphens: none;
+  }
 }
 
 @keyframes bounce {

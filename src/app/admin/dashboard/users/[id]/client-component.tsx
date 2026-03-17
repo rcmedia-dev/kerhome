@@ -67,8 +67,11 @@ export function UserProfile({ user }: { user: User }) {
           <div className="relative">
             <div className="h-48 bg-gradient-to-r from-orange-400 via-orange-500 to-amber-500 dark:from-orange-600 dark:via-orange-700 dark:to-amber-600 relative overflow-hidden">
               
-              {/* Background Pattern (SVG corrigido) */}
-              <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%224%22%20fill%3D%22white%22%20fill-opacity%3D%220.1%22/%3E%3C/svg%3E')] opacity-30"></div>
+              {/* Background Pattern (SVG corrigido via style inline para evitar erro do Tailwind) */}
+              <div 
+                className="absolute inset-0 opacity-30" 
+                style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Ccircle cx=\"30\" cy=\"30\" r=\"4\" fill=\"white\" fill-opacity=\"0.1\"/%3E%3C/svg%3E')" }}
+              ></div>
               
               {/* Profile Avatar */}
               <div className="absolute -bottom-16 left-8">

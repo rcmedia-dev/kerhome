@@ -4,6 +4,7 @@ import {
   Calendar,
   User,
   ArrowLeft,
+  ArrowRight,
   Clock,
   Share2,
   Twitter,
@@ -17,6 +18,7 @@ import Link from 'next/link';
 import readingTime from 'reading-time';
 import { toast } from 'sonner';
 import { Noticias } from '@/lib/types/noticia';
+import { TPropertyResponseSchema } from '@/lib/types/property';
 import {
   motion,
   useScroll,
@@ -28,6 +30,7 @@ import {
 interface PostPageProps {
   post: Noticias;
   relatedPosts?: Noticias[];
+  properties?: TPropertyResponseSchema[];
 }
 
 // Reading Progress Bar
@@ -41,9 +44,94 @@ const ReadingProgress = () => {
 
   return (
     <motion.div
-      className="fixed top-[64px] left-0 right-0 h-1 bg-purple-700 z-30 origin-left"
+      className="fixed top-[64px] left-0 right-0 h-1 bg-purple-700 z-50 origin-left"
       style={{ scaleX }}
     />
+  );
+};
+
+// --- NEW COMPONENTS FOR ADS AND LAYOUT ---
+
+const PropertyAd = ({ property, layout = 'horizontal' }: { property: TPropertyResponseSchema, layout?: 'horizontal' | 'sidebar' }) => {
+  if (layout === 'sidebar') {
+    return (
+      <Link href={`/propriedades/${property.id}`} className="bg-white p-4 rounded-3xl border border-gray-100 group cursor-pointer block hover:shadow-xl transition-all">
+        <div className="relative w-full h-44 rounded-2xl overflow-hidden shadow-sm mb-4">
+          <img
+            src={property.image || '/house10.jpg'}
+            alt={property.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          />
+          <div className="absolute top-2 left-2 bg-purple-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider shadow-lg">Sugestão Kercasa</div>
+          <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md text-white px-3 py-1 rounded-lg text-xs font-bold">
+            {property.price?.toLocaleString()} {property.unidade_preco || 'AKZ'}
+          </div>
+        </div>
+        <h4 className="text-gray-900 font-bold text-sm leading-tight group-hover:text-purple-700 transition-colors line-clamp-2">
+          {property.title}
+        </h4>
+        <p className="text-gray-400 text-[10px] mt-1 uppercase font-bold tracking-widest">{property.bairro || property.cidade}</p>
+      </Link>
+    );
+  }
+
+  return (
+    <div className="my-12 p-1 bg-linear-to-br from-gray-50 to-white rounded-3xl overflow-hidden border border-gray-100 shadow-xl group/ad">
+      <div className="bg-white rounded-[22px] p-6 md:p-8 flex flex-col md:flex-row items-center gap-8">
+        <div className="w-full md:w-2/5 aspect-4/3 rounded-2xl overflow-hidden bg-gray-100 relative shadow-inner">
+          <img
+            src={property.image || "/house12.jpg"}
+            alt={property.title}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover/ad:scale-110"
+          />
+          <div className="absolute top-4 left-4 bg-purple-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg z-10">Sugestão Kercasa</div>
+          <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent opacity-0 group-hover/ad:opacity-100 transition-opacity" />
+        </div>
+
+        <div className="flex-1 text-center md:text-left flex flex-col justify-center">
+          <div className="mb-6">
+            <span className="text-purple-600 text-[10px] font-black uppercase tracking-[0.3em] mb-3 block">Negócio em Destaque</span>
+            <h3 className="text-2xl md:text-3xl font-black text-gray-900 mb-4 leading-tight line-clamp-2 group-hover/ad:text-purple-700 transition-colors">
+              {property.title}
+            </h3>
+            <div className="flex items-center justify-center md:justify-start gap-4">
+              <span className="text-2xl font-black text-gray-900">
+                {property.price?.toLocaleString()} <span className="text-sm font-bold text-gray-400 uppercase">{property.unidade_preco || 'AKZ'}</span>
+              </span>
+              <div className="w-px h-6 bg-gray-200" />
+              <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">{property.bairro || property.cidade}</span>
+            </div>
+          </div>
+
+          <div>
+            <Link
+              href={`/propriedades/${property.id}`}
+              className="inline-flex items-center gap-3 px-10 py-4 bg-[#7C3AED] text-white !text-white rounded-2xl text-base font-black hover:bg-[#6D28D9] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-purple-100/50"
+            >
+              <span className="text-white">Ver Detalhes do Imóvel</span>
+              <ArrowRight className="w-5 h-5 text-white" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Safely inject ad after the 2nd paragraph
+const injectAdAtParagraph = (html: string, ad: React.ReactNode, paragraphIndex: number = 2) => {
+  const parts = html.split('</p>');
+  if (parts.length <= paragraphIndex) return <div dangerouslySetInnerHTML={{ __html: html }} />;
+
+  const before = parts.slice(0, paragraphIndex).join('</p>') + '</p>';
+  const after = parts.slice(paragraphIndex).join('</p>');
+
+  return (
+    <>
+      <div dangerouslySetInnerHTML={{ __html: before }} />
+      {ad}
+      <div dangerouslySetInnerHTML={{ __html: after }} />
+    </>
   );
 };
 
@@ -63,7 +151,7 @@ const Breadcrumbs: React.FC<{ title: string }> = ({ title }) => (
 );
 
 // Sidebar Component (Author, Share, Newsletter)
-const Sidebar: React.FC<{ post: Noticias }> = ({ post }) => {
+const Sidebar: React.FC<{ post: Noticias; ads: TPropertyResponseSchema[] }> = ({ post, ads }) => {
   const handleShare = (platform?: string) => {
     const url = typeof window !== 'undefined' ? window.location.href : '';
     const text = post.title;
@@ -82,41 +170,10 @@ const Sidebar: React.FC<{ post: Noticias }> = ({ post }) => {
 
   return (
     <div className="flex flex-col gap-10">
-      {/* Ad Card 1 */}
-      <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100 group cursor-pointer">
-        <div className="relative w-full h-40 rounded-2xl overflow-hidden shadow-sm">
-          <img
-            src="/house10.jpg"
-            alt="Publicidade"
-            className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700"
-          />
-          <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
-
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="bg-white/20 backdrop-blur-md border border-white/30 text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm">
-              Anúncio
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Ad Card 2 */}
-      <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100 group cursor-pointer">
-        <div className="relative w-full h-40 rounded-2xl overflow-hidden shadow-sm">
-          <img
-            src="/house11.jpg"
-            alt="Publicidade"
-            className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700"
-          />
-          <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
-
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="bg-white/20 backdrop-blur-md border border-white/30 text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm">
-              Anúncio
-            </span>
-          </div>
-        </div>
-      </div>
+      {/* Sidebar Ad Cards */}
+      {ads.map((ad) => (
+        <PropertyAd key={ad.id} property={ad} layout="sidebar" />
+      ))}
 
       {/* Share Actions */}
       <div>
@@ -143,22 +200,35 @@ const Sidebar: React.FC<{ post: Noticias }> = ({ post }) => {
         <div className="relative z-10">
           <h3 className="text-white font-bold text-lg leading-tight mb-2">Newsletter Semanal</h3>
           <p className="text-gray-400 text-xs mb-4">Receba as melhores oportunidades.</p>
-          <input
-            type="email"
-            placeholder="Seu e-mail"
-            className="w-full bg-white/10 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-gray-500 mb-2 focus:outline-none focus:border-purple-500 transition-colors"
-          />
-          <button className="w-full bg-white text-gray-900 font-bold text-xs uppercase tracking-widest py-2.5 rounded-lg hover:bg-purple-700 hover:text-white transition-colors">
-            Inscrever
-          </button>
+          <div className="flex flex-col gap-2">
+            <input
+              type="email"
+              placeholder="Seu e-mail"
+              className="w-full bg-white/10 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
+            />
+            <button className="w-full bg-white text-gray-900 font-bold text-xs uppercase tracking-widest py-2.5 rounded-lg hover:bg-purple-700 hover:text-white transition-colors">
+              Inscrever
+            </button>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
+import { useState, useEffect } from 'react';
+
+const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts, properties }) => {
+  const [selectedAds, setSelectedAds] = useState<TPropertyResponseSchema[]>([]);
   const estimatedTime = readingTime(post.content?.html || '');
+
+  useEffect(() => {
+    if (properties && properties.length > 0) {
+      // Pick 3 unique random properties
+      const shuffled = [...properties].sort(() => 0.5 - Math.random());
+      setSelectedAds(shuffled.slice(0, 3));
+    }
+  }, [properties]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-AO', {
@@ -188,7 +258,10 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
                 <Breadcrumbs title={post.title} />
               </div>
 
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-gray-900 tracking-tight leading-tight mb-8 text-balance">
+              <h1
+                className="text-3xl md:text-5xl lg:text-6xl font-black text-gray-900 tracking-tight leading-tight mb-8 w-full max-w-full"
+                style={{ wordBreak: 'normal', overflowWrap: 'break-word', hyphens: 'none', whiteSpace: 'normal' }}
+              >
                 {post.title}
               </h1>
 
@@ -234,34 +307,49 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
             <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent pointer-events-none"></div>
           </motion.div>
 
-          {/* Wrapper Grid */}
+          {/* Wrapper Grid (Content + Sidebar) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 max-w-7xl mx-auto">
 
-            {/* Main Content */}
-            <main className="lg:col-span-8">
+            {/* Sidebar (Appears first on mobile, sticky on desktop) */}
+            <aside className="lg:col-span-4 lg:order-last order-first">
+              <div className="lg:sticky lg:top-28 space-y-12">
+                <Sidebar post={post} ads={selectedAds.slice(1, 3)} />
+              </div>
+            </aside>
+
+            {/* Main Content Area */}
+            <main className="lg:col-span-8 lg:order-first order-last">
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
               >
                 {/* Deck / Excerpt */}
-                <p className="text-xl md:text-2xl leading-relaxed text-gray-500 font-serif italic mb-12 border-l-4 border-purple-500 pl-6 py-1">
-                  {post.excerpt?.html?.replace(/<[^>]*>/g, '') || ''}
-                </p>
+                <div className="w-full mb-12 border-l-4 border-purple-500 pl-6 py-2">
+                  <p className="text-lg md:text-2xl leading-relaxed text-gray-600 font-serif italic whitespace-pre-wrap break-words">
+                    {post.excerpt?.html?.replace(/<[^>]*>/g, '') || ''}
+                  </p>
+                </div>
 
-                {/* Article Body */}
-                <article className="prose prose-lg md:prose-xl prose-stone max-w-none
+                {/* Article Body with injected ad */}
+                <article className="prose prose-lg md:prose-xl prose-stone max-w-none w-full 
                      prose-headings:font-black prose-headings:tracking-tight prose-headings:text-gray-900 prose-headings:mt-12 prose-headings:mb-6
-                     prose-p:text-gray-600 prose-p:leading-loose
+                     prose-p:text-gray-600 prose-p:leading-loose prose-p:break-words
                      prose-a:text-purple-700 prose-a:no-underline hover:prose-a:underline prose-a:font-bold
-                     prose-img:rounded-3xl prose-img:shadow-lg prose-img:my-12
+                     prose-img:rounded-3xl prose-img:shadow-lg prose-img:my-12 prose-img:w-full prose-img:h-auto prose-img:object-cover
                      prose-blockquote:border-l-4 prose-blockquote:border-purple-500 prose-blockquote:pl-6 prose-blockquote:italic
+                     prose-ul:pl-6 prose-ul:list-disc
                      first-letter:text-6xl first-letter:font-black first-letter:text-gray-900 first-letter:mr-3 first-letter:float-left first-letter:leading-[0.8]
                    ">
-                  <div dangerouslySetInnerHTML={{ __html: post.content?.html || '' }} />
+                  <div className="w-full break-words">
+                    {injectAdAtParagraph(
+                      post.content?.html || '',
+                      selectedAds[0] ? <PropertyAd property={selectedAds[0]} /> : null
+                    )}
+                  </div>
                 </article>
 
-                {/* Tags Section (Placeholder for now) */}
+                {/* Tags Section */}
                 <div className="mt-16 pt-8 border-t border-gray-100">
                   <div className="flex flex-wrap gap-2">
                     {['Imobiliário', 'Mercado', 'Luanda', 'Investimento'].map(tag => (
@@ -273,38 +361,64 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts }) => {
                 </div>
               </motion.div>
             </main>
-
-            {/* Sidebar */}
-            <aside className="lg:col-span-4 pl-0 lg:pl-12">
-              <div className="sticky top-28 space-y-12">
-                <Sidebar post={post} />
-
-                {/* Related (Desktop Sidebar View) */}
-                {relatedPosts && relatedPosts.length > 0 && (
-                  <div>
-                    <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2">
-                      <span className="w-4 h-px bg-gray-300"></span>
-                      Leia Também
-                    </h3>
-                    <div className="space-y-6">
-                      {relatedPosts.slice(0, 2).map((rp) => (
-                        <Link href={`/noticias/${rp.slug}`} key={rp.id} className="group block">
-                          <div className="aspect-3/2 rounded-xl overflow-hidden mb-3 bg-gray-100">
-                            <img src={rp.coverImage?.url || '/house.jpg'} alt={rp.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                          </div>
-                          <h4 className="font-bold text-gray-900 text-sm md:text-base leading-snug group-hover:text-purple-700 transition-colors">
-                            {rp.title}
-                          </h4>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </aside>
           </div>
+
+          {/* --- Bottom Related Posts Grid (3x1) --- */}
+          {relatedPosts && relatedPosts.length > 0 && (
+            <div className="mt-24 pt-16 border-t border-gray-100 max-w-7xl mx-auto">
+
+
+              <div className="flex items-center justify-between mb-10 px-4">
+                <h2 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight uppercase">
+                  Leia a seguir
+                </h2>
+                <Link href="/noticias" className="text-purple-700 font-bold text-sm flex items-center gap-2 hover:gap-3 transition-all">
+                  Ver todos os artigos
+                  <ArrowRight size={16} />
+                </Link>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gridAutoRows: 'auto', gap: '2rem' }} className="px-4">
+                {relatedPosts.slice(0, 3).map((rp) => (
+                  <Link
+                    href={`/noticias/${rp.slug}`}
+                    key={rp.id}
+                    className="group bg-gray-50/50 rounded-3xl p-4 hover:bg-white hover:shadow-xl transition-all border border-transparent hover:border-gray-100"
+                    style={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}
+                  >
+                    <div className="aspect-video rounded-2xl overflow-hidden mb-6 bg-gray-200">
+                      <img
+                        src={rp.coverImage?.url || '/house.jpg'}
+                        alt={rp.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
+                    </div>
+                    <div className="flex flex-col flex-1">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-[10px] font-bold text-purple-700 uppercase tracking-widest px-2 py-0.5 bg-purple-50 rounded-md">Artigo</span>
+                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                          {new Date(rp.createdAt).toLocaleDateString('pt-AO', { month: 'short', day: 'numeric' })}
+                        </span>
+                      </div>
+                      <h3
+                        className="font-black text-gray-900 text-base md:text-lg leading-snug group-hover:text-purple-700 transition-colors mb-4"
+                        style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', hyphens: 'none', overflowWrap: 'anywhere', wordBreak: 'normal' }}
+                      >
+                        {rp.title}
+                      </h3>
+                      <div className="mt-auto flex items-center justify-between text-purple-700">
+                        <span className="text-xs font-bold uppercase tracking-widest">Ler mais</span>
+                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
 
       {/* Newsletter Large */}
       <section className="bg-purple-900 py-24 mt-20">

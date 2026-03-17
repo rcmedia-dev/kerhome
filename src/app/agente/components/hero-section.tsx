@@ -17,7 +17,10 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
   return (
     <div className="relative bg-gradient-to-br from-purple-900 via-purple-800 to-orange-700 text-white overflow-hidden">
       {/* Decorative elements */}
-      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
+      <div 
+        className="absolute inset-0 opacity-10"
+        style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cpath d=\"M59 60H0V0h60v60zM1 59h58V1H1v58z\" fill=\"white\" fill-opacity=\"0.2\"/%3E%3C/svg%3E')" }}
+      ></div>
       <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/20 rounded-full blur-3xl"></div>
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
 

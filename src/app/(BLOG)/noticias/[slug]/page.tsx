@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import PostPage from "@/components/post-page";
-import { fetchPostBySlug } from "@/lib/functions/supabase-actions/posts-actions";
+import { fetchPostBySlug, fetchPosts } from "@/lib/functions/supabase-actions/posts-actions";
+import { getLimitedProperties } from "@/lib/functions/get-properties";
 
 // Interface atualizada para Next.js 15
 interface BlogPostPageProps {
@@ -9,14 +10,26 @@ interface BlogPostPageProps {
 
 // Página como Server Component
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const { slug } = await params;
-  const post = await fetchPostBySlug(slug);
+  try {
+    const { slug } = await params;
+    const post = await fetchPostBySlug(slug);
 
-  if (!post) {
-    notFound();
+    if (!post) {
+      notFound();
+    }
+
+    // Fetch related posts (latest 3 excluding current)
+    const allPosts = await fetchPosts(0, 4);
+    const relatedPosts = allPosts.filter(p => p.id !== post.id).slice(0, 3);
+
+    // Fetch properties for dynamic ads (pool of 20)
+    const properties = await getLimitedProperties(20);
+
+    return <PostPage post={post} relatedPosts={relatedPosts} properties={properties} />;
+  } catch (error) {
+    console.error("Error in BlogPostPage rendering slug:", (await params).slug, error);
+    throw error;
   }
-
-  return <PostPage post={post} />;
 }
 
 // Gerar metadados para SEO

@@ -43,7 +43,10 @@ interface PostsGridProps {
 // Componente para o cabeçalho
 const Header: React.FC = () => (
   <header className="relative bg-linear-to-r from-[#130f25] to-purple-900 text-white overflow-hidden pb-32 pt-20">
-    <div className="absolute inset-0 opacity-10 bg-[url('/grid-pattern.svg')]"></div>
+    <div 
+      className="absolute inset-0 opacity-10"
+      style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Ccircle cx=\"30\" cy=\"30\" r=\"4\" fill=\"white\" fill-opacity=\"0.5\"/%3E%3C/svg%3E')" }}
+    ></div>
     <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
     <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
 
@@ -69,6 +72,10 @@ const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, setSearchTerm, result
         Explore nosso acervo
       </h2>
       <div className="relative group">
+        <div
+          className="absolute inset-0 opacity-10"
+          style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Ccircle cx=\"30\" cy=\"30\" r=\"4\" fill=\"%236366f1\" fill-opacity=\"0.1\"/%3E%3C/svg%3E')" }}
+        ></div>
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
           <Search className="h-6 w-6 text-gray-400 group-focus-within:text-purple-600 transition-colors" />
         </div>
@@ -162,16 +169,22 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     return html ? html.replace(/<[^>]*>/g, '') : '';
   };
 
+  // Sanitize title: replace non-breaking spaces (U+00A0 / &nbsp;) with regular spaces
+  // Some CMS editors insert &nbsp; instead of spaces — these cannot be broken by CSS word-break rules
+  const sanitizeTitle = (text: string): string =>
+    text.replace(/\u00A0/g, ' ').trim();
+
+  const cleanTitle = sanitizeTitle(post.title);
   const estimatedTime = readingTime(post.content?.html || '')
 
   return (
     <Link href={`/noticias/${post.slug}`} className="block h-full">
       <article className="group bg-white rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100 flex flex-col h-full hover:-translate-y-1">
-        <div className="h-56 overflow-hidden relative">
+        <div className="h-56 overflow-hidden relative shrink-0">
           <div className="absolute inset-0 bg-gray-900/10 group-hover:bg-transparent transition-colors z-10"></div>
           <img
             src={post.coverImage?.url || '/house.jpg'}
-            alt={post.title}
+            alt={cleanTitle}
             loading="eager"
             className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
           />
@@ -182,13 +195,32 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
           </div>
         </div>
         <div className="p-6 flex flex-col flex-1">
-          <div className="mb-4">
-            <PostInfo createdAt={post.createdAt} readTime={estimatedTime.minutes.toString()} />
-          </div>
+          {/* Meta + Title block: fixed height so all cards align */}
+          <div className="flex flex-col gap-2 mb-auto">
+            <div className="shrink-0">
+              <PostInfo createdAt={post.createdAt} readTime={estimatedTime.minutes.toString()} />
+            </div>
 
-          <h3 className="text-xl font-bold text-gray-900 mb-3 leading-snug group-hover:text-purple-700 transition-colors line-clamp-2">
-            {post.title}
-          </h3>
+            {/* Title: sanitized to remove &nbsp; so CSS word-break works correctly */}
+            <div className="min-h-[52px] h-[52px] overflow-hidden w-full">
+              <h3
+                className="text-base font-bold text-gray-900 leading-tight group-hover:text-purple-700 transition-colors"
+                style={{
+                  hyphens: 'none',
+                  WebkitHyphens: 'none',
+                  wordBreak: 'normal',
+                  overflowWrap: 'break-word',
+                  maxWidth: '100%',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                }}
+              >
+                {cleanTitle}
+              </h3>
+            </div>
+          </div>
 
 
           <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
@@ -209,6 +241,11 @@ const FeaturedPost: React.FC<FeaturedPostProps> = ({ post }) => {
     return html ? html.replace(/<[^>]*>/g, '') : '';
   };
 
+  // Same &nbsp; sanitization as PostCard to prevent mid-word line breaks
+  const sanitizeTitle = (text: string): string =>
+    text.replace(/\u00A0/g, ' ').trim();
+
+  const cleanTitle = sanitizeTitle(post.title);
   const estimatedTime = readingTime(post.content?.html || '')
 
   return (
@@ -216,20 +253,29 @@ const FeaturedPost: React.FC<FeaturedPostProps> = ({ post }) => {
       <div className="absolute inset-0">
         <img
           src={post.coverImage?.url || '/house.jpg'}
-          alt={post.title}
+          alt={cleanTitle}
           loading="eager"
-          className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-700 group-hover:scale-105"
+          className="w-full h-full object-cover object-center opacity-60 group-hover:opacity-40 transition-opacity duration-700 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 to-transparent"></div>
       </div>
 
-      <div className="relative p-8 md:p-16 flex flex-col justify-end h-full min-h-[500px]">
+      <div className="relative p-6 sm:p-8 md:p-16 flex flex-col justify-end h-full min-h-[320px] sm:min-h-[420px] md:min-h-[500px]">
         <div className="max-w-3xl">
           <span className="inline-block bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-md mb-6 uppercase tracking-wider">
             Destaque da Semana
           </span>
-          <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight drop-shadow-lg">
-            {post.title}
+          <h2
+            className="text-2xl sm:text-3xl md:text-5xl font-bold mb-6 leading-tight drop-shadow-lg"
+            style={{
+              whiteSpace: 'normal',
+              wordBreak: 'normal',
+              overflowWrap: 'break-word',
+              hyphens: 'none',
+              WebkitHyphens: 'none',
+            }}
+          >
+            {cleanTitle}
           </h2>
           <div className="flex flex-wrap items-center gap-6 mb-8 text-sm font-medium text-gray-300">
             <div className="flex items-center gap-2">
