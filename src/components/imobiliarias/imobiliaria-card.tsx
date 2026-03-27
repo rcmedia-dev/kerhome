@@ -1,21 +1,12 @@
-﻿'use client';
+'use client';
 
 import { MapPin, Building, CheckCircle2, ShieldAlert, BadgeCheck, ArrowRight, Home } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Imobiliaria } from '@/lib/types/imobiliaria';
 
 interface ImobiliariaCardProps {
-  imobiliaria: {
-    id: string;
-    nome: string;
-    slug: string;
-    logo: string | null;
-    cidade: string;
-    bairro?: string;
-    verificada: boolean;
-    properties?: { length: number } | any[];
-    propertyCount?: number;
-  };
+  imobiliaria: Imobiliaria & { properties?: { length: number } | any[] };
 }
 
 export function ImobiliariaCard({ imobiliaria }: ImobiliariaCardProps) {
@@ -67,7 +58,7 @@ export function ImobiliariaCard({ imobiliaria }: ImobiliariaCardProps) {
         <div className="flex items-center gap-2 text-gray-500 text-sm mb-2 font-medium">
           <MapPin className="w-4 h-4 text-orange-500" />
           <span className="line-clamp-1">
-            {imobiliaria.cidade} {imobiliaria.bairro ? `â€¢ ${imobiliaria.bairro}` : ''}
+            {imobiliaria.cidade} {imobiliaria.bairro ? `• ${imobiliaria.bairro}` : ''}
           </span>
         </div>
 

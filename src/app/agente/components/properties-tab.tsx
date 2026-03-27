@@ -73,7 +73,7 @@ function PropertyCard({ property }: { property: AgentProperty }) {
               </span>
               <span className="flex items-center">
                 <span className="w-4 h-4 mr-1">ãŽ¡</span>
-                {property.size}mÂ²
+                {property.size}m²
               </span>
             </div>
             

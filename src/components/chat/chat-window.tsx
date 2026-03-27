@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
 import { Send, X, Smile, Paperclip, ArrowLeft, UserCircle } from 'lucide-react';
 import { useChatStore } from '@/lib/store/chat-store';
@@ -102,8 +102,8 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
             attachment_url: attachmentUrl,
             attachment_type: attachmentType,
             sender_type: isAgencyChat ? 'agency' : 'personal',
-            sender_agency_id: isAgencyChat ? currentConversation?.imobiliaria_id : undefined,
-            agency: isAgencyChat ? currentConversation?.agency_details : undefined
+            sender_agency_id: (isAgencyChat ? currentConversation?.imobiliaria_id : undefined) ?? undefined,
+            agency: (isAgencyChat ? currentConversation?.agency_details : undefined) ?? undefined
         });
 
         try {
@@ -117,7 +117,7 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
                     attachment_url: attachmentUrl,
                     attachment_type: attachmentType,
                     sender_type: isAgencyChat ? 'agency' : 'personal',
-                    sender_agency_id: isAgencyChat ? currentConversation?.imobiliaria_id : undefined
+                    sender_agency_id: (isAgencyChat ? currentConversation?.imobiliaria_id : undefined) ?? undefined
                 })
             });
 

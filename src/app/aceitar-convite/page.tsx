@@ -1,6 +1,6 @@
-﻿'use client';
+'use client';
 
-import React, { useEffect, useState, useTransition } from 'react';
+import React, { useEffect, useState, useTransition, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { CheckCircle2, AlertCircle, Building2, UserPlus, ArrowRight, Loader2 } from 'lucide-react';
@@ -9,7 +9,7 @@ import { useUserStore } from '@/lib/store/user-store';
 import { toast } from 'sonner';
 import Image from 'next/image';
 
-export default function AceitarConvitePage() {
+function InviteContent() {
     const searchParams = useSearchParams();
     const token = searchParams.get('token');
     const router = useRouter();
@@ -94,7 +94,6 @@ export default function AceitarConvitePage() {
         );
     }
 
-    // Se o utilizador não estiver logado, redirecionar para login com retorno
     if (!user) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
@@ -130,7 +129,6 @@ export default function AceitarConvitePage() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="max-w-2xl w-full bg-white p-10 rounded-[3rem] shadow-2xl border border-gray-100 relative overflow-hidden"
             >
-                {/* Background Decor */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-purple-50 rounded-full -translate-y-1/2 translate-x-1/2 opacity-50"></div>
                 
                 <div className="relative z-10 flex flex-col items-center text-center">
@@ -191,3 +189,14 @@ export default function AceitarConvitePage() {
     );
 }
 
+export default function AceitarConvitePage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <Loader2 className="w-10 h-10 text-purple-600 animate-spin" />
+            </div>
+        }>
+            <InviteContent />
+        </Suspense>
+    );
+}

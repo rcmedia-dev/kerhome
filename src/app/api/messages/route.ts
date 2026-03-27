@@ -1,43 +1,14 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import Pusher from "pusher";
-
-// ðŸ” Configuração segura do Pusher
-// Tenta ler de várias chaves comuns para evitar erros de undefined
-const appId = process.env.PUSHER_APP_ID || process.env.PUSHER_ID || process.env.NEXT_PUBLIC_PUSHER_ID;
-const key = process.env.NEXT_PUBLIC_PUSHER_APP_KEY || process.env.NEXT_PUBLIC_PUSHER_KEY || process.env.PUSHER_APP_KEY || process.env.PUSHER_KEY;
-const secret = process.env.PUSHER_APP_SECRET || process.env.PUSHER_SECRET || process.env.NEXT_PUBLIC_PUSHER_SECRET;
-const cluster = process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER || process.env.NEXT_PUBLIC_PUSHER_CLUSTER || process.env.PUSHER_APP_CLUSTER || process.env.PUSHER_CLUSTER;
-
-if (!appId || !key || !secret || !cluster) {
-  console.error("âŒ Erro Crítico: Variáveis de ambiente do Pusher faltando.", {
-    appId: !!appId,
-    key: !!key,
-    secret: !!secret,
-    cluster: !!cluster
-  });
-}
-
-const pusher = new Pusher({
-  appId: appId!,
-  key: key!,
-  secret: secret!,
-  cluster: cluster!,
-  useTLS: true,
-});
+import { pusher } from "@/lib/pusher";
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { conversation_id, sender_id, content, attachment_url, attachment_type, sender_type, sender_agency_id } = body;
+    const { conversation_id, sender_id, content, attachment_url, attachment_type, sender_type, sender_agency_id } = await req.json();
 
     if (!conversation_id || !sender_id || !content) {
       return NextResponse.json({ error: "Dados incompletos" }, { status: 400 });
     }
-
-    // ðŸ—„ï¸ 1.2 Salvar mensagem no Supabase
-    // Hack: Store attachment in content string if needed because we cannot alter schema
-    // Format: "Real content|||type|url"
 
     let finalContent = content;
     if (attachment_url) {
@@ -59,47 +30,37 @@ export async function POST(req: Request) {
         created_at,
         conversation_id,
         sender_id,
+        sender_type,
+        sender_agency_id,
         profiles (
           id,
           primeiro_nome,
           ultimo_nome,
           email,
           avatar_url
-        )
+        ),
+        agency:imobiliarias(nome, logo)
       `)
       .single();
 
     if (error) throw error;
 
-    // Parse back for client response if we want clean format, 
-    // BUT actually client needs the full string so it can parse it too,
-    // OR we transform it here.
-    // Let's keep data consistent: return what is in DB?
-    // Better: Helper function to parse on frontend.
-
+    // Supabase can return profiles as an array depending on the relationship config
+    const rawData = data as any;
     const message = {
-      id: data.id,
-      content: data.content,
-      created_at: data.created_at,
-      conversation_id: data.conversation_id,
-      sender_id: data.sender_id,
-      profiles: data.profiles,
-      sender_type: data.sender_type,
-      sender_agency_id: data.sender_agency_id,
-      agency: data.agency
+      ...rawData,
+      profiles: Array.isArray(rawData.profiles) ? rawData.profiles[0] : rawData.profiles,
+      agency: Array.isArray(rawData.agency) ? rawData.agency[0] : rawData.agency
     };
 
-    console.log("âœ… Mensagem salva no Supabase:", message);
+    console.log("✅ Mensagem salva no Supabase:", message);
 
-    // ðŸ“¡ 2ï¸âƒ£ Disparar evento via Pusher (tempo real) para o Chat Específico
+    // 📢 2️⃣ Disparar evento via Pusher (tempo real) para o Chat Específico
     await pusher.trigger(`chat-${conversation_id}`, "new-message", message);
-
 
     return NextResponse.json({ success: true, message });
   } catch (error) {
-    console.error("âŒ Erro ao processar mensagem:", error);
-    // Se o erro for do Pushermas salvou no Banco, poderíamos retornar sucesso parcial, mas por enquanto vamos manter o erro
-    // para o usuário saber que o real-time falhou.
+    console.error("❌ Erro ao processar mensagem:", error);
     return NextResponse.json({
       error: error instanceof Error ? error.message : "Erro desconhecido",
       details: "Falha ao processar mensagem (provavelmente Pusher/Realtime)"
@@ -123,25 +84,36 @@ export async function GET(req: Request) {
         content,
         created_at,
         conversation_id,
-        conversation_id,
         sender_id,
+        sender_type,
+        sender_agency_id,
         profiles (
           id,
           primeiro_nome,
           ultimo_nome,
           email,
           avatar_url
-        )
+        ),
+        agency:imobiliarias(nome, logo)
       `)
       .eq('conversation_id', conversation_id)
       .order('created_at', { ascending: true });
 
     if (error) throw error;
 
-    return NextResponse.json({ messages });
+    // Flatten profiles and agency for each message
+    const formattedMessages = (messages || []).map(m => {
+      const rawMsg = m as any;
+      return {
+        ...rawMsg,
+        profiles: Array.isArray(rawMsg.profiles) ? rawMsg.profiles[0] : rawMsg.profiles,
+        agency: Array.isArray(rawMsg.agency) ? rawMsg.agency[0] : rawMsg.agency
+      };
+    });
+
+    return NextResponse.json({ messages: formattedMessages });
   } catch (error) {
-    console.error("âŒ Erro ao buscar mensagens:", error);
+    console.error("❌ Erro ao buscar mensagens:", error);
     return NextResponse.json({ error: "Erro ao buscar mensagens" }, { status: 500 });
   }
 }
-

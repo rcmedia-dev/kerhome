@@ -1,4 +1,4 @@
-﻿export interface Profile {
+export interface Profile {
   id: string;
   primeiro_nome: string;
   ultimo_nome: string;
@@ -68,13 +68,19 @@ export interface Message {
   conversation_id: string;
   sender_id: string;
   read_by_receiver: boolean;
-  atendido_por_agente_id?: string | null; // Opcional: quem enviou se for agência
+  sender_type?: 'personal' | 'agency';
+  sender_agency_id?: string | null;
+  atendido_por_agente_id?: string | null; 
   profiles?: { 
     id: string; 
     primeiro_nome: string; 
     ultimo_nome: string; 
     email: string; 
     avatar_url: string | null; 
+  };
+  agency?: {
+    nome: string;
+    logo: string | null;
   };
 }
 

@@ -329,7 +329,7 @@ export function PropertyCard({ property, canBoost = true, onDelete }: PropertyCa
           {/* Right: Size */}
           <div className="flex items-center gap-2">
             <Ruler className="w-4 h-4 text-gray-400" />
-            <span className="font-medium">{property.size}mÂ²</span>
+            <span className="font-medium">{property.size}m²</span>
           </div>
         </div>
 

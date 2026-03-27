@@ -162,8 +162,8 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
       title="Detalhes da Propriedade"
       description="Características físicas e dimensionais"
       fields={[
-        { name: "size", label: "Área Construída (mÂ²)", type: "number", placeholder: "Ex: 120" },
-        { name: "area_terreno", label: "Área Total do Terreno (mÂ²)", type: "number", placeholder: "Ex: 300" },
+        { name: "size", label: "Área Construída (m²)", type: "number", placeholder: "Ex: 120" },
+        { name: "area_terreno", label: "Área Total do Terreno (m²)", type: "number", placeholder: "Ex: 300" },
         {
           name: "bedrooms",
           label: "Número de Quartos",
@@ -250,7 +250,7 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
           label: "Endereço Completo",
           type: "text",
           required: true,
-          placeholder: "Ex: Rua Amílcar Cabral, nÂº 123",
+          placeholder: "Ex: Rua Amílcar Cabral, nº 123",
           validation: { required: "Endereço obrigatório", minLength: { value: 5, message: "Mínimo 5 caracteres" } }
         },
         { name: "bairro", label: "Bairro", type: "text", required: true, placeholder: "Ex: Maianga", validation: { required: "Obrigatório" } },

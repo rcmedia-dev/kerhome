@@ -11,7 +11,7 @@ import { PropertyLocation } from "@/components/property-location";
 import { TechnicalDetails } from "@/components/techinical-details";
 import { checkIfPropertyIsBoosted, trackBoostView } from "@/lib/functions/supabase-actions/boost-functions";
 
-// 🔑 METADATA DINÂMICA
+// 🔑 METADATA DINMICA
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const property = await getPropertyById(id);

@@ -46,6 +46,6 @@ export function CustomFormField({
                     </FormItem>
                 );
             }}
-   Â Â Â Â Â />
-Â Â Â Â );
+        />
+    );
 }

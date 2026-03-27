@@ -77,7 +77,7 @@ export function CustomSelectField({
                     </FormItem>
                 );
             }}
-   Â Â Â Â Â />
-Â Â Â Â );
+        />
+    );
 }
 

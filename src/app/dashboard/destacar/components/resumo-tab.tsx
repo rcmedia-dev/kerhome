@@ -51,7 +51,7 @@ const ResumoTab: React.FC<ResumoTabProps> = ({
   // Informações bancárias
   const bankInfo = {
     bankName: "STANDARD BANK",
-    accountHolder: "Rogério DanielÂ ComércioÂ SUÂ Lda",
+    accountHolder: "Rogério Daniel Comércio SU Lda",
     iban: "0060.0140.0100.5214.0931.9",
   }
 
@@ -190,7 +190,7 @@ const ResumoTab: React.FC<ResumoTabProps> = ({
                     </div>
                     
                     {/* <div className="flex justify-between items-center">
-                      <span className="text-sm text-blue-700">NÂº da Conta:</span>
+                      <span className="text-sm text-blue-700">Nº da Conta:</span>
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-blue-900">{bankInfo.accountNumber}</span>
                         <button

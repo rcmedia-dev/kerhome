@@ -179,7 +179,7 @@ export default function FeaturedCarousel({ property }: FeaturedCarouselProps) {
                           </span>
                           <span className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full">
                             <Ruler className="w-4 h-4" />
-                            {property.size}mÂ²
+                            {property.size}m²
                           </span>
                         </div>
 

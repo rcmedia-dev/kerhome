@@ -8,9 +8,9 @@ export function TechnicalDetails({ property }: { property: TPropertyResponseSche
     { label: "Quartos", value: property.bedrooms, icon: BedDouble },
     { label: "Banheiros", value: property.bathrooms, icon: Bath },
     { label: "Garagens", value: property.garagens, icon: CarFront },
-    { label: "Área Útil", value: property.size ? `${property.size} mÂ²` : null, icon: Ruler },
-    { label: "Terreno", value: property.area_terreno ? `${property.area_terreno} mÂ²` : null, icon: LandPlot },
-    { label: "Garagem Área", value: property.garagemtamanho ? `${property.garagemtamanho} mÂ²` : null, icon: Square },
+    { label: "Área Útil", value: property.size ? `${property.size} m²` : null, icon: Ruler },
+    { label: "Terreno", value: property.area_terreno ? `${property.area_terreno} m²` : null, icon: LandPlot },
+    { label: "Garagem Área", value: property.garagemtamanho ? `${property.garagemtamanho} m²` : null, icon: Square },
   ].filter(item => item.value !== null && item.value !== undefined);
 
   if (details.length === 0) return null;
