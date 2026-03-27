@@ -1,4 +1,4 @@
-'use server';
+﻿'use server';
 
 import { createClient } from '@/lib/supabase/client';
 
@@ -28,3 +28,4 @@ export async function checkAgentRequestStatus(userId: string) {
         return null;
     }
 }
+

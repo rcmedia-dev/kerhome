@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Barrel exports para hooks
  */
 
@@ -9,3 +9,4 @@ export { useAsync, useAsyncSequence, useAsyncDebounced } from './useAsync';
 export type { AsyncState, UseAsyncOptions } from './useAsync';
 
 // Adicione outros hooks conforme necessário
+

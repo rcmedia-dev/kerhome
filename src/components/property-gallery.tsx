@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Heart, Share2, Maximize2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";

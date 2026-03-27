@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { getAgents } from "@/lib/functions/supabase-actions/get-agents"
 import { useQuery } from "@tanstack/react-query"
@@ -69,3 +69,4 @@ export default function CorretoresEmDestaque() {
     </div>
   )
 }
+

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React, { useEffect, useState } from 'react';
 import { 
@@ -19,6 +19,7 @@ import {
   Medal,
   Megaphone,
   Rocket,
+  Store,
 } from 'lucide-react';
 import Link from 'next/link';
 import { RenderProperties } from '@/app/admin/components/properties-component';
@@ -30,6 +31,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import PropertiesToBoost from '@/app/admin/components/properties-to-boost';
 import BoostManagement from '@/app/admin/components/properties-to-boost';
+import ImobiliariasManagement from '@/app/admin/components/imobiliarias-component';
 
 
 
@@ -52,7 +54,7 @@ const activeProperties = useQuery({
     const { data, error } = await supabase
       .from('properties')
       .select('*')
-      .eq("aprovement_status", 'aprovado')
+      .eq("aprovement_status", 'approved')
 
     if (error) {
       console.error('Erro ao buscar propriedades ativas:', error);
@@ -108,7 +110,7 @@ const agentUsers = useQuery({
       const response = await supabase
         .from("properties")
         .select("tipo")
-        .eq("aprovement_status", "aprovado")
+        .eq("aprovement_status", "approved")
 
       if (response.error) throw response.error
       return response.data
@@ -149,6 +151,7 @@ const agentUsers = useQuery({
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3, href: '#' },
     { id: 'properties', label: 'Imóveis', icon: Building2, href: '#' },
     { id: 'users', label: 'Utilizadores', icon: Users, href: '#' },
+    { id: 'imobiliarias', label: 'Imobiliárias', icon: Store, href: '#' },
     { id: 'subscriptions', label: 'Subscrições de Planos', icon: Award, href: '#' },
     { id: 'subscriptions2', label: 'Subscrições de Agentes', icon: Medal, href: '#' },
     { id: 'subscriptions3', label: 'Propriedades Destacadas', icon: Rocket, href: '#' },
@@ -324,6 +327,7 @@ const agentUsers = useQuery({
         darkMode={darkMode}/>;
       case 'properties': return  <RenderProperties darkMode={darkMode}/>;
       case 'users': return <UserManagement darkMode={darkMode}/>;
+      case 'imobiliarias': return <ImobiliariasManagement darkMode={darkMode} />;
       case 'subscriptions': return <SubscricoesPage />;
       case 'subscriptions2': return <AgentSubscriptionsPage />
       case 'subscriptions3': return <BoostManagement darkMode={darkMode} />

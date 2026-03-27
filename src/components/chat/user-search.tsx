@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Search, ArrowLeft, UserCircle } from 'lucide-react';
 import { useChatStore, Profile } from '@/lib/store/chat-store';
 import { useUserStore } from '@/lib/store/user-store';
@@ -112,3 +112,4 @@ export function UserSearch() {
         </div>
     );
 }
+

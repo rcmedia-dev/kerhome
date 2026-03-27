@@ -1,4 +1,4 @@
-import { PacoteDestaque } from "@/lib/types/defaults";
+﻿import { PacoteDestaque } from "@/lib/types/defaults";
 import { Medal, Lock } from "lucide-react";
 import { ProgressStep } from "@/app/dashboard/destacar/components/progress-step";
 
@@ -53,7 +53,7 @@ const ProgressSidebar: React.FC<ProgressSidebarProps> = ({
                 <div className="flex justify-between text-sm mb-1">
                   <span>Pacote {selectedPacote.nome}:</span>
                   <span className="font-semibold">
-                    {selectedPacote.preco.toLocaleString("pt-AO")} Kz
+                    {selectedPacote.preco.toLocaleString("pt-AO")} Kwanzas
                   </span>
                 </div>
               )}
@@ -69,7 +69,7 @@ const ProgressSidebar: React.FC<ProgressSidebarProps> = ({
                 <div className="flex justify-between text-lg font-bold border-t pt-2">
                   <span>Total:</span>
                   <span className="text-orange-500">
-                    {total.toLocaleString("pt-AO")} Kz
+                    {total.toLocaleString("pt-AO")} Kwanzas
                   </span>
                 </div>
               )}
@@ -82,3 +82,4 @@ const ProgressSidebar: React.FC<ProgressSidebarProps> = ({
 );
 
 export default ProgressSidebar;
+

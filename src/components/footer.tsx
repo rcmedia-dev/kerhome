@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -88,7 +88,7 @@ export default function Footer() {
                 />
                 <button className="w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2 group">
                   Subscrever
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  <span className="group-hover:translate-x-1 transition-transform">â†’</span>
                 </button>
               </form>
             </div>
@@ -99,7 +99,7 @@ export default function Footer() {
         <div className="mt-16 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 gap-4">
           <p>© {new Date().getFullYear()} RC Media. Todos os direitos reservados.</p>
           <div className="flex gap-6">
-            <span>Feito com ❤️ em Angola</span>
+            <span>Feito com â¤ï¸ em Angola</span>
           </div>
         </div>
 
@@ -107,3 +107,4 @@ export default function Footer() {
     </footer>
   );
 }
+

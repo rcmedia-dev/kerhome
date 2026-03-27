@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Hook customizado para queries com cache strategy otimizado
  */
 
@@ -97,3 +97,4 @@ export function useAggressiveCache<TData = unknown>(
     ...options,
   });
 }
+

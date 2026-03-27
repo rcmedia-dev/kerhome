@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
@@ -98,7 +98,7 @@ export function QueryEmpty({
     <div className="w-full flex flex-col items-center justify-center py-12 text-center">
       <div className="mb-4">
         <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto">
-          <span className="text-3xl">📭</span>
+          <span className="text-3xl">ðŸ“­</span>
         </div>
       </div>
 
@@ -121,3 +121,4 @@ export function QueryEmpty({
     </div>
   );
 }
+

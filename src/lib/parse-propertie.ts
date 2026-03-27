@@ -1,4 +1,4 @@
-import { TPropertyResponseSchema } from "@/lib/types/property";
+﻿import { TPropertyResponseSchema } from "@/lib/types/property";
 
 
 export function parsePrismaProperties(data: TPropertyResponseSchema[]): TPropertyResponseSchema[] {
@@ -32,3 +32,4 @@ export function parsePrismaProperties(data: TPropertyResponseSchema[]): TPropert
     };
   });
 }
+

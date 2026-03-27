@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+﻿import { Button } from "@/components/ui/button";
 import { X, Send } from "lucide-react";
 import type { MessageSystemProps, AgentProfile } from "@/types/agent";
 
@@ -109,3 +109,4 @@ export function MessageSystem({
     </>
   );
 }
+

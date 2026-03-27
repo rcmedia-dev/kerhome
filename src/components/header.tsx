@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
@@ -296,14 +296,17 @@ export default function Header() {
 
 
 
-  // Carregar o perfil do usuário se estiver autenticado
-  // Initialize chat when user is logged in
+  // Carregar o perfil do usuário se estiver autenticado e ainda não enriquecido
   useEffect(() => {
-    if (user?.id) {
+    if (user?.id && !user.primeiro_nome) {
       fetchUserProfile(user.id);
+    }
+    
+    // Initialize chat only once
+    if (user?.id) {
       initializeChat(user.id);
     }
-  }, [user?.id, fetchUserProfile, initializeChat]);
+  }, [user?.id, user?.primeiro_nome, fetchUserProfile, initializeChat]);
 
   const userPlanData = useQuery({
     queryKey: ['imoveis-limite', user?.id],
@@ -324,6 +327,7 @@ export default function Header() {
   const navLinks = [
     { id: 'inicio', label: 'ÍNICIO', href: '/', icon: Home },
     { id: 'propriedades', label: 'PROPRIEDADES', href: '/propriedades', icon: Building },
+    { id: 'imobiliarias', label: 'IMOBILIÁRIAS', href: '/imobiliarias', icon: Building },
     { id: 'noticias', label: 'NOTÍCIAS', href: '/noticias', icon: Newspaper },
     { id: 'contacto', label: 'CONTACTO', href: '/contato', icon: Phone },
   ];

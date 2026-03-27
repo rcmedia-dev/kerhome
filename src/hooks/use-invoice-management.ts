@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+﻿import { useState, useCallback } from 'react';
 import { Fatura } from '@/lib/types/property';
 import { useUserStore } from '@/lib/store/user-store';
 import { supabase } from '@/lib/supabase';
@@ -64,3 +64,4 @@ export function useInvoiceManagement(initialInvoices: Fatura[] | null) {
     handleDeleteAllFaturas
   };
 }
+

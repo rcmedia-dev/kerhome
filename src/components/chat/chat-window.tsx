@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+﻿import React, { useEffect, useRef, useState } from 'react';
 import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
 import { Send, X, Smile, Paperclip, ArrowLeft, UserCircle } from 'lucide-react';
 import { useChatStore } from '@/lib/store/chat-store';
@@ -16,12 +16,13 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
         messages,
         activeConversationId,
         activeProfile,
+        conversations,
         fetchMessages,
-        subscribeToConversation,
-        unsubscribeFromConversation,
         addMessage,
         backToList,
-        markAsRead // Destructure
+        markAsRead,
+        setTyping,
+        typingUsers
     } = useChatStore();
     const { user } = useUserStore();
     const [inputValue, setInputValue] = useState('');
@@ -42,15 +43,10 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
         }
     }, [messages, activeConversationId, user?.id, markAsRead]);
 
-    // Fetch and subscribe
+    // Fetch
     useEffect(() => {
         if (activeConversationId) {
             fetchMessages(activeConversationId);
-            subscribeToConversation(activeConversationId);
-
-            return () => {
-                unsubscribeFromConversation(activeConversationId);
-            };
         }
     }, [activeConversationId]);
 
@@ -64,8 +60,6 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
         const isImage = file.type.startsWith('image/');
         const type = isImage ? 'image' : 'document';
 
-        // Optimistic UI for file?
-        // Maybe just show toast "Uploading..." for now as handling optimistic file preview is complex.
         const toastId = toast.loading('Enviando arquivo...');
 
         try {
@@ -106,7 +100,10 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
             sender_id: user.id,
             conversation_id: activeConversationId,
             attachment_url: attachmentUrl,
-            attachment_type: attachmentType
+            attachment_type: attachmentType,
+            sender_type: isAgencyChat ? 'agency' : 'personal',
+            sender_agency_id: isAgencyChat ? currentConversation?.imobiliaria_id : undefined,
+            agency: isAgencyChat ? currentConversation?.agency_details : undefined
         });
 
         try {
@@ -118,7 +115,9 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
                     sender_id: user.id,
                     content,
                     attachment_url: attachmentUrl,
-                    attachment_type: attachmentType
+                    attachment_type: attachmentType,
+                    sender_type: isAgencyChat ? 'agency' : 'personal',
+                    sender_agency_id: isAgencyChat ? currentConversation?.imobiliaria_id : undefined
                 })
             });
 
@@ -143,7 +142,6 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
         await sendMessage(content);
     };
 
-    // ... existing emoji logic ...
     // Close emoji picker when clicking outside
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -159,6 +157,20 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
         setInputValue((prev) => prev + emojiData.emoji);
     };
 
+    const currentConversation = conversations.find(c => c.id === activeConversationId);
+    const isAgencyChat = currentConversation?.target_type === 'agency';
+    
+    // Typing indicator logic
+    const othersTyping = (typingUsers[activeConversationId || ''] || [])
+        .filter(name => name !== `${user?.primeiro_nome} ${user?.ultimo_nome}`);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setInputValue(e.target.value);
+        if (activeConversationId && user) {
+            setTyping(activeConversationId, `${user.primeiro_nome} ${user.ultimo_nome}`, e.target.value.length > 0);
+        }
+    };
+
     return (
         <div className="flex flex-col h-full bg-white z-50">
             <input
@@ -169,14 +181,16 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
             />
 
             {/* Header */}
-            <div className="bg-gradient-to-r from-purple-700 to-purple-600 p-4 flex items-center justify-between text-white shrink-0">
+            <div className="bg-gradient-to-r from-purple-700 to-purple-600 p-4 flex items-center justify-between text-white shrink-0 shadow-lg">
                 <div className="flex items-center space-x-3">
                     <button onClick={backToList} className="p-1 hover:bg-white/10 rounded-full transition-colors mr-1">
                         <ArrowLeft size={20} />
                     </button>
                     <div className="relative">
-                        <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center overflow-hidden">
-                            {activeProfile?.avatar_url ? (
+                        <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center overflow-hidden border border-white/30">
+                            {isAgencyChat && currentConversation?.agency_details?.logo ? (
+                                <img src={currentConversation.agency_details.logo} alt="Agency" className="w-full h-full object-cover" />
+                            ) : activeProfile?.avatar_url ? (
                                 <img src={activeProfile.avatar_url} alt="User" className="w-full h-full object-cover" />
                             ) : (
                                 <UserCircle className="w-6 h-6 text-white" />
@@ -186,9 +200,13 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
                     </div>
                     <div>
                         <h3 className="font-semibold text-sm">
-                            {activeProfile ? `${activeProfile.primeiro_nome} ${activeProfile.ultimo_nome}` : 'Usuário'}
+                            {isAgencyChat && currentConversation?.agency_details?.nome 
+                                ? currentConversation.agency_details.nome 
+                                : activeProfile ? `${activeProfile.primeiro_nome} ${activeProfile.ultimo_nome}` : 'Conversa'}
                         </h3>
-                        <span className="text-xs text-purple-200">Online agora</span>
+                        <span className="text-xs text-purple-200">
+                            Online agora
+                        </span>
                     </div>
                 </div>
                 <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-full transition-colors">
@@ -248,7 +266,7 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
                 <input
                     type="text"
                     value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
+                    onChange={handleInputChange}
                     onClick={() => setShowEmojiPicker(false)}
                     placeholder="Digite uma mensagem..."
                     className="flex-1 py-2 px-4 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-100 text-sm"
@@ -261,6 +279,21 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
                     <Send size={18} className={inputValue.trim() ? "ml-0.5" : ""} />
                 </button>
             </form>
+            
+            {/* Typing Indicator Overlay */}
+            {othersTyping.length > 0 && (
+                <div className="absolute bottom-16 left-4 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full border border-gray-100 shadow-sm flex items-center gap-2 animate-bounce">
+                    <div className="flex gap-1">
+                        <span className="w-1 h-1 bg-purple-600 rounded-full animate-pulse" />
+                        <span className="w-1 h-1 bg-purple-600 rounded-full animate-pulse delay-75" />
+                        <span className="w-1 h-1 bg-purple-600 rounded-full animate-pulse delay-150" />
+                    </div>
+                    <span className="text-[10px] font-medium text-purple-600">
+                        {othersTyping.length === 1 ? `${othersTyping[0]} está digitando...` : 'Várias pessoas escrevendo...'}
+                    </span>
+                </div>
+            )}
         </div>
     );
 }
+

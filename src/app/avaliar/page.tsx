@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -387,7 +387,7 @@ export default function AvaliarPage() {
                                             </div>
                                             <div className="bg-white px-6 py-3 rounded-2xl border border-gray-100 shadow-sm">
                                                 <span className="text-2xl font-black text-gray-900">{metragem}</span>
-                                                <span className="text-xs font-bold text-gray-400 ml-1">m²</span>
+                                                <span className="text-xs font-bold text-gray-400 ml-1">mÂ²</span>
                                             </div>
                                         </div>
                                     </div>
@@ -560,7 +560,7 @@ export default function AvaliarPage() {
                                             Relatório Gerado com Sucesso
                                         </div>
                                         <h2 className="text-3xl md:text-5xl font-black tracking-tight leading-none mb-2">Valor Estimado <br />de Mercado</h2>
-                                        <p className="text-gray-400 font-medium">{searchTerm} • {tipoImovel} • {metragem}m²</p>
+                                        <p className="text-gray-400 font-medium">{searchTerm} â€¢ {tipoImovel} â€¢ {metragem}mÂ²</p>
                                     </div>
 
                                     <div className="space-y-4">
@@ -662,3 +662,4 @@ export default function AvaliarPage() {
         </div>
     );
 }
+

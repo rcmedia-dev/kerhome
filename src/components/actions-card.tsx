@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { BadgeDollarSign, HandCoins, KeyRound, ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { ReactNode, ReactElement } from 'react';
 import { AlertTriangle } from 'lucide-react';
@@ -95,3 +95,4 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     return this.props.children;
   }
 }
+

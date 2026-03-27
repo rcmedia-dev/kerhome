@@ -1,4 +1,4 @@
-import { z } from 'zod';
+﻿import { z } from 'zod';
 
 
 
@@ -61,7 +61,7 @@ export type TPropriedadeFormData = z.infer<typeof propriedadeSchema>;
 export const ownerSchema = z.object({
   id: z.string(),
   email: z.string().email(),
-  password: z.string(), // geralmente não enviado para o frontend — considere remover no backend
+  password: z.string(), // geralmente não enviado para o frontend â€” considere remover no backend
   createdAt: z.string().or(z.date()),
   updatedAt: z.string().or(z.date()),
   primeiro_nome: z.string().nullable(),
@@ -134,6 +134,16 @@ export const propertyResponseSchema = z.object({
   createdAt: z.string().or(z.date()),
 
   owner: ownerSchema,
+  imobiliaria_id: z.string().uuid().nullable().optional(),
+  imobiliarias: z.object({
+    id: z.string(),
+    nome: z.string(),
+    slug: z.string(),
+    logo: z.string().nullable(),
+    verificada: z.boolean(),
+    telefone: z.string().nullable().optional(),
+    whatsapp: z.string().nullable().optional(),
+  }).nullable().optional(),
 });
 
 // Schema para validação
@@ -181,6 +191,7 @@ export interface PropertyFormData {
   is_featured: boolean;
   rejection_reason: string;
   documents: (string | File)[];
+  imobiliaria_id?: string | null;
 }
 
 

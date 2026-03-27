@@ -1,6 +1,6 @@
-'use client'
+﻿'use client'
 
-import React, { useState } from 'react';
+import React, { useState } from 'react'; // HMR Refresh
 import { Calendar, User, ArrowRight, Search } from 'lucide-react';
 import { Noticias } from '@/lib/types/noticia';
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -170,7 +170,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   };
 
   // Sanitize title: replace non-breaking spaces (U+00A0 / &nbsp;) with regular spaces
-  // Some CMS editors insert &nbsp; instead of spaces — these cannot be broken by CSS word-break rules
+  // Some CMS editors insert &nbsp; instead of spaces â€” these cannot be broken by CSS word-break rules
   const sanitizeTitle = (text: string): string =>
     text.replace(/\u00A0/g, ' ').trim();
 
@@ -373,7 +373,7 @@ const KercasaBlog: React.FC = () => {
 
   const stripHtml = (html?: string) => html ? html.replace(/<[^>]*>/g, "") : "";
 
-  // ✅ Aqui está o uso correto da função com o initialPageParam
+  // âœ… Aqui está o uso correto da função com o initialPageParam
   const {
     data,
     fetchNextPage,
@@ -381,7 +381,7 @@ const KercasaBlog: React.FC = () => {
     isFetchingNextPage,
   } = useInfiniteQuery({
     queryKey: ["posts"],
-    initialPageParam: 0, // 👈 OBRIGATÓRIO agora
+    initialPageParam: 0, // ðŸ‘ˆ OBRIGATÓRIO agora
     queryFn: async ({ pageParam }) => fetchPosts(pageParam, 10),
     getNextPageParam: (lastPage, allPages) =>
       lastPage.length === 10 ? allPages.length : undefined, // se trouxe menos que 10, acabou
@@ -432,3 +432,4 @@ const KercasaBlog: React.FC = () => {
 };
 
 export default KercasaBlog;
+

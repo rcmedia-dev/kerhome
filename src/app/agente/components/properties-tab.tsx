@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
+﻿import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Home, Users, MapPin, Sparkles, Calendar, MessageCircle } from "lucide-react";
 import Image from "next/image";
@@ -72,8 +72,8 @@ function PropertyCard({ property }: { property: AgentProperty }) {
                 {property.bathrooms} banheiros
               </span>
               <span className="flex items-center">
-                <span className="w-4 h-4 mr-1">㎡</span>
-                {property.size}m²
+                <span className="w-4 h-4 mr-1">ãŽ¡</span>
+                {property.size}mÂ²
               </span>
             </div>
             

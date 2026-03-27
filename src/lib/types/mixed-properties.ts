@@ -1,4 +1,4 @@
-import z from "zod";
+﻿import z from "zod";
 import { propertyResponseSchema, ownerSchema } from "@/lib/types/property";
 
 // types/property.ts
@@ -119,7 +119,7 @@ export const propertyResponseSchemaSimplified = z.object({
 
   createdAt: z.string().or(z.date()),
 
-  // 🔥 SCHEMA SIMPLIFICADO DO OWNER - apenas campos que vêm da query
+  // ðŸ”¥ SCHEMA SIMPLIFICADO DO OWNER - apenas campos que vêm da query
   owner: z.object({
     id: z.string(),
     primeiro_nome: z.string().nullable(),

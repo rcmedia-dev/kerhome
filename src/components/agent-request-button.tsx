@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+﻿import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -155,11 +155,11 @@ export function AgentRequestButton({ userId, userName, queryClient }: AgentReque
         queryKey: ["agent-request", userId] 
       });
 
-      alert("✅ Solicitação para se tornar agente enviada com sucesso!\n\nA equipe entrará em contato em breve.");
+      alert("âœ… Solicitação para se tornar agente enviada com sucesso!\n\nA equipe entrará em contato em breve.");
 
     } catch (err: any) {
       console.error('Erro no processo:', err);
-      alert(`❌ Erro ao enviar solicitação: ${err.message || 'Tente novamente'}`);
+      alert(`âŒ Erro ao enviar solicitação: ${err.message || 'Tente novamente'}`);
     } finally {
       setIsLoading(false);
     }

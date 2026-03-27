@@ -1,4 +1,4 @@
-export async function notificateN8n(
+﻿export async function notificateN8n(
   notificationType: "imovel" | "plan_subscription" | "agente_solicitation",
   payload: {
     agentName: string;
@@ -39,7 +39,7 @@ export async function notificateN8n(
       throw new Error(`Erro ao notificar n8n: ${res.statusText}`);
     }
 
-    // ✅ checa se existe conteúdo antes de tentar ler JSON
+    // âœ… checa se existe conteúdo antes de tentar ler JSON
     const text = await res.text();
     return text ? JSON.parse(text) : { success: true };
   } catch (err) {
@@ -47,3 +47,4 @@ export async function notificateN8n(
     throw err;
   }
 }
+

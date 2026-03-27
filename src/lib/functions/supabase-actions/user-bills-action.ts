@@ -1,4 +1,4 @@
-'use server';
+﻿'use server';
 
 import { supabase } from '@/lib/supabase';
 import { Fatura, faturaSchema } from '@/lib/types/property';
@@ -27,3 +27,4 @@ export async function getFaturas(userId: string): Promise<Fatura[]> {
     .filter((p) => p.success)
     .map((p) => (p as any).data);
 }
+

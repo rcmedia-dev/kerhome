@@ -1,5 +1,5 @@
-import React, { useState, useTransition, useCallback, useEffect, useMemo } from 'react';
-import { CheckCircle2, Heart, TrendingUp, Calendar, DollarSign, AlertTriangle, Download, Trash2, RefreshCw, ShieldAlert, Eye } from 'lucide-react';
+﻿import React, { useState, useTransition, useCallback, useEffect, useMemo } from 'react';
+import { CheckCircle2, Heart, TrendingUp, Calendar, DollarSign, AlertTriangle, Download, Trash2, RefreshCw, ShieldAlert, Eye, Building2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -49,9 +49,10 @@ export function MinhasPropriedades({ userProperties }: MinePropertiesProps) {
   }, []);
 
   const { pending, approved, suspended, hasSuspended } = useMemo(() => {
-    const list = localProperties || [];
+    // Filtrar para mostrar apenas propriedades PESSOAIS (sem imobiliaria_id)
+    const list = (localProperties || []).filter(p => !p.imobiliaria_id);
     const pending = list.filter(p => p.aprovement_status === 'pending');
-    const approved = list.filter(p => p.aprovement_status === 'aprovado');
+    const approved = list.filter(p => p.aprovement_status === 'approved');
     const suspended = list.filter((p: any) => p.rejected_reason === 'suspicious' || p.is_boost_suspended);
     return {
       pending,
@@ -343,7 +344,7 @@ export function Faturas({ invoices }: FaturasProps) {
                     >
                       <div className="flex justify-between items-start mb-2">
                         <span className="font-semibold text-gray-800">{toPascalCase(fatura.servico)}</span>
-                        <span className="font-bold text-orange-600">{fatura.valor.toLocaleString('pt-AO')} Kz</span>
+                        <span className="font-bold text-orange-600">{fatura.valor.toLocaleString('pt-AO')} Kwanzas</span>
                       </div>
                       <div className="flex justify-between items-center mt-3">
                         <div className="flex items-center gap-1.5 text-xs text-gray-500">
@@ -381,7 +382,7 @@ export function Faturas({ invoices }: FaturasProps) {
                     >
                       <div className="flex justify-between items-start mb-2">
                         <span className="font-semibold text-gray-800">{toPascalCase(fatura.servico)}</span>
-                        <span className="font-bold text-green-700">{fatura.valor.toLocaleString('pt-AO')} Kz</span>
+                        <span className="font-bold text-green-700">{fatura.valor.toLocaleString('pt-AO')} Kwanzas</span>
                       </div>
                       <div className="flex justify-between items-center mt-3">
                         <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-wider">
@@ -511,11 +512,105 @@ export function PropriedadesMaisVisualizadas({ mostViewedProperties }: MostViewe
 }
 
 // =======================
+// Propriedades da Agência
+// =======================
+type AgencyPropertiesProps = {
+  properties: TPropertyResponseSchema[] | null;
+  agencyName: string;
+}
+
+export function AgencyProperties({ properties, agencyName }: AgencyPropertiesProps) {
+  const [localProperties, setLocalProperties] = useState(properties);
+  const [isRefreshing, startTransition] = useTransition();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    setLocalProperties(properties);
+  }, [properties]);
+
+  const handleOptimisticDelete = useCallback((id: string) => {
+    setLocalProperties(prev => prev ? prev.filter(p => p.id !== id) : null);
+  }, []);
+
+  const { pending, approved } = useMemo(() => {
+    const list = localProperties || [];
+    const pending = list.filter(p => p.aprovement_status === 'pending');
+    const approved = list.filter(p => p.aprovement_status === 'approved');
+    return { pending, approved };
+  }, [localProperties]);
+
+  const handleRefresh = useCallback(() => {
+    startTransition(async () => {
+      try {
+        await queryClient.invalidateQueries({ queryKey: ['user-properties'] });
+        toast.success('Lista da agência atualizada!');
+      } catch (error) {
+        toast.error('Erro ao atualizar');
+      }
+    });
+  }, [queryClient]);
+
+  if (!properties) return <LoadingState.LoadingSpinner />;
+
+  return (
+    <div className="space-y-8 mt-8 border-t border-gray-100 pt-8">
+      <SectionHeader
+        title={`Imóveis da ${agencyName}`}
+        icon={Building2}
+        description="Gestão de inventário da agência."
+      >
+        <button
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition-all text-sm font-medium shadow-sm"
+        >
+          <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
+          Atualizar
+        </button>
+      </SectionHeader>
+
+      <div className="flex flex-col lg:flex-row gap-6 overflow-x-auto pb-4 custom-scrollbar">
+        <KanbanColumn title="Em Análise" count={pending.length} color="orange" icon={AlertTriangle}>
+          <AnimatePresence mode="popLayout">
+            {pending.map(p => (
+              <motion.div key={p.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <PendingPropertyCard property={p} onDelete={() => handleOptimisticDelete(p.id)} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+          {pending.length === 0 && (
+            <div className="p-8 text-center border-2 border-dashed border-gray-100 rounded-3xl">
+              <p className="text-gray-400 text-xs">Sem pendentes</p>
+            </div>
+          )}
+        </KanbanColumn>
+
+        <KanbanColumn title="Publicados" count={approved.length} color="purple" icon={CheckCircle2}>
+          <AnimatePresence mode="popLayout">
+            {approved.map(p => (
+              <motion.div key={p.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                <PropertyCard property={p} onDelete={() => handleOptimisticDelete(p.id)} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+          {approved.length === 0 && (
+            <div className="p-8 text-center border-2 border-dashed border-gray-100 rounded-3xl">
+              <p className="text-gray-400 text-xs">Nenhum imóvel</p>
+            </div>
+          )}
+        </KanbanColumn>
+      </div>
+    </div>
+  );
+}
+
+// =======================
 // Export
 // =======================
 export const DashboardTabs = {
   MinhasPropriedades: React.memo(MinhasPropriedades),
   Favoritas: React.memo(Favoritas),
   Faturas: React.memo(Faturas),
-  PropriedadesMaisVisualizadas: React.memo(PropriedadesMaisVisualizadas)
+  PropriedadesMaisVisualizadas: React.memo(PropriedadesMaisVisualizadas),
+  AgencyProperties: React.memo(AgencyProperties)
 };

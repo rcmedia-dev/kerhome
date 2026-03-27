@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+﻿import { Card } from "@/components/ui/card";
 import { Home, Trophy, Users, Shield } from "lucide-react";
 import type { AboutTabProps, AgentProfile } from "@/types/agent";
 

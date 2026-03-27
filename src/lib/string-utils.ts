@@ -1,4 +1,4 @@
-export function toPascalCase(text: string) {
+﻿export function toPascalCase(text: string) {
     return text
         .toLowerCase()
         .split(/[\s_-]+/)
@@ -8,3 +8,4 @@ export function toPascalCase(text: string) {
         )
         .join(" ");
 }
+

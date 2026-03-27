@@ -1,4 +1,4 @@
-import { getImoveisFavoritos } from '@/lib/functions/get-favorited-imoveis';
+﻿import { getImoveisFavoritos } from '@/lib/functions/get-favorited-imoveis';
 import { getSupabaseUserProperties } from '@/lib/functions/get-properties';
 import { getMyPropertiesWithViews } from '@/lib/functions/supabase-actions/get-most-seen-propeties';
 import { getUserPlan } from '@/lib/functions/supabase-actions/get-user-package-action';
@@ -92,3 +92,4 @@ export function useDashboardQueries(userId: string | undefined) {
              userPlan.isError
   };
 }
+

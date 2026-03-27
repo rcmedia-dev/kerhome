@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Utilitários para formatação de dados
  * Centralizar funções reutilizáveis
  */
@@ -72,6 +72,16 @@ export const formatCurrency = (
 
     if (isNaN(numericValue)) {
       return '';
+    }
+
+    const formattedValue = new Intl.NumberFormat(locale, {
+      style: 'decimal',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(numericValue);
+
+    if (currency === 'AOA') {
+      return `${formattedValue} Kwanzas`;
     }
 
     return new Intl.NumberFormat(locale, {
@@ -273,3 +283,4 @@ export const formatPhone = (phone: string): string => {
   
   return phone;
 };
+

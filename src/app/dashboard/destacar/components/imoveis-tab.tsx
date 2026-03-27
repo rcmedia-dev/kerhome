@@ -1,4 +1,4 @@
-import { TPropertyResponseSchema } from "@/lib/types/property"
+﻿import { TPropertyResponseSchema } from "@/lib/types/property"
 import { Home, Plus } from "lucide-react"
 import { CompactPropertyCard } from "@/app/dashboard/destacar/components/compact-property-card"
 import EmptyState from "@/app/dashboard/destacar/components/empty-state"
@@ -78,3 +78,4 @@ const ImoveisTab: React.FC<ImoveisTabProps> = ({
 }
 
 export default ImoveisTab
+

@@ -1,4 +1,4 @@
-import { TPropertyResponseSchema } from '@/lib/types/property';
+﻿import { TPropertyResponseSchema } from '@/lib/types/property';
 
 export interface PacoteDestaque {
   id: string;

@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+﻿import { create } from 'zustand';
 import { supabase } from '@/lib/supabase';
 import { pusherClient } from '@/lib/pusher-client';
 
@@ -19,6 +19,12 @@ export interface Message {
     profiles?: Profile;
     attachment_url?: string;
     attachment_type?: 'image' | 'document';
+    sender_type?: 'personal' | 'agency';
+    sender_agency_id?: string;
+    agency?: {
+        nome: string;
+        logo: string | null;
+    };
 }
 
 export interface Conversation {
@@ -26,7 +32,14 @@ export interface Conversation {
     updated_at: string;
     user1_id: string;
     user2_id: string;
+    target_type: 'agent' | 'agency';
+    imobiliaria_id?: string | null;
+    status: 'open' | 'claimed' | 'closed';
     other_user?: Profile;
+    agency_details?: {
+        nome: string;
+        logo: string | null;
+    };
     last_message?: {
         content: string;
         created_at: string;
@@ -42,6 +55,7 @@ interface ChatState {
     activeProfile: Profile | null; // The user we are talking to
     conversations: Conversation[];
     messages: Message[];
+    typingUsers: Record<string, string[]>; // conversationId -> userNames[]
     isLoading: boolean;
     isInitialized: boolean;
 
@@ -61,12 +75,18 @@ interface ChatState {
     fetchMessages: (conversationId: string) => Promise<void>;
 
     fetchConversations: (userId: string) => Promise<void>;
-    createConversation: (myId: string, targetId: string) => Promise<Conversation | null>;
+    createConversation: (params: {
+        myId: string;
+        targetId: string;
+        targetType?: 'agent' | 'agency';
+        imobiliariaId?: string;
+    }) => Promise<Conversation | null>;
     markAsRead: (conversationId: string, userId: string) => Promise<void>;
 
     subscribeToConversation: (conversationId: string) => void;
     unsubscribeFromConversation: (conversationId: string) => void;
-    checkExistingConversation: (user1Id: string, user2Id: string) => Promise<string | null>;
+    checkExistingConversation: (user1Id: string, user2Id: string, targetType?: 'agent' | 'agency') => Promise<string | null>;
+    setTyping: (conversationId: string, userName: string, isTyping: boolean) => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -76,6 +96,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     activeProfile: null,
     conversations: [],
     messages: [],
+    typingUsers: {},
     isLoading: false,
     isInitialized: false,
     totalUnreadCount: 0,
@@ -125,6 +146,21 @@ export const useChatStore = create<ChatState>((set, get) => ({
                         return { conversations: updatedConvs, totalUnreadCount: total };
                     });
                 }
+            });
+            channel.bind('typing', (data: { userName: string, isTyping: boolean }) => {
+                set(state => {
+                    const currentTyping = state.typingUsers[c.id] || [];
+                    const newTyping = data.isTyping 
+                        ? [...new Set([...currentTyping, data.userName])]
+                        : currentTyping.filter(name => name !== data.userName);
+                    
+                    return {
+                        typingUsers: {
+                            ...state.typingUsers,
+                            [c.id]: newTyping
+                        }
+                    };
+                });
             });
         });
     },
@@ -252,23 +288,23 @@ export const useChatStore = create<ChatState>((set, get) => ({
         }
     },
 
-    createConversation: async (myId, targetId) => {
+
+    createConversation: async ({ myId, targetId, targetType = 'agent', imobiliariaId }) => {
         try {
             const response = await fetch('/api/conversations', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     user_id: myId,
-                    target_user_id: targetId
+                    target_user_id: targetId,
+                    target_type: targetType,
+                    imobiliaria_id: imobiliariaId
                 })
             });
 
             if (response.ok) {
                 const data = await response.json();
-                // Once created, we might need to add it to generic list if it's new
                 if (data.created) {
-                    // Ideally fetch conversation details or construct it
-                    // For now, simpliest is to re-fetch all
                     await get().fetchConversations(myId);
                 }
                 return data.conversation;
@@ -279,6 +315,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         return null;
     },
 
+
     subscribeToConversation: (conversationId) => {
         // Legacy single subscription - handled by initializeChat now
     },
@@ -287,30 +324,35 @@ export const useChatStore = create<ChatState>((set, get) => ({
         // Legacy
     },
 
-    checkExistingConversation: async (user1Id, user2Id) => {
+    checkExistingConversation: async (user1Id, user2Id, targetType = 'agent') => {
         // 1. Check local state first
-        const localConv = get().conversations.find(c =>
-            (c.user1_id === user1Id && c.user2_id === user2Id) ||
-            (c.user1_id === user2Id && c.user2_id === user1Id)
-        );
+        const localConv = get().conversations.find(c => {
+            if (targetType === 'agency') {
+                return (c.user1_id === user1Id || c.user2_id === user1Id) && c.target_type === 'agency';
+            }
+            return (
+                ((c.user1_id === user1Id && c.user2_id === user2Id) ||
+                (c.user1_id === user2Id && c.user2_id === user1Id)) &&
+                c.target_type !== 'agency'
+            );
+        });
         if (localConv) return localConv.id;
 
         // 2. Fetch from API if not found (in case it wasn't loaded yet)
         try {
-            // We can reuse fetchConversations or a specific endpoint. 
-            // For now, let's assume if it's not in the list (which is fetched on init), it might not exist or we need to refresh.
-            // But to be safe, let's try to find it via API or just trust the create logic which handles "get if exists".
-            // Actually, the create API usually returns existing if found.
-            // So we can arguably just return null here and let createConversation handle it.
-            // BUT, the UI calls this explicitly. Let's try to find it in the list.
-
-            // If the user hasn't initialized chat, we might not have conversations.
+            // ... simple check via conversations list
             if (!get().isInitialized) {
                 await get().fetchConversations(user1Id);
-                const freshLocal = get().conversations.find(c =>
-                    (c.user1_id === user1Id && c.user2_id === user2Id) ||
-                    (c.user1_id === user2Id && c.user2_id === user1Id)
-                );
+                const freshLocal = get().conversations.find(c => {
+                    if (targetType === 'agency') {
+                        return (c.user1_id === user1Id || c.user2_id === user1Id) && c.target_type === 'agency';
+                    }
+                    return (
+                        ((c.user1_id === user1Id && c.user2_id === user2Id) ||
+                        (c.user1_id === user2Id && c.user2_id === user1Id)) &&
+                        c.target_type !== 'agency'
+                    );
+                });
                 if (freshLocal) return freshLocal.id;
             }
 
@@ -319,5 +361,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
             console.error("Error checking conversation", error);
             return null;
         }
+    },
+
+    setTyping: (conversationId, userName, isTyping) => {
+        // Just trigger the event via API
+        fetch('/api/messages/typing', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ conversation_id: conversationId, user_name: userName, is_typing: isTyping })
+        }).catch(e => console.error("Failed to send typing status", e));
     }
 }));
+

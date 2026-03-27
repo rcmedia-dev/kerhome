@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { CustomSignInForm } from '@/components/login-form';
 import { useRouter } from 'next/navigation';
@@ -14,3 +14,4 @@ export default function LoginPage() {
         </div>
     );
 }
+

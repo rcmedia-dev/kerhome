@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { Home, Heart, BarChart3, Eye, User } from 'lucide-react';
@@ -8,6 +8,7 @@ import { useDashboardActions } from '@/hooks/use-dashboard-actions';
 
 import SoftLoading from '@/components/soft-loading';
 import SoftCard from '@/components/soft-card';
+import { AgencyNotificationsListener } from './dashboard/agency-notifications-listener';
 
 // Sub-components
 import { DashboardSidebar } from './dashboard/sidebar';
@@ -26,6 +27,7 @@ export default function Dashboard() {
     userInvoices,
     mostViewed,
     userPlan,
+    userAgency,
     isLoading: isDataLoading
   } = useDashboardData(user?.id);
 
@@ -64,6 +66,9 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50/50 flex flex-col lg:flex-row relative overflow-hidden">
+      
+      {/* ðŸ“¡ Listener de Notificações de Lead da Agência */}
+      <AgencyNotificationsListener imobiliariaId={userAgency.data?.id || null} />
 
       <DashboardSidebar
         activeTab={activeTab}
@@ -72,6 +77,7 @@ export default function Dashboard() {
         favoriteCount={userFavoriteProperties.data?.length || 0}
         invoiceCount={userInvoices.data?.length || 0}
         viewCount={mostViewed.data?.total_views_all || 0}
+        userAgency={userAgency.data}
       />
 
       <main className="flex-1 min-w-0 flex flex-col h-full lg:h-screen lg:overflow-y-auto custom-scrollbar p-0">
@@ -84,6 +90,7 @@ export default function Dashboard() {
             userFavoriteProperties={userFavoriteProperties.data ?? []}
             userInvoices={userInvoices.data ?? []}
             mostViewed={mostViewed.data || { total_views_all: 0, properties: [] }}
+            userAgency={userAgency.data}
             isLoading={isDataLoading}
           />
 
@@ -97,6 +104,7 @@ export default function Dashboard() {
               isRequestingAgent={isRequestingAgent}
               onAvatarUpload={handleAvatarUpload}
               onRequestAgent={handleRequestAgent}
+              userAgency={userAgency.data}
             />
 
             <DashboardPlanCard

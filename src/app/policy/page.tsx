@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { Home, ArrowLeft, Shield, Eye, Database, Users, Cookie, Globe, Lock, Settings, AlertTriangle, FileText } from 'lucide-react';
@@ -124,30 +124,30 @@ export default function KerHomePrivacy() {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">2.1 Informações Fornecidas por Você</h3>
                     <ul className="space-y-2 text-gray-700 ml-4">
-                      <li>• <strong>Dados de registro:</strong> nome, email, telefone, endereço</li>
-                      <li>• <strong>Informações profissionais:</strong> licenças de agentes, certificações</li>
-                      <li>• <strong>Dados de imóveis:</strong> descrições, fotos, localização, preços</li>
-                      <li>• <strong>Preferências:</strong> critérios de busca, favoritos, alertas</li>
-                      <li>• <strong>Comunicações:</strong> mensagens, comentários, avaliações</li>
+                      <li>â€¢ <strong>Dados de registro:</strong> nome, email, telefone, endereço</li>
+                      <li>â€¢ <strong>Informações profissionais:</strong> licenças de agentes, certificações</li>
+                      <li>â€¢ <strong>Dados de imóveis:</strong> descrições, fotos, localização, preços</li>
+                      <li>â€¢ <strong>Preferências:</strong> critérios de busca, favoritos, alertas</li>
+                      <li>â€¢ <strong>Comunicações:</strong> mensagens, comentários, avaliações</li>
                     </ul>
                   </div>
                   
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">2.2 Informações Coletadas Automaticamente</h3>
                     <ul className="space-y-2 text-gray-700 ml-4">
-                      <li>• <strong>Dados de navegação:</strong> páginas visitadas, tempo de sessão</li>
-                      <li>• <strong>Informações técnicas:</strong> endereço IP, tipo de dispositivo, navegador</li>
-                      <li>• <strong>Localização:</strong> localização aproximada baseada em IP</li>
-                      <li>• <strong>Cookies:</strong> preferências, sessões, análises</li>
+                      <li>â€¢ <strong>Dados de navegação:</strong> páginas visitadas, tempo de sessão</li>
+                      <li>â€¢ <strong>Informações técnicas:</strong> endereço IP, tipo de dispositivo, navegador</li>
+                      <li>â€¢ <strong>Localização:</strong> localização aproximada baseada em IP</li>
+                      <li>â€¢ <strong>Cookies:</strong> preferências, sessões, análises</li>
                     </ul>
                   </div>
                   
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">2.3 Dados de Terceiros</h3>
                     <ul className="space-y-2 text-gray-700 ml-4">
-                      <li>• <strong>Redes sociais:</strong> informações de perfis conectados</li>
-                      <li>• <strong>Parceiros:</strong> dados de verificação e validação</li>
-                      <li>• <strong>Fontes públicas:</strong> informações de registros públicos</li>
+                      <li>â€¢ <strong>Redes sociais:</strong> informações de perfis conectados</li>
+                      <li>â€¢ <strong>Parceiros:</strong> dados de verificação e validação</li>
+                      <li>â€¢ <strong>Fontes públicas:</strong> informações de registros públicos</li>
                     </ul>
                   </div>
                 </div>
@@ -164,31 +164,31 @@ export default function KerHomePrivacy() {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">3.1 Finalidades Principais</h3>
                     <ul className="space-y-2 ml-4">
-                      <li>• Criar e gerenciar sua conta na plataforma</li>
-                      <li>• Processar e facilitar transações imobiliárias</li>
-                      <li>• Conectar compradores, vendedores e agentes</li>
-                      <li>• Personalizar sua experiência na plataforma</li>
-                      <li>• Enviar notificações sobre imóveis de interesse</li>
+                      <li>â€¢ Criar e gerenciar sua conta na plataforma</li>
+                      <li>â€¢ Processar e facilitar transações imobiliárias</li>
+                      <li>â€¢ Conectar compradores, vendedores e agentes</li>
+                      <li>â€¢ Personalizar sua experiência na plataforma</li>
+                      <li>â€¢ Enviar notificações sobre imóveis de interesse</li>
                     </ul>
                   </div>
                   
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">3.2 Comunicação e Marketing</h3>
                     <ul className="space-y-2 ml-4">
-                      <li>• Enviar atualizações sobre novos imóveis</li>
-                      <li>• Comunicar alterações nos serviços</li>
-                      <li>• Enviar newsletters e conteúdo promocional</li>
-                      <li>• Realizar pesquisas de satisfação</li>
+                      <li>â€¢ Enviar atualizações sobre novos imóveis</li>
+                      <li>â€¢ Comunicar alterações nos serviços</li>
+                      <li>â€¢ Enviar newsletters e conteúdo promocional</li>
+                      <li>â€¢ Realizar pesquisas de satisfação</li>
                     </ul>
                   </div>
                   
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">3.3 Melhorias e Análises</h3>
                     <ul className="space-y-2 ml-4">
-                      <li>• Analisar uso da plataforma para melhorias</li>
-                      <li>• Desenvolver novos recursos e serviços</li>
-                      <li>• Gerar relatórios de mercado imobiliário</li>
-                      <li>• Detectar e prevenir fraudes</li>
+                      <li>â€¢ Analisar uso da plataforma para melhorias</li>
+                      <li>â€¢ Desenvolver novos recursos e serviços</li>
+                      <li>â€¢ Gerar relatórios de mercado imobiliário</li>
+                      <li>â€¢ Detectar e prevenir fraudes</li>
                     </ul>
                   </div>
                 </div>
@@ -205,19 +205,19 @@ export default function KerHomePrivacy() {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">4.1 Compartilhamento Autorizado</h3>
                     <ul className="space-y-2 ml-4">
-                      <li>• <strong>Agentes imobiliários:</strong> dados de contato para facilitar transações</li>
-                      <li>• <strong>Outros usuários:</strong> informações de perfil público conforme configurações</li>
-                      <li>• <strong>Parceiros comerciais:</strong> dados necessários para serviços específicos</li>
+                      <li>â€¢ <strong>Agentes imobiliários:</strong> dados de contato para facilitar transações</li>
+                      <li>â€¢ <strong>Outros usuários:</strong> informações de perfil público conforme configurações</li>
+                      <li>â€¢ <strong>Parceiros comerciais:</strong> dados necessários para serviços específicos</li>
                     </ul>
                   </div>
                   
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">4.2 Fornecedores de Serviços</h3>
                     <ul className="space-y-2 ml-4">
-                      <li>• Processadores de pagamento</li>
-                      <li>• Serviços de verificação de identidade</li>
-                      <li>• Provedores de hospedagem e tecnologia</li>
-                      <li>• Serviços de marketing e análise</li>
+                      <li>â€¢ Processadores de pagamento</li>
+                      <li>â€¢ Serviços de verificação de identidade</li>
+                      <li>â€¢ Provedores de hospedagem e tecnologia</li>
+                      <li>â€¢ Serviços de marketing e análise</li>
                     </ul>
                   </div>
                   
@@ -252,10 +252,10 @@ export default function KerHomePrivacy() {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">5.1 Tipos de Cookies</h3>
                     <ul className="space-y-2 ml-4">
-                      <li>• <strong>Essenciais:</strong> necessários para funcionamento básico</li>
-                      <li>• <strong>Funcionais:</strong> lembram preferências e configurações</li>
-                      <li>• <strong>Analíticos:</strong> medem desempenho e uso da plataforma</li>
-                      <li>• <strong>Marketing:</strong> personalizam anúncios e conteúdo</li>
+                      <li>â€¢ <strong>Essenciais:</strong> necessários para funcionamento básico</li>
+                      <li>â€¢ <strong>Funcionais:</strong> lembram preferências e configurações</li>
+                      <li>â€¢ <strong>Analíticos:</strong> medem desempenho e uso da plataforma</li>
+                      <li>â€¢ <strong>Marketing:</strong> personalizam anúncios e conteúdo</li>
                     </ul>
                   </div>
                   
@@ -280,21 +280,21 @@ export default function KerHomePrivacy() {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">6.1 Medidas de Proteção</h3>
                     <ul className="space-y-2 ml-4">
-                      <li>• Criptografia SSL/TLS para transmissão de dados</li>
-                      <li>• Criptografia de dados sensíveis em repouso</li>
-                      <li>• Controles de acesso rigorosos</li>
-                      <li>• Monitoramento contínuo de segurança</li>
-                      <li>• Auditorias regulares de segurança</li>
+                      <li>â€¢ Criptografia SSL/TLS para transmissão de dados</li>
+                      <li>â€¢ Criptografia de dados sensíveis em repouso</li>
+                      <li>â€¢ Controles de acesso rigorosos</li>
+                      <li>â€¢ Monitoramento contínuo de segurança</li>
+                      <li>â€¢ Auditorias regulares de segurança</li>
                     </ul>
                   </div>
                   
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">6.2 Suas Responsabilidades</h3>
                     <ul className="space-y-2 ml-4">
-                      <li>• Manter credenciais seguras</li>
-                      <li>• Usar senhas fortes e únicas</li>
-                      <li>• Reportar atividades suspeitas</li>
-                      <li>• Fazer logout em dispositivos compartilhados</li>
+                      <li>â€¢ Manter credenciais seguras</li>
+                      <li>â€¢ Usar senhas fortes e únicas</li>
+                      <li>â€¢ Reportar atividades suspeitas</li>
+                      <li>â€¢ Fazer logout em dispositivos compartilhados</li>
                     </ul>
                   </div>
                   
@@ -318,21 +318,21 @@ export default function KerHomePrivacy() {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">7.1 Direitos Fundamentais</h3>
                     <ul className="space-y-2 ml-4">
-                      <li>• <strong>Acesso:</strong> solicitar cópia dos seus dados</li>
-                      <li>• <strong>Correção:</strong> corrigir dados incorretos ou incompletos</li>
-                      <li>• <strong>Exclusão:</strong> solicitar remoção dos seus dados</li>
-                      <li>• <strong>Portabilidade:</strong> receber dados em formato estruturado</li>
-                      <li>• <strong>Restrição:</strong> limitar o processamento dos seus dados</li>
+                      <li>â€¢ <strong>Acesso:</strong> solicitar cópia dos seus dados</li>
+                      <li>â€¢ <strong>Correção:</strong> corrigir dados incorretos ou incompletos</li>
+                      <li>â€¢ <strong>Exclusão:</strong> solicitar remoção dos seus dados</li>
+                      <li>â€¢ <strong>Portabilidade:</strong> receber dados em formato estruturado</li>
+                      <li>â€¢ <strong>Restrição:</strong> limitar o processamento dos seus dados</li>
                     </ul>
                   </div>
                   
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">7.2 Como Exercer Seus Direitos</h3>
                     <ul className="space-y-2 ml-4">
-                      <li>• Acesse suas configurações de conta</li>
-                      <li>• Entre em contato através do email: privacy@kerhome.ao</li>
-                      <li>• Ligue para: +244 900 000 000</li>
-                      <li>• Responderemos em até 30 dias</li>
+                      <li>â€¢ Acesse suas configurações de conta</li>
+                      <li>â€¢ Entre em contato através do email: privacy@kerhome.ao</li>
+                      <li>â€¢ Ligue para: +244 900 000 000</li>
+                      <li>â€¢ Responderemos em até 30 dias</li>
                     </ul>
                   </div>
                   
@@ -388,9 +388,9 @@ export default function KerHomePrivacy() {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">9.1 Países de Destino</h3>
                     <ul className="space-y-2 ml-4">
-                      <li>• Estados Unidos (serviços de hospedagem)</li>
-                      <li>• União Europeia (processamento de pagamentos)</li>
-                      <li>• Outros países conforme expansão de serviços</li>
+                      <li>â€¢ Estados Unidos (serviços de hospedagem)</li>
+                      <li>â€¢ União Europeia (processamento de pagamentos)</li>
+                      <li>â€¢ Outros países conforme expansão de serviços</li>
                     </ul>
                   </div>
                 </div>

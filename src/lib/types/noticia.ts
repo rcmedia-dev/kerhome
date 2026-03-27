@@ -1,4 +1,4 @@
-export type Noticias = {
+﻿export type Noticias = {
   id: string;
   title: string;
   slug: string;
@@ -13,3 +13,4 @@ export type Noticias = {
   };
   createdAt: string; // pode ser Date se você quiser transformar depois
 };
+

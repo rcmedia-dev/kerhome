@@ -1,4 +1,4 @@
-'use server';
+﻿'use server';
 
 import { supabase } from "@/lib/supabase";
 import { getDefaultPacotes } from "@/lib/types/utils";
@@ -88,7 +88,7 @@ export async function addPropertiesToBoost(
   const endDate = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
 
   try {
-    // 1️⃣ Buscar boosts ativos existentes
+    // 1ï¸âƒ£ Buscar boosts ativos existentes
     const { data: existingBoosts, error: fetchError } = await supabase
       .from("properties_to_boost")
       .select("property_id, boost_end, status")
@@ -97,7 +97,7 @@ export async function addPropertiesToBoost(
 
     if (fetchError) throw new Error("Erro ao verificar boosts existentes.");
 
-    // 2️⃣ Filtrar imóveis já com boost ativo
+    // 2ï¸âƒ£ Filtrar imóveis já com boost ativo
     const activeIds = new Set(
       (existingBoosts || [])
         .filter((b) => new Date(b.boost_end) > now)
@@ -110,7 +110,7 @@ export async function addPropertiesToBoost(
       return { message: "Todos os imóveis já têm um destaque ativo.", inserted: 0 };
     }
 
-    // 3️⃣ Criar novos boosts
+    // 3ï¸âƒ£ Criar novos boosts
     const boostData = propertiesToInsert.map((propertyId) => ({
       property_id: propertyId,
       plan_id: planId,
@@ -121,7 +121,7 @@ export async function addPropertiesToBoost(
       clicks: 0,
     }));
 
-    // 4️⃣ Inserir
+    // 4ï¸âƒ£ Inserir
     const { data, error: insertError } = await supabase
       .from("properties_to_boost")
       .insert(boostData)
@@ -129,7 +129,7 @@ export async function addPropertiesToBoost(
 
     if (insertError) throw insertError;
 
-    // 5️⃣ Enviar webhook POST notificando o destaque
+    // 5ï¸âƒ£ Enviar webhook POST notificando o destaque
     try {
       await fetch("https://n8n.srv1157846.hstgr.cloud/webhook/notificate", {
         method: "POST",
@@ -474,5 +474,6 @@ function getDefaultMetrics(): PerformanceMetrics {
     total_revenue: 0
   };
 }
+
 
 

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import AgentCardWithChat from "@/components/agent-card-with-chat";
 import { useUserStore } from "@/lib/store/user-store";
@@ -12,9 +12,9 @@ export function PropertyContact({
   property: TPropertyResponseSchema;
   ownerDetails: any;
 }) {
-  const { user } = useUserStore(); // 👈 pega o user da store
+  const { user } = useUserStore(); // ðŸ‘ˆ pega o user da store
 
-  console.log("🔍 PropertyContact props:", {
+  console.log("ðŸ” PropertyContact props:", {
     propertyId: property?.id,
     ownerDetails,
     userId: user?.id,
@@ -46,7 +46,9 @@ export function PropertyContact({
         propertyTitle={property.title}
         propertyImage={property.image ?? undefined}
         userId={user?.id}
+        agencyData={property.imobiliarias}
       />
     </div>
   );
 }
+

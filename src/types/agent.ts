@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tipos relacionados a Agentes de Imóveis
  */
 import type { Dispatch, SetStateAction } from 'react';
@@ -95,3 +95,4 @@ export interface MainContentProps {
   agentStats: AgentStats;
   onOpenMessageBox?: () => void;
 }
+

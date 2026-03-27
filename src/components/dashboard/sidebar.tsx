@@ -1,4 +1,6 @@
-import { Home, Heart, BarChart3, Eye, Rocket, Settings, LayoutGrid } from 'lucide-react';
+﻿'use client';
+
+import { Home, Heart, BarChart3, Eye, Rocket, Settings, LayoutGrid, Store } from 'lucide-react';
 import SoftMenuItem from '@/components/soft-menu-item';
 import { CanSeeIt } from '@/components/can';
 
@@ -9,6 +11,7 @@ interface DashboardSidebarProps {
     favoriteCount: number;
     invoiceCount: number;
     viewCount: number;
+    userAgency?: any;
 }
 
 export function DashboardSidebar({
@@ -18,6 +21,7 @@ export function DashboardSidebar({
     favoriteCount,
     invoiceCount,
     viewCount,
+    userAgency,
 }: DashboardSidebarProps) {
     const menuItems = [
         { id: 'properties', label: 'Minhas Propriedades', icon: Home, badge: propertyCount },
@@ -27,6 +31,15 @@ export function DashboardSidebar({
         { id: 'boost', label: 'Impulsionadas', icon: Rocket },
         { id: 'settings', label: 'Configurações', icon: Settings },
     ];
+
+    // Adicionar Aba de Gestão da Agência se estiver aprovada
+    if (userAgency && userAgency.status === 'approved') {
+        menuItems.splice(menuItems.findIndex(i => i.id === 'settings'), 0, {
+            id: 'agency',
+            label: 'Minha Agência',
+            icon: Store
+        });
+    }
 
     return (
         <aside className="w-full lg:w-72 bg-white/80 backdrop-blur-md border-r border-gray-100 flex flex-col shrink-0 lg:h-screen lg:sticky lg:top-0 z-40">
@@ -83,3 +96,4 @@ export function DashboardSidebar({
         </aside>
     );
 }
+

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { Calculator, Search } from 'lucide-react';
@@ -29,3 +29,4 @@ export default function TopBar() {
         </div>
     );
 }
+

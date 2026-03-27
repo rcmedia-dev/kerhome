@@ -1,4 +1,4 @@
-// src/lib/actions/send-password-reset.ts
+﻿// src/lib/actions/send-password-reset.ts
 'use server'
 
 import { createClient } from "@/lib/supabase/client"
@@ -13,3 +13,4 @@ export async function sendPasswordReset(email: string) {
   if (error) throw error
   return { success: true }
 }
+

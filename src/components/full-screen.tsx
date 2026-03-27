@@ -1,4 +1,4 @@
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+﻿import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect } from "react";
 import Image from "next/image";
 

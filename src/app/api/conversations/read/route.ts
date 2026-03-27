@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
 export async function PATCH(req: Request) {
@@ -29,3 +29,4 @@ export async function PATCH(req: Request) {
         return NextResponse.json({ error: "Internal Error" }, { status: 500 });
     }
 }
+

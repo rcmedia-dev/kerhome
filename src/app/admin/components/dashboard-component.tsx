@@ -1,34 +1,34 @@
-import { Building2, CheckCircle, DollarSign, LucideIcon,  TrendingDown, TrendingUp, UserPlus, Users } from "lucide-react";
+﻿import { Building2, CheckCircle, DollarSign, LucideIcon, TrendingDown, TrendingUp, UserPlus, Users } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 
 
 
- // Dados de exemplo para os gráficos
+// Dados de exemplo para os gráficos
 const revenueData = [
-    { month: 'Jan', revenue: 45000, properties: 120 },
-    { month: 'Fev', revenue: 52000, properties: 145 },
-    { month: 'Mar', revenue: 48000, properties: 132 },
-    { month: 'Abr', revenue: 61000, properties: 167 },
-    { month: 'Mai', revenue: 55000, properties: 151 },
-    { month: 'Jun', revenue: 67000, properties: 189 }
-  ];
+  { month: 'Jan', revenue: 45000, properties: 120 },
+  { month: 'Fev', revenue: 52000, properties: 145 },
+  { month: 'Mar', revenue: 48000, properties: 132 },
+  { month: 'Abr', revenue: 61000, properties: 167 },
+  { month: 'Mai', revenue: 55000, properties: 151 },
+  { month: 'Jun', revenue: 67000, properties: 189 }
+];
 
-    const propertyTypeData = [
-    { name: 'Apartamentos', value: 45, color: '#8B5CF6' },
-    { name: 'Casas', value: 30, color: '#F59E0B' },
-    { name: 'Terrenos', value: 15, color: '#10B981' },
-    { name: 'Comercial', value: 10, color: '#EF4444' }
-  ];
+const propertyTypeData = [
+  { name: 'Apartamentos', value: 45, color: '#8B5CF6' },
+  { name: 'Casas', value: 30, color: '#F59E0B' },
+  { name: 'Terrenos', value: 15, color: '#10B981' },
+  { name: 'Comercial', value: 10, color: '#EF4444' }
+];
 
-    const userGrowthData = [
-    { month: 'Jan', users: 1200, agents: 45 },
-    { month: 'Fev', users: 1450, agents: 52 },
-    { month: 'Mar', users: 1680, agents: 48 },
-    { month: 'Abr', users: 1920, agents: 61 },
-    { month: 'Mai', users: 2150, agents: 58 },
-    { month: 'Jun', users: 2380, agents: 67 }
-  ];
+const userGrowthData = [
+  { month: 'Jan', users: 1200, agents: 45 },
+  { month: 'Fev', users: 1450, agents: 52 },
+  { month: 'Mar', users: 1680, agents: 48 },
+  { month: 'Abr', users: 1920, agents: 61 },
+  { month: 'Mai', users: 2150, agents: 58 },
+  { month: 'Jun', users: 2380, agents: 67 }
+];
 
 type PropertyTypeData = {
   name: string
@@ -37,46 +37,46 @@ type PropertyTypeData = {
 }
 
 type RenderDashboardProps = {
-    darkMode: boolean;
-    activeProperties?: number;
-    registeredUsers?: number;
-    propertyTypeData?: PropertyTypeData[] | undefined;
-    agentUsers?: number;
+  darkMode: boolean;
+  activeProperties?: number;
+  registeredUsers?: number;
+  propertyTypeData?: PropertyTypeData[] | undefined;
+  agentUsers?: number;
 }
 
-export function RenderDashboard( { darkMode, activeProperties, registeredUsers, agentUsers, propertyTypeData }: RenderDashboardProps){
-    return(
+export function RenderDashboard({ darkMode, activeProperties, registeredUsers, agentUsers, propertyTypeData }: RenderDashboardProps) {
+  return (
 
     <div className="space-y-6">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard 
-          title="Imóveis Ativos" 
-          value={activeProperties} 
-          change={12} 
-          icon={Building2} 
-          color="purple" 
+        <StatCard
+          title="Imóveis Ativos"
+          value={activeProperties}
+          change={12}
+          icon={Building2}
+          color="purple"
         />
-        <StatCard 
-          title="Utilizadores Registados" 
-          value={registeredUsers} 
-          change={8} 
-          icon={Users} 
-          color="orange" 
+        <StatCard
+          title="Utilizadores Registados"
+          value={registeredUsers}
+          change={8}
+          icon={Users}
+          color="orange"
         />
-        <StatCard 
-          title="Receita Mensal" 
-          value="67.000 Kz" 
-          change={15} 
-          icon={DollarSign} 
-          color="green" 
+        <StatCard
+          title="Receita Mensal"
+          value="67.000 Kwanzas"
+          change={15}
+          icon={DollarSign}
+          color="green"
         />
-        <StatCard 
-          title="Agentes Ativos" 
+        <StatCard
+          title="Agentes Ativos"
           value={agentUsers}
-          change={5} 
-          icon={UserPlus} 
-          color="blue" 
+          change={5}
+          icon={UserPlus}
+          color="blue"
         />
       </div>
 
@@ -90,7 +90,7 @@ export function RenderDashboard( { darkMode, activeProperties, registeredUsers, 
               <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#374151' : '#E5E7EB'} />
               <XAxis dataKey="month" stroke={darkMode ? '#9CA3AF' : '#6B7280'} />
               <YAxis stroke={darkMode ? '#9CA3AF' : '#6B7280'} />
-              <Tooltip 
+              <Tooltip
                 contentStyle={{
                   backgroundColor: darkMode ? '#374151' : '#FFFFFF',
                   border: `1px solid ${darkMode ? '#4B5563' : '#E5E7EB'}`,
@@ -135,7 +135,7 @@ export function RenderDashboard( { darkMode, activeProperties, registeredUsers, 
             <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#374151' : '#E5E7EB'} />
             <XAxis dataKey="month" stroke={darkMode ? '#9CA3AF' : '#6B7280'} />
             <YAxis stroke={darkMode ? '#9CA3AF' : '#6B7280'} />
-            <Tooltip 
+            <Tooltip
               contentStyle={{
                 backgroundColor: darkMode ? '#374151' : '#FFFFFF',
                 border: `1px solid ${darkMode ? '#4B5563' : '#E5E7EB'}`,
@@ -176,40 +176,40 @@ export function RenderDashboard( { darkMode, activeProperties, registeredUsers, 
         </div>
       </div>
     </div>
-    )
+  )
 }
 
 
 interface StatCardProps {
-    title: string;
-    value?: string | number;
-    change: number;
-    icon: LucideIcon;  // o tipo para componente de ícone (React component)
-    color?: "purple" | "orange" | "green" | "blue";
-    darkMode?: boolean; // você está usando `darkMode` mas não veio no props, tem que incluir
+  title: string;
+  value?: string | number;
+  change: number;
+  icon: LucideIcon;  // o tipo para componente de ícone (React component)
+  color?: "purple" | "orange" | "green" | "blue";
+  darkMode?: boolean; // você está usando `darkMode` mas não veio no props, tem que incluir
 }
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, change, icon: Icon, color = "purple", darkMode = false }) => (
-    <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} p-6 rounded-xl border shadow-sm hover:shadow-md transition-all duration-200`}>
-      <div className="flex items-center justify-between">
-        <div>
-          <p className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{title}</p>
-          <p className={`text-2xl font-bold mt-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{value}</p>
-          <div className="flex items-center mt-2 text-sm">
-            {change > 0 ? (
-              <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-            ) : (
-              <TrendingDown className="w-4 h-4 text-red-500 mr-1" />
-            )}
-            <span className={change > 0 ? 'text-green-500' : 'text-red-500'}>
-              {Math.abs(change)}%
-            </span>
-            <span className={`ml-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>vs mês anterior</span>
-          </div>
-        </div>
-        <div className={`p-3 rounded-lg ${color === 'purple' ? 'bg-purple-100 text-purple-600' : color === 'orange' ? 'bg-orange-100 text-orange-600' : color === 'green' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'} ${darkMode ? 'bg-opacity-20' : ''}`}>
-          <Icon className="w-6 h-6" />
+  <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} p-6 rounded-xl border shadow-sm hover:shadow-md transition-all duration-200`}>
+    <div className="flex items-center justify-between">
+      <div>
+        <p className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{title}</p>
+        <p className={`text-2xl font-bold mt-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{value}</p>
+        <div className="flex items-center mt-2 text-sm">
+          {change > 0 ? (
+            <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
+          ) : (
+            <TrendingDown className="w-4 h-4 text-red-500 mr-1" />
+          )}
+          <span className={change > 0 ? 'text-green-500' : 'text-red-500'}>
+            {Math.abs(change)}%
+          </span>
+          <span className={`ml-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>vs mês anterior</span>
         </div>
       </div>
+      <div className={`p-3 rounded-lg ${color === 'purple' ? 'bg-purple-100 text-purple-600' : color === 'orange' ? 'bg-orange-100 text-orange-600' : color === 'green' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'} ${darkMode ? 'bg-opacity-20' : ''}`}>
+        <Icon className="w-6 h-6" />
+      </div>
     </div>
-  );
+  </div>
+);

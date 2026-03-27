@@ -1,4 +1,4 @@
-import { CreditCard, X, Sparkles, Building2, CheckCircle2, Clock } from "lucide-react";
+﻿import { CreditCard, X, Sparkles, Building2, CheckCircle2, Clock } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 
@@ -223,3 +223,4 @@ export function PaymentModal({
     </Dialog>
   );
 }
+

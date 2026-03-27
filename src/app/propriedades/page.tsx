@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React, { useState, useEffect, ReactNode, useCallback, useRef } from 'react';
 import {
@@ -315,11 +315,11 @@ const PropertyListing = () => {
     queryKey: ['properties', 'mixed'],
     queryFn: async () => {
       const response = await getMixedProperties();
-      return response.properties; // ← Retorna array no formato propertyResponseSchema
+      return response.properties; // â† Retorna array no formato propertyResponseSchema
     }
   });
 
-  // 🔍 Funções de debounce para localização e preços
+  // ðŸ” Funções de debounce para localização e preços
   const updateFilterLocation = useDebouncedCallback((value: string) => {
     setFilters(prev => ({ ...prev, location: value }));
   }, 350);
@@ -332,7 +332,7 @@ const PropertyListing = () => {
     setFilters(prev => ({ ...prev, maxPrice: value }));
   }, 350);
 
-  // 🎯 Handlers para inputs com debounce - useCallback para manter referência estável
+  // ðŸŽ¯ Handlers para inputs com debounce - useCallback para manter referência estável
   const handleLocalLocationChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLocalLocation(value);
@@ -392,7 +392,7 @@ const PropertyListing = () => {
     setFilters(prev => ({ ...prev, sortBy: e.target.value }));
   }, []);
 
-  // 🔍 FILTRAGEM NO FRONTEND
+  // ðŸ” FILTRAGEM NO FRONTEND
   const filteredProperties = properties?.data?.filter((property: any) => {
     const {
       status,
@@ -427,7 +427,7 @@ const PropertyListing = () => {
     );
   });
 
-  // 🎯 ORDENAÇÃO
+  // ðŸŽ¯ ORDENAÇÃƒO
   const sortedProperties = React.useMemo(() => {
     if (!filteredProperties) return [];
 
@@ -521,7 +521,7 @@ const PropertyListing = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
 
-      {/* 🔍 SEARCH CARD (INLINE) */}
+      {/* ðŸ” SEARCH CARD (INLINE) */}
       <div className="relative z-20 max-w-6xl mx-auto px-4 mt-8 mb-12 w-full hidden md:block">
         <motion.div
           initial={{ y: 30, opacity: 0 }}
@@ -562,7 +562,7 @@ const PropertyListing = () => {
         </motion.div>
       </div>
 
-      {/* 🏘️ LISTAGEM DE IMÓVEIS */}
+      {/* ðŸ˜ï¸ LISTAGEM DE IMÓVEIS */}
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -639,7 +639,7 @@ const PropertyListing = () => {
         )}
       </AnimatePresence>
 
-      {/* 🛑 PAINEL LATERAL DE FILTROS (SEM OVERLAY) 🛑 */}
+      {/* ðŸ›‘ PAINEL LATERAL DE FILTROS (SEM OVERLAY) ðŸ›‘ */}
       <AnimatePresence>
         {showFilterModal && (
           <motion.div

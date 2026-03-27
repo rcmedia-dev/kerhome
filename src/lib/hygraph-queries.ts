@@ -1,4 +1,4 @@
-import { gql } from "graphql-request";
+﻿import { gql } from "graphql-request";
 
 export const GET_POSTS = gql`
   query GetPosts($first: Int = 10, $skip: Int = 0) {

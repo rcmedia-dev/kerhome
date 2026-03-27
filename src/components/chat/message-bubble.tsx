@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { cn } from '@/lib/utils';
 import { Message, Profile } from '@/lib/store/chat-store';
 import { UserCircle, FileText, Download, Trash2, MoreVertical } from 'lucide-react';
@@ -47,10 +47,18 @@ export function MessageBubble({ message, isMe }: MessageBubbleProps) {
             "flex w-full mt-2 space-x-3 max-w-xs group relative", // Added group for hover effects if needed
             isMe ? "ml-auto justify-end" : ""
         )}>
-            {/* Avatar for other user */}
+            {/* Avatar for other user / Agency */}
             {!isMe && (
-                <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gray-200 overflow-hidden">
-                    {message.profiles?.avatar_url ? (
+                <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gray-200 overflow-hidden border border-gray-100">
+                    {message.sender_type === 'agency' ? (
+                        message.agency?.logo ? (
+                            <img src={message.agency.logo} alt="Agency" className="h-full w-full object-cover" />
+                        ) : (
+                            <div className="h-full w-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-[10px]">
+                                {message.agency?.nome?.substring(0, 2).toUpperCase()}
+                            </div>
+                        )
+                    ) : message.profiles?.avatar_url ? (
                         <img src={message.profiles.avatar_url} alt="Profile" className="h-full w-full object-cover" />
                     ) : (
                         <UserCircle className="h-full w-full text-gray-500 p-1" />
@@ -109,6 +117,12 @@ export function MessageBubble({ message, isMe }: MessageBubbleProps) {
                 )}
 
                 <p className="text-sm leading-snug">{displayContent}</p>
+                
+                {message.sender_type === 'agency' && (
+                    <span className="text-[9px] font-semibold text-purple-600 block mt-1">
+                        {message.agency?.nome}
+                    </span>
+                )}
                 <span className={cn(
                     "text-[10px] block text-right mt-1 opacity-70",
                     isMe ? "text-purple-100" : "text-gray-400"
@@ -119,3 +133,4 @@ export function MessageBubble({ message, isMe }: MessageBubbleProps) {
         </div>
     );
 }
+

@@ -1,4 +1,4 @@
-// lib/actions/get-user-plan.ts
+﻿// lib/actions/get-user-plan.ts
 'use server';
 
 import { supabase } from '@/lib/supabase';
@@ -70,3 +70,4 @@ export async function getUserPlan(userId?: string): Promise<UserPlan> {
     pacote_agente_id: userData.pacote_agente_id,
   };
 }
+

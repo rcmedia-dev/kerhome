@@ -1,4 +1,4 @@
-import { Share2 } from "lucide-react";
+﻿import { Share2 } from "lucide-react";
 
 // ===== COMPONENTE SHARE BUTTON =====
 export function ShareButton({ property }: { property: any }) {

@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+﻿import { createClient } from "@supabase/supabase-js";
 
 
 
@@ -29,3 +29,4 @@ export async function updateUserPassword(userId: string, newPassword: string) {
 
   return { success: true, data };
 }
+

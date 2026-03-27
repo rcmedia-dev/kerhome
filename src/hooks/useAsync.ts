@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Hook para operações assíncronas com tratamento robusto de erros
  */
 
@@ -226,3 +226,4 @@ export function useAsyncDebounced<TData, TArgs extends any[] = []>(
 
   return { ...state, execute, reset };
 }
+

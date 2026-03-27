@@ -1,4 +1,4 @@
-
+﻿
 import { PropertyCard } from "@/components/property-card";
 import { searchProperties } from "@/lib/functions/supabase-actions/search-properties-action";
 
@@ -29,3 +29,4 @@ export default async function ResultsPage({ q, status, cidade }: SearchParams) {
     </div>
   );
 }
+

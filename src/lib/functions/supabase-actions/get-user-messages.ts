@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+﻿import { supabase } from "@/lib/supabase";
 
 export async function getUserMessagesList(userId: string) {
   // Buscar mensagens enviadas por este usuário
@@ -36,3 +36,4 @@ export async function getUserMessagesList(userId: string) {
 
   return messagesWithReceiver;
 }
+

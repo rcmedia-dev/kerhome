@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { predictPrice } from '@/lib/predict-engine';
 
 export async function POST(req: NextRequest) {
@@ -35,3 +35,4 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Erro interno ao processar a predição.' }, { status: 500 });
     }
 }
+

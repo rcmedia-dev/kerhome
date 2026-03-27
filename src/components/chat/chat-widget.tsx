@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+﻿import React, { useEffect } from 'react';
 import { ChatWindow } from './chat-window';
 import { ChatList } from './chat-list';
 import { UserSearch } from './user-search';
@@ -38,3 +38,4 @@ export function ChatWidget() {
         </AnimatePresence>
     );
 }
+

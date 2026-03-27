@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import { TPropertyResponseSchema } from "@/lib/types/property";
@@ -42,7 +42,7 @@ export default function HeaderControls({
             </select>
             {/* Ícone da seta */}
             <div className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-400">
-              ▼
+              â–¼
             </div>
           </div>
         </div>
@@ -50,3 +50,4 @@ export default function HeaderControls({
     </motion.div>
   );
 }
+

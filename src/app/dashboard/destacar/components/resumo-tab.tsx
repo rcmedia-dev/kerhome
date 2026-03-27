@@ -1,4 +1,4 @@
-import { PacoteDestaque } from "@/lib/types/defaults"
+﻿import { PacoteDestaque } from "@/lib/types/defaults"
 import { BadgeCheck, Sparkles, Calendar, Shield, ArrowRight, X, MessageCircle, Copy, Building } from "lucide-react"
 import { useState } from "react"
 
@@ -28,7 +28,7 @@ const ResumoTab: React.FC<ResumoTabProps> = ({
     if (!selectedPacote) return
     
     const phoneNumber = "955324708"
-    const message = `Olá! Gostaria de confirmar o pagamento para o destaque dos imóveis:\n\n*Pacote:* ${selectedPacote.nome}\n*Duração:* ${selectedPacote.dias} dias\n*Imóveis selecionados:* ${selectedProperties.length}\n*Valor total:* ${total.toLocaleString('pt-AO')} Kz\n\nAnexo do comprovativo de pagamento.`
+    const message = `Olá! Gostaria de confirmar o pagamento para o destaque dos imóveis:\n\n*Pacote:* ${selectedPacote.nome}\n*Duração:* ${selectedPacote.dias} dias\n*Imóveis selecionados:* ${selectedProperties.length}\n*Valor total:* ${total.toLocaleString('pt-AO')} Kwanzas\n\nAnexo do comprovativo de pagamento.`
     
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, '_blank')
@@ -51,7 +51,7 @@ const ResumoTab: React.FC<ResumoTabProps> = ({
   // Informações bancárias
   const bankInfo = {
     bankName: "STANDARD BANK",
-    accountHolder: "Rogério Daniel Comércio SU Lda",
+    accountHolder: "Rogério DanielÂ ComércioÂ SUÂ Lda",
     iban: "0060.0140.0100.5214.0931.9",
   }
 
@@ -88,7 +88,7 @@ const ResumoTab: React.FC<ResumoTabProps> = ({
                 </div>
                 <div className="text-right">
                   <div className="font-bold text-purple-700 text-lg">
-                    {selectedPacote.preco.toLocaleString('pt-AO')} Kz
+                    {selectedPacote.preco.toLocaleString('pt-AO')} Kwanzas
                   </div>
                   <div className="text-sm text-gray-600">por imóvel</div>
                 </div>
@@ -115,7 +115,7 @@ const ResumoTab: React.FC<ResumoTabProps> = ({
               <div className="flex justify-between items-center text-lg font-bold">
                 <span>Total a pagar:</span>
                 <span className="text-orange-500 text-xl">
-                  {total.toLocaleString('pt-AO')} Kz
+                  {total.toLocaleString('pt-AO')} Kwanzas
                 </span>
               </div>
 
@@ -190,7 +190,7 @@ const ResumoTab: React.FC<ResumoTabProps> = ({
                     </div>
                     
                     {/* <div className="flex justify-between items-center">
-                      <span className="text-sm text-blue-700">Nº da Conta:</span>
+                      <span className="text-sm text-blue-700">NÂº da Conta:</span>
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-blue-900">{bankInfo.accountNumber}</span>
                         <button
@@ -256,7 +256,7 @@ const ResumoTab: React.FC<ResumoTabProps> = ({
                   <div className="flex justify-between border-t pt-2">
                     <span className="text-gray-600 font-semibold">Total:</span>
                     <span className="font-bold text-orange-500 text-lg">
-                      {total.toLocaleString('pt-AO')} Kz
+                      {total.toLocaleString('pt-AO')} Kwanzas
                     </span>
                   </div>
                 </div>

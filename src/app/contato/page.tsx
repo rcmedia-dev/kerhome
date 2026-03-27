@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Mail, Phone, MapPin, Sparkle, AlertCircle, Send, ArrowRight, MessageSquare, Instagram, Facebook, Linkedin, Home } from "lucide-react";
@@ -115,7 +115,7 @@ const ContactForm = () => {
         setTimeout(() => setStatusMessage({ type: null, text: "" }), 4000);
       })
       .catch((error) => {
-        console.error("❌ Erro ao enviar:", error);
+        console.error("âŒ Erro ao enviar:", error);
 
         setStatusMessage({ type: "error", text: "Erro ao enviar mensagem." });
         setTimeout(() => setStatusMessage({ type: null, text: "" }), 4000);
@@ -251,3 +251,4 @@ export default function ContactPage() {
     </div>
   );
 }
+

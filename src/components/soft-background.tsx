@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+﻿import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 // Efeito de partículas suaves para o background

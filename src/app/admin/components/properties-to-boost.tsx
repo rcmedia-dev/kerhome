@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import { 
-  Zap, 
-  Clock, 
-  BarChart3, 
-  MapPin, 
-  Home, 
-  X, 
-  RefreshCw, 
+﻿import { useState, useEffect } from 'react';
+import {
+  Zap,
+  Clock,
+  BarChart3,
+  MapPin,
+  Home,
+  X,
+  RefreshCw,
   Loader2,
   Eye,
   CheckCircle,
@@ -27,7 +27,7 @@ interface BoostedProperty {
   location: string;
   price: number;
   image?: string;
-  aprovement_status: 'pending' | 'aprovado' | 'rejeitado';
+  aprovement_status: 'pending' | 'approved' | 'rejected';
   boost_plan: string;
   boost_expires_at: string;
   boost_started_at: string;
@@ -66,7 +66,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
   const fetchBoostedProperties = async () => {
     try {
       setLoading(true);
-      
+
       const { data: boostsData, error: boostsError } = await supabase
         .from('properties_to_boost')
         .select('*')
@@ -112,16 +112,16 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       const formattedProperties: BoostedProperty[] = boostsData.map(boost => {
         const property = propertiesMap.get(boost.property_id);
         const plan = plansMap.get(boost.plan_id);
-        
+
         const startedAt = new Date(boost.created_at);
         const expiresAt = new Date(startedAt);
-        
+
         if (boost.status === 'active' && plan?.dias) {
           expiresAt.setDate(startedAt.getDate() + plan.dias);
         } else {
           expiresAt.setDate(startedAt.getDate() - 1);
         }
-        
+
         const getBoostType = (planName: string): 'featured' | 'premium' | 'standard' => {
           if (!planName) return 'standard';
           if (planName.toLowerCase().includes('premium')) return 'premium';
@@ -166,10 +166,10 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
   const handleDeboostProperty = async (boostId: string) => {
     try {
       setDeboostingId(boostId);
-      
+
       const { error } = await supabase
         .from('properties_to_boost')
-        .update({ 
+        .update({
           status: 'rejected',
           rejected_reason: 'suspicious'
         })
@@ -192,7 +192,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
   const handleReactivateBoost = async (boostId: string) => {
     try {
       setReactivatingId(boostId);
-      
+
       const currentBoost = boostedProperties.find(p => p.id === boostId);
       if (!currentBoost) {
         throw new Error('Boost não encontrado');
@@ -200,7 +200,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
 
       const { error } = await supabase
         .from('properties_to_boost')
-        .update({ 
+        .update({
           status: 'active',
           rejected_reason: null
         })
@@ -223,7 +223,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
   const handleApproveBoost = async (boostId: string) => {
     try {
       setApprovingId(boostId);
-      
+
       const { error } = await supabase
         .from('properties_to_boost')
         .update({ status: 'active', rejected_reason: null })
@@ -246,7 +246,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
   const handleRejectBoost = async (boostId: string) => {
     try {
       setRejectingId(boostId);
-      
+
       const { error } = await supabase
         .from('properties_to_boost')
         .update({ status: 'rejected', rejected_reason: 'suspicious' })
@@ -269,7 +269,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
   const handleRenewBoost = async (boostId: string) => {
     try {
       setRenewingId(boostId);
-      
+
       const currentBoost = boostedProperties.find(p => p.id === boostId);
       if (!currentBoost) {
         throw new Error('Boost não encontrado');
@@ -298,7 +298,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       if (insertError) {
         throw insertError;
       }
-      
+
       if (user) {
         const { error: invoiceError } = await supabase
           .from('faturas')
@@ -329,7 +329,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
   const handleRemoveBoost = async (boostId: string) => {
     try {
       setRemovingId(boostId);
-      
+
       const { error } = await supabase
         .from('properties_to_boost')
         .delete()
@@ -352,7 +352,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
   const handleDeleteProperty = async (propertyId: string) => {
     try {
       setDeletingPropertyId(propertyId);
-      
+
       const confirmed = window.confirm('Tem certeza que deseja eliminar este imóvel? Esta ação é irreversível e eliminará também todos os dados associados.');
       if (!confirmed) return;
 
@@ -388,29 +388,29 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
 
   const calculateTimeLeft = (expiresAt: string, boostStatus: string) => {
     if (boostStatus !== 'active') {
-      return { 
-        expired: true, 
-        text: boostStatus === 'pending' ? 'Pendente' : 
-              boostStatus === 'rejected' ? 'Suspenso' :
-              boostStatus === 'expired' ? 'Desimpulsionado' : 'Inativo',
-        percentage: 0 
+      return {
+        expired: true,
+        text: boostStatus === 'pending' ? 'pending' :
+          boostStatus === 'rejected' ? 'Suspenso' :
+            boostStatus === 'expired' ? 'Desimpulsionado' : 'Inativo',
+        percentage: 0
       };
     }
 
     const now = new Date();
     const expiry = new Date(expiresAt);
     const diff = expiry.getTime() - now.getTime();
-    
+
     if (diff <= 0) return { expired: true, text: 'Expirado', percentage: 0 };
-    
+
     const totalDays = 30;
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const percentage = Math.max(0, Math.min(100, (days / totalDays) * 100));
-    
-    return { 
-      expired: false, 
+
+    return {
+      expired: false,
       text: `${days}d ${hours}h ${minutes}m`,
       days,
       hours,
@@ -485,9 +485,9 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       case 'active':
         return 'Ativo';
       case 'pending':
-        return 'Pendente';
+        return 'pending';
       case 'rejected':
-        return 'Rejeitado';
+        return 'rejected';
       case 'expired':
         return 'Desimpulsionado';
       default:
@@ -675,20 +675,18 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key as any)}
-                  className={`flex-1 py-3 px-4 rounded-xl text-center transition-all duration-200 ${
-                    activeTab === tab.key
+                  className={`flex-1 py-3 px-4 rounded-xl text-center transition-all duration-200 ${activeTab === tab.key
                       ? "bg-white dark:bg-gray-600 text-purple-600 dark:text-purple-400 shadow-sm"
                       : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-600/50"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center justify-center gap-2">
                     <Icon size={18} />
                     <span className="font-semibold">{tab.label}</span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      activeTab === tab.key 
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${activeTab === tab.key
                         ? 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400'
                         : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-400'
-                    }`}>
+                      }`}>
                       {tab.count}
                     </span>
                   </div>
@@ -706,15 +704,15 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
               Nenhum imóvel impulsionado encontrado
             </h3>
             <p className="text-gray-500 dark:text-gray-400">
-              {activeTab === 'active' 
+              {activeTab === 'active'
                 ? 'Não há imóveis atualmente em destaque ativo'
                 : activeTab === 'expired'
-                ? 'Não há imóveis com destaque expirado ou desimpulsionado'
-                : activeTab === 'pending'
-                ? 'Não há solicitações de destaque pendentes'
-                : activeTab === 'suspended'
-                ? 'Não há imóveis com impulsionamento suspenso'
-                : 'Não há imóveis impulsionados'
+                  ? 'Não há imóveis com destaque expirado ou desimpulsionado'
+                  : activeTab === 'pending'
+                    ? 'Não há solicitações de destaque pendentes'
+                    : activeTab === 'suspended'
+                      ? 'Não há imóveis com impulsionamento suspenso'
+                      : 'Não há imóveis impulsionados'
               }
             </p>
           </div>
@@ -726,14 +724,13 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
               const StatusIcon = getStatusIcon(property.boost_status, property.rejected_reason);
               const isSuspended = property.boost_status === 'rejected' && property.rejected_reason === 'suspicious';
               const isDeboosted = property.boost_status === 'expired';
-              
+
               return (
                 <div
                   key={property.id}
-                  className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-200 group ${
-                    isSuspended ? 'ring-2 ring-red-500 ring-opacity-50' :
-                    isDeboosted ? 'opacity-75' : ''
-                  }`}
+                  className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-200 group ${isSuspended ? 'ring-2 ring-red-500 ring-opacity-50' :
+                      isDeboosted ? 'opacity-75' : ''
+                    }`}
                 >
                   {/* Property Image */}
                   <div className="relative h-48 bg-gray-200 dark:bg-gray-700 overflow-hidden">
@@ -748,7 +745,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
                         <Home className="w-12 h-12 text-gray-400" />
                       </div>
                     )}
-                    
+
                     {/* Boost Type Badge */}
                     <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold text-white ${getBoostTypeColor(property.boost_type)}`}>
                       {getBoostTypeText(property.boost_type)}
@@ -763,14 +760,13 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
                     {/* Progress Bar - apenas para boosts ativos e não expirados */}
                     {property.boost_status === 'active' && !isExpired && (
                       <div className="absolute bottom-0 left-0 right-0 bg-gray-200 dark:bg-gray-700 h-1">
-                        <div 
-                          className={`h-full ${
-                            timeLeft.percentage > 50 
-                              ? 'bg-green-500' 
-                              : timeLeft.percentage > 20 
-                              ? 'bg-yellow-500' 
-                              : 'bg-red-500'
-                          }`}
+                        <div
+                          className={`h-full ${timeLeft.percentage > 50
+                              ? 'bg-green-500'
+                              : timeLeft.percentage > 20
+                                ? 'bg-yellow-500'
+                                : 'bg-red-500'
+                            }`}
                           style={{ width: `${timeLeft.percentage}%` }}
                         />
                       </div>
@@ -782,7 +778,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
                     <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2 h-12">
                       {property.title}
                     </h3>
-                    
+
                     <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400 mb-3">
                       <MapPin className="w-4 h-4 flex-shrink-0" />
                       <span className="line-clamp-1">{property.location}</span>
@@ -790,7 +786,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
 
                     <div className="flex justify-between items-center mb-3">
                       <span className="text-lg font-bold text-purple-600 dark:text-purple-400">
-                        {property.price.toLocaleString('pt-AO')} Kz
+                        {property.price.toLocaleString('pt-AO')} Kwanzas
                       </span>
                       <div className="flex items-center gap-1 text-sm text-gray-500">
                         <Eye size={14} />
@@ -814,16 +810,15 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600 dark:text-gray-400">
-                          {property.boost_status === 'active' ? 'Tempo:' : 
-                           property.boost_status === 'expired' ? 'Desimpul. em:' : 'Solicitado em:'}
+                          {property.boost_status === 'active' ? 'Tempo:' :
+                            property.boost_status === 'expired' ? 'Desimpul. em:' : 'Solicitado em:'}
                         </span>
-                        <span className={`font-medium ${
-                          property.boost_status === 'active' 
+                        <span className={`font-medium ${property.boost_status === 'active'
                             ? (isExpired ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400')
                             : 'text-gray-600 dark:text-gray-400'
-                        }`}>
-                          {property.boost_status === 'active' 
-                            ? timeLeft.text 
+                          }`}>
+                          {property.boost_status === 'active'
+                            ? timeLeft.text
                             : new Date(property.created_at).toLocaleDateString('pt-AO')
                           }
                         </span>

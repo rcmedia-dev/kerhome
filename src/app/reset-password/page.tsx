@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -417,10 +417,10 @@ export default function ResetPassword() {
               <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                 <h3 className="font-semibold text-gray-700 mb-2 text-sm">Dicas de Segurança</h3>
                 <ul className="text-xs text-gray-600 space-y-1">
-                  <li>• Use uma senha única para esta conta</li>
-                  <li>• Evite sequências óbvias (123456, abcdef)</li>
-                  <li>• Considere usar um gerenciador de senhas</li>
-                  <li>• Ative a autenticação de dois fatores</li>
+                  <li>â€¢ Use uma senha única para esta conta</li>
+                  <li>â€¢ Evite sequências óbvias (123456, abcdef)</li>
+                  <li>â€¢ Considere usar um gerenciador de senhas</li>
+                  <li>â€¢ Ative a autenticação de dois fatores</li>
                 </ul>
               </div>
             </div>

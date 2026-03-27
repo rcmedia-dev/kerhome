@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -174,3 +174,4 @@ export const AnimatedGrid = ({ children }: { children: React.ReactNode }) => (
         {children}
     </motion.div>
 );
+

@@ -1,9 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
+﻿import { useQuery } from '@tanstack/react-query';
 import { getSupabaseUserProperties } from '@/lib/functions/get-properties';
 import { getImoveisFavoritos } from '@/lib/functions/get-favorited-imoveis';
 import { getFaturas } from '@/lib/functions/supabase-actions/user-bills-action';
 import { getMyPropertiesWithViews } from '@/lib/functions/supabase-actions/get-most-seen-propeties';
 import { getUserPlan } from '@/lib/functions/supabase-actions/get-user-package-action';
+import { getUserAgency } from '@/lib/functions/supabase-actions/user-agency-actions';
 
 export function useDashboardData(userId: string | undefined) {
     const userProperties = useQuery({
@@ -56,6 +57,16 @@ export function useDashboardData(userId: string | undefined) {
         staleTime: 10 * 60 * 1000,
     });
 
+    const userAgency = useQuery({
+        queryKey: ['user-agency', userId],
+        queryFn: async () => {
+            if (!userId) return null;
+            return await getUserAgency(userId);
+        },
+        enabled: !!userId,
+        staleTime: 10 * 60 * 1000,
+    });
+
     const isLoading = userProperties.isLoading ||
         userFavoriteProperties.isLoading ||
         userInvoices.isLoading ||
@@ -68,6 +79,8 @@ export function useDashboardData(userId: string | undefined) {
         userInvoices,
         mostViewed,
         userPlan,
+        userAgency,
         isLoading
     };
 }
+

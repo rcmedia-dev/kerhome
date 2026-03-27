@@ -1,3 +1,5 @@
+﻿'use client';
+
 import { Star, Settings, Rocket } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
@@ -44,7 +46,7 @@ export function DashboardPlanCard({ planName, limit, remaining }: DashboardPlanC
                         </span>
                     </div>
                     <Progress value={percentage} className="h-2 bg-gray-100 rounded-full" indicatorClassName="bg-gradient-to-r from-purple-500 to-orange-500" />
-                    <p className="text-[10px] text-gray-400 text-right">{used} / {limit || "∞"} imóveis</p>
+                    <p className="text-[10px] text-gray-400 text-right">{used} / {limit || "âˆž"} imóveis</p>
                 </div>
                 <Link href="/planos" className="block">
                     <Button size="sm" className="w-full bg-gray-900 text-white hover:bg-gray-800 h-9 text-xs rounded-md shadow-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]">
@@ -55,3 +57,4 @@ export function DashboardPlanCard({ planName, limit, remaining }: DashboardPlanC
         </motion.div>
     );
 }
+

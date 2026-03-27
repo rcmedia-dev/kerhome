@@ -1,5 +1,6 @@
-'use client'
+﻿'use client'
 
+import { useState, useEffect } from 'react';
 import {
   Calendar,
   User,
@@ -64,7 +65,7 @@ const PropertyAd = ({ property, layout = 'horizontal' }: { property: TPropertyRe
           />
           <div className="absolute top-2 left-2 bg-purple-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider shadow-lg">Sugestão Kercasa</div>
           <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md text-white px-3 py-1 rounded-lg text-xs font-bold">
-            {property.price?.toLocaleString()} {property.unidade_preco || 'AKZ'}
+            {property.price?.toLocaleString()} Kwanzas
           </div>
         </div>
         <h4 className="text-gray-900 font-bold text-sm leading-tight group-hover:text-purple-700 transition-colors line-clamp-2">
@@ -95,8 +96,8 @@ const PropertyAd = ({ property, layout = 'horizontal' }: { property: TPropertyRe
               {property.title}
             </h3>
             <div className="flex items-center justify-center md:justify-start gap-4">
-              <span className="text-2xl font-black text-gray-900">
-                {property.price?.toLocaleString()} <span className="text-sm font-bold text-gray-400 uppercase">{property.unidade_preco || 'AKZ'}</span>
+              <span className="text-2xl font-black text-gray-900 line-clamp-1">
+                {property.price?.toLocaleString()} <span className="text-sm font-bold text-gray-400 uppercase">Kwanzas</span>
               </span>
               <div className="w-px h-6 bg-gray-200" />
               <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">{property.bairro || property.cidade}</span>
@@ -216,7 +217,6 @@ const Sidebar: React.FC<{ post: Noticias; ads: TPropertyResponseSchema[] }> = ({
   );
 };
 
-import { useState, useEffect } from 'react';
 
 const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts, properties }) => {
   const [selectedAds, setSelectedAds] = useState<TPropertyResponseSchema[]>([]);
@@ -244,7 +244,7 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts, properties }) =
 
       {/* Main Layout */}
       <div className="py-8 md:py-16">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 md:px-6">
 
           {/* Hero Section */}
           <div className="max-w-5xl mx-auto mb-12 md:mb-24">
@@ -310,15 +310,15 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts, properties }) =
           {/* Wrapper Grid (Content + Sidebar) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 max-w-7xl mx-auto">
 
-            {/* Sidebar (Appears first on mobile, sticky on desktop) */}
-            <aside className="lg:col-span-4 lg:order-last order-first">
+            {/* Sidebar (Appears AFTER content on mobile, sticky on desktop) */}
+            <aside className="lg:col-span-4 order-last">
               <div className="lg:sticky lg:top-28 space-y-12">
                 <Sidebar post={post} ads={selectedAds.slice(1, 3)} />
               </div>
             </aside>
 
             {/* Main Content Area */}
-            <main className="lg:col-span-8 lg:order-first order-last">
+            <main className="lg:col-span-8 order-first overflow-hidden">
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -332,16 +332,16 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts, properties }) =
                 </div>
 
                 {/* Article Body with injected ad */}
-                <article className="prose prose-lg md:prose-xl prose-stone max-w-none w-full 
+                <article className="prose prose-lg md:prose-xl prose-stone max-w-[720px] mx-auto w-full 
                      prose-headings:font-black prose-headings:tracking-tight prose-headings:text-gray-900 prose-headings:mt-12 prose-headings:mb-6
-                     prose-p:text-gray-600 prose-p:leading-loose prose-p:break-words
+                     prose-p:text-gray-600 prose-p:leading-[1.7] prose-p:break-words
                      prose-a:text-purple-700 prose-a:no-underline hover:prose-a:underline prose-a:font-bold
                      prose-img:rounded-3xl prose-img:shadow-lg prose-img:my-12 prose-img:w-full prose-img:h-auto prose-img:object-cover
                      prose-blockquote:border-l-4 prose-blockquote:border-purple-500 prose-blockquote:pl-6 prose-blockquote:italic
                      prose-ul:pl-6 prose-ul:list-disc
                      first-letter:text-6xl first-letter:font-black first-letter:text-gray-900 first-letter:mr-3 first-letter:float-left first-letter:leading-[0.8]
                    ">
-                  <div className="w-full break-words">
+                  <div className="w-full break-words overflow-x-auto">
                     {injectAdAtParagraph(
                       post.content?.html || '',
                       selectedAds[0] ? <PropertyAd property={selectedAds[0]} /> : null

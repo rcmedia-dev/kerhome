@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import { Award, Trophy, Star, Shield, Home, Sparkles } from "lucide-react";
@@ -100,7 +100,7 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
                   {profile.primeiro_nome} {profile.ultimo_nome}
                 </h1>
 
-                {/* DESCRIÇÃO */}
+                {/* DESCRIÇÃƒO */}
                 <p className="text-xl text-purple-100 mb-8 max-w-2xl leading-relaxed">
                   Especialista em negócios imobiliários com <span className="font-bold text-white">{agentStats.yearsExperience} anos</span> transformando sonhos em realidade
                 </p>
@@ -145,3 +145,4 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-import Head from "next/head";
+﻿import Head from "next/head";
 
 // ===== COMPONENTE NOT FOUND STATE =====
 export function NotFoundState() {

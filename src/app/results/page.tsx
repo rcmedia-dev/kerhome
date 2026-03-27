@@ -1,4 +1,4 @@
-import { PropertyCard } from "@/components/property-card";
+﻿import { PropertyCard } from "@/components/property-card";
 import { searchProperties } from "@/lib/functions/supabase-actions/search-properties-action";
 
 interface ResultsPageProps {
@@ -10,10 +10,10 @@ interface ResultsPageProps {
 }
 
 export default async function ResultsPage({ searchParams }: ResultsPageProps) {
-  // ⏳ Aguarda os searchParams
+  // â³ Aguarda os searchParams
   const params = await searchParams;
 
-  // 🔍 Busca propriedades com filtros
+  // ðŸ” Busca propriedades com filtros
   const properties = await searchProperties(params);
 
   return (
@@ -30,3 +30,4 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     </div>
   );
 }
+

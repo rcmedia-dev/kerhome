@@ -1,4 +1,4 @@
-// app/actions/plan-actions.ts
+﻿// app/actions/plan-actions.ts
 'use server';
 
 import { supabase } from "@/lib/supabase";
@@ -60,14 +60,14 @@ export async function handleRequestPlanChange(
   userData?: { nome?: string; email?: string }
 ) {
   try {
-    // 1️⃣ Mapear nome do plano para ID
+    // 1ï¸âƒ£ Mapear nome do plano para ID
     const planId = await getPlanIdByName(planName);
 
     if (!planId) {
       return { success: false, error: "Plano não encontrado" };
     }
 
-    // 2️⃣ Criar solicitação no banco
+    // 2ï¸âƒ£ Criar solicitação no banco
     const { error } = await supabase
       .from("plan_requests")
       .insert([
@@ -83,7 +83,7 @@ export async function handleRequestPlanChange(
       return { success: false, error: error.message };
     }
 
-    // 3️⃣ Enviar notificação via webhook (n8n)
+    // 3ï¸âƒ£ Enviar notificação via webhook (n8n)
     try {
       await fetch("https://n8n.srv1157846.hstgr.cloud/webhook/notificate", {
         method: "POST",

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { UserPlus, Eye, Edit, Trash2, CheckCircle, XCircle, Mail, Phone, Building, Shield, User, Calendar, Crown, Zap, Star, Grid, List, Filter, Search, Download, MoreVertical, Ban, ShieldAlert, Clock } from 'lucide-react';
 import { useEffect, useState, useTransition } from 'react';
@@ -180,7 +180,7 @@ export function UserManagement({ darkMode, initialUsers = [] }: UsersManagementP
   const getStatusConfig = (status: string) => {
     switch (status) {
       case 'active': return { color: 'bg-green-100 text-green-700', label: 'Ativo', icon: CheckCircle };
-      case 'pending': return { color: 'bg-yellow-100 text-yellow-700', label: 'Pendente', icon: ClockIcon };
+      case 'pending': return { color: 'bg-yellow-100 text-yellow-700', label: 'pending', icon: ClockIcon };
       case 'inactive': return { color: 'bg-red-100 text-red-700', label: 'Inativo', icon: XCircle };
       case 'banned': return { color: 'bg-red-100 text-red-700 border border-red-300', label: 'Banido', icon: Ban };
       default: return { color: 'bg-gray-100 text-gray-700', label: 'Desconhecido', icon: User };
@@ -476,8 +476,8 @@ function ListView({ users, onDelete, onBan, onUnban, onPlanoAction }: {
                         user.plano.status === 'approved' ? 'text-green-600' :
                         user.plano.status === 'rejected' ? 'text-red-600' : 'text-yellow-600'
                       }`}>
-                        {user.plano.status === 'approved' ? 'Aprovado' :
-                         user.plano.status === 'rejected' ? 'Rejeitado' : 'Pendente'}
+                        {user.plano.status === 'approved' ? 'approved' :
+                         user.plano.status === 'rejected' ? 'rejected' : 'pending'}
                       </div>
                     </div>
                   ) : (
@@ -660,6 +660,7 @@ function getRoleConfig(role: string) {
   switch (role) {
     case 'Administrador': return { color: 'bg-blue-100 text-blue-700', icon: Shield };
     case 'Agente': return { color: 'bg-purple-100 text-purple-700', icon: User };
+    case 'pending_agency': return { color: 'bg-orange-100 text-orange-700', icon: Building };
     default: return { color: 'bg-gray-100 text-gray-700', icon: User };
   }
 }
@@ -667,7 +668,7 @@ function getRoleConfig(role: string) {
 function getStatusConfig(status: string) {
   switch (status) {
     case 'active': return { color: 'bg-green-100 text-green-700', label: 'Ativo', icon: CheckCircle };
-    case 'pending': return { color: 'bg-yellow-100 text-yellow-700', label: 'Pendente', icon: Clock };
+    case 'pending': return { color: 'bg-yellow-100 text-yellow-700', label: 'pending', icon: Clock };
     case 'inactive': return { color: 'bg-red-100 text-red-700', label: 'Inativo', icon: XCircle };
     case 'banned': return { color: 'bg-red-100 text-red-700 border border-red-300', label: 'Banido', icon: Ban };
     default: return { color: 'bg-gray-100 text-gray-700', label: 'Desconhecido', icon: User };

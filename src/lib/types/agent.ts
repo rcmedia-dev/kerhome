@@ -1,4 +1,4 @@
-import { z } from 'zod';
+﻿import { z } from 'zod';
 import { propertyResponseSchema } from '@/lib/types/property';
 
 export const planoAgenteSchema = z.object({
@@ -88,3 +88,4 @@ export interface UserPlan {
 export type Agent = z.infer<typeof agentSchema>;
 export type Fatura = z.infer<typeof faturaSchema>;
 export type PlanoAgente = z.infer<typeof planoAgenteSchema>;
+

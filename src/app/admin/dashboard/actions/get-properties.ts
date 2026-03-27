@@ -1,4 +1,4 @@
-// src/app/actions/getProperties.ts
+﻿// src/app/actions/getProperties.ts
 'use server';
 
 import { supabase } from '@/lib/supabase';
@@ -22,7 +22,7 @@ export interface Property {
   gallery: string[];
   video_url?: string;
   documents?: string[];
-  aprovement_status: 'aprovado' | 'pending' | 'rejeitado';
+  aprovement_status: 'approved' | 'pending' | 'rejected';
   owner_id: PropertyOwner | null;
 }
 
@@ -71,3 +71,4 @@ export async function getProperties(): Promise<Property[]> {
     throw new Error('Failed to fetch properties');
   }
 }
+

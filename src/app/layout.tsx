@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-context";
@@ -35,12 +35,12 @@ export default function RootLayout({
         <AuthProvider>
           <LoaderProviders>
             <LayoutClient>
-              <main className="pb-14"> {/* 👈 dá espaço pro menu fixo */}
+              <main className="pb-14"> {/* ðŸ‘ˆ dá espaço pro menu fixo */}
                 <GoogleAnalyticsClient />
                 {children}
               </main>
               <Toaster richColors position="top-right" />
-              <MobileMenu /> {/* 👈 aqui o menu aparece em todas as páginas */}
+              <MobileMenu /> {/* ðŸ‘ˆ aqui o menu aparece em todas as páginas */}
             </LayoutClient>
           </LoaderProviders>
         </AuthProvider>
@@ -48,3 +48,4 @@ export default function RootLayout({
     </html>
   );
 }
+

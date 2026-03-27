@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React from 'react';
 import { Home, Star, ArrowRight, Phone, Mail, Instagram, Facebook, Twitter, CheckCircle, TrendingUp, Globe, Shield, Heart, Building, Target, Award } from 'lucide-react';

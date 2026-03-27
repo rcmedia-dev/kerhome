@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+﻿import { motion } from 'framer-motion';
 
 // Loading Spinner Component
 const LoadingSpinner = () => (
@@ -104,7 +104,7 @@ export const LoadMoreState = ({
       >
         <div className="bg-white rounded-2xl shadow-xl border border-gray-200 py-12">
           <p className="text-gray-600 text-2xl font-bold mb-4">
-            🎉 Você encontrou todos os imóveis disponíveis!
+            ðŸŽ‰ Você encontrou todos os imóveis disponíveis!
           </p>
           <p className="text-gray-400 text-lg">
             Volte em breve para novas oportunidades

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { CustomSignUpForm } from '@/components/signup-form';
 import { useRouter } from 'next/navigation';
@@ -14,3 +14,4 @@ export default function SignupPage() {
         </div>
     );
 }
+

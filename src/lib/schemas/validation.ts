@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Schemas de validação usando Zod
  * Centralizar validações em um único lugar
  */
@@ -167,3 +167,4 @@ export function validateData<T>(
 ): ReturnType<z.ZodSchema<T>['safeParse']> {
   return schema.safeParse(data as any);
 }
+

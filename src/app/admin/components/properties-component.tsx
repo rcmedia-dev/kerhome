@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { CheckCircle, Eye, MapPin, Plus, UserCircle2, XCircle, Clock, Check, X, Building, Settings, Trash2, Edit, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -18,7 +18,7 @@ export function RenderProperties({ darkMode }: RenderPropertiesProps) {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<'approval' | 'management'>('approval');
-  const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'aprovado' | 'rejeitado'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -52,7 +52,7 @@ export function RenderProperties({ darkMode }: RenderPropertiesProps) {
     return property.aprovement_status === activeTab;
   });
 
-  const countByStatus = (status: 'pending' | 'aprovado' | 'rejeitado') =>
+  const countByStatus = (status: 'pending' | 'approved' | 'rejected') =>
     properties.filter(p => p.aprovement_status === status).length;
 
   if (loading) {
@@ -168,9 +168,9 @@ export function RenderProperties({ darkMode }: RenderPropertiesProps) {
 // Seção de Aprovação
 interface ApprovalSectionProps {
   properties: Property[];
-  activeTab: 'all' | 'pending' | 'aprovado' | 'rejeitado';
-  setActiveTab: (tab: 'all' | 'pending' | 'aprovado' | 'rejeitado') => void;
-  countByStatus: (status: 'pending' | 'aprovado' | 'rejeitado') => number;
+  activeTab: 'all' | 'pending' | 'approved' | 'rejected';
+  setActiveTab: (tab: 'all' | 'pending' | 'approved' | 'rejected') => void;
+  countByStatus: (status: 'pending' | 'approved' | 'rejected') => number;
   onPropertyUpdate: (property: Property) => void;
   darkMode?: boolean;
 }
@@ -191,8 +191,8 @@ function ApprovalSection({
           {[
             { key: 'all', label: 'Todos', icon: null, count: properties.length },
             { key: 'pending', label: 'Pendentes', icon: Clock, count: countByStatus('pending') },
-            { key: 'aprovado', label: 'Aprovados', icon: CheckCircle, count: countByStatus('aprovado') },
-            { key: 'rejeitado', label: 'Rejeitados', icon: XCircle, count: countByStatus('rejeitado') },
+            { key: 'approved', label: 'Aprovados', icon: CheckCircle, count: countByStatus('approved') },
+            { key: 'rejected', label: 'Rejeitados', icon: XCircle, count: countByStatus('rejected') },
           ].map(tab => {
             const Icon = tab.icon;
             return (
@@ -333,7 +333,7 @@ function ApprovalPropertyCard({ property, darkMode, onUpdate }: PropertyCardProp
       const result = await approveProperty({ propertyId: property.id });
       if (result.success) {
         toast.success(result.message);
-        onUpdate({ ...property, aprovement_status: 'aprovado' });
+        onUpdate({ ...property, aprovement_status: 'approved' });
       } else {
         toast.error(result.message);
       }
@@ -350,7 +350,7 @@ function ApprovalPropertyCard({ property, darkMode, onUpdate }: PropertyCardProp
       const result = await rejectProperty({ propertyId: property.id });
       if (result.success) {
         toast.success(result.message);
-        onUpdate({ ...property, aprovement_status: 'rejeitado' });
+        onUpdate({ ...property, aprovement_status: 'rejected' });
       } else {
         toast.error(result.message);
       }
@@ -436,9 +436,9 @@ function ApprovalPropertyCard({ property, darkMode, onUpdate }: PropertyCardProp
           
           <button
             onClick={handleApprove}
-            disabled={property.aprovement_status === 'aprovado'}
+            disabled={property.aprovement_status === 'approved'}
             className={`px-3 py-2 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors ${
-              property.aprovement_status === 'aprovado'
+              property.aprovement_status === 'approved'
                 ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 cursor-not-allowed'
                 : 'bg-green-600 hover:bg-green-700 text-white'
             }`}
@@ -448,9 +448,9 @@ function ApprovalPropertyCard({ property, darkMode, onUpdate }: PropertyCardProp
           
           <button
             onClick={handleReject}
-            disabled={property.aprovement_status === 'rejeitado'}
+            disabled={property.aprovement_status === 'rejected'}
             className={`px-3 py-2 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors ${
-              property.aprovement_status === 'rejeitado'
+              property.aprovement_status === 'rejected'
                 ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 cursor-not-allowed'
                 : 'bg-red-600 hover:bg-red-700 text-white'
             }`}
@@ -631,29 +631,29 @@ function EmptyState({ icon: Icon, title, description }: { icon: any, title: stri
 // Funções auxiliares
 function getStatusConfig(status: string) {
   switch (status) {
-    case 'aprovado':
+    case 'approved':
       return {
         color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
         icon: CheckCircle,
-        label: 'Aprovado'
+        label: 'approved'
       };
     case 'pending':
       return {
         color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
         icon: Clock,
-        label: 'Pendente'
+        label: 'pending'
       };
-    case 'rejeitado':
+    case 'rejected':
       return {
         color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
         icon: XCircle,
-        label: 'Rejeitado'
+        label: 'rejected'
       };
     default:
       return {
         color: 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400',
         icon: Clock,
-        label: 'Pendente'
+        label: 'pending'
       };
   }
 }

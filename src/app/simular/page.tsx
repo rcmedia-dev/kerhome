@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
@@ -90,17 +90,17 @@ export default function SimularPage() {
         const safeEntradaPercent = Math.max(0, Math.min(100, entradaPercent || 0));
         const safePrazoAnos = Math.max(1, prazoAnos || 1);
 
-        // Passo 1 – Valor financiado
+        // Passo 1 â€“ Valor financiado
         const valorEntrada = safeImovelValue * (safeEntradaPercent / 100);
         const valorFinanciado = Math.max(0, safeImovelValue - valorEntrada);
 
-        // Passo 2 – Converter taxa anual para mensal
+        // Passo 2 â€“ Converter taxa anual para mensal
         const taxaMensal = (safeTaxaAnual / 100) / 12;
 
-        // Passo 3 – Número total de parcelas
+        // Passo 3 â€“ Número total de parcelas
         const n = safePrazoAnos * 12;
 
-        // Passo 4 – Fórmula de financiamento (Sistema Price)
+        // Passo 4 â€“ Fórmula de financiamento (Sistema Price)
         let prestacao = 0;
         if (valorFinanciado > 0) {
             if (taxaMensal > 0) {
@@ -520,3 +520,4 @@ export default function SimularPage() {
         </div>
     );
 }
+

@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+﻿import { supabase } from '@/lib/supabase';
 import { TPropertyResponseSchema } from '@/lib/types/property';
 import { Agent } from '@/components/top-agent';
 
@@ -161,5 +161,6 @@ export async function getAgents(): Promise<Agent[]> {
   // aqui já devolvemos só a parte certa (array de agentes)
   return data as Agent[];
 }
+
 
 

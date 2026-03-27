@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+﻿import { Card } from "@/components/ui/card";
 import { PropertiesTab } from "@/app/agente/components/properties-tab";
 import { AboutTab } from "@/app/agente/components/about-tabs";
 import type { MainContentProps, AgentProperty, AgentProfile } from "@/types/agent";

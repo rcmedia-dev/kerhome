@@ -1,4 +1,4 @@
-// app/dashboard/subscricoes/page.tsx
+﻿// app/dashboard/subscricoes/page.tsx
 'use client'
 
 import { useEffect, useState } from "react"
@@ -351,7 +351,7 @@ export default function SubscricoesPage() {
                               user.status === "Aprovados" ? "text-green-600" : "text-red-500"
                             }`}>
                               {user.status === "Aprovados" ? <CheckCircle size={16} /> : <XCircle size={16} />}
-                              <span>{user.status === "Aprovados" ? "Aprovado" : "Rejeitado"}</span>
+                              <span>{user.status === "Aprovados" ? "approved" : "rejected"}</span>
                             </div>
                             
                             <div className="flex items-center gap-1">

@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+﻿import { supabase } from "@/lib/supabase";
 
 export async function getOrCreateChat(userId: string, agentId: string, propertyId: string) {
   // 1. Buscar chat existente
@@ -23,3 +23,4 @@ export async function getOrCreateChat(userId: string, agentId: string, propertyI
   if (createError) throw new Error(createError.message);
   return newChat;
 }
+

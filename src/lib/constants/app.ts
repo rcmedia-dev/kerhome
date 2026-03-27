@@ -17,19 +17,22 @@ export const PROPERTY_STATUS_LABELS: Record<PropertyStatus, string> = {
 };
 
 // ========== APROVAÇÃO DE PROPRIEDADE ==========
-export const APPROVAL_STATUS = ['pendente', 'aprovado', 'rejeitado'] as const;
+export const APPROVAL_STATUS = ['pending', 'approved', 'rejected'] as const;
 export type ApprovalStatus = typeof APPROVAL_STATUS[number];
 
-export const APPROVAL_STATUS_LABELS: Record<ApprovalStatus, string> = {
-  pendente: 'Pendente',
-  aprovado: 'Aprovado',
-  rejeitado: 'Rejeitado',
+export const statusMap: Record<ApprovalStatus, string> = {
+  pending: 'Pendente',
+  approved: 'Aprovado',
+  rejected: 'Rejeitado',
 };
 
+// Alias para retrocompatibilidade se necessário
+export const APPROVAL_STATUS_LABELS = statusMap;
+
 export const APPROVAL_STATUS_COLORS: Record<ApprovalStatus, string> = {
-  pendente: 'bg-yellow-100 text-yellow-800',
-  aprovado: 'bg-green-100 text-green-800',
-  rejeitado: 'bg-red-100 text-red-800',
+  pending: 'bg-yellow-100 text-yellow-800',
+  approved: 'bg-green-100 text-green-800',
+  rejected: 'bg-red-100 text-red-800',
 };
 
 // ========== MOEDAS ==========

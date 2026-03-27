@@ -156,7 +156,7 @@ export default function CompactPacotesDestaquePage() {
           <span className="font-semibold">✅ Destaque ativado com sucesso!</span>
           <span>{selectedProperties.length} imóvel(es) destacado(s)</span>
           <span>Plano: {selectedPacote.nome} - {selectedPacote.dias} dias</span>
-          <span>Total: {total.toLocaleString('pt-AO')} Kz</span>
+          <span>Total: {total.toLocaleString('pt-AO')} Kwanzas</span>
         </div>
       );
 

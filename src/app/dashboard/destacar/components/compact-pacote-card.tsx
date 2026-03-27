@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { CompactPacoteCardProps } from '@/lib/types/defaults';
 import { Crown, Calendar, Check } from 'lucide-react';
@@ -39,7 +39,7 @@ export const CompactPacoteCard: React.FC<CompactPacoteCardProps> = ({
     </div>
 
     <div className="text-center mb-4">
-      <div className="text-2xl font-bold text-gray-900">{pacote.preco.toLocaleString('pt-AO')} Kz</div>
+      <div className="text-2xl font-bold text-gray-900">{pacote.preco.toLocaleString('pt-AO')} Kwanzas</div>
     </div>
 
     <div className="space-y-2 mb-4">
@@ -60,7 +60,7 @@ export const CompactPacoteCard: React.FC<CompactPacoteCardProps> = ({
         ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg'
         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
     }`}>
-      {isSelected ? 'Selecionado ✓' : 'Selecionar'}
+      {isSelected ? 'Selecionado âœ“' : 'Selecionar'}
     </button>
   </div>
 );

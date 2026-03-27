@@ -1,4 +1,4 @@
-import { create } from "zustand";
+﻿import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createClient } from "@/lib/supabase/client";
 import { checkAgentRequestStatus } from "../functions/supabase-actions/check-agent-request";
@@ -37,6 +37,7 @@ export interface UserProfile {
   pacote_agente?: PlanoAgente | null;
   avatar_url?: string | null;
   role?: string | null;
+  imobiliaria_id?: string | null;
   created_at?: string;
   updated_at?: string;
   current_agent_request_status?: string | null;
@@ -55,7 +56,7 @@ export const useUserStore = create<UserStore>()(
   persist(
     (set, get) => ({
       user: null,
-      isLoading: false, // 🚀 não começa preso em loading
+      isLoading: false, // ðŸš€ não começa preso em loading
 
       setUser: (user) => set({ user, isLoading: false }),
 
@@ -87,6 +88,7 @@ export const useUserStore = create<UserStore>()(
             sobre_mim: profile.sobre_mim || null,
             pacote_agente: profile.pacote_agente || null,
             role: profile.role || null,
+            imobiliaria_id: profile.imobiliaria_id || null,
             avatar_url: profile.avatar_url || null,
             created_at: profile.created_at,
             updated_at: profile.updated_at,
@@ -100,7 +102,7 @@ export const useUserStore = create<UserStore>()(
           set({ user: formattedUser, isLoading: false });
           return formattedUser;
         } catch (err) {
-          console.error("❌ Error fetching profile:", err);
+          console.error("âŒ Error fetching profile:", err);
           set({ user: null, isLoading: false });
           return null;
         }
@@ -116,7 +118,7 @@ export const useUserStore = create<UserStore>()(
         try {
           await supabase.from("profiles").update(updates).eq("id", user.id);
         } catch (err) {
-          console.error("❌ Error updating user:", err);
+          console.error("âŒ Error updating user:", err);
           set({ user }); // rollback
         }
       },
@@ -126,7 +128,7 @@ export const useUserStore = create<UserStore>()(
           await supabase.auth.signOut();
           set({ user: null, isLoading: false });
         } catch (err) {
-          console.error("❌ Error signing out:", err);
+          console.error("âŒ Error signing out:", err);
         }
       },
     }),
@@ -134,7 +136,7 @@ export const useUserStore = create<UserStore>()(
       name: "user-storage", // chave no localStorage
       partialize: (state) => ({ user: state.user }), // só persiste o user
       onRehydrateStorage: () => (state) => {
-        // 🚀 Assim que o persist hidratar, desliga o loading
+        // ðŸš€ Assim que o persist hidratar, desliga o loading
         if (state) {
           state.isLoading = false;
         }
@@ -142,3 +144,4 @@ export const useUserStore = create<UserStore>()(
     }
   )
 );
+

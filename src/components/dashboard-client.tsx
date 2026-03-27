@@ -1,4 +1,4 @@
-// components/dashboard-client.tsx
+﻿// components/dashboard-client.tsx
 'use client';
 
 import { useState } from 'react';
@@ -88,7 +88,7 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
               transition={{ delay: 0.2 }}
             >
               <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-orange-600 bg-clip-text text-transparent">
-                Olá, {displayName} 👋
+                Olá, {displayName} ðŸ‘‹
               </CardTitle>
               <CardDescription className="text-gray-500 text-sm sm:text-base mt-2">
                 Gerencie suas propriedades com facilidade

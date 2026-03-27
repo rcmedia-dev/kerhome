@@ -1,4 +1,4 @@
-'use server';
+﻿'use server';
 
 import { supabase } from '@/lib/supabase';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -47,3 +47,4 @@ export async function updateUserPlan(
     return { success: false, error: 'Erro interno do servidor' };
   }
 }
+

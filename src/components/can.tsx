@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { ReactNode } from "react";
 import { useUserStore } from "@/lib/store/user-store";
@@ -18,3 +18,4 @@ export function CanSeeIt({ children, role = "agent" }: CanSeeItProps) {
 
   return hasAccess ? <>{children}</> : null;
 }
+

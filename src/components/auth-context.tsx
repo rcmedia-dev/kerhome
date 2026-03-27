@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -68,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const supabase = createClient()
 
-  // 🔎 Busca perfil no banco
+  // ðŸ”Ž Busca perfil no banco
   const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
     try {
       const { data: profile, error } = await supabase
@@ -108,25 +108,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       return formattedUser
     } catch (error) {
-      console.error('❌ Error fetching user profile:', error)
+      console.error('âŒ Error fetching user profile:', error)
       return null
     }
   }
 
-  // 🚀 Inicialização
+  // ðŸš€ Inicialização
   useEffect(() => {
     let isMounted = true
 
     const initializeAuth = async () => {
       try {
-        // 1️⃣ Tenta recuperar do localStorage
+        // 1ï¸âƒ£ Tenta recuperar do localStorage
         const cached = localStorage.getItem('user-profile')
         if (cached && isMounted) {
           setUser(JSON.parse(cached))
           setIsLoading(false)
         }
 
-        // 2️⃣ Pega sessão atual do Supabase
+        // 2ï¸âƒ£ Pega sessão atual do Supabase
         const { data: { session } } = await supabase.auth.getSession()
 
         if (session?.user) {
@@ -139,7 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(null)
         }
       } catch (err) {
-        console.error('❌ Auth init error:', err)
+        console.error('âŒ Auth init error:', err)
       } finally {
         if (isMounted) setIsLoading(false)
       }
@@ -147,7 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     initializeAuth()
 
-    // 🔔 Listener para mudanças de auth
+    // ðŸ”” Listener para mudanças de auth
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (!isMounted) return
 
@@ -169,7 +169,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // ✏️ Atualiza perfil no state + banco
+  // âœï¸ Atualiza perfil no state + banco
   const updateUser = async (updates: Partial<UserProfile>) => {
     if (!user) return
 
@@ -183,12 +183,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .update(updates)
         .eq('id', user.id)
     } catch (error) {
-      console.error('❌ Error updating user:', error)
+      console.error('âŒ Error updating user:', error)
       setUser(user) // rollback
     }
   }
 
-  // 🚪 Logout
+  // ðŸšª Logout
   const signOut = async () => {
     try {
       await supabase.auth.signOut()
@@ -196,7 +196,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem('user-profile')
       router.push('/')
     } catch (error) {
-      console.error('❌ Sign out error:', error)
+      console.error('âŒ Sign out error:', error)
     }
   }
 
@@ -216,3 +216,4 @@ export const useAuth = () => {
   }
   return context
 }
+

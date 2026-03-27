@@ -1,4 +1,4 @@
-export const revalidate = 0;
+﻿export const revalidate = 0;
 export const dynamic = "force-dynamic";
 
 
@@ -9,10 +9,13 @@ import TopAgentsSection, { Agent } from '@/components/top-agent';
 import { getLimitedProperties } from '@/lib/functions/get-properties';
 import { TPropertyResponseSchema } from '@/lib/types/property';
 import { getAgents } from '@/lib/functions/get-agent';
+import { fetchFeaturedAgencies } from '@/lib/functions/supabase-actions/imobiliaria-actions';
+import AgencyCarousel from '@/components/agency-carousel';
 
 export default async function HomePage() {
   const properties: TPropertyResponseSchema[] = await getLimitedProperties(8);
-  const agents: Agent[] = await getAgents()
+  const agents: Agent[] = await getAgents();
+  const featuredAgencies = await fetchFeaturedAgencies();
 
   if (!properties) {
     return (
@@ -28,6 +31,8 @@ export default async function HomePage() {
       <ActionCardsSection />
       <TopAgentsSection agents={agents}/>
       <PropertiesShowcase property={properties}/>
+      <AgencyCarousel agencies={featuredAgencies} />
     </>
   );
 }
+

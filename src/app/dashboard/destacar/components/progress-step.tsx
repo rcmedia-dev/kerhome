@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { ProgressStepProps } from '@/lib/types/defaults';
 import { Check } from 'lucide-react';

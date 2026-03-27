@@ -1,4 +1,4 @@
-// components/user-card.tsx
+﻿// components/user-card.tsx
 'use client';
 
 import { useState, useRef } from 'react';

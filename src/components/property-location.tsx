@@ -1,4 +1,4 @@
-import { TPropertyResponseSchema } from "@/lib/types/property";
+﻿import { TPropertyResponseSchema } from "@/lib/types/property";
 import { MapPin } from "lucide-react";
 
 // ===== COMPONENTE PROPERTY LOCATION =====

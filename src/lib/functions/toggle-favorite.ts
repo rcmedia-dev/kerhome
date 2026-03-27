@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+﻿import { supabase } from "@/lib/supabase";
 
 type ToggleFavoriteResult = {
   success: boolean;
@@ -61,3 +61,4 @@ export async function toggleFavoritoProperty(
     return { success: false, error: message, isFavorited: false };
   }
 }
+

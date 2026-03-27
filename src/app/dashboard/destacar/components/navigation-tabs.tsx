@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { TabType } from '@/lib/types/defaults';
 import { Home, Rocket, BadgeCheck } from 'lucide-react';

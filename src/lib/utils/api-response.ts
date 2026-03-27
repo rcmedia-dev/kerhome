@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Helpers para respostas de API
  * Padroniza respostas de sucesso e erro
  */
@@ -105,3 +105,4 @@ export async function safeApiHandler<T>(
     );
   }
 }
+

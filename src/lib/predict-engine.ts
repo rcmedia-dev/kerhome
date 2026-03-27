@@ -1,4 +1,4 @@
-import modelData from './model_data.json';
+﻿import modelData from './model_data.json';
 
 interface Tree {
     children_left: number[];
@@ -97,3 +97,4 @@ export function predictPrice(input: Record<string, any>): number {
 
     return finalPrice;
 }
+

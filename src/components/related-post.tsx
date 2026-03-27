@@ -1,4 +1,4 @@
-
+﻿
 // Client Component para posts relacionados
 'use client'
 
@@ -41,3 +41,4 @@ export default function RelatedPosts({ currentPostId }: { currentPostId: string 
     </div>
   )
 }
+

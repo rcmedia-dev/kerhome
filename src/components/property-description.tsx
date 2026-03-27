@@ -1,4 +1,4 @@
-import { TPropertyResponseSchema } from "@/lib/types/property";
+﻿import { TPropertyResponseSchema } from "@/lib/types/property";
 
 // ===== COMPONENTE PROPERTY DESCRIPTION =====
 export function PropertyDescription ({ property }: { property: TPropertyResponseSchema }) {

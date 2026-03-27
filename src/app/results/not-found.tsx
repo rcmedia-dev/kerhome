@@ -1,4 +1,4 @@
-
+﻿
 // Página de fallback para rota /results/not-found do Next.js App Router
 "use client";
 import Lottie from 'lottie-react';
@@ -16,3 +16,4 @@ export default function NotFound() {
     </section>
   );
 }
+

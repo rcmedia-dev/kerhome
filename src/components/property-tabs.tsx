@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { TPropertyResponseSchema } from "@/lib/types/property";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@radix-ui/react-tabs";

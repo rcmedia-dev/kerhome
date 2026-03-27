@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+﻿import { supabase } from "@/lib/supabase";
 import { TPropertyResponseSchema } from "@/lib/types/property";
 
 // Linha da tabela property_views com join em properties
@@ -74,3 +74,4 @@ export async function getMyPropertiesWithViews(
 
   return { properties, total_views_all };
 }
+

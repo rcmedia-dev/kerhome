@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
@@ -7,16 +7,18 @@ import { Button } from "@/components/ui/button";
 import { PropertyFormData } from "@/lib/types/property";
 import FormStep from "@/components/form-step";
 import { createProperty } from "@/lib/functions/supabase-actions/create-propertie-action";
-import { ArrowLeft, ArrowRight, Check, CheckCircle2, Circle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, CheckCircle2, Circle, UserCircle, Store } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface MultiStepFormProps {
   userId?: string;
   agentName: string;
+  userAgency?: any;
 }
 
-const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
+const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedIdentity, setSelectedIdentity] = useState<'personal' | 'agency'>('personal');
   const [serverError, setServerError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -160,8 +162,8 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
       title="Detalhes da Propriedade"
       description="Características físicas e dimensionais"
       fields={[
-        { name: "size", label: "Área Construída (m²)", type: "number", placeholder: "Ex: 120" },
-        { name: "area_terreno", label: "Área Total do Terreno (m²)", type: "number", placeholder: "Ex: 300" },
+        { name: "size", label: "Área Construída (mÂ²)", type: "number", placeholder: "Ex: 120" },
+        { name: "area_terreno", label: "Área Total do Terreno (mÂ²)", type: "number", placeholder: "Ex: 300" },
         {
           name: "bedrooms",
           label: "Número de Quartos",
@@ -248,7 +250,7 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
           label: "Endereço Completo",
           type: "text",
           required: true,
-          placeholder: "Ex: Rua Amílcar Cabral, nº 123",
+          placeholder: "Ex: Rua Amílcar Cabral, nÂº 123",
           validation: { required: "Endereço obrigatório", minLength: { value: 5, message: "Mínimo 5 caracteres" } }
         },
         { name: "bairro", label: "Bairro", type: "text", required: true, placeholder: "Ex: Maianga", validation: { required: "Obrigatório" } },
@@ -303,8 +305,12 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
     setSuccessMessage(null);
 
     try {
-      const numericPrice = parseInt(data.price.toString().replace(/\s/g, ''), 10);
-      const formData = { ...data, price: numericPrice };
+      const numericPrice = parseInt(data.price.toString().replace(/\D/g, ''), 10);
+      const formData = { 
+        ...data, 
+        price: numericPrice,
+        imobiliaria_id: selectedIdentity === 'agency' ? userAgency?.id : null
+      };
       const result = await createProperty(formData, userId);
 
       if (result.success) {
@@ -401,6 +407,77 @@ const MultiStepForm = ({ userId, agentName }: MultiStepFormProps) => {
           {/* FORM BODY */}
           <div className="flex-1 px-8 lg:px-12 overflow-y-auto max-h-[600px] custom-scrollbar">
             <div className="mb-8">
+              {/* Identity Selector - Only if user has an approved agency */}
+              {userAgency && userAgency.status === 'approved' && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-10 p-1 bg-gray-100/50 backdrop-blur-sm rounded-[2rem] border border-gray-200/50 shadow-inner"
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedIdentity('personal')}
+                      className={`relative flex items-center gap-4 p-5 rounded-[1.8rem] transition-all duration-500 overflow-hidden group ${
+                        selectedIdentity === 'personal'
+                          ? "bg-white shadow-xl shadow-purple-500/10 border-white"
+                          : "hover:bg-white/40 border-transparent"
+                      }`}
+                    >
+                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 ${
+                        selectedIdentity === 'personal' ? "bg-purple-600 text-white shadow-lg shadow-purple-500/30" : "bg-white text-gray-400 shadow-sm"
+                      }`}>
+                        <UserCircle size={28} />
+                      </div>
+                      <div className="text-left relative z-10">
+                        <p className={`text-xs font-black uppercase tracking-widest mb-0.5 ${selectedIdentity === 'personal' ? "text-purple-600" : "text-gray-400"}`}>
+                          Pessoal
+                        </p>
+                        <p className={`font-extrabold text-sm md:text-base ${selectedIdentity === 'personal' ? "text-gray-900" : "text-gray-500"}`}>
+                          Publicar como {agentName}
+                        </p>
+                      </div>
+                      {selectedIdentity === 'personal' && (
+                        <motion.div 
+                          layoutId="active-bg-identity"
+                          className="absolute right-6 w-2 h-2 bg-purple-600 rounded-full"
+                        />
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setSelectedIdentity('agency')}
+                      className={`relative flex items-center gap-4 p-5 rounded-[1.8rem] transition-all duration-500 overflow-hidden group ${
+                        selectedIdentity === 'agency'
+                          ? "bg-white shadow-xl shadow-orange-500/10 border-white"
+                          : "hover:bg-white/40 border-transparent"
+                      }`}
+                    >
+                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 ${
+                        selectedIdentity === 'agency' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/30" : "bg-white text-gray-400 shadow-sm"
+                      }`}>
+                        <Store size={28} />
+                      </div>
+                      <div className="text-left relative z-10">
+                        <p className={`text-xs font-black uppercase tracking-widest mb-0.5 ${selectedIdentity === 'agency' ? "text-orange-600" : "text-gray-400"}`}>
+                          Agência
+                        </p>
+                        <p className={`font-extrabold text-sm md:text-base ${selectedIdentity === 'agency' ? "text-gray-900" : "text-gray-500"}`}>
+                          Em nome da {userAgency.nome}
+                        </p>
+                      </div>
+                      {selectedIdentity === 'agency' && (
+                        <motion.div 
+                          layoutId="active-bg-identity"
+                          className="absolute right-6 w-2 h-2 bg-orange-500 rounded-full"
+                        />
+                      )}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
               <h2 className="text-2xl font-bold text-gray-800">{steps[currentStepIndex].props.title}</h2>
               <p className="text-gray-500">{steps[currentStepIndex].props.description}</p>
             </div>

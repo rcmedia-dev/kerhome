@@ -1,4 +1,4 @@
-// actions/property-actions.ts
+﻿// actions/property-actions.ts
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
@@ -134,6 +134,9 @@ export async function createProperty(formData: PropertyFormData, userId?: string
       console.warn('Erro ao buscar dados do proprietário:', ownerError);
     }
 
+    // Usar imobiliaria_id vindo do formulário (Identidade Dupla)
+    const imobiliariaId = formData.imobiliaria_id || null;
+
     // Preparar dados para inserção
     const propertyData: PropertyDBData = {
       owner_id: ownerIdToUse,
@@ -172,6 +175,7 @@ export async function createProperty(formData: PropertyFormData, userId?: string
       gallery: fileData.gallery || [],
       documents: fileData.documents || [],
       video_url: fileData.video_url || "",
+      imobiliaria_id: imobiliariaId,
     };
 
     // Inserir propriedade no Supabase
@@ -192,7 +196,7 @@ export async function createProperty(formData: PropertyFormData, userId?: string
       return { success: false, error: error.message };
     }
 
-    // 🔔 ENVIAR NOTIFICAÇÃO PARA O WEBHOOK COM DADOS COMPLETOS
+    // ðŸ”” ENVIAR NOTIFICAÇÃƒO PARA O WEBHOOK COM DADOS COMPLETOS
     try {
       await sendPropertyNotification({
         property_id: data.id,
@@ -218,6 +222,14 @@ export async function createProperty(formData: PropertyFormData, userId?: string
     }
 
     revalidatePath("/properties");
+    revalidatePath("/imobiliarias");
+    if (imobiliariaId) {
+      // Revalidar perfil da agência se o imóvel foi vinculado
+      const { data: agency } = await supabase.from('imobiliarias').select('slug').eq('id', imobiliariaId).single();
+      if (agency?.slug) {
+        revalidatePath(`/imobiliaria/${agency.slug}`);
+      }
+    }
     return { success: true, propertyId: data.id, property: data };
   } catch (error: any) {
     console.error("Erro ao criar propriedade:", error);
@@ -341,3 +353,4 @@ export async function updateProperty(id: string, formData: Partial<PropertyFormD
     return { success: false, error: "Erro ao atualizar a propriedade. Verifique sua conexão e tente novamente." };
   }
 }
+

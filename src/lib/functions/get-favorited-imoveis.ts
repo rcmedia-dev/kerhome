@@ -1,4 +1,4 @@
-// lib/actions/get-imoveis-favoritos.ts
+﻿// lib/actions/get-imoveis-favoritos.ts
 'use server';
 
 import { supabase } from '@/lib/supabase';

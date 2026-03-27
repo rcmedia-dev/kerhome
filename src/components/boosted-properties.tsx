@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { 
@@ -74,7 +74,7 @@ export default function PropriedadesImpulsionadasDashboard() {
     if (boostStatus !== 'active') {
       return { 
         expired: true, 
-        text: boostStatus === 'pending' ? 'Pendente' : 'Rejeitado',
+        text: boostStatus === 'pending' ? 'pending' : 'rejected',
         percentage: 0 
       };
     }

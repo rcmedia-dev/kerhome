@@ -1,4 +1,4 @@
-import { z } from 'zod';
+﻿import { z } from 'zod';
 
 // Profile/User Schema
 export const ProfileSchema = z.object({
@@ -107,3 +107,4 @@ export const BatchUpdateMessageStatusSchema = z.object({
 });
 
 export type BatchUpdateMessageStatus = z.infer<typeof BatchUpdateMessageStatusSchema>;
+

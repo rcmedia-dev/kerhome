@@ -1,4 +1,4 @@
-'use server';
+﻿'use server';
 
 import { supabase } from '@/lib/supabase';
 import { Property } from '@/app/admin/dashboard/actions/get-properties';

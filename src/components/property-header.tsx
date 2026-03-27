@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { TPropertyResponseSchema } from "@/lib/types/property";
 import { MapPin, BedDouble, Ruler, Tag, Bath, CarFront, Share2 } from "lucide-react";
@@ -19,7 +19,7 @@ export function PropertyHeader({ property }: { property: TPropertyResponseSchema
           </span>
           {property.tipo && (
             <span className="text-gray-500 font-medium text-sm flex items-center gap-1">
-              • {property.tipo}
+              â€¢ {property.tipo}
             </span>
           )}
         </div>

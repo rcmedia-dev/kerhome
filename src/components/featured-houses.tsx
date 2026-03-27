@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import useEmblaCarousel from "embla-carousel-react";
 import Image from 'next/image';
@@ -179,7 +179,7 @@ export default function FeaturedCarousel({ property }: FeaturedCarouselProps) {
                           </span>
                           <span className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full">
                             <Ruler className="w-4 h-4" />
-                            {property.size}m²
+                            {property.size}mÂ²
                           </span>
                         </div>
 

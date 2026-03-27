@@ -1,4 +1,4 @@
-export interface Neighborhood {
+﻿export interface Neighborhood {
     id: string;
     nome: string;
     classificacao: 'premium' | 'medio' | 'popular';
@@ -56,3 +56,4 @@ export const PRECOS_M2: Record<string, { venda: number; arrendamento: number }> 
     medio: { venda: 700000, arrendamento: 4500 },
     popular: { venda: 400000, arrendamento: 2500 },
 };
+

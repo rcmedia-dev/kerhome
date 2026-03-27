@@ -1,4 +1,4 @@
-import Pusher from "pusher-js";
+﻿import Pusher from "pusher-js";
 
 const key = process.env.NEXT_PUBLIC_PUSHER_APP_KEY || process.env.NEXT_PUBLIC_PUSHER_KEY || process.env.PUSHER_KEY;
 const cluster = process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER || process.env.NEXT_PUBLIC_PUSHER_CLUSTER || process.env.PUSHER_CLUSTER;
@@ -20,7 +20,7 @@ export const pusherClient = (() => {
   }
 
   if (!key || !cluster) {
-    console.warn("⚠️ Pusher key ou cluster não definidos nas variáveis de ambiente. Chat em tempo real desativado.");
+    console.warn("âš ï¸ Pusher key ou cluster não definidos nas variáveis de ambiente. Chat em tempo real desativado.");
     return new Pusher('dummy', { cluster: 'mt1' });
   }
 
@@ -32,3 +32,4 @@ export const pusherClient = (() => {
   }
   return pusherInstance;
 })();
+

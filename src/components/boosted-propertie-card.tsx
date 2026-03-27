@@ -1,4 +1,4 @@
-import { BoostedProperty, trackBoostClick, trackBoostView } from "@/lib/functions/supabase-actions/boost-functions";
+﻿import { BoostedProperty, trackBoostClick, trackBoostView } from "@/lib/functions/supabase-actions/boost-functions";
 import { motion } from "framer-motion";
 import { CheckCircle2, AlertCircle, XCircle, Target, Calendar, Eye, TrendingUp } from "lucide-react";
 import { useEffect } from "react";
@@ -9,7 +9,7 @@ const BoostedPropertyCard = ({ property, user }: { property: BoostedProperty; us
     if (boostStatus !== 'active') {
       return { 
         expired: true, 
-        text: boostStatus === 'pending' ? 'Pendente' : 'Rejeitado',
+        text: boostStatus === 'pending' ? 'pending' : 'rejected',
         percentage: 0 
       };
     }
@@ -141,7 +141,7 @@ const BoostedPropertyCard = ({ property, user }: { property: BoostedProperty; us
         <div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${getStatusColor(property.boost_status)}`}>
           <StatusIcon size={12} />
           {property.boost_status === 'active' ? 'Ativo' : 
-           property.boost_status === 'pending' ? 'Pendente' : 'Rejeitado'}
+           property.boost_status === 'pending' ? 'pending' : 'rejected'}
         </div>
 
         {/* Barra de progresso para boosts ativos */}

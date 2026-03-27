@@ -1,10 +1,10 @@
-'use server'
+﻿'use server'
 
 import { createClient } from "@supabase/supabase-js"
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY! // 👈 precisa da chave service_role
+  process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY! // ðŸ‘ˆ precisa da chave service_role
 )
 
 interface CreateUserInput {
@@ -57,7 +57,7 @@ export async function createUser(data: CreateUserInput): Promise<CreateUserRespo
     })
 
     if (profileError) {
-      // rollback → apagar o user no Auth se falhar
+      // rollback â†’ apagar o user no Auth se falhar
       await supabaseAdmin.auth.admin.deleteUser(userId)
       return {
         success: false,

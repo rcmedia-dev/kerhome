@@ -1,4 +1,4 @@
-import { PacoteDestaque } from "@/lib/types/defaults"
+﻿import { PacoteDestaque } from "@/lib/types/defaults"
 import { Rocket } from "lucide-react"
 import { CompactPacoteCard } from "@/app/dashboard/destacar/components/compact-pacote-card"
 

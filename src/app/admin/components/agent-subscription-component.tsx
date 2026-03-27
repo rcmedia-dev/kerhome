@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { Mail, Phone, Clock, CheckCircle, XCircle, Loader2, UserCircle2, UserX, ShieldOff } from 'lucide-react';
@@ -13,8 +13,8 @@ type AgentStatus = "Todos" | "Pendentes" | "Aprovados" | "Rejeitados";
 
 const statusMap: Record<string, { label: string; tab: AgentStatus }> = {
   pending: { label: "Aguardando aprovação", tab: "Pendentes" },
-  aproved: { label: "Aprovado", tab: "Aprovados" },
-  rejected: { label: "Rejeitado", tab: "Rejeitados" },
+  aproved: { label: "approved", tab: "Aprovados" },
+  rejected: { label: "rejected", tab: "Rejeitados" },
 };
 
 interface AgentSubscription {
@@ -414,7 +414,7 @@ export default function AgentSubscriptionsPage() {
       if (result.success) {
         setMessage({ type: "success", text: result.message });
 
-        // ✅ Atualiza cache da lista
+        // âœ… Atualiza cache da lista
         queryClient.setQueryData(["agents-subscriptions"], (oldData: any) => {
           if (!oldData) return [];
           return oldData.map((agent: any) =>
@@ -422,7 +422,7 @@ export default function AgentSubscriptionsPage() {
           );
         });
 
-        // ✅ Invalida o cache do perfil individual para atualizar a role dele
+        // âœ… Invalida o cache do perfil individual para atualizar a role dele
         await queryClient.invalidateQueries({ queryKey: ["profile", userId] });
       } else {
         setMessage({ type: "error", text: result.message });
@@ -444,7 +444,7 @@ export default function AgentSubscriptionsPage() {
       if (result.success) {
         setMessage({ type: "success", text: result.message });
 
-        // ✅ Atualiza cache da lista
+        // âœ… Atualiza cache da lista
         queryClient.setQueryData(["agents-subscriptions"], (oldData: any) => {
           if (!oldData) return [];
           return oldData.map((agent: any) =>
@@ -452,7 +452,7 @@ export default function AgentSubscriptionsPage() {
           );
         });
 
-        // ✅ Invalida o cache do perfil individual também
+        // âœ… Invalida o cache do perfil individual também
         await queryClient.invalidateQueries({ queryKey: ["profile", userId] });
       } else {
         setMessage({ type: "error", text: result.message });
@@ -474,13 +474,13 @@ export default function AgentSubscriptionsPage() {
       if (result.success) {
         setMessage({ type: "success", text: result.message });
 
-        // ✅ Remove o agente da lista (já que ele não é mais agente)
+        // âœ… Remove o agente da lista (já que ele não é mais agente)
         queryClient.setQueryData(["agents-subscriptions"], (oldData: any) => {
           if (!oldData) return [];
           return oldData.filter((agent: any) => agent.id !== requestId);
         });
 
-        // ✅ Invalida o cache do perfil individual
+        // âœ… Invalida o cache do perfil individual
         await queryClient.invalidateQueries({ queryKey: ["profile", userId] });
       } else {
         setMessage({ type: "error", text: result.message });

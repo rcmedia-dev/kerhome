@@ -1,4 +1,4 @@
-import { pusher } from "@/lib/pusher";
+﻿import { pusher } from "@/lib/pusher";
 import { supabase } from "@/lib/supabase";
 
 export async function createConversation(
@@ -7,7 +7,7 @@ export async function createConversation(
   clientId: string
 ) {
   try {
-    // 🔍 1. Verificar se já existe uma conversa usando user_pair
+    // ðŸ” 1. Verificar se já existe uma conversa usando user_pair
     const { data: existing, error: checkError } = await supabase
       .from("conversations")
       .select("*")
@@ -19,11 +19,11 @@ export async function createConversation(
     if (checkError) throw checkError;
 
     if (existing && existing.length > 0) {
-      console.log("💬 Conversa já existente:", existing[0].id);
+      console.log("ðŸ’¬ Conversa já existente:", existing[0].id);
       return existing[0];
     }
 
-    // 🆕 2. Se não existir, cria uma nova conversa
+    // ðŸ†• 2. Se não existir, cria uma nova conversa
     const { data, error } = await supabase
       .from("conversations")
       .insert([
@@ -40,10 +40,10 @@ export async function createConversation(
 
     if (error) throw error;
 
-    console.log("🆕 Nova conversa criada:", data.id);
+    console.log("ðŸ†• Nova conversa criada:", data.id);
     return data;
   } catch (error) {
-    console.error("❌ Erro ao criar/verificar conversa:", error);
+    console.error("âŒ Erro ao criar/verificar conversa:", error);
     throw error;
   }
 }
@@ -155,7 +155,7 @@ export async function getConversations(userId: string) {
 // Enviar mensagem + Pusher - atualizado para nova estrutura
 export async function sendMessage(conversationId: string, senderId: string, content: string) {
   try {
-    // 🗄️ Inserir mensagem no Supabase
+    // ðŸ—„ï¸ Inserir mensagem no Supabase
     const { data, error } = await supabase
       .from("messages")
       .insert([{
@@ -197,15 +197,15 @@ export async function sendMessage(conversationId: string, senderId: string, cont
       sender: Array.isArray(data.profiles) ? data.profiles[0] : data.profiles,
     };
 
-    console.log("✅ Mensagem salva no banco:", message.id);
+    console.log("âœ… Mensagem salva no banco:", message.id);
 
-    // 🔄 Atualizar updated_at da conversa
+    // ðŸ”„ Atualizar updated_at da conversa
     await supabase
       .from("conversations")
       .update({ updated_at: new Date().toISOString() })
       .eq("id", conversationId);
 
-    // 📡 Chamar a API para notificar via Pusher
+    // ðŸ“¡ Chamar a API para notificar via Pusher
     try {
       const response = await fetch('/api/messages', {
         method: 'POST',
@@ -221,20 +221,20 @@ export async function sendMessage(conversationId: string, senderId: string, cont
       });
 
       if (response.ok) {
-        console.log("✅ API Pusher chamada com sucesso!");
+        console.log("âœ… API Pusher chamada com sucesso!");
       } else {
         const errorText = await response.text();
-        console.error("❌ Erro na API Pusher:", errorText);
+        console.error("âŒ Erro na API Pusher:", errorText);
       }
     } catch (apiError) {
-      console.error("❌ Erro ao chamar API Pusher:", apiError);
+      console.error("âŒ Erro ao chamar API Pusher:", apiError);
       // Não throw - a mensagem já foi salva no banco
     }
 
     return message;
 
   } catch (error) {
-    console.error("❌ Erro ao enviar mensagem:", error);
+    console.error("âŒ Erro ao enviar mensagem:", error);
     throw error;
   }
 }
@@ -291,10 +291,10 @@ export async function markMessagesAsRead(conversationId: string, userId: string)
 
     if (error) throw error;
 
-    console.log(`✅ Mensagens marcadas como lidas na conversa: ${conversationId}`);
+    console.log(`âœ… Mensagens marcadas como lidas na conversa: ${conversationId}`);
     return data;
   } catch (error) {
-    console.error("❌ Erro ao marcar mensagens como lidas:", error);
+    console.error("âŒ Erro ao marcar mensagens como lidas:", error);
     throw error;
   }
 }
@@ -325,7 +325,7 @@ export async function getUnreadMessagesCount(userId: string) {
 
     return count || 0;
   } catch (error) {
-    console.error("❌ Erro ao obter contagem de mensagens não lidas:", error);
+    console.error("âŒ Erro ao obter contagem de mensagens não lidas:", error);
     return 0;
   }
 }
@@ -344,7 +344,7 @@ export async function createDirectConversation(user1Id: string, user2Id: string)
     if (checkError) throw checkError;
 
     if (existing && existing.length > 0) {
-      console.log("💬 Conversa direta já existente:", existing[0].id);
+      console.log("ðŸ’¬ Conversa direta já existente:", existing[0].id);
       return existing[0];
     }
 
@@ -365,10 +365,10 @@ export async function createDirectConversation(user1Id: string, user2Id: string)
 
     if (error) throw error;
 
-    console.log("🆕 Nova conversa direta criada:", data.id);
+    console.log("ðŸ†• Nova conversa direta criada:", data.id);
     return data;
   } catch (error) {
-    console.error("❌ Erro ao criar conversa direta:", error);
+    console.error("âŒ Erro ao criar conversa direta:", error);
     throw error;
   }
 }
@@ -443,7 +443,7 @@ export async function getContacts(
     };
 
   } catch (error) {
-    console.error('❌ Erro ao obter contactos:', error);
+    console.error('âŒ Erro ao obter contactos:', error);
     throw error;
   }
 }
@@ -505,7 +505,7 @@ export async function getSuggestedContacts(userId: string, limit: number = 10) {
 
     return contactsWithStatus;
   } catch (error) {
-    console.error('❌ Erro ao obter contactos sugeridos:', error);
+    console.error('âŒ Erro ao obter contactos sugeridos:', error);
     throw error;
   }
 }
@@ -520,10 +520,10 @@ export async function deleteConversation(conversationId: string) {
 
     if (error) throw error;
 
-    console.log('✅ Conversa eliminada:', conversationId);
+    console.log('âœ… Conversa eliminada:', conversationId);
     return { success: true };
   } catch (error) {
-    console.error('❌ Erro ao eliminar conversa:', error);
+    console.error('âŒ Erro ao eliminar conversa:', error);
     throw error;
   }
 }

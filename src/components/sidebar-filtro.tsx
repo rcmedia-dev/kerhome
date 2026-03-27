@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -56,7 +56,7 @@ export function PropertyFilterSidebar({ property }: { property: TPropertyRespons
 
       <input
         type="number"
-        placeholder="Nº de banhos"
+        placeholder="NÂº de banhos"
         className="w-full border px-3 py-2 rounded-md text-sm"
         value={banhos}
         onChange={(e) => setBanhos(e.target.value)}
@@ -64,7 +64,7 @@ export function PropertyFilterSidebar({ property }: { property: TPropertyRespons
 
       <input
         type="number"
-        placeholder="Nº de quartos"
+        placeholder="NÂº de quartos"
         className="w-full border px-3 py-2 rounded-md text-sm"
         value={quartos}
         onChange={(e) => setQuartos(e.target.value)}
@@ -72,7 +72,7 @@ export function PropertyFilterSidebar({ property }: { property: TPropertyRespons
 
       <input
         type="number"
-        placeholder="Nº de garagens"
+        placeholder="NÂº de garagens"
         className="w-full border px-3 py-2 rounded-md text-sm"
         value={garagens}
         onChange={(e) => setGaragens(e.target.value)}
@@ -88,7 +88,7 @@ export function PropertyFilterSidebar({ property }: { property: TPropertyRespons
 
       <input
         type="number"
-        placeholder="Tamanho mínimo (m²)"
+        placeholder="Tamanho mínimo (mÂ²)"
         className="w-full border px-3 py-2 rounded-md text-sm"
         value={tamanhoMin}
         onChange={(e) => setTamanhoMin(e.target.value)}
@@ -104,3 +104,4 @@ export function PropertyFilterSidebar({ property }: { property: TPropertyRespons
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-import { TPropertyResponseSchema } from "@/lib/types/property"
+﻿import { TPropertyResponseSchema } from "@/lib/types/property"
 import { Home, Plus } from "lucide-react"
 
 
@@ -33,3 +33,4 @@ const EmptyState: React.FC<EmptyStateProps> = ({ specificProperty, onOpenModal }
 }
 
 export default EmptyState
+

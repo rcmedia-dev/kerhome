@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
@@ -15,22 +15,34 @@ interface AgentCardProps {
         phone?: string;
         avatar_url?: string;
         role?: string;
+        imobiliaria_id?: string;
     };
     propertyId: string;
     propertyTitle?: string;
     propertyImage?: string;
     userId?: string;
+    agencyData?: {
+        nome: string;
+        logo: string | null;
+        telefone?: string | null;
+        whatsapp?: string | null;
+    } | null;
 }
 
-export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle, propertyImage, userId }: AgentCardProps) {
+export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle, propertyImage, userId, agencyData }: AgentCardProps) {
     const router = useRouter();
     const { openChat, checkExistingConversation, createConversation, addMessage } = useChatStore();
     const [loading, setLoading] = useState(false);
 
+    const displayName = agencyData ? agencyData.nome : ownerData.name;
+    const displayAvatar = agencyData ? agencyData.logo : ownerData.avatar_url;
+    const displayPhone = agencyData ? (agencyData.whatsapp || agencyData.telefone) : ownerData.phone;
+    const displayRole = agencyData ? 'Imobiliária' : (ownerData.role || 'Corretor De Imóveis');
+
     const handleStartChat = async () => {
         if (!userId) {
             toast.error('Você precisa estar logado para iniciar um chat.');
-            router.push('/auth/login');
+            router.push('/login');
             return;
         }
 
@@ -41,49 +53,59 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
 
         setLoading(true);
         try {
+            const targetType = agencyData ? 'agency' : 'agent';
+            const imobiliariaId = ownerData.imobiliaria_id;
+
             // 1. Check if conversation exists
-            let conversationId = await checkExistingConversation(userId, ownerData.id);
+            let conversationId = await checkExistingConversation(userId, ownerData.id, targetType);
             let isNew = false;
 
             // 2. If not, create one
             if (!conversationId) {
-                const newConv = await createConversation(userId, ownerData.id);
+                const newConv = await createConversation({
+                    myId: userId,
+                    targetId: ownerData.id,
+                    targetType,
+                    imobiliariaId
+                });
                 if (newConv) {
                     conversationId = newConv.id;
                     isNew = true;
                 }
             }
 
-            // 3. Open chat and send/show interest message
+            // 3. Open chat
             if (conversationId) {
-                openChat(conversationId);
-                toast.success(`Chat iniciado com ${ownerData.name}`);
+                openChat(conversationId, agencyData ? {
+                    id: ownerData.id,
+                    primeiro_nome: agencyData.nome,
+                    ultimo_nome: '',
+                    email: ownerData.email || null,
+                    avatar_url: agencyData.logo || null
+                } : undefined);
+                
+                toast.success(`Chat iniciado com ${agencyData ? 'a Agência' : ownerData.name}`);
 
-                // 4. Send interest message (if new or explicit action)
-                // We send it every time the user explicitly clicks "Send Message" from the property page
-                // to give context to the agent.
-                const messageContent = `Olá ${ownerData.name}, estou interessado neste imóvel: ${propertyTitle}`;
+                // 4. Send interest message (Context)
+                if (propertyId) {
+                    const messageContent = `Olá, estou interessado nisto: ${propertyTitle || 'Imóvel'}`;
 
-                try {
-                    const response = await fetch('/api/messages', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            conversation_id: conversationId,
-                            sender_id: userId,
-                            content: messageContent,
-                            attachment_url: propertyImage,
-                            attachment_type: 'image'
-                        })
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.message) {
-                            addMessage(data.message);
-                        }
+                    try {
+                        await fetch('/api/messages', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                conversation_id: conversationId,
+                                sender_id: userId,
+                                content: messageContent,
+                                attachment_url: propertyImage,
+                                attachment_type: 'image',
+                                imobiliaria_id: imobiliariaId
+                            })
+                        });
+                        // fetchMessages is called by openChat automatically
+                    } catch (msgError) {
+                        console.error("Failed to send interest message", msgError);
                     }
-                } catch (msgError) {
-                    console.error("Failed to send interest message", msgError);
                 }
 
             } else {
@@ -91,7 +113,7 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
             }
         } catch (error) {
             console.error('Error starting chat:', error);
-            toast.error('Erro ao conectar com o corretor.');
+            toast.error('Erro ao conectar.');
         } finally {
             setLoading(false);
         }
@@ -102,29 +124,16 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
             {/* Agent Info */}
             <div className="flex items-center gap-4">
                 <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-purple-100 shadow-sm shrink-0 flex items-center justify-center bg-gray-100">
-                    {ownerData.avatar_url ? (
+                    {displayAvatar ? (
                         <Image
-                            src={ownerData.avatar_url}
-                            alt={ownerData.name}
+                            src={displayAvatar}
+                            alt={displayName}
                             fill
                             className="object-cover"
-                            onError={(e) => {
-                                // Simple fallback if image fails to load, though Next/Image handles this differently.
-                                // We can just rely on the conditional above, or use a state to switch to fallback.
-                                // For simplicity, let's assume if URL exists it's valid, otherwise show initials.
-                                // A true fallback for 404s needs checking loading state or onError handling in a wrapper.
-                                e.currentTarget.style.display = 'none';
-                                const parent = e.currentTarget.parentElement;
-                                if (parent) {
-                                    // Manually insert initials via DOM/CSS or just let simple logic prevail? 
-                                    // Better: Don't mess with DOM. 
-                                    // Let's us use a helper function to get initials.
-                                }
-                            }}
                         />
                     ) : (
                         <span className="text-purple-600 font-bold text-xl">
-                            {ownerData.name
+                            {displayName
                                 .split(' ')
                                 .map(n => n[0])
                                 .slice(0, 2)
@@ -134,8 +143,8 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
                     )}
                 </div>
                 <div>
-                    <h4 className="font-bold text-gray-900 text-lg leading-tight">{ownerData.name}</h4>
-                    <p className="text-sm text-purple-600 font-medium">{ownerData.role || 'Corretor De Imóveis'}</p>
+                    <h4 className="font-bold text-gray-900 text-lg leading-tight">{displayName}</h4>
+                    <p className="text-sm text-purple-600 font-medium">{displayRole}</p>
                 </div>
             </div>
 
@@ -147,8 +156,20 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
                     className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-3 rounded-xl font-semibold shadow-lg shadow-purple-200 transition-all hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed group"
                 >
                     <MessageCircle size={20} className="group-hover:animate-pulse" />
-                    {loading ? 'Iniciando...' : 'Enviar Mensagem ao Corretor'}
+                    {loading ? 'Iniciando...' : (agencyData ? 'Chat com a Agência' : 'Enviar Mensagem ao Corretor')}
                 </button>
+
+                {displayPhone && (
+                    <a
+                        href={`https://wa.me/${displayPhone.replace(/\D/g, '')}?text=Olá, tenho interesse no imóvel: ${propertyTitle}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-semibold shadow-lg shadow-green-200 transition-all hover:-translate-y-0.5"
+                    >
+                        <Phone size={20} />
+                        WhatsApp {(agencyData ? 'da Agência' : '')}
+                    </a>
+                )}
             </div>
 
             <div className="text-center">
@@ -163,3 +184,4 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
         </div>
     );
 }
+

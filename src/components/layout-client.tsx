@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { usePathname } from "next/navigation";
 import Header from "@/components/header";
@@ -33,3 +33,4 @@ export default function LayoutClient({
     </>
   );
 }
+

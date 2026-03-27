@@ -1,4 +1,4 @@
-export interface Profile {
+﻿export interface Profile {
   id: string;
   primeiro_nome: string;
   ultimo_nome: string;
@@ -46,14 +46,18 @@ export interface Property {
 
 export interface Conversation {
   id: string;
-  agent_id: string;
+  agent_id: string | null; // Pode ser nulo se for Agency Chat sem atendente ainda
   client_id: string;
-  property_id: string;
+  property_id: string | null;
+  imobiliaria_id: string | null; // ID da agência se target_type for 'agency'
+  target_type: 'agent' | 'agency';
+  atendido_por_agente_id: string | null; // ID do agente que assumiu o ticket
+  status: 'open' | 'claimed' | 'closed';
   created_at: string;
   updated_at: string;
-  agent: Agent;
+  agent?: Agent;
   client: Client;
-  property: Property;
+  property?: Property;
   other_user?: Profile;
 }
 
@@ -64,6 +68,7 @@ export interface Message {
   conversation_id: string;
   sender_id: string;
   read_by_receiver: boolean;
+  atendido_por_agente_id?: string | null; // Opcional: quem enviou se for agência
   profiles?: { 
     id: string; 
     primeiro_nome: string; 

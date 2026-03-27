@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase with Service Role Key to bypass RLS
@@ -44,3 +44,4 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Internal upload error' }, { status: 500 });
     }
 }
+

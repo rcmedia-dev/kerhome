@@ -1,4 +1,4 @@
-import { TPropertyResponseSchema } from "@/lib/types/property"
+﻿import { TPropertyResponseSchema } from "@/lib/types/property"
 import { Sparkles } from "lucide-react"
 
 interface PageHeaderProps {

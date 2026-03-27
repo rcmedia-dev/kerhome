@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Logger centralizado
  * Padroniza logs da aplicação
  */
@@ -83,3 +83,4 @@ class Logger {
 }
 
 export const logger = new Logger();
+

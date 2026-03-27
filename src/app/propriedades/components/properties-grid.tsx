@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { motion, AnimatePresence, easeIn, easeOut } from 'framer-motion';
 import { PropertyCard } from '@/components/property-card';
@@ -86,3 +86,4 @@ export default function PropertiesGrid({
     </>
   );
 }
+

@@ -1,8 +1,7 @@
-'use server';
+﻿'use server';
 
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 
 interface ApprovePropertyParams {
   propertyId: string;
@@ -10,6 +9,7 @@ interface ApprovePropertyParams {
 
 export async function approveProperty({ propertyId }: ApprovePropertyParams) {
   try {
+    const supabase = await createClient();
     // 1. Verificar se o imóvel existe
     const { data: existingProperty, error: fetchError } = await supabase
       .from('properties')
@@ -22,7 +22,7 @@ export async function approveProperty({ propertyId }: ApprovePropertyParams) {
     }
 
     // 2. Verificar se já não está aprovado
-    if (existingProperty.aprovement_status === 'aprovado') {
+    if (existingProperty.aprovement_status === 'approved') {
       return {
         success: false,
         message: 'Este imóvel já está aprovado',
@@ -33,7 +33,7 @@ export async function approveProperty({ propertyId }: ApprovePropertyParams) {
     const { error: updateError } = await supabase
       .from('properties')
       .update({
-        aprovement_status: 'aprovado'
+        aprovement_status: 'approved'
       })
       .eq('id', propertyId);
 
@@ -65,6 +65,7 @@ interface RejectPropertyParams {
 
 export async function rejectProperty({ propertyId }: RejectPropertyParams) {
   try {
+    const supabase = await createClient();
     // 1. Verificar se o imóvel existe
     const { data: existingProperty, error: fetchError } = await supabase
       .from('properties')
@@ -77,7 +78,7 @@ export async function rejectProperty({ propertyId }: RejectPropertyParams) {
     }
 
     // 2. Verificar se já não está rejeitado
-    if (existingProperty.aprovement_status === 'rejeitado') {
+    if (existingProperty.aprovement_status === 'rejected') {
       return {
         success: false,
         message: 'Este imóvel já está rejeitado',
@@ -88,7 +89,7 @@ export async function rejectProperty({ propertyId }: RejectPropertyParams) {
     const { error: updateError } = await supabase
       .from('properties')
       .update({
-        aprovement_status: 'rejeitado',
+        aprovement_status: 'rejected',
       })
       .eq('id', propertyId);
 

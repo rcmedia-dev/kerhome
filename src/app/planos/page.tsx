@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { CheckCircle2, XCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -344,3 +344,4 @@ export default function PlanosPage() {
     </section>
   );
 }
+
