@@ -1,4 +1,4 @@
-﻿import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Home, Users, MapPin, Sparkles, Calendar, MessageCircle } from "lucide-react";
 import Image from "next/image";
@@ -89,7 +89,7 @@ function PropertyCard({ property }: { property: AgentProperty }) {
 
           <div className="flex gap-3 mt-6">
             <Link href={`/propriedades/${property.id}`} className="flex-1">
-              <Button className="w-full bg-gradient-to-r from-purple-600 to-orange-600 hover:from-purple-700 hover:to-orange-700 text-white py-3 rounded-xl transition-all duration-300">
+              <Button className="w-full bg-[#820AD1] hover:bg-purple-700 text-white py-3 rounded-xl transition-colors duration-300">
                 <Sparkles className="w-4 h-4 mr-2" />
                 Ver Detalhes
               </Button>

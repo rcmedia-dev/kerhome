@@ -186,7 +186,7 @@ export default function FeaturedCarousel({ property }: FeaturedCarouselProps) {
                         {/* Botão de ação */}
                         <Link
                           href={`/${property.status === "arrendar" ? "alugar" : "comprar"}/${property.id}`}
-                          className="mt-4 flex items-center gap-2 text-orange-300 group hover:text-orange-200 transition-colors"
+                          className="mt-4 flex items-center gap-2 text-purple-300 group hover:text-purple-200 transition-colors"
                         >
                           <span className="text-sm font-semibold">Ver detalhes</span>
                           <MoveRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
@@ -194,7 +194,7 @@ export default function FeaturedCarousel({ property }: FeaturedCarouselProps) {
                       </div>
 
                       {/* Efeito de brilho no hover */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-indigo-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
                     </div>
                   </Link>
                 </div>

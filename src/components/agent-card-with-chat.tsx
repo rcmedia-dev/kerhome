@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
@@ -172,15 +172,17 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
                 )}
             </div>
 
-            <div className="text-center">
-                <button
-                    onClick={() => router.push(`/agente/${ownerData.id}`)}
-                    className="text-sm text-gray-400 hover:text-purple-600 transition-colors flex items-center justify-center gap-1 mx-auto group"
-                >
-                    Ver perfil completo
-                    <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
-                </button>
-            </div>
+            {!agencyData && (
+                <div className="text-center">
+                    <button
+                        onClick={() => router.push(`/agente/${ownerData.id}`)}
+                        className="text-sm text-gray-400 hover:text-purple-600 transition-colors flex items-center justify-center gap-1 mx-auto group"
+                    >
+                        Ver perfil completo
+                        <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                    </button>
+                </div>
+            )}
         </div>
     );
 }

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Search, MapPin, Building, Filter } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -107,7 +107,7 @@ export const ImobiliariaFilters: React.FC<ImobiliariaFiltersProps> = ({ onFilter
         {/* Botão Buscar */}
         <button
           onClick={handleApply}
-          className="bg-orange-500 text-white rounded-2xl py-4 px-8 font-black hover:bg-purple-700 transition-all duration-500 flex items-center justify-center gap-3 shadow-xl shadow-orange-500/20 uppercase tracking-widest text-xs transform hover:-translate-y-1 active:scale-95 group"
+          className="bg-[#820AD1] text-white rounded-2xl py-4 px-8 font-semibold hover:bg-purple-700 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg shadow-purple-200/50 transform hover:-translate-y-1 active:scale-95 group"
         >
           <Search className="w-5 h-5 transition-transform group-hover:scale-110" />
           <span>Filtrar</span>

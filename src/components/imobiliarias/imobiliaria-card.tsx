@@ -39,13 +39,12 @@ export function ImobiliariaCard({ imobiliaria }: ImobiliariaCardProps) {
         {/* Badges - Top Left */}
         <div className="absolute top-4 left-4 z-20">
           {imobiliaria.verificada ? (
-            <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#6D28D9]/90 backdrop-blur-md text-white text-xs font-black shadow-lg border border-white/20 uppercase tracking-wider">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#6D28D9]/90 backdrop-blur-md shadow-lg border border-white/20" title="Agência Verificada">
               <BadgeCheck className="w-4 h-4 text-white" />
-              Verificada
             </div>
           ) : (
-            <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gray-700/60 backdrop-blur-md text-white text-[10px] font-black shadow-md border border-white/10 uppercase tracking-widest">
-              Agência Parceira
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-700/60 backdrop-blur-md text-white text-[10px] font-medium shadow-md border border-white/10">
+              Parceira
             </div>
           )}
         </div>
@@ -55,36 +54,33 @@ export function ImobiliariaCard({ imobiliaria }: ImobiliariaCardProps) {
       <div className="flex-1 px-6 pt-6 pb-5 flex flex-col relative">
 
         {/* Location Row */}
-        <div className="flex items-center gap-2 text-gray-500 text-sm mb-2 font-medium">
-          <MapPin className="w-4 h-4 text-orange-500" />
+        <div className="flex items-center gap-1.5 text-gray-500 text-sm mb-1.5">
+          <MapPin className="w-4 h-4 text-gray-400" />
           <span className="line-clamp-1">
-            {imobiliaria.cidade} {imobiliaria.bairro ? `• ${imobiliaria.bairro}` : ''}
+            {imobiliaria.cidade}{imobiliaria.bairro ? ` • ${imobiliaria.bairro}` : ''}
           </span>
         </div>
 
         {/* Title (Nome da Imobiliária) */}
-        <h3 className="text-2xl font-black text-[#1A1A1A] leading-tight line-clamp-1 mb-4 h-[32px] overflow-hidden group-hover:text-purple-700 transition-colors" title={imobiliaria.nome}>
+        <h3 className="text-xl font-bold text-[#1A1A1A] leading-tight line-clamp-2 mb-3 h-[50px] overflow-hidden group-hover:text-purple-700 transition-colors" title={imobiliaria.nome}>
           <Link href={`/imobiliaria/${imobiliaria.slug}`}>
             {imobiliaria.nome}
           </Link>
         </h3>
 
         {/* Stats Row - Justify Between */}
-        <div className="flex items-center justify-between text-gray-600 text-sm mb-4 border-b border-gray-50 pb-4">
+        <div className="flex items-center justify-between text-gray-600 text-sm mb-2 border-b border-gray-50 pb-2">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center">
-              <Home className="w-4 h-4 text-orange-600" />
-            </div>
-            <span className="font-black text-gray-900">{count} {count === 1 ? 'Imóvel' : 'Imóveis'}</span>
+            <Home className="w-4 h-4 text-gray-400" />
+            <span className="font-medium">{count} {count === 1 ? 'Imóvel' : 'Imóveis'}</span>
           </div>
-
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-purple-600 bg-purple-50 px-3 py-1.5 rounded-full">
-            Full Portfolio
+          <div className="flex items-center gap-2 text-xs font-medium text-purple-600 bg-purple-50 px-3 py-1 rounded-full">
+            Portfolio Completo
           </div>
         </div>
 
-        {/* Description Snippet (Optional but mimics Property stats area) */}
-        <p className="text-gray-400 text-xs mb-6 line-clamp-2 leading-relaxed font-medium">
+        {/* Description Snippet */}
+        <p className="text-gray-500 text-sm mb-4 line-clamp-2 leading-relaxed">
           Especialistas em consultoria imobiliária no mercado de {imobiliaria.cidade}. Encontre o seu lar com segurança.
         </p>
 
@@ -92,7 +88,7 @@ export function ImobiliariaCard({ imobiliaria }: ImobiliariaCardProps) {
         <div className="pt-4 mt-auto border-t border-gray-100">
           <Link
             href={`/imobiliaria/${imobiliaria.slug}`}
-            className="w-full bg-[#F97316] hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl text-center transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm"
+            className="w-full bg-[#820AD1] hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-xl text-center transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm"
           >
             <span>Ver Perfil</span>
             <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />

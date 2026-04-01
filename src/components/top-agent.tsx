@@ -273,11 +273,12 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
           <Swiper
             modules={[Autoplay, Pagination, Navigation]}
             spaceBetween={30}
-            slidesPerView={1.5}
+            slidesPerView={1}
+            centeredSlides={false}
             autoplay={{
               delay: 4500,
               disableOnInteraction: false,
-              reverseDirection: false // Corretores (Esquerda) -> Mesmo sentido das Agências
+              reverseDirection: false
             }}
             pagination={{
               clickable: true,
@@ -288,9 +289,9 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
               nextEl: '.swiper-next-agents',
             }}
             breakpoints={{
-              640: { slidesPerView: 2.5, spaceBetween: 20 },
-              1024: { slidesPerView: 3.5, spaceBetween: 30 },
-              1280: { slidesPerView: 4.5, spaceBetween: 30 },
+              640: { slidesPerView: 2, spaceBetween: 20 },
+              1024: { slidesPerView: 3, spaceBetween: 30 },
+              1280: { slidesPerView: 4, spaceBetween: 30 },
             }}
             className="pb-16 !px-4"
           >

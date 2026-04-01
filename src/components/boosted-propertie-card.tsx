@@ -1,4 +1,4 @@
-﻿import { BoostedProperty, trackBoostClick, trackBoostView } from "@/lib/functions/supabase-actions/boost-functions";
+import { BoostedProperty, trackBoostClick, trackBoostView } from "@/lib/functions/supabase-actions/boost-functions";
 import { motion } from "framer-motion";
 import { CheckCircle2, AlertCircle, XCircle, Target, Calendar, Eye, TrendingUp } from "lucide-react";
 import { useEffect } from "react";
@@ -234,7 +234,7 @@ const BoostedPropertyCard = ({ property, user }: { property: BoostedProperty; us
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-orange-500 text-white rounded-lg text-sm font-semibold cursor-pointer"
+            className="w-full px-4 py-2 bg-[#820AD1] hover:bg-purple-700 text-white rounded-lg text-sm font-semibold cursor-pointer transition-colors duration-300"
             onClick={async () => {
               await handleTrackClick();
               window.open(`/propriedades/${property.property_id}`, '_blank');

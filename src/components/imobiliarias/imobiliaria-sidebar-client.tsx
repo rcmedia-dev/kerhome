@@ -1,7 +1,8 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Users } from 'lucide-react';
 import AgentCardWithChat from '@/components/agent-card-with-chat';
 import { useUserStore } from '@/lib/store/user-store';
@@ -72,9 +73,10 @@ export function ImobiliariaSidebarClient({ imobiliaria, agentes }: ImobiliariaSi
 
           <div className="flex lg:flex-col gap-4 overflow-x-auto lg:overflow-visible pb-6 lg:pb-0 snap-x snap-mandatory scroll-smooth hide-scrollbar px-6 lg:px-6 mb-2">
             {agentes.map((agente) => (
-              <div
+              <Link
+                href={`/agente/${agente.id}`}
                 key={agente.id}
-                className="flex items-center gap-4 bg-gray-50 hover:bg-gray-100 rounded-2xl p-3 border border-transparent hover:border-purple-100 transition-all snap-start min-w-[280px] lg:min-w-0 flex-shrink-0 lg:flex-shrink cursor-default"
+                className="flex items-center gap-4 bg-gray-50 hover:bg-purple-50 rounded-2xl p-3 border border-transparent hover:border-purple-100 transition-all snap-start min-w-[280px] lg:min-w-0 flex-shrink-0 lg:flex-shrink group"
               >
                 <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0">
                   <Image
@@ -85,14 +87,14 @@ export function ImobiliariaSidebarClient({ imobiliaria, agentes }: ImobiliariaSi
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-gray-900 text-sm truncate">
+                  <h4 className="font-bold text-gray-900 text-sm truncate group-hover:text-purple-700 transition-colors">
                     {agente.primeiro_nome ? `${agente.primeiro_nome} ${agente.ultimo_nome}` : (agente.full_name || 'Corretor Associado')}
                   </h4>
                   <p className="text-[10px] text-purple-600 font-bold uppercase tracking-widest">
                     Consultor
                   </p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

@@ -355,7 +355,7 @@ export function PropertyCard({ property, canBoost = true, onDelete }: PropertyCa
         <div className="pt-4 mt-auto border-t border-gray-100">
           <Link
             href={`/propriedades/${property.id}`}
-            className="w-full bg-[#F97316] hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl text-center transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm"
+            className="w-full bg-[#820AD1] hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-xl text-center transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm"
           >
             <span>Ver Detalhes</span>
             <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />

@@ -54,52 +54,56 @@ export default async function ImobiliariaPerfilPage({ params }: { params: Promis
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
 
-      {/* Immersive Header Section (Full Width Background) */}
-      <div className="w-full bg-gray-100 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <nav className="text-sm text-gray-500 mb-6 flex items-center gap-2">
-            <Link href="/" className="hover:text-purple-600 transition-colors">Início</Link>
-            <span className="text-gray-300">/</span>
-            <Link href="/imobiliarias" className="hover:text-purple-600 transition-colors">Agências</Link>
-            <span className="text-gray-300">/</span>
-            <span className="text-gray-800 font-medium truncate max-w-[300px]">{imobiliaria.nome}</span>
+      {/* Hero Section — Consistente com a Hero da página Notícias */}
+      <div className="relative bg-gradient-to-r from-[#130f25] to-purple-900 text-white overflow-hidden pt-28 pb-20">
+        {/* Decorações de fundo */}
+        <div
+          className="absolute inset-0 opacity-10"
+          style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Ccircle cx=\"30\" cy=\"30\" r=\"4\" fill=\"white\" fill-opacity=\"0.5\"/%3E%3C/svg%3E')" }}
+        ></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
+          {/* Breadcrumb */}
+          <nav className="text-sm text-purple-300 mb-8 flex items-center gap-2">
+            <Link href="/" className="hover:text-white transition-colors">Início</Link>
+            <ChevronRight className="w-4 h-4 opacity-50" />
+            <Link href="/imobiliarias" className="hover:text-white transition-colors">Agências</Link>
+            <ChevronRight className="w-4 h-4 opacity-50" />
+            <span className="text-white/70 font-medium truncate max-w-[300px]">{imobiliaria.nome}</span>
           </nav>
 
-          <div className="relative bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-200">
-            <div className="relative h-48 md:h-64 bg-gradient-to-br from-[#4C067A] via-[#820AD1] to-[#FF6B00]">
-              <div className="absolute inset-0 opacity-10 bg-[url('/grid-pattern.svg')] bg-repeat"></div>
-            </div>
-            <div className="px-6 md:px-10 pb-8 -mt-20 relative z-10 flex flex-col md:flex-row gap-8 items-start md:items-end">
-              {/* Logo Wrapper */}
-              <div className="w-40 h-40 bg-white rounded-3xl shadow-xl p-4 border border-gray-100 flex items-center justify-center shrink-0">
-                <div className="relative w-full h-full">
-                  <Image
-                    src={imobiliaria.logo || '/logo-placeholder.png'}
-                    alt={imobiliaria.nome}
-                    fill
-                    className="object-contain"
-                  />
-                </div>
+          {/* Hero Content */}
+          <div className="flex flex-col md:flex-row items-center md:items-end gap-8">
+            {/* Logo */}
+            <div className="w-36 h-36 bg-white rounded-3xl shadow-2xl p-4 border border-white/20 flex items-center justify-center shrink-0">
+              <div className="relative w-full h-full">
+                <Image
+                  src={imobiliaria.logo || '/logo-placeholder.png'}
+                  alt={imobiliaria.nome}
+                  fill
+                  className="object-contain"
+                />
               </div>
-              {/* Short Info */}
-              <div className="flex-1 pb-2">
-                <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-none">
-                    {imobiliaria.nome}
-                  </h1>
-                  {imobiliaria.verificada && (
-                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-widest border border-blue-100">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      Verificada
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-3 text-gray-500 text-base mb-4">
-                  <MapPin className="w-4 h-4 text-orange-500" />
-                  <span className="font-medium">
-                    {[imobiliaria.bairro, imobiliaria.cidade].filter(Boolean).join(", ")}
-                  </span>
-                </div>
+            </div>
+
+            {/* Info */}
+            <div className="flex-1 text-center md:text-left pb-2">
+              {imobiliaria.verificada && (
+                <span className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-orange-200 text-xs font-medium mb-3">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Agência Verificada
+                </span>
+              )}
+              <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight mb-3">
+                {imobiliaria.nome}
+              </h1>
+              <div className="flex items-center justify-center md:justify-start gap-2 text-purple-200 text-base">
+                <MapPin className="w-4 h-4 text-orange-400 shrink-0" />
+                <span className="font-medium">
+                  {[imobiliaria.bairro, imobiliaria.cidade].filter(Boolean).join(", ")}
+                </span>
               </div>
             </div>
           </div>
@@ -190,7 +194,7 @@ export default async function ImobiliariaPerfilPage({ params }: { params: Promis
                             src={agency.logo || '/logo-placeholder.png'}
                             alt={agency.nome}
                             fill
-                            className="object-contain p-4 grayscale group-hover:grayscale-0 transition-transform duration-500 group-hover:scale-105"
+                            className="object-contain p-4 transition-transform duration-500 group-hover:scale-105"
                           />
                         </div>
                         <div className="p-3">

@@ -45,14 +45,25 @@ export default function ImobiliariasPage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50">
-      <main className="pt-24 pb-20">
+      <main className="pb-20 flex-col">
         {/* Hero Section */}
-        <section className="bg-white border-b border-gray-100 mb-12">
-          <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-            <h1 className="text-4xl md:text-6xl font-black text-gray-900 mb-6 tracking-tight">
-              Imobiliárias <span className="bg-gradient-to-r from-purple-700 to-orange-500 bg-clip-text text-transparent">Parceiras</span>
+        <section className="relative bg-gradient-to-r from-[#130f25] to-purple-900 text-white overflow-hidden pb-20 pt-32 mb-12">
+          {/* Decorações do fundo Idênticas a Noticias */}
+          <div 
+            className="absolute inset-0 opacity-10"
+            style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Ccircle cx=\"30\" cy=\"30\" r=\"4\" fill=\"white\" fill-opacity=\"0.5\"/%3E%3C/svg%3E')" }}
+          ></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+
+          <div className="container mx-auto px-4 relative z-10 text-center">
+            <span className="inline-block py-1 px-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-orange-200 text-sm font-medium mb-6">
+              Mercado Imobiliário de Angola
+            </span>
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight leading-tight">
+              Imobiliárias <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-200">Parceiras</span>
             </h1>
-            <p className="text-lg text-gray-500 max-w-2xl mx-auto font-medium">
+            <p className="text-xl text-purple-100 max-w-2xl mx-auto font-light leading-relaxed">
               Conectamos você às empresas mais confiáveis do mercado angolano. Qualidade e transparência em cada transação.
             </p>
           </div>
@@ -147,21 +158,23 @@ export default function ImobiliariasPage() {
             </div>
           )}
 
-          {/* CTA Section */}
-          <div className="mt-20 bg-gradient-to-br from-purple-800 to-indigo-900 rounded-[2.5rem] p-12 text-center text-white relative overflow-hidden shadow-2xl">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">É uma imobiliária?</h2>
-            <p className="text-purple-100 mb-10 max-w-xl mx-auto text-lg leading-relaxed">
-              Junte-se à maior plataforma imobiliária de Angola e alcance milhares de potenciais clientes todos os dias.
-            </p>
-            <Link
-              href="/imobiliarias/registar"
-              className="bg-orange-500 text-white px-12 py-6 rounded-xl font-black hover:bg-white hover:text-purple-900 transition-all duration-500 transform hover:scale-110 inline-flex items-center gap-3 shadow-2xl shadow-orange-500/40 group relative overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <span className="relative z-10">Torne a sua agência parceira</span>
-              <ArrowRight className="w-7 h-7 relative z-10 transition-transform group-hover:translate-x-2" />
-            </Link>
+          {/* CTA Section — Consistente com "Fique à frente no mercado" (Noticias) */}
+          <div className="mt-20 relative bg-purple-900 rounded-3xl p-10 md:p-20 overflow-hidden mb-4 text-center">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-500 opacity-20 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl"></div>
+            <div className="relative z-10 max-w-2xl mx-auto">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">É uma imobiliária?</h2>
+              <p className="text-purple-100 mb-10 text-lg leading-relaxed">
+                Junte-se à maior plataforma imobiliária de Angola e alcance milhares de potenciais clientes todos os dias.
+              </p>
+              <Link
+                href="/imobiliarias/registar"
+                className="bg-white text-purple-900 px-8 py-4 rounded-xl font-bold hover:bg-gray-50 transition-all shadow-lg inline-flex items-center gap-3 group"
+              >
+                <span>Torne a sua agência parceira</span>
+                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </div>
           </div>
         </div>
       </main>

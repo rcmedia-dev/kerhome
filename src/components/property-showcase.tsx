@@ -256,7 +256,7 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
         <Swiper
           modules={[Autoplay, Pagination]}
           spaceBetween={30}
-          slidesPerView={1.2}
+          slidesPerView={1}
           autoplay={{
             delay: 4000,
             disableOnInteraction: false,
@@ -267,10 +267,9 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
             el: '.swiper-pagination-properties',
           }}
           breakpoints={{
-            640: { slidesPerView: 1.5, spaceBetween: 20 },
-            768: { slidesPerView: 2.2, spaceBetween: 25 },
-            1024: { slidesPerView: 3.2, spaceBetween: 30 },
-            1280: { slidesPerView: 3.5, spaceBetween: 30 },
+            640: { slidesPerView: 2, spaceBetween: 20 },
+            1024: { slidesPerView: 3, spaceBetween: 30 },
+            1280: { slidesPerView: 4, spaceBetween: 30 },
           }}
           className="pb-20 !px-4"
         >
