@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Image from 'next/image';
 import { Check } from 'lucide-react';
@@ -11,8 +11,8 @@ export const CompactPropertyCard: React.FC<CompactPropertyCardProps> = ({
 }) => (
   <div
     className={`relative rounded-2xl p-4 cursor-pointer transition-all duration-300 border-2 ${isSelected
-        ? 'border-purple-500 bg-gradient-to-r from-purple-50 to-white shadow-lg'
-        : 'border-gray-200 hover:border-purple-300 hover:shadow-md bg-white'
+      ? 'border-purple-500 bg-gradient-to-r from-purple-50 to-white shadow-lg'
+      : 'border-gray-200 hover:border-purple-300 hover:shadow-md bg-white'
       }`}
     onClick={onToggle}
   >
@@ -22,7 +22,7 @@ export const CompactPropertyCard: React.FC<CompactPropertyCardProps> = ({
       </div>
       <div className="flex-1 min-w-0">
         <h4 className="font-semibold text-gray-900 text-sm line-clamp-1">{property.title}</h4>
-        <p className="text-orange-500 font-bold text-sm">{property.price?.toLocaleString('pt-AO')} Kwanzas</p>
+        <p className="text-orange-500 font-bold text-sm">{property.price?.toLocaleString('pt-AO')} Kz</p>
       </div>
       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-purple-600 border-purple-600' : 'border-gray-300'
         }`}>

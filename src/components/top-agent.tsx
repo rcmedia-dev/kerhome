@@ -1,10 +1,17 @@
-﻿'use client'
+'use client'
 
-import { VerifiedIcon, Mail, Sparkles } from 'lucide-react';
+import { VerifiedIcon, Mail, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { motion, Variants, Transition } from 'framer-motion';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Pagination, Navigation } from 'swiper/modules';
+
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
 
 export interface Agent {
   id: string;
@@ -181,6 +188,9 @@ const backgroundVariants: Variants = {
 export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
   const [hoveredAgent, setHoveredAgent] = useState<string | null>(null);
 
+  // Filtrar agentes que têm avatar e limitar para o carrossel
+  const carouselAgents = agents.filter(agent => agent.avatar_url);
+
   return (
     <motion.section
       initial="hidden"
@@ -211,7 +221,7 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
             ...springTransition,
             duration: 0.8
           }}
-          className="text-center mb-16"
+          className="text-center mb-12"
         >
           <motion.div
             variants={badgeVariants}
@@ -225,7 +235,7 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
             }}
             className="inline-flex items-center justify-center gap-2 bg-white rounded-full px-4 py-2 shadow-sm border border-gray-100 mb-4"
           >
-            <VerifiedIcon className="w-4 h-4 text-purple-700" />
+            <VerifiedIcon className="w-4 h-4 text-[#6D28D9]" />
             <span className="text-sm font-medium text-gray-700">Agentes Verificados</span>
           </motion.div>
           <motion.h2
@@ -240,7 +250,7 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
             }}
             className="text-4xl md:text-5xl font-bold text-gray-900 mb-4"
           >
-            Nossos <span className="text-purple-700">Corretores</span>
+            Nossos <span className="text-[#6D28D9]">Corretores</span>
           </motion.h2>
           <motion.p
             variants={headerVariants}
@@ -258,135 +268,136 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
           </motion.p>
         </motion.div>
 
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 justify-items-center"
-        >
-          {agents.filter(agent => agent.avatar_url).slice(0, 4).map((agent) => {
-            const isHovered = hoveredAgent === agent.id;
-
-            return (
-              <motion.div
-                key={agent.id}
-                variants={itemVariants}
-                initial="rest"
-                whileHover="hover"
-                transition={{
-                  ...springTransition,
-                  duration: 0.6
-                }}
-                className="group relative"
-                onMouseEnter={() => setHoveredAgent(agent.id)}
-                onMouseLeave={() => setHoveredAgent(null)}
-              >
-                {/* Card moderno e clean */}
+        {/* Carrossel de Corretores */}
+        <div className="relative group">
+          <Swiper
+            modules={[Autoplay, Pagination, Navigation]}
+            spaceBetween={30}
+            slidesPerView={1.5}
+            autoplay={{
+              delay: 4500,
+              disableOnInteraction: false,
+              reverseDirection: false // Corretores (Esquerda) -> Mesmo sentido das Agências
+            }}
+            pagination={{
+              clickable: true,
+              el: '.swiper-pagination-agents',
+            }}
+            navigation={{
+              prevEl: '.swiper-prev-agents',
+              nextEl: '.swiper-next-agents',
+            }}
+            breakpoints={{
+              640: { slidesPerView: 2.5, spaceBetween: 20 },
+              1024: { slidesPerView: 3.5, spaceBetween: 30 },
+              1280: { slidesPerView: 4.5, spaceBetween: 30 },
+            }}
+            className="pb-16 !px-4"
+          >
+            {carouselAgents.map((agent) => (
+              <SwiperSlide key={agent.id} className="h-auto pb-4">
                 <motion.div
-                  variants={cardHoverVariants}
-                  transition={fastSpringTransition}
-                  className={`relative bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-xl transition-all duration-500 h-full flex flex-col overflow-hidden ${isHovered ? 'shadow-lg border-purple-200' : ''
-                    }`}
+                  variants={itemVariants}
+                  initial="rest"
+                  whileHover="hover"
+                  transition={{
+                    ...springTransition,
+                    duration: 0.6
+                  }}
+                  className="group relative h-full"
+                  onMouseEnter={() => setHoveredAgent(agent.id)}
+                  onMouseLeave={() => setHoveredAgent(null)}
                 >
+                  <motion.div
+                    variants={cardHoverVariants}
+                    transition={fastSpringTransition}
+                    className="relative bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-xl transition-all duration-500 h-full flex flex-col overflow-hidden"
+                  >
+                    {/* Header do card */}
+                    <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-r from-purple-50 to-purple-100 opacity-60"></div>
 
-                  {/* Header do card com background sutil */}
-                  <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-r from-purple-50 to-purple-100 opacity-60"></div>
-
-                  {/* Avatar centralizado */}
-                  <div className="relative z-10 mx-auto mb-4 -mt-4">
-                    <div className="relative">
-                      <div className={`absolute inset-0 bg-purple-700 rounded-full transition-all duration-500 ${isHovered ? 'scale-110 opacity-10' : 'scale-100 opacity-0'
-                        }`}></div>
-                      <motion.div
-                        variants={avatarHoverVariants}
-                        className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg"
-                      >
-                        {agent.avatar_url ? (
+                    {/* Avatar */}
+                    <div className="relative z-10 mx-auto mb-4 -mt-4">
+                      <div className="relative">
+                        <motion.div
+                          variants={avatarHoverVariants}
+                          className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg"
+                        >
                           <Image
-                            src={agent.avatar_url}
+                            src={agent.avatar_url!}
                             alt={`${agent.primeiro_nome} ${agent.ultimo_nome}`}
                             fill
                             className="object-cover"
                           />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center">
-                            <span className="text-white text-2xl font-bold">
-                              {agent.primeiro_nome?.[0]?.toUpperCase()}{agent.ultimo_nome?.[0]?.toUpperCase()}
-                            </span>
-                          </div>
-                        )}
+                        </motion.div>
+                      </div>
+                      <motion.div
+                        whileHover={{ scale: 1.2, rotate: 10 }}
+                        className="absolute -bottom-1 -right-1 bg-white p-1 rounded-full shadow-md border"
+                      >
+                        <VerifiedIcon className="w-4 h-4 text-[#6D28D9]" />
                       </motion.div>
                     </div>
 
-                    {/* Badge de verificação */}
-                    <motion.div
-                      whileHover={{ scale: 1.2, rotate: 10 }}
-                      transition={fastSpringTransition}
-                      className="absolute -bottom-1 -right-1 bg-white p-1 rounded-full shadow-md border"
-                    >
-                      <VerifiedIcon className="w-4 h-4 text-purple-700" />
-                    </motion.div>
-                  </div>
+                    {/* Conteúdo */}
+                    <div className="text-center flex-1 relative z-10 flex flex-col items-center justify-center">
+                      <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-[#6D28D9] transition-colors">
+                        {agent.primeiro_nome} {agent.ultimo_nome}
+                      </h3>
+                      {agent.email && (
+                        <div className="flex items-center justify-center gap-2 text-gray-500 mb-6 p-2 bg-gray-50 rounded-lg w-full text-xs truncate">
+                          <Mail className="w-3 h-3 shrink-0" />
+                          <span className="truncate">{agent.email}</span>
+                        </div>
+                      )}
+                    </div>
 
-                  {/* Conteúdo principal */}
-                  <div className="text-center flex-1 relative z-10 flex flex-col items-center justify-center">
-                    {/* Nome */}
-                    <motion.h3
-                      className="text-lg font-bold text-gray-900 mb-3"
-                      whileHover={{ color: "#7c3aed" }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      {agent.primeiro_nome} {agent.ultimo_nome}
-                    </motion.h3>
-
-                    {/* Email */}
-                    {agent.email && (
-                      <motion.div
-                        whileHover={{ scale: 1.02, backgroundColor: "rgba(243, 244, 246, 1)" }}
-                        transition={springTransition}
-                        className="flex items-center justify-center gap-2 text-gray-600 mb-6 p-2 bg-gray-50 rounded-lg w-full"
-                      >
-                        <Mail className="w-3 h-3" />
-                        <span className="text-xs truncate">{agent.email}</span>
-                      </motion.div>
-                    )}
-                  </div>
-
-                  {/* Botão de ver perfil */}
-                  <div className="relative z-10">
-                    <Link
-                      href={`/agente/${agent.id}`}
-                    >
-                      <motion.button
-                        variants={buttonHoverVariants}
-                        initial="rest"
-                        whileHover="hover"
-                        transition={fastSpringTransition}
-                        className={`w-full py-2.5 px-4 bg-purple-700 text-white font-semibold rounded-lg hover:bg-purple-800 transition-all duration-300 flex items-center justify-center gap-2 text-sm ${isHovered ? 'shadow-md' : ''
-                          }`}
-                      >
-                        <motion.span variants={iconHoverVariants}>
+                    {/* Botão formatado rounded-xl */}
+                    <div className="relative z-10">
+                      <Link href={`/agente/${agent.id}`}>
+                        <motion.button
+                          variants={buttonHoverVariants}
+                          className="w-full py-2.5 px-4 bg-[#6D28D9] text-white font-semibold rounded-xl hover:bg-purple-800 transition-all duration-300 flex items-center justify-center gap-2 text-sm shadow-md"
+                        >
                           <Sparkles className="w-4 h-4" />
-                        </motion.span>
-                        Ver Perfil Completo
-                      </motion.button>
-                    </Link>
-                  </div>
-
-                  {/* Efeito de hover sutil */}
-                  <div className={`absolute inset-0 bg-purple-700/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${isHovered ? 'opacity-100' : ''
-                    }`}></div>
+                          Ver Perfil
+                        </motion.button>
+                      </Link>
+                    </div>
+                  </motion.div>
                 </motion.div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
 
-                {/* Destaque no hover */}
-                <div className={`absolute inset-0 border-2 border-purple-300 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none ${isHovered ? 'opacity-100' : ''
-                  }`}></div>
-              </motion.div>
-            );
-          })}
-        </motion.div>
+          {/* Navigation Arrows (Circular as per request) */}
+          <div className="hidden lg:block">
+            <button className="swiper-prev-agents absolute top-1/2 -left-12 -translate-y-1/2 w-10 h-10 rounded-full bg-white border border-gray-100 shadow-lg flex items-center justify-center text-[#6D28D9] hover:bg-[#6D28D9] hover:text-white transition-all z-20">
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            <button className="swiper-next-agents absolute top-1/2 -right-12 -translate-y-1/2 w-10 h-10 rounded-full bg-white border border-gray-100 shadow-lg flex items-center justify-center text-[#6D28D9] hover:bg-[#6D28D9] hover:text-white transition-all z-20">
+              <ChevronRight className="w-6 h-6" />
+            </button>
+          </div>
+
+          {/* Pagination */}
+          <div className="swiper-pagination-agents flex justify-center gap-2 mt-4"></div>
+        </div>
       </div>
+
+      <style jsx global>{`
+        .swiper-pagination-agents .swiper-pagination-bullet {
+          width: 8px;
+          height: 8px;
+          background: #6D28D9;
+          opacity: 0.2;
+        }
+        .swiper-pagination-agents .swiper-pagination-bullet-active {
+          opacity: 1;
+          width: 20px;
+          border-radius: 4px;
+        }
+      `}</style>
     </motion.section>
   );
 }

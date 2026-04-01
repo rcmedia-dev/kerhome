@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { MapPin, Pencil, Trash, Clock, EyeOff } from 'lucide-react';
 import Image from 'next/image';
@@ -51,11 +51,10 @@ export function PendingPropertyCard({ property, onDelete }: { property: TPropert
         </div>
       )}
 
-      {/* Imagem com overlay */}
       <div className="relative h-60 w-full">
         <Image
-          src={property.image ?? "/placeholder-property.jpg"}
-          alt={property.title}
+          src={property.image || "/house.jpg"}
+          alt={property.title || "Imóvel"}
           fill
           className="object-cover grayscale-[20%]"
           priority={false}

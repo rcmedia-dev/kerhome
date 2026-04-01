@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { X, Search, Home, Check } from 'lucide-react';
@@ -111,8 +111,8 @@ const PropertyModalCard: React.FC<{
 }> = ({ property, isSelected, onToggle }) => (
   <div
     className={`border-2 rounded-2xl p-4 cursor-pointer transition-all duration-200 ${isSelected
-        ? 'border-purple-500 bg-purple-50'
-        : 'border-gray-200 hover:border-purple-300 bg-white'
+      ? 'border-purple-500 bg-purple-50'
+      : 'border-gray-200 hover:border-purple-300 bg-white'
       }`}
     onClick={onToggle}
   >
@@ -130,15 +130,15 @@ const PropertyModalCard: React.FC<{
           {property.title}
         </h4>
         <p className="text-orange-500 font-bold text-sm mb-1">
-          {property.price?.toLocaleString('pt-AO')} Kwanzas
+          {property.price?.toLocaleString('pt-AO')} Kz
         </p>
         <p className="text-gray-600 text-xs line-clamp-2">
           {property.description}
         </p>
       </div>
       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${isSelected
-          ? 'bg-purple-600 border-purple-600'
-          : 'border-gray-300'
+        ? 'bg-purple-600 border-purple-600'
+        : 'border-gray-300'
         }`}>
         {isSelected && <Check className="w-3 h-3 text-white" />}
       </div>

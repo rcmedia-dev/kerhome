@@ -1,8 +1,8 @@
-﻿'use client'
+'use client'
 
 import React from 'react'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { login } from '@/lib/functions/supabase-actions/login-action'
 import { useUserStore } from '@/lib/store/user-store' // <-- importa zustand
 
@@ -16,6 +16,8 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
   const [loading, setLoading] = React.useState(false)
   const setUser = useUserStore((state) => state.setUser) // <-- pega do zustand
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectUrl = searchParams.get('redirect') || searchParams.get('returnUrl')
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -70,8 +72,10 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
       })
     })
 
-    // Redirecionamento baseado na role
-    if (userData.role === 'admin') {
+    // Redirecionamento baseado na role ou no redirect solicitado
+    if (redirectUrl) {
+      router.push(redirectUrl)
+    } else if (userData.role === 'admin') {
       router.push('/admin/dashboard')
     } else {
       router.push('/dashboard')

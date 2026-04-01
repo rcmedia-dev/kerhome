@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -80,17 +80,18 @@ export default function Footer() {
               <p className="text-gray-400 mb-6 text-sm">
                 Receba as últimas novidades e oportunidades exclusivas diretamente no seu email. Sem spam.
               </p>
-              <form className="space-y-3">
+              <div className="space-y-3">
                 <input
                   type="email"
                   placeholder="Seu melhor email"
                   className="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all"
                 />
-                <button className="w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2 group">
-                  Subscrever
-                  <span className="group-hover:translate-x-1 transition-transform">â†’</span>
-                </button>
-              </form>
+                <Link href="/contato" className="block w-full">
+                  <button className="w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2 group">
+                    Subscrever
+                  </button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -99,7 +100,7 @@ export default function Footer() {
         <div className="mt-16 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 gap-4">
           <p>© {new Date().getFullYear()} RC Media. Todos os direitos reservados.</p>
           <div className="flex gap-6">
-            <span>Feito com â¤ï¸ em Angola</span>
+            <span>Feito com ❤️ em Angola</span>
           </div>
         </div>
 

@@ -27,7 +27,7 @@ export default function CompactPacotesDestaquePage() {
   const { user } = useUserStore();
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [properties, setProperties] = useState<TPropertyResponseSchema[]>([]);
   const [pacotes, setPacotes] = useState<PacoteDestaque[]>([]);
   const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
@@ -84,7 +84,7 @@ export default function CompactPacotesDestaquePage() {
   const loadPacotes = async () => {
     try {
       const pacotesData = await fetchPacotesFromSupabase();
-      
+
       if (pacotesData) {
         const mappedPacotes = mapPacotesFromSupabase(pacotesData);
         setPacotes(mappedPacotes);
@@ -101,15 +101,15 @@ export default function CompactPacotesDestaquePage() {
   };
 
   const togglePropertySelection = (propertyId: string) => {
-    setSelectedProperties(prev => prev.includes(propertyId) 
-      ? prev.filter(id => id !== propertyId) 
+    setSelectedProperties(prev => prev.includes(propertyId)
+      ? prev.filter(id => id !== propertyId)
       : [...prev, propertyId]
     );
   };
 
   const toggleModalPropertySelection = (propertyId: string) => {
-    setModalSelectedProperties(prev => prev.includes(propertyId) 
-      ? prev.filter(id => id !== propertyId) 
+    setModalSelectedProperties(prev => prev.includes(propertyId)
+      ? prev.filter(id => id !== propertyId)
       : [...prev, propertyId]
     );
   };
@@ -133,22 +133,22 @@ export default function CompactPacotesDestaquePage() {
   const handleCheckout = async () => {
     if (!selectedPacote) return toast.error('Selecione um pacote de destaque');
     if (selectedProperties.length === 0) return toast.error('Selecione pelo menos um imóvel');
-    
+
     setProcessing(true);
 
     try {
       const planoValido = pacotes.some(pacote => pacote.id === selectedPacote.id);
-      
+
       if (!planoValido) {
         toast.error('Plano selecionado não é válido');
         return;
       }
 
       await addPropertiesToBoost(selectedProperties, selectedPacote.id);
-      
+
       const total = selectedPacote.preco * selectedProperties.length;
       const servico = `Destaque - ${selectedPacote.nome} (${selectedPacote.dias} dias) para ${selectedProperties.length} imóvel(is)`;
-      
+
       await createFatura(user!.id, total, servico);
 
       toast.success(
@@ -156,7 +156,7 @@ export default function CompactPacotesDestaquePage() {
           <span className="font-semibold">✅ Destaque ativado com sucesso!</span>
           <span>{selectedProperties.length} imóvel(es) destacado(s)</span>
           <span>Plano: {selectedPacote.nome} - {selectedPacote.dias} dias</span>
-          <span>Total: {total.toLocaleString('pt-AO')} Kwanzas</span>
+          <span>Total: {total.toLocaleString('pt-AO')} Kz</span>
         </div>
       );
 

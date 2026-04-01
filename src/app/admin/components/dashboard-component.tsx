@@ -1,4 +1,4 @@
-﻿import { Building2, CheckCircle, DollarSign, LucideIcon, TrendingDown, TrendingUp, UserPlus, Users } from "lucide-react";
+import { Building2, CheckCircle, DollarSign, LucideIcon, TrendingDown, TrendingUp, UserPlus, Users } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 
@@ -66,7 +66,7 @@ export function RenderDashboard({ darkMode, activeProperties, registeredUsers, a
         />
         <StatCard
           title="Receita Mensal"
-          value="67.000 Kwanzas"
+          value="67.000 Kz"
           change={15}
           icon={DollarSign}
           color="green"

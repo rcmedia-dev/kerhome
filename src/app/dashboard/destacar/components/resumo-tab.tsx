@@ -1,4 +1,4 @@
-﻿import { PacoteDestaque } from "@/lib/types/defaults"
+import { PacoteDestaque } from "@/lib/types/defaults"
 import { BadgeCheck, Sparkles, Calendar, Shield, ArrowRight, X, MessageCircle, Copy, Building } from "lucide-react"
 import { useState } from "react"
 
@@ -26,13 +26,13 @@ const ResumoTab: React.FC<ResumoTabProps> = ({
 
   const handleWhatsAppConfirmation = () => {
     if (!selectedPacote) return
-    
+
     const phoneNumber = "955324708"
-    const message = `Olá! Gostaria de confirmar o pagamento para o destaque dos imóveis:\n\n*Pacote:* ${selectedPacote.nome}\n*Duração:* ${selectedPacote.dias} dias\n*Imóveis selecionados:* ${selectedProperties.length}\n*Valor total:* ${total.toLocaleString('pt-AO')} Kwanzas\n\nAnexo do comprovativo de pagamento.`
-    
+    const message = `Olá! Gostaria de confirmar o pagamento para o destaque dos imóveis:\n\n*Pacote:* ${selectedPacote.nome}\n*Duração:* ${selectedPacote.dias} dias\n*Imóveis selecionados:* ${selectedProperties.length}\n*Valor total:* ${total.toLocaleString('pt-AO')} Kz\n\nAnexo do comprovativo de pagamento.`
+
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, '_blank')
-    
+
     // Fecha o popup e prossegue com o fluxo normal
     setShowConfirmation(false)
     onCheckout()
@@ -88,7 +88,7 @@ const ResumoTab: React.FC<ResumoTabProps> = ({
                 </div>
                 <div className="text-right">
                   <div className="font-bold text-purple-700 text-lg">
-                    {selectedPacote.preco.toLocaleString('pt-AO')} Kwanzas
+                    {selectedPacote.preco.toLocaleString('pt-AO')} Kz
                   </div>
                   <div className="text-sm text-gray-600">por imóvel</div>
                 </div>
@@ -115,7 +115,7 @@ const ResumoTab: React.FC<ResumoTabProps> = ({
               <div className="flex justify-between items-center text-lg font-bold">
                 <span>Total a pagar:</span>
                 <span className="text-orange-500 text-xl">
-                  {total.toLocaleString('pt-AO')} Kwanzas
+                  {total.toLocaleString('pt-AO')} Kz
                 </span>
               </div>
 
@@ -177,18 +177,18 @@ const ResumoTab: React.FC<ResumoTabProps> = ({
                     <Building className="w-5 h-5 text-blue-600" />
                     <h4 className="font-bold text-blue-900">Dados Bancários</h4>
                   </div>
-                  
+
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-blue-700">Banco:</span>
                       <span className="font-semibold text-blue-900">{bankInfo.bankName}</span>
                     </div>
-                    
+
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-blue-700">Titular:</span>
                       <span className="font-semibold text-blue-900">{bankInfo.accountHolder}</span>
                     </div>
-                    
+
                     {/* <div className="flex justify-between items-center">
                       <span className="text-sm text-blue-700">Nº da Conta:</span>
                       <div className="flex items-center gap-2">
@@ -201,7 +201,7 @@ const ResumoTab: React.FC<ResumoTabProps> = ({
                         </button>
                       </div>
                     </div> */}
-                    
+
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-blue-700">IBAN:</span>
                       <div className="flex items-center gap-2">
@@ -214,7 +214,7 @@ const ResumoTab: React.FC<ResumoTabProps> = ({
                         </button>
                       </div>
                     </div>
-                    
+
                     <div className="flex justify-between items-center">
                       {/* <span className="text-sm text-blue-700">NIB:</span> */}
                       {/* <div className="flex items-center gap-2">
@@ -228,7 +228,7 @@ const ResumoTab: React.FC<ResumoTabProps> = ({
                       </div> */}
                     </div>
                   </div>
-                  
+
                   {copiedField && (
                     <div className="mt-3 text-xs text-green-600 text-center">
                       {copiedField === 'account' && 'Número da conta copiado!'}
@@ -256,7 +256,7 @@ const ResumoTab: React.FC<ResumoTabProps> = ({
                   <div className="flex justify-between border-t pt-2">
                     <span className="text-gray-600 font-semibold">Total:</span>
                     <span className="font-bold text-orange-500 text-lg">
-                      {total.toLocaleString('pt-AO')} Kwanzas
+                      {total.toLocaleString('pt-AO')} Kz
                     </span>
                   </div>
                 </div>

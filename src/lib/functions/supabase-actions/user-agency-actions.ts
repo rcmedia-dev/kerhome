@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
@@ -7,20 +7,36 @@ import { updateImobiliariaAction } from './admin-imobiliaria-actions';
 export async function getUserAgency(userId: string) {
   try {
     const supabase = await createClient();
-    const { data, error } = await supabase
+    
+    // 1. Tentar encontrar a imobiliária onde o utilizador é o DONO
+    const { data: ownerAgency } = await supabase
       .from('imobiliarias')
       .select('*')
       .eq('owner_id', userId)
       .maybeSingle();
 
-    if (error) {
-      console.error('Erro ao buscar agência do usuário:', error);
-      return null;
+    if (ownerAgency) return ownerAgency;
+
+    // 2. Se não for dono, verificar no perfil se ele é um MEMBRO vinculado
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('imobiliaria_id')
+      .eq('id', userId)
+      .single();
+
+    if (profile?.imobiliaria_id) {
+      const { data: memberAgency } = await supabase
+        .from('imobiliarias')
+        .select('*')
+        .eq('id', profile.imobiliaria_id)
+        .maybeSingle();
+      
+      return memberAgency;
     }
 
-    return data;
+    return null;
   } catch (error) {
-    console.error('Erro ao buscar agência do usuário:', error);
+    console.error('Erro ao buscar agência do utilizador:', error);
     return null;
   }
 }

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { MapPin, BedDouble, Ruler, Pencil, Trash, Heart, Share2, Zap, AlertCircle, ShieldAlert, Tag, Building2, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
@@ -347,52 +347,18 @@ export function PropertyCard({ property, canBoost = true, onDelete }: PropertyCa
         <div className="flex items-center gap-2 mb-4">
           <Tag className="w-5 h-5 text-[#F97316] -rotate-90" />
           <span className="text-2xl font-bold text-[#F97316]">
-            {property.price?.toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Kwanzas
+            {property.price?.toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Kz
           </span>
         </div>
 
-        {/* Advertiser Row (Agency vs Individual) */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100 gap-3">
-          {property.imobiliarias ? (
-            <Link 
-              href={`/imobiliarias/${property.imobiliarias.slug}`}
-              className="flex items-center gap-2 group/agency overflow-hidden"
-            >
-              <div className="w-7 h-7 rounded border border-gray-100 overflow-hidden shrink-0">
-                {property.imobiliarias.logo ? (
-                  <img src={property.imobiliarias.logo} alt={property.imobiliarias.nome} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-purple-50 flex items-center justify-center">
-                    <Building2 className="w-3.5 h-3.5 text-purple-400" />
-                  </div>
-                )}
-              </div>
-              <span className="text-xs font-bold text-gray-700 truncate group-hover/agency:text-purple-600 transition-colors">
-                {property.imobiliarias.nome}
-              </span>
-            </Link>
-          ) : (
-            property.owner?.primeiro_nome ? (
-              <div className="flex items-center gap-2 mt-3 text-sm text-gray-500 border-t pt-3">
-                <div className="w-6 h-6 rounded-full overflow-hidden relative bg-gray-100 flex-shrink-0">
-                  <Image
-                    src={(property.owner as any).avatar_url || "/avatar-placeholder.png"}
-                    alt={(property.owner as any).primeiro_nome || "Corretor"}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <span className="truncate">{(property.owner as any).primeiro_nome} {(property.owner as any).ultimo_nome}</span>
-              </div>
-          ) : (
-            <span></span>
-          ))}
-          
+        {/* Action Button */}
+        <div className="pt-4 mt-auto border-t border-gray-100">
           <Link
             href={`/propriedades/${property.id}`}
-            className="p-2 rounded-full bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white transition-all shrink-0"
+            className="w-full bg-[#F97316] hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl text-center transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm"
           >
-            <ArrowRight size={16} />
+            <span>Ver Detalhes</span>
+            <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
           </Link>
         </div>
 

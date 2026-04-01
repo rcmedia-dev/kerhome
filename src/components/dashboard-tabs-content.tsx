@@ -1,4 +1,4 @@
-﻿import React, { useState, useTransition, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useTransition, useCallback, useEffect, useMemo } from 'react';
 import { CheckCircle2, Heart, TrendingUp, Calendar, DollarSign, AlertTriangle, Download, Trash2, RefreshCw, ShieldAlert, Eye, Building2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
@@ -120,21 +120,24 @@ export function MinhasPropriedades({ userProperties }: MinePropertiesProps) {
                 icon={AlertTriangle}
               >
                 <AnimatePresence mode="popLayout">
-                  {[...pending, ...suspended].map((property) => (
-                    <motion.div
-                      key={property.id}
-                      layout
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                    >
-                      {property.aprovement_status === 'pending' ? (
-                        <PendingPropertyCard property={property} onDelete={() => handleOptimisticDelete(property.id)} />
-                      ) : (
-                        <RejectedPropertyCard property={property} onDelete={() => handleOptimisticDelete(property.id)} />
-                      )}
-                    </motion.div>
-                  ))}
+                  {[...pending, ...suspended].map((property) => {
+                    if (!property?.id) return null;
+                    return (
+                      <motion.div
+                        key={property.id}
+                        layout
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                      >
+                        {property.aprovement_status === 'pending' ? (
+                          <PendingPropertyCard property={property} onDelete={() => handleOptimisticDelete(property.id)} />
+                        ) : (
+                          <RejectedPropertyCard property={property} onDelete={() => handleOptimisticDelete(property.id)} />
+                        )}
+                      </motion.div>
+                    );
+                  })}
                 </AnimatePresence>
                 {pending.length === 0 && suspended.length === 0 && (
                   <div className="p-12 text-center border-2 border-dashed border-gray-100 rounded-3xl">
@@ -150,20 +153,23 @@ export function MinhasPropriedades({ userProperties }: MinePropertiesProps) {
                 icon={CheckCircle2}
               >
                 <AnimatePresence mode="popLayout">
-                  {approved.map((property) => (
-                    <motion.div
-                      key={property.id}
-                      layout
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                    >
-                      <PropertyCard
-                        property={property}
-                        canBoost={suspended.length <= 1}
-                        onDelete={() => handleOptimisticDelete(property.id)}
-                      />
-                    </motion.div>
-                  ))}
+                  {approved.map((property) => {
+                    if (!property?.id) return null;
+                    return (
+                      <motion.div
+                        key={property.id}
+                        layout
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                      >
+                        <PropertyCard
+                          property={property}
+                          canBoost={suspended.length <= 1}
+                          onDelete={() => handleOptimisticDelete(property.id)}
+                        />
+                      </motion.div>
+                    );
+                  })}
                 </AnimatePresence>
                 {approved.length === 0 && (
                   <div className="p-12 text-center border-2 border-dashed border-gray-100 rounded-3xl">
@@ -344,7 +350,7 @@ export function Faturas({ invoices }: FaturasProps) {
                     >
                       <div className="flex justify-between items-start mb-2">
                         <span className="font-semibold text-gray-800">{toPascalCase(fatura.servico)}</span>
-                        <span className="font-bold text-orange-600">{fatura.valor.toLocaleString('pt-AO')} Kwanzas</span>
+                        <span className="font-bold text-orange-600">{fatura.valor.toLocaleString('pt-AO')} Kz</span>
                       </div>
                       <div className="flex justify-between items-center mt-3">
                         <div className="flex items-center gap-1.5 text-xs text-gray-500">
@@ -382,7 +388,7 @@ export function Faturas({ invoices }: FaturasProps) {
                     >
                       <div className="flex justify-between items-start mb-2">
                         <span className="font-semibold text-gray-800">{toPascalCase(fatura.servico)}</span>
-                        <span className="font-bold text-green-700">{fatura.valor.toLocaleString('pt-AO')} Kwanzas</span>
+                        <span className="font-bold text-green-700">{fatura.valor.toLocaleString('pt-AO')} Kz</span>
                       </div>
                       <div className="flex justify-between items-center mt-3">
                         <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-wider">

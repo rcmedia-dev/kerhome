@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Utilitários para formatação de dados
  * Centralizar funções reutilizáveis
  */
@@ -25,8 +25,8 @@ export const formatPrice = (
   }
 
   try {
-    const numericValue = typeof value === 'number' 
-      ? value 
+    const numericValue = typeof value === 'number'
+      ? value
       : parseInt(String(value).replace(/\D/g, ''), 10);
 
     if (isNaN(numericValue)) {
@@ -66,8 +66,8 @@ export const formatCurrency = (
   }
 
   try {
-    const numericValue = typeof value === 'number' 
-      ? value 
+    const numericValue = typeof value === 'number'
+      ? value
       : parseInt(String(value).replace(/\D/g, ''), 10);
 
     if (isNaN(numericValue)) {
@@ -81,7 +81,7 @@ export const formatCurrency = (
     }).format(numericValue);
 
     if (currency === 'AOA') {
-      return `${formattedValue} Kwanzas`;
+      return `${formattedValue} Kz`;
     }
 
     return new Intl.NumberFormat(locale, {
@@ -133,7 +133,7 @@ export const formatDate = (
 
   try {
     const dateObj = typeof date === 'string' ? new Date(date) : date;
-    
+
     if (isNaN(dateObj.getTime())) {
       return '';
     }
@@ -169,7 +169,7 @@ export const formatDateTime = (
 
   try {
     const dateObj = typeof date === 'string' ? new Date(date) : date;
-    
+
     if (isNaN(dateObj.getTime())) {
       return '';
     }
@@ -273,14 +273,14 @@ export const capitalize = (text: string): string => {
  */
 export const formatPhone = (phone: string): string => {
   if (!phone) return '';
-  
+
   const cleaned = phone.replace(/\D/g, '');
-  
+
   // Angola format: +244 9XX XXX XXX
   if (cleaned.startsWith('244')) {
     return `+${cleaned.slice(0, 3)} ${cleaned.slice(3, 6)} ${cleaned.slice(6, 9)} ${cleaned.slice(9)}`;
   }
-  
+
   return phone;
 };
 

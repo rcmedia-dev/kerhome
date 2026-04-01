@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import useEmblaCarousel from "embla-carousel-react";
 import Image from 'next/image';
@@ -158,7 +158,7 @@ export default function FeaturedCarousel({ property }: FeaturedCarouselProps) {
                         {/* Preço em destaque */}
                         <div className="flex items-center justify-between mb-3">
                           <span className="text-2xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
-                            {property.price?.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}
+                            {property.price?.toLocaleString('pt-AO')} Kz
                           </span>
                         </div>
 

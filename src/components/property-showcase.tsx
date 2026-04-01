@@ -1,9 +1,15 @@
-﻿'use client'
+'use client'
 
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Pagination } from 'swiper/modules';
 import Link from "next/link";
 import { TPropertyResponseSchema } from '@/lib/types/property';
 import { PropertyCard } from '@/components/property-card';
 import { motion, Variants, Transition } from 'framer-motion';
+
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/pagination';
 
 type PropertiesShowCaseProps = {
   property: TPropertyResponseSchema[];
@@ -246,46 +252,38 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
         </motion.p>
       </motion.div>
 
-      <motion.div 
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.1 }}
-        className="relative flex justify-center mx-auto max-w-7xl"
-      >
-        {inline ? (
-          <motion.div 
-            className="flex flex-col sm:flex-row gap-6 items-center sm:items-stretch overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-orange-300 scrollbar-track-orange-100"
-          >
-            {limitedProperties.map((property, index) => (
+      <div className="relative mx-auto w-full max-w-[1400px]">
+        <Swiper
+          modules={[Autoplay, Pagination]}
+          spaceBetween={30}
+          slidesPerView={1.2}
+          autoplay={{
+            delay: 4000,
+            disableOnInteraction: false,
+            reverseDirection: true
+          }}
+          pagination={{
+            clickable: true,
+            el: '.swiper-pagination-properties',
+          }}
+          breakpoints={{
+            640: { slidesPerView: 1.5, spaceBetween: 20 },
+            768: { slidesPerView: 2.2, spaceBetween: 25 },
+            1024: { slidesPerView: 3.2, spaceBetween: 30 },
+            1280: { slidesPerView: 3.5, spaceBetween: 30 },
+          }}
+          className="pb-20 !px-4"
+        >
+          {limitedProperties.map((property, index) => (
+            <SwiperSlide key={property.id} className="h-full">
               <motion.div 
-                key={property.id} 
                 variants={propertyCardVariants}
                 transition={{
                   ...springTransition,
                   delay: index * 0.1,
                   duration: 0.6
                 }}
-                className="min-w-[300px] flex-1 sm:flex-none"
-              >
-                <PropertyCard property={property} />
-              </motion.div>
-            ))}
-          </motion.div>
-        ) : (
-          <motion.div 
-            className="flex flex-col items-center sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-center"
-          >
-            {limitedProperties.map((property, index) => (
-              <motion.div 
-                key={property.id} 
-                variants={propertyCardVariants}
-                transition={{
-                  ...springTransition,
-                  delay: index * 0.1,
-                  duration: 0.6
-                }}
-                className="w-11/12 sm:w-auto"
+                className="h-full mb-2"
                 whileHover={{
                   y: -5,
                   transition: {
@@ -297,10 +295,13 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
               >
                 <PropertyCard property={property} />
               </motion.div>
-            ))}
-          </motion.div>
-        )}
-      </motion.div>
+            </SwiperSlide>
+          ))}
+          
+          {/* Custom Pagination Container */}
+          <div className="swiper-pagination-properties flex justify-center gap-2 mt-8"></div>
+        </Swiper>
+      </div>
 
       {/* Botão "Ver mais propriedades" */}
       <motion.div 
@@ -355,6 +356,23 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
       >
         <div className="h-px w-32 bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
       </motion.div>
+
+      {/* Estilos customizados para a paginação laranja */}
+      <style jsx global>{`
+        .swiper-pagination-properties .swiper-pagination-bullet {
+          width: 10px;
+          height: 10px;
+          background: #f97316;
+          opacity: 0.2;
+          transition: all 0.3s ease;
+        }
+        .swiper-pagination-properties .swiper-pagination-bullet-active {
+          opacity: 1;
+          width: 28px;
+          border-radius: 5px;
+          background: #f97316;
+        }
+      `}</style>
     </motion.section>
   );
 }

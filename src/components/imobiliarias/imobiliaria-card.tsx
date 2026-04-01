@@ -15,11 +15,11 @@ export function ImobiliariaCard({ imobiliaria }: ImobiliariaCardProps) {
 
   return (
     <div className="group relative w-full bg-white rounded-[2rem] shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col overflow-hidden border border-gray-100 pb-2 h-full">
-      
+
       {/* IMAGEM (LOGO CONTAINER) */}
       <div className="relative h-[250px] w-full bg-gray-50 overflow-hidden shrink-0 flex items-center justify-center p-8">
         <Link href={`/imobiliaria/${imobiliaria.slug}`} className="absolute inset-0 z-10" />
-        
+
         {imobiliaria.logo ? (
           <div className="relative w-full h-full">
             <Image
@@ -39,8 +39,8 @@ export function ImobiliariaCard({ imobiliaria }: ImobiliariaCardProps) {
         {/* Badges - Top Left */}
         <div className="absolute top-4 left-4 z-20">
           {imobiliaria.verificada ? (
-            <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-blue-500/90 backdrop-blur-md text-white text-xs font-black shadow-lg border border-white/20 uppercase tracking-wider">
-              <BadgeCheck className="w-4 h-4" />
+            <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#6D28D9]/90 backdrop-blur-md text-white text-xs font-black shadow-lg border border-white/20 uppercase tracking-wider">
+              <BadgeCheck className="w-4 h-4 text-white" />
               Verificada
             </div>
           ) : (
@@ -53,7 +53,7 @@ export function ImobiliariaCard({ imobiliaria }: ImobiliariaCardProps) {
 
       {/* INFO CONTENT */}
       <div className="flex-1 px-6 pt-6 pb-5 flex flex-col relative">
-        
+
         {/* Location Row */}
         <div className="flex items-center gap-2 text-gray-500 text-sm mb-2 font-medium">
           <MapPin className="w-4 h-4 text-orange-500" />
@@ -77,7 +77,7 @@ export function ImobiliariaCard({ imobiliaria }: ImobiliariaCardProps) {
             </div>
             <span className="font-black text-gray-900">{count} {count === 1 ? 'Imóvel' : 'Imóveis'}</span>
           </div>
-          
+
           <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-purple-600 bg-purple-50 px-3 py-1.5 rounded-full">
             Full Portfolio
           </div>
@@ -88,14 +88,16 @@ export function ImobiliariaCard({ imobiliaria }: ImobiliariaCardProps) {
           Especialistas em consultoria imobiliária no mercado de {imobiliaria.cidade}. Encontre o seu lar com segurança.
         </p>
 
-        {/* Button - Redesigned to match Property Card exactly */}
-        <Link
-          href={`/imobiliaria/${imobiliaria.slug}`}
-          className="group/btn w-full bg-[#820AD1] hover:bg-orange-500 text-white font-black py-4 rounded-2xl text-center transition-all duration-500 shadow-xl shadow-purple-500/10 hover:shadow-orange-500/20 text-sm uppercase tracking-widest flex items-center justify-center gap-2 mt-auto"
-        >
-          Ver Perfil
-          <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-        </Link>
+        {/* Button - Expanded to match Property Card exactly */}
+        <div className="pt-4 mt-auto border-t border-gray-100">
+          <Link
+            href={`/imobiliaria/${imobiliaria.slug}`}
+            className="w-full bg-[#F97316] hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl text-center transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm"
+          >
+            <span>Ver Perfil</span>
+            <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+          </Link>
+        </div>
 
       </div>
     </div>

@@ -1,4 +1,4 @@
-﻿import { PacoteDestaque } from "@/lib/types/defaults";
+import { PacoteDestaque } from "@/lib/types/defaults";
 import { Medal, Lock } from "lucide-react";
 import { ProgressStep } from "@/app/dashboard/destacar/components/progress-step";
 
@@ -17,9 +17,8 @@ const ProgressSidebar: React.FC<ProgressSidebarProps> = ({
 }) => (
   <div className="lg:col-span-1">
     <div
-      className={`bg-white rounded-2xl shadow-xl p-6 sticky top-6 transition ${
-        isBoosted ? "opacity-60 pointer-events-none" : ""
-      }`}
+      className={`bg-white rounded-2xl shadow-xl p-6 sticky top-6 transition ${isBoosted ? "opacity-60 pointer-events-none" : ""
+        }`}
     >
       <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
         <Medal className="w-5 h-5 text-purple-600" />
@@ -53,7 +52,7 @@ const ProgressSidebar: React.FC<ProgressSidebarProps> = ({
                 <div className="flex justify-between text-sm mb-1">
                   <span>Pacote {selectedPacote.nome}:</span>
                   <span className="font-semibold">
-                    {selectedPacote.preco.toLocaleString("pt-AO")} Kwanzas
+                    {selectedPacote.preco.toLocaleString("pt-AO")} Kz
                   </span>
                 </div>
               )}
@@ -69,7 +68,7 @@ const ProgressSidebar: React.FC<ProgressSidebarProps> = ({
                 <div className="flex justify-between text-lg font-bold border-t pt-2">
                   <span>Total:</span>
                   <span className="text-orange-500">
-                    {total.toLocaleString("pt-AO")} Kwanzas
+                    {total.toLocaleString("pt-AO")} Kz
                   </span>
                 </div>
               )}

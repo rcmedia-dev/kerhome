@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { BadgeDollarSign, HandCoins, KeyRound, ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
@@ -131,7 +131,7 @@ export default function ActionCardsSection() {
       gradient: 'from-orange-500 to-amber-600',
       hoverGradient: 'from-orange-600 to-amber-700',
       bgColor: 'bg-gradient-to-br from-orange-50 to-amber-50',
-      href: '/propriedades',
+      href: '/contato',
     },
     {
       title: 'Vender casa',

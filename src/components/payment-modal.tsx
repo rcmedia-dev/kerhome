@@ -1,5 +1,5 @@
-﻿import { CreditCard, X, Sparkles, Building2, CheckCircle2, Clock } from "lucide-react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { CreditCard, X, Sparkles, Building2, CheckCircle2, Clock } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 
 
@@ -33,7 +33,8 @@ export function PaymentModal({
   return (
     <Dialog open={showPaymentModal} onOpenChange={(open) => !open && cancelPayment()}>
       <DialogContent className="sm:max-w-[525px] max-h-[90vh] overflow-y-auto p-0 rounded-2xl border-0 shadow-2xl bg-white">
-        <DialogTitle />
+        <DialogTitle className="sr-only">Confirmar Pagamento do Plano</DialogTitle>
+        <DialogDescription className="sr-only">Confirmar a subscrição do plano selecionado e visualizar dados de pagamento.</DialogDescription>
 
         {/* Header fixo */}
         <div className="bg-purple-700 p-6 sticky top-0 z-10">

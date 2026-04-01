@@ -1,4 +1,4 @@
-﻿import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { Imobiliaria } from "@/lib/types/imobiliaria";
 
 export interface ImobiliariaSearchParams {
@@ -8,17 +8,19 @@ export interface ImobiliariaSearchParams {
   verificada?: boolean;
   ordem?: string; // ordenamento: 'mais_imoveis', 'recentes', 'destaque'
   q?: string; // busca por nome
+  page?: number;
+  limit?: number;
 }
 
 /**
  * Busca imobiliárias com filtros
  */
 export async function fetchImobiliarias(params: ImobiliariaSearchParams = {}) {
-  const { cidade, bairro, tipo_imovel, verificada, ordem, q } = params;
+  const { cidade, bairro, tipo_imovel, verificada, ordem, q, page, limit } = params;
 
   let query = supabase
     .from("v_imobiliaria_stats")
-    .select("*")
+    .select("*", { count: "exact" })
     .eq('status', 'approved');
 
   if (verificada !== undefined) {
@@ -37,11 +39,26 @@ export async function fetchImobiliarias(params: ImobiliariaSearchParams = {}) {
     query = query.ilike("nome", `%${q}%`);
   }
 
-  const { data, error } = await query;
+  // Ordenação no banco
+  if (ordem === 'mais_imoveis') {
+    query = query.order("total_imoveis", { ascending: false });
+  } else if (ordem === 'destaque') {
+    query = query.order("verificada", { ascending: false }).order("created_at", { ascending: false });
+  } else {
+    query = query.order("created_at", { ascending: false });
+  }
+
+  if (page !== undefined && limit !== undefined) {
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+    query = query.range(from, to);
+  }
+
+  const { data, error, count } = await query;
 
   if (error) {
-    console.error("âŒ Erro detalhado Supabase fetchImobiliarias:", error.message, "| Code:", error.code, "| Details:", error.details);
-    return [];
+    console.error("❌ Erro detalhado Supabase fetchImobiliarias:", error.message, "| Code:", error.code, "| Details:", error.details);
+    return { data: [], count: 0 };
   }
 
   // Mapear e aplicar transformações básicas se necessário
@@ -77,7 +94,7 @@ export async function fetchImobiliarias(params: ImobiliariaSearchParams = {}) {
     delete item._has_tipo;
   });
 
-  return mapped as Imobiliaria[];
+  return { data: mapped as Imobiliaria[], count: count || 0 };
 }
 
 /**
@@ -235,7 +252,7 @@ export async function fetchSimilarAgencies(localizacao: string, currentId: strin
       .neq("id", currentId)
       .order("created_at", { ascending: false })
       .limit(4);
-      
+
     if (!fallbackError && fallbackData) {
       return fallbackData as Imobiliaria[];
     }

@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Zap,
   Clock,
@@ -676,16 +676,16 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key as any)}
                   className={`flex-1 py-3 px-4 rounded-xl text-center transition-all duration-200 ${activeTab === tab.key
-                      ? "bg-white dark:bg-gray-600 text-purple-600 dark:text-purple-400 shadow-sm"
-                      : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-600/50"
+                    ? "bg-white dark:bg-gray-600 text-purple-600 dark:text-purple-400 shadow-sm"
+                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-600/50"
                     }`}
                 >
                   <div className="flex items-center justify-center gap-2">
                     <Icon size={18} />
                     <span className="font-semibold">{tab.label}</span>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${activeTab === tab.key
-                        ? 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400'
-                        : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-400'
+                      ? 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400'
+                      : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-400'
                       }`}>
                       {tab.count}
                     </span>
@@ -729,7 +729,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
                 <div
                   key={property.id}
                   className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-200 group ${isSuspended ? 'ring-2 ring-red-500 ring-opacity-50' :
-                      isDeboosted ? 'opacity-75' : ''
+                    isDeboosted ? 'opacity-75' : ''
                     }`}
                 >
                   {/* Property Image */}
@@ -762,10 +762,10 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
                       <div className="absolute bottom-0 left-0 right-0 bg-gray-200 dark:bg-gray-700 h-1">
                         <div
                           className={`h-full ${timeLeft.percentage > 50
-                              ? 'bg-green-500'
-                              : timeLeft.percentage > 20
-                                ? 'bg-yellow-500'
-                                : 'bg-red-500'
+                            ? 'bg-green-500'
+                            : timeLeft.percentage > 20
+                              ? 'bg-yellow-500'
+                              : 'bg-red-500'
                             }`}
                           style={{ width: `${timeLeft.percentage}%` }}
                         />
@@ -786,7 +786,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
 
                     <div className="flex justify-between items-center mb-3">
                       <span className="text-lg font-bold text-purple-600 dark:text-purple-400">
-                        {property.price.toLocaleString('pt-AO')} Kwanzas
+                        {property.price.toLocaleString('pt-AO')} Kz
                       </span>
                       <div className="flex items-center gap-1 text-sm text-gray-500">
                         <Eye size={14} />
@@ -814,8 +814,8 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
                             property.boost_status === 'expired' ? 'Desimpul. em:' : 'Solicitado em:'}
                         </span>
                         <span className={`font-medium ${property.boost_status === 'active'
-                            ? (isExpired ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400')
-                            : 'text-gray-600 dark:text-gray-400'
+                          ? (isExpired ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400')
+                          : 'text-gray-600 dark:text-gray-400'
                           }`}>
                           {property.boost_status === 'active'
                             ? timeLeft.text

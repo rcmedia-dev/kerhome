@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { getAgents } from "@/lib/functions/supabase-actions/get-agents"
 import { useQuery } from "@tanstack/react-query"
@@ -59,7 +59,7 @@ export default function CorretoresEmDestaque() {
                 {agent.primeiro_nome} {agent.ultimo_nome}
               </p>
 
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-[#6D28D9] font-bold">
                 Agente Verificado
               </p>
             </div>

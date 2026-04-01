@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useTransition } from 'react';
-import { Users, Mail, UserPlus, Clock, CheckCircle2, Copy, ExternalLink, Loader2, Trash2, ShieldCheck, Shield } from 'lucide-react';
+import { Users, Mail, UserPlus, Clock, CheckCircle2, Copy, ExternalLink, Loader2, Trash2, ShieldCheck, Shield, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { getAgencyInvites, sendAgencyInvite } from '@/lib/functions/supabase-actions/agency-invites';
@@ -20,7 +20,7 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
     const [isInviting, setIsInviting] = useState(false);
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [inviteEmail, setInviteEmail] = useState('');
-    const [generatedLink, setGeneratedLink] = useState<string | null>(null);
+    const [inviteSent, setInviteSent] = useState(false);
 
     const loadData = async () => {
         setLoading(true);
@@ -51,8 +51,8 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
         try {
             const result = await sendAgencyInvite(inviteEmail, agencyId);
             if (result.success) {
-                toast.success('Convite gerado com sucesso!');
-                setGeneratedLink(result.inviteLink || null);
+                toast.success('Convite enviado com sucesso!');
+                setInviteSent(true);
                 loadData();
             } else {
                 toast.error(result.error || 'Erro ao enviar convite.');
@@ -101,7 +101,7 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
                 <button
                     onClick={() => {
                         setShowInviteModal(true);
-                        setGeneratedLink(null);
+                        setInviteSent(false);
                         setInviteEmail('');
                     }}
                     className="bg-[#820AD1] hover:bg-[#6A08AA] text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-purple-200 flex items-center justify-center gap-2 text-sm"
@@ -216,30 +216,42 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
                     <motion.div 
                         initial={{ scale: 0.95, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className="w-full max-w-md max-h-[90vh] overflow-y-auto bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 shadow-2xl relative custom-scrollbar flex flex-col"
+                        className="w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl relative flex flex-col"
                     >
-                        <div className="mb-6">
-                            <h3 className="text-xl font-bold text-white tracking-tight">Convidar Corretor</h3>
-                            <p className="text-white/60 text-xs mt-1">
-                                Envie um link de acesso exclusivo para o seu novo colega de equipa.
-                            </p>
-                        </div>
+                        {/* Botão de Fechar */}
+                        <button 
+                            onClick={() => setShowInviteModal(false)}
+                            className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-full hover:bg-gray-100"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+
+                        <DialogHeader className="mb-8 p-0">
+                            <DialogTitle className="text-2xl font-bold text-gray-900 tracking-tight text-left">
+                                {!inviteSent ? 'Convidar Corretor' : 'Convite Enviado!'}
+                            </DialogTitle>
+                            <DialogDescription className="text-gray-500 text-sm mt-2 text-left">
+                                {!inviteSent 
+                                    ? 'Envie um link de acesso exclusivo para o seu novo colega de equipa.' 
+                                    : 'O processo de convite foi iniciado com sucesso.'}
+                            </DialogDescription>
+                        </DialogHeader>
 
                         <div className="space-y-6">
-                            {!generatedLink ? (
-                                <form onSubmit={handleSendInvite} className="space-y-4">
+                            {!inviteSent ? (
+                                <form onSubmit={handleSendInvite} className="space-y-6">
                                     <div>
-                                        <label className="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-2 ml-1">
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">
                                             E-mail do Profissional
                                         </label>
                                         <div className="relative">
-                                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                             <input
                                                 type="email"
                                                 value={inviteEmail}
                                                 onChange={(e) => setInviteEmail(e.target.value)}
-                                                placeholder="exemplo@email.com"
-                                                className="w-full pl-12 pr-4 py-4 rounded-xl bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500 transition-all outline-none font-medium text-white placeholder-white/20"
+                                                placeholder="exemplo@kercasa.com"
+                                                className="w-full pl-12 pr-4 py-4 rounded-xl bg-gray-50 border border-gray-200 focus:border-purple-600 focus:ring-2 focus:ring-purple-600/10 transition-all outline-none font-medium text-gray-900 placeholder-gray-400"
                                                 required
                                             />
                                         </div>
@@ -247,42 +259,26 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
                                     <button
                                         type="submit"
                                         disabled={isInviting}
-                                        className="w-full bg-[#820AD1] hover:bg-[#6A08AA] text-white py-4 rounded-xl font-bold transition-all shadow-xl shadow-purple-500/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                                        className="w-full bg-[#820AD1] hover:bg-[#6A08AA] text-white py-4 rounded-xl font-bold transition-all shadow-xl shadow-purple-500/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isInviting ? <Loader2 className="w-5 h-5 animate-spin" /> : <UserPlus className="w-5 h-5" />}
-                                        Enviar Convite
+                                        {isInviting ? 'Gerando...' : 'Enviar Convite'}
                                     </button>
                                 </form>
                             ) : (
                                 <div className="space-y-6 animate-in fade-in duration-500">
-                                    <div className="bg-green-500/10 p-6 rounded-2xl border border-green-500/20 text-center">
+                                    <div className="bg-green-50 p-6 rounded-2xl border border-green-100 text-center">
                                         <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg shadow-green-500/20">
                                             <CheckCircle2 className="w-6 h-6 text-white" />
                                         </div>
-                                        <h4 className="font-bold text-white text-lg mb-1">Convite Gerado!</h4>
-                                        <p className="text-white/60 text-xs font-medium">
-                                            Partilhe o link abaixo. O link expira em 48 horas.
+                                        <p className="text-gray-600 text-sm font-medium mt-4">
+                                            O corretor receberá um e-mail para aceitar ou recusar a entrada na sua agência.
                                         </p>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <p className="text-[10px] font-black text-white/40 uppercase tracking-widest ml-1 text-center">Link de Acesso:</p>
-                                        <div className="flex gap-2">
-                                            <div className="flex-1 bg-white/5 p-4 rounded-xl border border-white/10 text-[10px] font-mono text-white/60 truncate">
-                                                {generatedLink}
-                                            </div>
-                                            <button
-                                                onClick={() => copyToClipboard(generatedLink)}
-                                                className="bg-white text-black p-4 rounded-xl hover:bg-gray-200 transition-all shadow-lg shrink-0"
-                                            >
-                                                <Copy className="w-5 h-5" />
-                                            </button>
-                                        </div>
                                     </div>
 
                                     <button
                                         onClick={() => setShowInviteModal(false)}
-                                        className="w-full py-2 text-white/40 hover:text-white transition-all text-xs font-bold mt-2"
+                                        className="w-full py-3 bg-[#820AD1] hover:bg-[#6A08AA] text-white rounded-xl transition-all text-sm font-bold shadow-md shadow-purple-500/20"
                                     >
                                         Fechar Janela
                                     </button>

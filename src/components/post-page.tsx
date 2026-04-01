@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react';
 import {
@@ -65,7 +65,7 @@ const PropertyAd = ({ property, layout = 'horizontal' }: { property: TPropertyRe
           />
           <div className="absolute top-2 left-2 bg-purple-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider shadow-lg">Sugestão Kercasa</div>
           <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md text-white px-3 py-1 rounded-lg text-xs font-bold">
-            {property.price?.toLocaleString()} Kwanzas
+            {property.price?.toLocaleString()} Kz
           </div>
         </div>
         <h4 className="text-gray-900 font-bold text-sm leading-tight group-hover:text-purple-700 transition-colors line-clamp-2">
@@ -97,7 +97,7 @@ const PropertyAd = ({ property, layout = 'horizontal' }: { property: TPropertyRe
             </h3>
             <div className="flex items-center justify-center md:justify-start gap-4">
               <span className="text-2xl font-black text-gray-900 line-clamp-1">
-                {property.price?.toLocaleString()} <span className="text-sm font-bold text-gray-400 uppercase">Kwanzas</span>
+                {property.price?.toLocaleString()} <span className="text-sm font-bold text-gray-400 uppercase">Kz</span>
               </span>
               <div className="w-px h-6 bg-gray-200" />
               <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">{property.bairro || property.cidade}</span>
