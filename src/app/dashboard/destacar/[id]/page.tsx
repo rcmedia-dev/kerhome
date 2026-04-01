@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 
@@ -23,7 +23,7 @@ import ProgressSidebar from '@/app/dashboard/destacar/components/progress-sideba
 
 
 
-export default function CompactPacotesDestaquePage() {
+function DestacarContent() {
   const { user } = useUserStore();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -203,32 +203,32 @@ export default function CompactPacotesDestaquePage() {
             {/* Main Content */}
             <div className="lg:col-span-2">
               {activeTab === 'imoveis' && (
-                <ImoveisTab
-                  specificProperty={specificProperty ?? null}
-                  properties={properties}
-                  selectedProperties={selectedProperties}
-                  onToggleProperty={togglePropertySelection}
-                  onOpenModal={openModal}
-                  onClearAll={() => setSelectedProperties([])}
-                />
+              <ImoveisTab
+                specificProperty={specificProperty ?? null}
+                properties={properties}
+                selectedProperties={selectedProperties}
+                onToggleProperty={togglePropertySelection}
+                onOpenModal={openModal}
+                onClearAll={() => setSelectedProperties([])}
+              />
               )}
 
               {activeTab === 'pacotes' && (
-                <PacotesTab
-                  pacotes={pacotes}
-                  selectedPacote={selectedPacote}
-                  onSelectPacote={setSelectedPacote}
-                />
+              <PacotesTab
+                pacotes={pacotes}
+                selectedPacote={selectedPacote}
+                onSelectPacote={setSelectedPacote}
+              />
               )}
 
               {activeTab === 'resumo' && (
-                <ResumoTab
-                  selectedPacote={selectedPacote}
-                  selectedProperties={selectedProperties}
-                  total={total}
-                  processing={processing}
-                  onCheckout={handleCheckout}
-                />
+              <ResumoTab
+                selectedPacote={selectedPacote}
+                selectedProperties={selectedProperties}
+                total={total}
+                processing={processing}
+                onCheckout={handleCheckout}
+              />
               )}
             </div>
 
@@ -252,6 +252,18 @@ export default function CompactPacotesDestaquePage() {
         onAddSelected={addSelectedProperties}
       />
     </>
+  );
+}
+
+export default function CompactPacotesDestaquePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700"></div>
+      </div>
+    }>
+      <DestacarContent />
+    </Suspense>
   );
 }
 
