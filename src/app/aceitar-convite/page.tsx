@@ -7,10 +7,13 @@ import { ClientInviteActions } from './client-actions';
 // Ignorar a cache para forçar a avaliação local a cada visita e proteger os cookies de sessão
 export const dynamic = 'force-dynamic';
 
-export default async function AceitarConvitePage({ searchParams }: { searchParams: { token?: string } }) {
-  // eslint-disable-next-line @typescript-eslint/await-thenable
-  const resolvedParams = await searchParams; // Next.js 15+ searchParams are now promises often, or simply await the access.
-  const token = resolvedParams.token;
+export default async function AceitarConvitePage({ 
+  searchParams 
+}: { 
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }> 
+}) {
+  const resolvedParams = await searchParams;
+  const token = typeof resolvedParams.token === 'string' ? resolvedParams.token : undefined;
   
   // 1. Validar a presença do token
   if (!token) {
@@ -85,7 +88,8 @@ export default async function AceitarConvitePage({ searchParams }: { searchParam
 
     if (profile?.imobiliaria_id) {
       userAlreadyTiedToAgency = true;
-      existingAgencyName = profile.imobiliarias?.nome || "Outra Agência (ID Privado)";
+      const agencyData = profile.imobiliarias as any;
+      existingAgencyName = (Array.isArray(agencyData) ? agencyData[0]?.nome : agencyData?.nome) || "Outra Agência (ID Privado)";
       
       // Se ele já pertence a EXACTAMENTE esta agência, atualizar a message no UI
       if (profile.imobiliaria_id === invite.imobiliaria_id) {
