@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getInviteByToken } from '@/lib/functions/supabase-actions/agency-invites';
 import { Building2, XCircle, LogIn, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { ClientInviteActions } from './client-actions';
 
 // Ignorar a cache para forçar a avaliação local a cada visita e proteger os cookies de sessão
@@ -75,7 +76,24 @@ export default async function AceitarConvitePage({
     );
   }
 
-  // 4. Se logado, verificar se o utilizador já está vinculado
+  // 4. Se NÃO estiver logado, verificar na BD se o seu email existe
+  if (!user) {
+    // Usamos o AdminClient p/ bypass a RLS se a tabela profiles não for lida anonimamente
+    const { createAdminClient } = await import('@/lib/supabase/admin');
+    const supabaseAdmin = await createAdminClient();
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('id')
+      .eq('email', invite.email)
+      .single();
+
+    if (!profile) {
+      // Não tem conta: Redirecionar para /signup com os dados no search param
+      redirect(`/signup?token=${token}&email=${encodeURIComponent(invite.email)}`);
+    }
+  }
+
+  // 5. Se logado, verificar se o utilizador já está vinculado
   let userAlreadyTiedToAgency = false;
   let existingAgencyName = "";
 

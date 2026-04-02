@@ -1,9 +1,9 @@
-﻿'use client'
+'use client'
 
 import React from 'react'
 import Image from 'next/image'
 import { signUp } from '@/lib/functions/supabase-actions/signup-action'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useUserStore } from '@/lib/store/user-store'
 
 interface Props {
@@ -16,6 +16,9 @@ export function CustomSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
   const [loading, setLoading] = React.useState(false)
   const { setUser, fetchUserProfile } = useUserStore()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const inviteToken = searchParams.get('token')
+  const inviteEmail = searchParams.get('email')
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -54,7 +57,11 @@ export function CustomSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
         }
 
         onSuccess?.()
-        router.push('/dashboard') // Redireciona após cadastro
+        if (inviteToken) {
+          router.push(`/aceitar-convite?token=${inviteToken}`)
+        } else {
+          router.push('/dashboard') // Redireciona após cadastro
+        }
       } else {
         throw new Error(result?.error || 'Erro ao criar conta')
       }
@@ -131,6 +138,7 @@ export function CustomSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
           type="email"
           label="Email"
           required
+          defaultValue={inviteEmail || ''}
         />
 
         <FloatingInput

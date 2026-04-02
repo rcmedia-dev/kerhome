@@ -59,20 +59,19 @@ export async function sendAgencyInvite(email: string, agencyId: string) {
             throw inviteError;
         }
 
-        // 3. Informar o Supabase Auth para disparar o template nativo
-        const supabaseAdmin = await createAdminClient();
+        // 3. Enviar o e-mail via Resend
         const origin = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
         
         try {
-            await supabaseAdmin.auth.admin.inviteUserByEmail(email.toLowerCase(), {
-                redirectTo: `${origin}/aceitar-convite?token=${token}`
-            });
-            console.log(`\n✅ CONVITE ENVIADO: ${origin}/aceitar-convite?token=${token}\n`);
+            const { sendAgencyInviteEmail } = await import('./send-email');
+            const emailResult = await sendAgencyInviteEmail(email.toLowerCase(), agency.nome, token);
+            
+            if (!emailResult.success) {
+                console.error("Aviso: Falha ao enviar e-mail via Resend, mas o convite foi criado na base de dados.", emailResult.error);
+            }
+            console.log(`\n✅ CONVITE ENVIADO VIA RESEND: ${origin}/aceitar-convite?token=${token}\n`);
         } catch (inviteAuthError) {
-            // Se o utilizador já existe, não paramos o processo.
-            // O registo na tabela 'agency_invites' já foi feito e ele poderá aceitar o convite
-            // fazendo login e acedendo ao link.
-            console.log('\n⚠️ AVISO: Utilizador já registado ou limite de e-mail atingido.');
+            console.error('\n⚠️ AVISO: Erro ao disparar o e-mail via Resend.', inviteAuthError);
             console.log(`🔗 Link Direto (Copie e cole no browser): ${origin}/aceitar-convite?token=${token}\n`);
         }
 
