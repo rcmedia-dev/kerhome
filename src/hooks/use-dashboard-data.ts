@@ -1,10 +1,10 @@
-﻿import { useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getSupabaseUserProperties } from '@/lib/functions/get-properties';
 import { getImoveisFavoritos } from '@/lib/functions/get-favorited-imoveis';
 import { getFaturas } from '@/lib/functions/supabase-actions/user-bills-action';
-import { getMyPropertiesWithViews } from '@/lib/functions/supabase-actions/get-most-seen-propeties';
+import { getMyPropertiesWithViews } from '@/lib/functions/supabase-actions/property-views-actions';
 import { getUserPlan } from '@/lib/functions/supabase-actions/get-user-package-action';
-import { getUserAgency } from '@/lib/functions/supabase-actions/user-agency-actions';
+import { getUserAgency } from '@/lib/functions/supabase-actions/imobiliaria-actions';
 
 export function useDashboardData(userId: string | undefined) {
     const userProperties = useQuery({

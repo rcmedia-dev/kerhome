@@ -1,4 +1,4 @@
-﻿'use server'
+'use server'
 
 import { supabase } from '@/lib/supabase'
 import { cookies } from 'next/headers'
@@ -12,6 +12,15 @@ interface SignUpResponse {
     ultimo_nome: string
   }
   error?: string
+}
+
+function translateSignUpError(errorMsg: string | undefined): string {
+  if (!errorMsg) return 'Falha ao criar usuário.';
+  if (errorMsg.includes('fetch failed')) return 'Erro de conexão com o servidor. Verifique a sua internet e tente novamente.';
+  if (errorMsg.includes('User already registered')) return 'Este email já está registado.';
+  if (errorMsg.includes('Password should be at least 6 characters')) return 'A senha deve ter pelo menos 6 caracteres.';
+  if (errorMsg.includes('Email rate limit exceeded')) return 'Muitas tentativas de registo com este email. Tente novamente mais tarde.';
+  return 'Ocorreu um erro ao criar a conta. Tente novamente.';
 }
 
 export async function signUp(formData: FormData): Promise<SignUpResponse> {
@@ -60,7 +69,7 @@ export async function signUp(formData: FormData): Promise<SignUpResponse> {
       console.error('Erro no Supabase Auth:', authError)
       return {
         success: false,
-        error: authError.message || 'Falha ao criar usuário'
+        error: translateSignUpError(authError.message)
       }
     }
 

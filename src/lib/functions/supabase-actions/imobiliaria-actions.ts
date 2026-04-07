@@ -1,4 +1,8 @@
+'use server';
+
 import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
+import { updateImobiliariaAction } from "./admin-imobiliaria-actions";
 import { Imobiliaria } from "@/lib/types/imobiliaria";
 
 export interface ImobiliariaSearchParams {
@@ -151,7 +155,6 @@ export async function fetchPropertiesByAgency(imobiliaria_id: string) {
     .or(orFilter)
     .eq("aprovement_status", "approved");
 
-
   if (error) {
     console.error("Erro ao buscar imóveis da imobiliária (Step B):", error);
     return [];
@@ -261,3 +264,72 @@ export async function fetchSimilarAgencies(localizacao: string, currentId: strin
   return (data || []) as Imobiliaria[];
 }
 
+export async function getUserAgency(userId: string) {
+  try {
+    const supabase = await createClient();
+    
+    // 1. Tentar encontrar a imobiliária onde o utilizador é o DONO
+    const { data: ownerAgency } = await supabase
+      .from('imobiliarias')
+      .select('*')
+      .eq('owner_id', userId)
+      .maybeSingle();
+
+    if (ownerAgency) return ownerAgency;
+
+    // 2. Se não for dono, verificar no perfil se ele é um MEMBRO vinculado
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('imobiliaria_id')
+      .eq('id', userId)
+      .single();
+
+    if (profile?.imobiliaria_id) {
+      const { data: memberAgency } = await supabase
+        .from('imobiliarias')
+        .select('*')
+        .eq('id', profile.imobiliaria_id)
+        .maybeSingle();
+      
+      return memberAgency;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Erro ao buscar agência do utilizador:', error);
+    return null;
+  }
+}
+
+export async function updateUserAgencyAction(id: string, data: any, originalData: any) {
+  try {
+    const sensitiveFields = ['nome', 'nif'];
+    let shouldResetStatus = false;
+    
+    for (const field of sensitiveFields) {
+      if (data[field] && data[field] !== originalData[field]) {
+        shouldResetStatus = true;
+        break;
+      }
+    }
+
+    const updateData = {
+      ...data,
+      status: shouldResetStatus ? 'pending' : originalData.status,
+    };
+
+    const result = await updateImobiliariaAction(id, updateData);
+    
+    if (result.success) {
+      return { 
+        success: true, 
+        resetStatus: shouldResetStatus 
+      };
+    }
+    
+    return result;
+  } catch (error: any) {
+    console.error('Erro ao atualizar agência do usuário:', error);
+    return { success: false, error: error.message };
+  }
+}

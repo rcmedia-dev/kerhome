@@ -1,4 +1,4 @@
-﻿'use server'
+'use server'
 
 import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
@@ -40,6 +40,15 @@ interface LoginResponse {
   user?: UserProfile
 }
 
+function translateAuthError(errorMsg: string | undefined): string {
+  if (!errorMsg) return 'Credenciais inválidas.';
+  if (errorMsg.includes('fetch failed')) return 'Erro de conexão com o servidor. Verifique a sua internet e tente novamente.';
+  if (errorMsg.includes('Invalid login credentials')) return 'Email ou senha incorretos. Por favor, tente novamente.';
+  if (errorMsg.includes('Email not confirmed')) return 'Por favor, confirme o seu email antes de entrar.';
+  if (errorMsg.includes('User not found')) return 'Usuário não encontrado.';
+  return 'Ocorreu um erro ao fazer login. Tente novamente.';
+}
+
 export async function login(formData: FormData): Promise<LoginResponse> {
   const supabase = await createClient()
 
@@ -61,7 +70,7 @@ export async function login(formData: FormData): Promise<LoginResponse> {
       console.error('Erro de autenticação:', authError)
       return { 
         success: false, 
-        error: authError?.message || 'Credenciais inválidas' 
+        error: translateAuthError(authError?.message)
       }
     }
 
@@ -118,39 +127,19 @@ export async function login(formData: FormData): Promise<LoginResponse> {
 
     const pacoteAgente = profile?.pacote_agente?.[0]
 
+    // Create normalized user profile removing nulls
+    const normalizedUser: any = { ...profile };
+    if (pacoteAgente) normalizedUser.pacote_agente = pacoteAgente;
+
+    Object.keys(normalizedUser).forEach(key => {
+      if (normalizedUser[key] == null) {
+        delete normalizedUser[key];
+      }
+    });
+
     return {
         success: true,
-        user: {
-            id: profile?.id,
-            email: profile?.email,
-            primeiro_nome: profile?.primeiro_nome,
-            ultimo_nome: profile?.ultimo_nome,
-            ...(profile?.username && { username: profile.username }),
-            ...(profile?.telefone && { telefone: profile.telefone }),
-            ...(profile?.empresa && { empresa: profile.empresa }),
-            ...(profile?.licenca && { licenca: profile.licenca }),
-            ...(profile?.website && { website: profile.website }),
-            ...(profile?.facebook && { facebook: profile.facebook }),
-            ...(profile?.linkedin && { linkedin: profile.linkedin }),
-            ...(profile?.instagram && { instagram: profile.instagram }),
-            ...(profile?.youtube && { youtube: profile.youtube }),
-            ...(profile?.role && { role: profile.role }),
-            ...(profile?.sobre_mim && { sobre_mim: profile.sobre_mim }),
-            ...(profile?.created_at && { created_at: profile.created_at }),
-            ...(profile?.updated_at && { updated_at: profile.updated_at }),
-            ...(pacoteAgente && {
-            pacote_agente: {
-                id: pacoteAgente.id,
-                nome: pacoteAgente.nome,
-                limite: pacoteAgente.limite,
-                restante: pacoteAgente.restante,
-                destaques: pacoteAgente.destaques,
-                destaques_permitidos: pacoteAgente.destaques_permitidos,
-                created_at: pacoteAgente.created_at,
-                updated_at: pacoteAgente.updated_at
-            }
-            })
-        }
+        user: normalizedUser as UserProfile
     }
 
   } catch (error) {

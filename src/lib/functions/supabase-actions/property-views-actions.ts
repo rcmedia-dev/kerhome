@@ -1,6 +1,25 @@
-﻿import { supabase } from "@/lib/supabase";
+'use server';
+
+import { supabase } from "@/lib/supabase";
 import { TPropertyResponseSchema } from "@/lib/types/property";
 
+// --- INCREMENT VIEWS ---
+export async function incrementPropertyViews(propertyId: string, userId: string, ownerId: string) {
+  const { data, error } = await supabase
+    .rpc('increment_property_views', {
+      p_property_id: propertyId,
+      p_user_id: userId,
+      p_owner_id: ownerId,
+    });
+
+  if (error) {
+    console.error('Error incrementing views:', error);
+    return 0;
+  }
+  return data;
+}
+
+// --- GET MOST SEEN PROPERTIES ---
 // Linha da tabela property_views com join em properties
 type PropertyViewRow = {
   property_id: string;
@@ -35,7 +54,6 @@ export async function getMyPropertiesWithViews(
     return { properties: [], total_views_all: 0 };
   }
 
-  // Forçar tipagem
   const typedViews = (views as any[]).map(
     (v): PropertyViewRow => ({
       property_id: v.property_id,
@@ -43,13 +61,11 @@ export async function getMyPropertiesWithViews(
     })
   );
 
-  // Contar views por imóvel
   const viewCounts: Record<string, number> = {};
   typedViews.forEach((v) => {
     viewCounts[v.property_id] = (viewCounts[v.property_id] || 0) + 1;
   });
 
-  // Montar lista final
   const propertiesMap: Record<
     string,
     TPropertyResponseSchema & { total_views: number }
@@ -66,7 +82,6 @@ export async function getMyPropertiesWithViews(
 
   const properties = Object.values(propertiesMap);
 
-  // Soma total de todas as visualizações
   const total_views_all = properties.reduce(
     (acc, prop) => acc + prop.total_views,
     0
@@ -74,4 +89,3 @@ export async function getMyPropertiesWithViews(
 
   return { properties, total_views_all };
 }
-

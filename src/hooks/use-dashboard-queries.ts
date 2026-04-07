@@ -1,6 +1,6 @@
-﻿import { getImoveisFavoritos } from '@/lib/functions/get-favorited-imoveis';
+import { getImoveisFavoritos } from '@/lib/functions/get-favorited-imoveis';
 import { getSupabaseUserProperties } from '@/lib/functions/get-properties';
-import { getMyPropertiesWithViews } from '@/lib/functions/supabase-actions/get-most-seen-propeties';
+import { getMyPropertiesWithViews } from '@/lib/functions/supabase-actions/property-views-actions';
 import { getUserPlan } from '@/lib/functions/supabase-actions/get-user-package-action';
 import { getFaturas } from '@/lib/functions/supabase-actions/user-bills-action';
 import { useQuery } from '@tanstack/react-query';

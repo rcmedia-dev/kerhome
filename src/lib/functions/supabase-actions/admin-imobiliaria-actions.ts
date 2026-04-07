@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import { createClient } from '@/lib/supabase/server';
 import { createClient as createAdminClient } from '@supabase/supabase-js';
@@ -47,7 +47,6 @@ const supabaseAdmin = createAdminClient(
     }
   }
 );
-
 export async function createImobiliariaAction(data: ImobiliariaData) {
   try {
     const supabase = await createClient();
@@ -55,16 +54,8 @@ export async function createImobiliariaAction(data: ImobiliariaData) {
     // Verificando Autenticação
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    // Debugging
-    console.log("====== DEBUG ACTION: CREATE IMOBILIARIA ======");
-    console.log("User encontrado:", user?.id || 'Nenhum');
-    console.log("Erro de Auth:", authError?.message || 'Nenhum');
-    console.log("Chave de Serviço usada começa com:", serviceKey.substring(0, 10) + '...');
-    const isServiceRole = serviceKey.startsWith('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI');
-    console.log("É uma chave de Service Role válida aparente?", isServiceRole ? 'Sim' : 'Talvez não (Avalie o log da API)');
-    
     if (authError || !user) {
-      console.warn("âš ï¸ Sessão não encontrada. Tentando utilizar Service Role Fallback.");
+      throw new Error("Sessão não encontrada ou utilizador não autenticado.");
     }
 
     const processedData = {
@@ -76,23 +67,10 @@ export async function createImobiliariaAction(data: ImobiliariaData) {
       owner_id: data.owner_id
     };
 
-    // Tentar primeiro com o cliente do usuário
-    if (user) {
-      const { error } = await supabase.from('imobiliarias').insert([processedData]);
-      if (!error) {
-        revalidatePath('/admin/dashboard');
-        return { success: true };
-      }
+    const { error } = await supabase.from('imobiliarias').insert([processedData]);
+    if (error) {
       console.error("Erro insert Supabase (User Client):", error);
-    }
-
-    // Se falhou (RLS) ou não tem utilizador, tentar com o Service Role
-    console.info("ðŸ›¡ï¸ Usando Service Role Key para inserir imobiliária...");
-    const { error: adminError } = await supabaseAdmin.from('imobiliarias').insert([processedData]);
-
-    if (adminError) {
-      console.error("Erro insert Supabase (Admin Client):", adminError);
-      throw new Error(adminError.message);
+      throw new Error(error.message);
     }
 
     revalidatePath('/admin/dashboard');
@@ -101,12 +79,15 @@ export async function createImobiliariaAction(data: ImobiliariaData) {
     return { success: false, error: error.message };
   }
 }
-
 export async function updateImobiliariaAction(id: string, data: ImobiliariaData) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     
+    if (!user) {
+      throw new Error("Sessão não encontrada ou utilizador não autenticado.");
+    }
+
     const processedData = {
       ...data,
       logo: ensureHttps(data.logo),
@@ -115,17 +96,10 @@ export async function updateImobiliariaAction(id: string, data: ImobiliariaData)
       verificada: data.verificada
     };
 
-    if (user) {
-      const { error } = await supabase.from('imobiliarias').update(processedData).eq('id', id);
-      if (!error) {
-        revalidatePath('/admin/dashboard');
-        return { success: true };
-      }
+    const { error } = await supabase.from('imobiliarias').update(processedData).eq('id', id);
+    if (error) {
+      throw new Error(error.message);
     }
-
-    // Fallback Admin
-    const { error: adminError } = await supabaseAdmin.from('imobiliarias').update(processedData).eq('id', id);
-    if (adminError) throw new Error(adminError.message);
 
     revalidatePath('/admin/dashboard');
     return { success: true };
@@ -202,16 +176,14 @@ export async function deleteImobiliariaAction(id: string) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (user) {
-        const { error } = await supabase.from('imobiliarias').delete().eq('id', id);
-        if (!error) {
-            revalidatePath('/admin/dashboard');
-            return { success: true };
-        }
+    if (!user) {
+      throw new Error("Sessão não encontrada ou utilizador não autenticado.");
     }
-    
-    const { error: adminError } = await supabaseAdmin.from('imobiliarias').delete().eq('id', id);
-    if (adminError) throw new Error(adminError.message);
+
+    const { error } = await supabase.from('imobiliarias').delete().eq('id', id);
+    if (error) {
+      throw new Error(error.message);
+    }
 
     revalidatePath('/admin/dashboard');
     return { success: true };
@@ -312,4 +284,44 @@ export async function requestAgencyUpgradeAction(userId: string, data: Imobiliar
   }
 }
 
+// ==========================================
+// AÇÕES ADMINISTRATIVAS (Somente Admin DB)
+// ==========================================
 
+export async function getImobiliariasWithOwnersAction() {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('imobiliarias')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    const list = data || [];
+
+    // Enrich with owner data for pending items
+    const ownerIds = list
+      .filter((i: any) => i.status === 'pending' && i.owner_id)
+      .map((i: any) => i.owner_id);
+
+    if (ownerIds.length > 0) {
+      const { data: profiles } = await supabaseAdmin
+        .from('profiles')
+        .select('id, primeiro_nome, ultimo_nome, email, telefone, role')
+        .in('id', ownerIds);
+
+      if (profiles) {
+        const profileMap = new Map(profiles.map((p: any) => [p.id, p]));
+        return list.map((item: any) => ({
+          ...item,
+          owner: item.owner_id ? profileMap.get(item.owner_id) || null : null
+        }));
+      }
+    }
+
+    return list;
+  } catch (error) {
+    console.error('Error fetching imobiliarias with owners:', error);
+    return [];
+  }
+}

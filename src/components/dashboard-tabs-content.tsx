@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } fr
 
 import { TFavoritedPropertyResponseSchema } from '@/lib/types/user';
 import { Fatura, TPropertyResponseSchema } from '@/lib/types/property';
-import { TMyPropertiesWithViews } from '@/lib/functions/supabase-actions/get-most-seen-propeties';
+import { TMyPropertiesWithViews } from '@/lib/functions/supabase-actions/property-views-actions';
 import { useInvoiceManagement } from '@/hooks/use-invoice-management';
 import { toPascalCase } from '@/lib/string-utils';
 import { cn } from '@/lib/utils';

@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { UserPlus, Eye, Edit, Trash2, CheckCircle, XCircle, Mail, Phone, Building, Shield, User, Calendar, Crown, Zap, Star, Grid, List, Filter, Search, Download, MoreVertical, Ban, ShieldAlert, Clock } from 'lucide-react';
 import { useEffect, useState, useTransition } from 'react';
@@ -117,21 +117,7 @@ export function UserManagement({ darkMode, initialUsers = [] }: UsersManagementP
   };
 
   const handlePlanoAction = (userId: number, action: 'approve' | 'reject') => {
-    startTransition(async () => {
-      const res = { success: true };
-      if (res.success) {
-        setUsers((prev) =>
-          prev.map((u) =>
-            u.id === userId
-              ? { ...u, plano: { ...u.plano!, status: action === 'approve' ? 'approved' : 'rejected' } }
-              : u
-          )
-        );
-        toast.success(action === 'approve' ? 'Plano aprovado' : 'Plano rejeitado');
-      } else {
-        toast.error('Erro ao atualizar plano');
-      }
-    });
+    toast.error('Ação não implementada nesta vista. Por favor use a página de Subscrições.');
   };
 
   useEffect(() => {
@@ -434,6 +420,7 @@ function ListView({ users, onDelete, onBan, onUnban, onPlanoAction }: {
             <tr>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Utilizador</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Contacto</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Cargo</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Estado</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Plano</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Ações</th>
@@ -462,6 +449,11 @@ function ListView({ users, onDelete, onBan, onUnban, onPlanoAction }: {
                 <td className="px-6 py-4">
                   <div className="text-sm text-gray-900">{user.telefone || '-'}</div>
                   <div className="text-sm text-gray-500">{user.empresa || '-'}</div>
+                </td>
+                <td className="px-6 py-4">
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleConfig(user.role || '').color}`}>
+                    {getRoleConfig(user.role || '').label}
+                  </span>
                 </td>
                 <td className="px-6 py-4">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusConfig(user.status).color}`}>
@@ -584,7 +576,7 @@ function UserCard({ user, onDelete, onBan, onUnban, onPlanoAction }: {
         <div className="absolute top-4 right-4 flex flex-col gap-2">
           <span className={`px-3 py-1 rounded-full text-xs font-bold ${roleConfig.color} flex items-center gap-1`}>
             <RoleIcon size={12} />
-            {user.role}
+            {roleConfig.label}
           </span>
           <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusConfig.color} flex items-center gap-1`}>
             <StatusIcon size={12} />
@@ -657,11 +649,18 @@ function UserCard({ user, onDelete, onBan, onUnban, onPlanoAction }: {
 
 // Helper functions
 function getRoleConfig(role: string) {
-  switch (role) {
-    case 'Administrador': return { color: 'bg-blue-100 text-blue-700', icon: Shield };
-    case 'Agente': return { color: 'bg-purple-100 text-purple-700', icon: User };
-    case 'pending_agency': return { color: 'bg-orange-100 text-orange-700', icon: Building };
-    default: return { color: 'bg-gray-100 text-gray-700', icon: User };
+  const normalizedRole = role?.toLowerCase();
+  switch (normalizedRole) {
+    case 'administrador':
+    case 'admin': 
+      return { color: 'bg-blue-100 text-blue-700', icon: Shield, label: 'Admin' };
+    case 'agente':
+    case 'agent': 
+      return { color: 'bg-purple-100 text-purple-700', icon: User, label: 'Agente' };
+    case 'pending_agency': 
+      return { color: 'bg-orange-100 text-orange-700', icon: Building, label: 'Agência Pendente' };
+    default: 
+      return { color: 'bg-gray-100 text-gray-700', icon: User, label: role || 'Utilizador' };
   }
 }
 

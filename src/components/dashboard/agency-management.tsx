@@ -1,10 +1,10 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { Building2, Phone, Globe, Mail, MapPin, Save, AlertTriangle, Loader2, Camera, Facebook, Instagram, Linkedin, Twitter, Users, Settings2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { updateUserAgencyAction, getUserAgency } from '@/lib/functions/supabase-actions/user-agency-actions';
+import { updateUserAgencyAction, getUserAgency } from '@/lib/functions/supabase-actions/imobiliaria-actions';
 import { uploadLogoAction } from '@/lib/functions/supabase-actions/admin-imobiliaria-actions';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';

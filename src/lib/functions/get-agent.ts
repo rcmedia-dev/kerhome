@@ -1,4 +1,4 @@
-﻿import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { TPropertyResponseSchema } from '@/lib/types/property';
 import { Agent } from '@/components/top-agent';
 
@@ -146,19 +146,24 @@ export async function getAgentProperties(userId: string): Promise<TPropertyRespo
   }
 }
 
-export async function getAgents(): Promise<Agent[]> {
-  const { data, error } = await supabase
+export async function getAgents(limitParam?: number): Promise<Agent[]> {
+  let query = supabase
     .from("profiles")
     .select("*")
     .eq("role", "agent")
     .order("created_at", { ascending: false });
+
+  if (limitParam) {
+    query = query.limit(limitParam);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error("Erro ao buscar agentes:", error.message);
     return [];
   }
 
-  // aqui já devolvemos só a parte certa (array de agentes)
   return data as Agent[];
 }
 

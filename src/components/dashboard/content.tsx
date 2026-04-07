@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { motion, AnimatePresence, Variants, Easing } from 'framer-motion';
 import { MinhasPropriedades, Favoritas, Faturas, PropriedadesMaisVisualizadas } from '@/components/dashboard-tabs-content';
@@ -7,7 +7,7 @@ import PropriedadesImpulsionadasDashboard from '@/components/boosted-properties'
 import { ConfiguracoesConta } from '@/components/account-setting';
 import type { TFavoritedPropertyResponseSchema } from '@/lib/types/user';
 import type { Fatura, TPropertyResponseSchema } from '@/lib/types/property';
-import type { TMyPropertiesWithViews } from '@/lib/functions/supabase-actions/get-most-seen-propeties';
+import type { TMyPropertiesWithViews } from '@/lib/functions/supabase-actions/property-views-actions';
 
 interface DashboardContentProps {
     activeTab: string;

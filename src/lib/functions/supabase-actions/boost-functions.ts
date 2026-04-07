@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import { supabase } from "@/lib/supabase";
 import { getDefaultPacotes } from "@/lib/types/utils";
@@ -12,13 +12,13 @@ export async function trackBoostView(propertyId: string) {
 
     if (error) {
       console.error('Erro ao incrementar visualização:', error);
-      return { success: false };
+      return { success: false, error: error.message };
     }
 
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erro no tracking de visualização:', error);
-    return { success: false };
+    return { success: false, error: error.message || 'Erro interno' };
   }
 }
 

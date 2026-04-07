@@ -1,6 +1,6 @@
 'use client'
 
-import { getAgents } from "@/lib/functions/supabase-actions/get-agents"
+import { getAgents } from "@/lib/functions/get-agent"
 import { useQuery } from "@tanstack/react-query"
 import Image from "next/image"
 
@@ -32,7 +32,7 @@ export default function CorretoresEmDestaque() {
         Corretores em Destaque
       </h3>
       <div className="space-y-4">
-        {agents?.data?.map((agent) => (
+        {agents?.map((agent: any) => (
           <div
             key={agent.id}
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"

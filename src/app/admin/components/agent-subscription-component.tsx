@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { Mail, Phone, Clock, CheckCircle, XCircle, Loader2, UserCircle2, UserX, ShieldOff } from 'lucide-react';
@@ -13,7 +13,7 @@ type AgentStatus = "Todos" | "Pendentes" | "Aprovados" | "Rejeitados";
 
 const statusMap: Record<string, { label: string; tab: AgentStatus }> = {
   pending: { label: "Aguardando aprovação", tab: "Pendentes" },
-  aproved: { label: "approved", tab: "Aprovados" },
+  approved: { label: "approved", tab: "Aprovados" },
   rejected: { label: "rejected", tab: "Rejeitados" },
 };
 
@@ -282,7 +282,7 @@ const AgentCard = ({
                   agent.status === "Aprovados" ? "text-green-600" : "text-red-500"
                 }`}>
                   {agent.status === "Aprovados" ? <CheckCircle size={16} /> : <XCircle size={16} />}
-                  <span>{agent.status === "Aprovados" ? statusMap["aproved"].label : statusMap["rejected"].label}</span>
+                  <span>{agent.status === "Aprovados" ? statusMap["approved"].label : statusMap["rejected"].label}</span>
                 </div>
                 
                 {/* Botão para remover status de agente (apenas para aprovados) */}

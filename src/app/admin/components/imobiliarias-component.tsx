@@ -1,9 +1,9 @@
-﻿'use client'
+'use client'
 
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Building2, CheckCircle2, XCircle, Trash2, ShieldCheck, ShieldAlert, Loader2, Plus, X } from 'lucide-react';
-import { getImobiliariasWithOwnersAction } from '@/lib/functions/supabase-actions/get-imobiliarias-admin-action';
+import { getImobiliariasWithOwnersAction } from '@/lib/functions/supabase-actions/admin-imobiliaria-actions';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { 
