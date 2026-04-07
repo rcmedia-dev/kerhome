@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -17,6 +17,8 @@ import { useUserStore } from '@/lib/store/user-store';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { BAIRROS, PRECOS_M2 } from '@/lib/neighborhoods';
+import { getLimitedProperties } from '@/lib/functions/get-properties';
+import { TPropertyResponseSchema } from '@/lib/types/property';
 
 // --- DATA & CONSTANTS (Section 4.2 & Specs) ---
 
@@ -107,6 +109,24 @@ export default function AvaliarPage() {
         preco_usd_fmt: string;
     } | null>(null);
     const [isCalculating, setIsCalculating] = useState(false);
+    const [featuredProperties, setFeaturedProperties] = useState<TPropertyResponseSchema[]>([]);
+
+    useEffect(() => {
+        // Fetch properties for the result screen ads
+        const fetchAds = async () => {
+            try {
+                const properties = await getLimitedProperties(20);
+                if (properties && properties.length > 0) {
+                    // Shuffle and take 2
+                    const shuffled = [...properties].sort(() => 0.5 - Math.random());
+                    setFeaturedProperties(shuffled.slice(0, 2));
+                }
+            } catch (error) {
+                console.error('Error fetching ads:', error);
+            }
+        };
+        fetchAds();
+    }, []);
 
     // Wizard Navigation
     function nextStep() { setStep(prev => Math.min(prev + 1, 4)); }
@@ -235,10 +255,46 @@ export default function AvaliarPage() {
     };
 
     return (
-        <div className="min-h-screen bg-white font-sans selection:bg-orange-100 selection:text-orange-900">
+        <div className="min-h-screen bg-gray-50 font-sans selection:bg-purple-100 selection:text-purple-900 pb-20">
             <AuthDialog ref={authDialogRef} defaultMode="signUp" />
 
-            <main className="max-w-4xl mx-auto px-6 py-12">
+            {/* Premium Header/Hero (Same as Simular) */}
+            <header className="relative bg-linear-to-r from-[#130f25] to-purple-900 text-white overflow-hidden pb-40 pt-20">
+                <div
+                    className="absolute inset-0 opacity-10"
+                    style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Ccircle cx=\"30\" cy=\"30\" r=\"4\" fill=\"white\" fill-opacity=\"0.5\"/%3E%3C/svg%3E')" }}
+                ></div>
+                <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+                <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob" style={{ animationDelay: '2s' }}></div>
+
+                <div className="max-w-4xl mx-auto px-6 relative z-10 text-center">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md border border-white/20 text-orange-200 rounded-full text-sm font-medium tracking-wider mb-6"
+                    >
+                        <Sparkles size={14} />
+                        Módulo de Inteligência Imobiliária
+                    </motion.div>
+                    <motion.h1
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-2xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight leading-tight uppercase"
+                    >
+                        Descubra o <span className="text-transparent bg-clip-text bg-linear-to-r from-orange-400 to-amber-200">Justo Valor</span> <br />do seu Imóvel em Angola
+                    </motion.h1>
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-xl text-purple-100 max-w-2xl mx-auto font-light leading-relaxed"
+                    >
+                        Cruzamos dados reais de transações para gerar avaliações precisas em tempo real.
+                    </motion.p>
+                </div>
+            </header>
+
+            <main className="max-w-4xl mx-auto px-6 -mt-24 relative z-30">
                 <AnimatePresence mode="wait">
                     {isAnalyzing ? (
                         /* --- ANALYZING SCREEN --- */
@@ -247,33 +303,33 @@ export default function AvaliarPage() {
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 1.1 }}
-                            className="flex flex-col items-center justify-center py-20 text-center"
+                            className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-3xl shadow-2xl border border-purple-100/50"
                         >
-                            <div className="relative w-40 h-40 mb-12">
+                            <div className="relative w-44 h-44 mb-12">
                                 <motion.div
                                     animate={{ rotate: 360 }}
                                     transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                                    className="absolute inset-0 rounded-full border-2 border-dashed border-orange-200"
+                                    className="absolute inset-0 rounded-full border-2 border-dashed border-purple-200"
                                 />
                                 <motion.div
                                     animate={{ scale: [1, 1.2, 1] }}
                                     transition={{ duration: 2, repeat: Infinity }}
-                                    className="absolute inset-4 rounded-full bg-orange-600/10 flex items-center justify-center"
+                                    className="absolute inset-4 rounded-full bg-purple-600/10 flex items-center justify-center"
                                 >
-                                    <div className="w-12 h-12 bg-orange-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-orange-900/20">
-                                        <Sparkles size={24} className="animate-pulse" />
+                                    <div className="w-14 h-14 bg-[#7C3AED] rounded-2xl flex items-center justify-center text-white shadow-xl shadow-purple-900/20">
+                                        <Sparkles size={28} className="animate-pulse" />
                                     </div>
                                 </motion.div>
                                 <motion.div
                                     initial={{ height: 0 }}
                                     animate={{ height: '100%' }}
                                     transition={{ duration: 3, repeat: Infinity }}
-                                    className="absolute left-1/2 top-0 w-px bg-gradient-to-b from-orange-500 to-transparent opacity-50"
+                                    className="absolute left-1/2 top-0 w-px bg-gradient-to-b from-purple-500 to-transparent opacity-50"
                                 />
                             </div>
-                            <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">Cruzando Dados de Mercado</h2>
+                            <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tighter uppercase">Cruzando Dados de Mercado</h2>
                             <p className="text-gray-500 font-medium max-w-sm leading-relaxed">
-                                Nossa inteligência artificial está analisando milhares de transações em <span className="text-orange-600 font-bold">{searchTerm || 'Angola'}</span> para gerar sua estimativa...
+                                Nossa inteligência artificial está analisando milhares de transações em <span className="text-purple-600 font-bold">{searchTerm || 'Angola'}</span> para gerar sua estimativa...
                             </p>
                         </motion.div>
                     ) : step === 1 ? (
@@ -283,23 +339,23 @@ export default function AvaliarPage() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
-                            className="space-y-12"
+                            className="space-y-8 bg-white p-6 md:p-10 rounded-3xl shadow-xl border border-gray-100"
                         >
-                            <div className="text-center">
-                                <h2 className="text-4xl font-black text-gray-900 mb-4 tracking-tight">Vamos começar com <br />o básico.</h2>
+                            <div className="text-center mb-10">
+                                <h2 className="text-xl md:text-3xl font-bold text-gray-900 mb-2 tracking-tighter uppercase">Passo 1: O Básico</h2>
                                 <p className="text-gray-500 font-medium tracking-tight">Qual o tipo e onde fica o seu imóvel?</p>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-4">
-                                    <Label className="text-xs font-black uppercase text-gray-400 tracking-widest pl-1">Localização</Label>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                <div className="space-y-6">
+                                    <Label className="text-xs font-bold uppercase text-gray-400 tracking-widest pl-1">Localização</Label>
                                     <div className="relative">
-                                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-500" size={20} />
+                                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-600" size={20} />
                                         <Input
                                             placeholder="Ex: Talatona, Maianga, Benfica..."
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
-                                            className="bg-slate-50 border-gray-100 h-16 rounded-[1.5rem] pl-12 pr-4 font-bold text-lg text-gray-700 focus-visible:ring-2 focus-visible:ring-orange-500 transition-all"
+                                            className="bg-slate-50 border-gray-100 h-16 rounded-2xl pl-12 pr-4 font-bold text-lg text-gray-700 focus-visible:ring-2 focus-visible:ring-purple-600 transition-all"
                                         />
                                     </div>
                                     <div className="flex flex-wrap gap-2 pt-2">
@@ -313,7 +369,7 @@ export default function AvaliarPage() {
                                                     setBairroId(b.id);
                                                     setSearchTerm(b.nome);
                                                 }}
-                                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all border ${bairroId === b.id ? 'bg-orange-600 border-orange-600 text-white shadow-lg' : 'bg-white border-gray-200 text-gray-400 hover:border-orange-500 hover:text-orange-500'}`}
+                                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all border ${bairroId === b.id ? 'bg-purple-700 border-purple-700 text-white shadow-lg' : 'bg-white border-gray-200 text-gray-400 hover:border-purple-600 hover:text-purple-600'}`}
                                             >
                                                 {b.nome}
                                             </button>
@@ -322,7 +378,7 @@ export default function AvaliarPage() {
                                             onClick={() => {
                                                 setBairroId('outra_localizacao');
                                             }}
-                                            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all border ${bairroId === 'outra_localizacao' ? 'bg-orange-600 border-orange-600 text-white shadow-lg' : 'bg-white border-gray-200 text-gray-400 hover:border-orange-500 hover:text-orange-500'}`}
+                                            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all border ${bairroId === 'outra_localizacao' ? 'bg-purple-700 border-purple-700 text-white shadow-lg' : 'bg-white border-gray-200 text-gray-400 hover:border-purple-600 hover:text-purple-600'}`}
                                         >
                                             Outra Localização
                                         </button>
@@ -332,35 +388,35 @@ export default function AvaliarPage() {
                                         <motion.div
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            className="bg-orange-50 p-6 rounded-3xl border border-orange-100 space-y-4"
+                                            className="bg-purple-50 p-6 rounded-2xl border border-purple-100 space-y-4"
                                         >
-                                            <Label className="text-[10px] font-black uppercase text-orange-600 tracking-widest pl-1 block text-center">Nível de Valorização da Zona</Label>
+                                            <Label className="text-[10px] font-black uppercase text-purple-700 tracking-widest pl-1 block text-center">Nível de Valorização da Zona</Label>
                                             <div className="grid grid-cols-3 gap-2">
                                                 {(['popular', 'medio', 'premium'] as const).map(t => (
                                                     <button
                                                         key={t}
                                                         onClick={() => setManualTier(t)}
-                                                        className={`h-12 rounded-xl text-[9px] font-black uppercase transition-all border-2 ${manualTier === t ? 'bg-orange-600 border-orange-600 text-white shadow-md' : 'bg-white border-orange-100 text-orange-400 hover:border-orange-200'}`}
+                                                        className={`h-12 rounded-xl text-[9px] font-black uppercase transition-all border-2 ${manualTier === t ? 'bg-purple-700 border-purple-700 text-white shadow-md' : 'bg-white border-purple-100 text-purple-400 hover:border-purple-200'}`}
                                                     >
                                                         {t}
                                                     </button>
                                                 ))}
                                             </div>
-                                            <p className="text-[9px] text-orange-400 font-medium text-center italic">
+                                            <p className="text-[9px] text-purple-400 font-medium text-center italic">
                                                 * Selecione o perfil que melhor descreve a sua localização para uma estimativa precisa.
                                             </p>
                                         </motion.div>
                                     )}
                                 </div>
 
-                                <div className="space-y-4">
-                                    <Label className="text-xs font-black uppercase text-gray-400 tracking-widest pl-1">Tipo de Imóvel</Label>
+                                <div className="space-y-6">
+                                    <Label className="text-xs font-bold uppercase text-gray-400 tracking-widest pl-1">Tipo de Imóvel</Label>
                                     <div className="grid grid-cols-2 gap-3">
                                         {['Apartamento', 'Vivenda', 'Terreno', 'Escritório'].map((t) => (
                                             <button
                                                 key={t}
                                                 onClick={() => setTipoImovel(t)}
-                                                className={`h-24 rounded-[1.5rem] border-2 transition-all flex flex-col items-center justify-center gap-2 ${tipoImovel === t ? 'bg-orange-50 border-orange-500 text-orange-600' : 'bg-white border-gray-100 text-gray-400 hover:border-orange-200 hover:text-gray-600'}`}
+                                                className={`h-24 rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-2 ${tipoImovel === t ? 'bg-purple-50 border-purple-600 text-purple-700 shadow-md' : 'bg-white border-gray-100 text-gray-400 hover:border-purple-200 hover:text-gray-600'}`}
                                             >
                                                 {t === 'Apartamento' ? <Building size={24} /> : t === 'Vivenda' ? <Home size={24} /> : t === 'Terreno' ? <MapPin size={24} /> : <Building2 size={24} />}
                                                 <span className="text-[10px] font-black uppercase tracking-widest">{t}</span>
@@ -369,38 +425,40 @@ export default function AvaliarPage() {
                                     </div>
                                 </div>
 
-                                <div className="md:col-span-2 bg-slate-50 p-8 rounded-[2rem] border border-gray-100 flex flex-col md:flex-row items-center gap-8">
+                                <div className="md:col-span-2 bg-slate-50 p-6 md:p-8 rounded-3xl border border-gray-100 flex flex-col items-center gap-6 md:gap-8">
                                     <div className="flex-1 space-y-4 w-full">
-                                        <Label className="text-xs font-black uppercase text-gray-400 tracking-widest pl-1">Área Útil do Imóvel</Label>
-                                        <div className="flex items-center gap-4">
-                                            <Ruler className="text-orange-500" size={32} />
-                                            <div className="flex-1">
-                                                <input
-                                                    type="range"
-                                                    min="20"
-                                                    max="1000"
-                                                    step="5"
-                                                    value={metragem}
-                                                    onChange={(e) => setMetragem(Number(e.target.value))}
-                                                    className="w-full accent-orange-600"
-                                                />
+                                        <Label className="text-xs font-bold uppercase text-gray-400 tracking-widest pl-1">Área Útil do Imóvel</Label>
+                                        <div className="flex flex-col md:flex-row items-center gap-4">
+                                            <div className="flex items-center gap-3 w-full">
+                                                <Ruler className="text-purple-600 shrink-0" size={24} />
+                                                <div className="flex-1">
+                                                    <input
+                                                        type="range"
+                                                        min="20"
+                                                        max="1000"
+                                                        step="5"
+                                                        value={metragem}
+                                                        onChange={(e) => setMetragem(Number(e.target.value))}
+                                                        className="w-full accent-purple-600 cursor-pointer h-1.5 bg-gray-200 rounded-lg appearance-none"
+                                                    />
+                                                </div>
                                             </div>
-                                            <div className="bg-white px-6 py-3 rounded-2xl border border-gray-100 shadow-sm">
-                                                <span className="text-2xl font-black text-gray-900">{metragem}</span>
-                                                <span className="text-xs font-bold text-gray-400 ml-1">m²</span>
+                                            <div className="bg-white px-4 py-2 rounded-xl border border-gray-100 shadow-sm flex items-center gap-1 shrink-0">
+                                                <span className="text-xl font-bold text-gray-900">{metragem}</span>
+                                                <span className="text-[10px] font-bold text-gray-400 uppercase">m²</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex justify-center pt-8">
+                            <div className="flex justify-center pt-8 border-t border-gray-50">
                                 <Button
                                     onClick={nextStep}
-                                    className="h-16 px-12 bg-slate-900 hover:bg-black text-white rounded-[1.5rem] font-black uppercase tracking-widest transition-all shadow-xl shadow-slate-200 group"
+                                    className="w-full md:w-auto h-14 md:h-16 px-12 bg-purple-700 hover:bg-purple-800 text-white rounded-xl font-bold uppercase tracking-widest transition-all shadow-xl shadow-purple-200 group"
                                 >
-                                    Próximo Passo
-                                    <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
+                                    Próximo
+                                    <ArrowRight className="ml-2 group-hover:translate-x-2 transition-transform" size={20} />
                                 </Button>
                             </div>
                         </motion.div>
@@ -411,10 +469,10 @@ export default function AvaliarPage() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
-                            className="space-y-12"
+                            className="space-y-8 bg-white p-6 md:p-10 rounded-3xl shadow-xl border border-gray-100"
                         >
-                            <div className="text-center">
-                                <h2 className="text-4xl font-black text-gray-900 mb-4 tracking-tight">Conte-nos sobre <br />o interior.</h2>
+                            <div className="text-center mb-10">
+                                <h2 className="text-xl md:text-3xl font-bold text-gray-900 mb-2 tracking-tighter uppercase">Passo 2: O Interior</h2>
                                 <p className="text-gray-500 font-medium tracking-tight">A organização dos espaços é fundamental para o valor.</p>
                             </div>
 
@@ -424,40 +482,40 @@ export default function AvaliarPage() {
                                     { label: 'Suítes', value: suites, setter: setSuites, icon: Sparkles },
                                     { label: 'Banheiros', value: banheiros, setter: setBanheiros, icon: Building },
                                 ].map((item) => (
-                                    <div key={item.label} className="bg-white p-8 rounded-[2rem] border-2 border-slate-50 shadow-sm flex flex-col items-center text-center space-y-6">
-                                        <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400">
+                                    <div key={item.label} className="bg-gray-50 p-8 rounded-3xl border-2 border-gray-100 shadow-sm flex flex-col items-center text-center space-y-6 group hover:border-purple-200 transition-colors">
+                                        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-purple-600 shadow-sm group-hover:scale-110 transition-transform">
                                             <item.icon size={32} />
                                         </div>
-                                        <Label className="text-xs font-black uppercase text-gray-400 tracking-widest">{item.label}</Label>
+                                        <Label className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em]">{item.label}</Label>
                                         <div className="flex items-center gap-6">
                                             <button
                                                 onClick={() => item.setter(Math.max(0, item.value - 1))}
-                                                className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-lg font-bold hover:bg-orange-50 hover:border-orange-200 transition-colors"
+                                                className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-lg font-bold hover:bg-purple-50 hover:border-purple-200 transition-colors bg-white shadow-sm"
                                             >-</button>
                                             <span className="text-4xl font-black text-gray-900">{item.value}</span>
                                             <button
                                                 onClick={() => item.setter(item.value + 1)}
-                                                className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-lg font-bold hover:bg-orange-50 hover:border-orange-200 transition-colors"
+                                                className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-lg font-bold hover:bg-purple-50 hover:border-purple-200 transition-colors bg-white shadow-sm"
                                             >+</button>
                                         </div>
                                     </div>
                                 ))}
                             </div>
 
-                            <div className="flex justify-between items-center pt-8">
+                            <div className="flex justify-between items-center pt-8 border-t border-gray-50">
                                 <button
                                     onClick={prevStep}
-                                    className="flex items-center gap-2 text-xs font-black uppercase text-gray-400 hover:text-gray-600 transition-colors"
+                                    className="flex items-center gap-2 text-[10px] font-black uppercase text-gray-400 hover:text-purple-600 transition-colors tracking-widest"
                                 >
                                     <ArrowRight className="rotate-180" size={16} />
                                     Voltar
                                 </button>
                                 <Button
                                     onClick={nextStep}
-                                    className="h-16 px-12 bg-slate-900 hover:bg-black text-white rounded-[1.5rem] font-black uppercase tracking-widest transition-all shadow-xl shadow-slate-200 group"
+                                    className="w-full md:w-auto h-14 md:h-16 px-12 bg-purple-700 hover:bg-purple-800 text-white rounded-xl font-bold uppercase tracking-widest transition-all shadow-xl shadow-purple-200 group"
                                 >
-                                    Ver Detalhes Finais
-                                    <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
+                                    Continuar
+                                    <ArrowRight className="ml-2 group-hover:translate-x-2 transition-transform" size={20} />
                                 </Button>
                             </div>
                         </motion.div>
@@ -468,22 +526,22 @@ export default function AvaliarPage() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
-                            className="space-y-12"
+                            className="space-y-8 bg-white p-6 md:p-10 rounded-3xl shadow-xl border border-gray-100"
                         >
-                            <div className="text-center">
-                                <h2 className="text-4xl font-black text-gray-900 mb-4 tracking-tight">Os diferenciais <br />e o estado.</h2>
+                            <div className="text-center mb-10">
+                                <h2 className="text-xl md:text-3xl font-bold text-gray-900 mb-2 tracking-tighter uppercase">Passo 3: Diferenciais</h2>
                                 <p className="text-gray-500 font-medium tracking-tight">O que torna este imóvel especial em relação aos outros?</p>
                             </div>
 
                             <div className="space-y-10">
                                 <div className="space-y-4">
-                                    <Label className="text-xs font-black uppercase text-gray-400 tracking-widest pl-1 text-center block">Condição Geral</Label>
+                                    <Label className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] pl-1 text-center block">Condição Geral</Label>
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                                         {Object.keys(MULTIPLICADORES_ESTADO).map(key => (
                                             <button
                                                 key={key}
                                                 onClick={() => setEstado(key as any)}
-                                                className={`h-16 rounded-2xl border-2 text-[10px] font-black uppercase transition-all ${estado === key ? 'bg-orange-50 border-orange-500 text-orange-600 shadow-lg' : 'bg-white border-gray-100 text-gray-400 hover:border-orange-200'}`}
+                                                className={`h-16 rounded-2xl border-2 text-[10px] font-black uppercase transition-all ${estado === key ? 'bg-purple-50 border-purple-600 text-purple-700 shadow-md' : 'bg-white border-gray-100 text-gray-400 hover:border-purple-200'}`}
                                             >
                                                 {key.replace('_', ' ')}
                                             </button>
@@ -492,7 +550,7 @@ export default function AvaliarPage() {
                                 </div>
 
                                 <div className="space-y-4">
-                                    <Label className="text-xs font-black uppercase text-gray-400 tracking-widest pl-1 text-center block">Lazer & Outros</Label>
+                                    <Label className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] pl-1 text-center block">Lazer & Outros</Label>
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                         {Object.entries(MULTIPLICADORES_EXTRAS).map(([key, item]) => {
                                             const Icon = item.icon;
@@ -500,7 +558,7 @@ export default function AvaliarPage() {
                                                 <button
                                                     key={key}
                                                     onClick={() => toggleExtra(key)}
-                                                    className={`p-6 rounded-[2rem] border-2 transition-all flex flex-col items-center gap-4 ${extras[key] ? 'bg-orange-50 border-orange-500 text-orange-600 shadow-md scale-105' : 'bg-white border-gray-100 text-gray-400 hover:border-orange-200'}`}
+                                                    className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-4 ${extras[key] ? 'bg-purple-50 border-purple-600 text-purple-700 shadow-md scale-105' : 'bg-white border-gray-100 text-gray-400 hover:border-purple-200'}`}
                                                 >
                                                     <Icon size={24} />
                                                     <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>
@@ -515,7 +573,7 @@ export default function AvaliarPage() {
                                 <div className="flex justify-between w-full items-center">
                                     <button
                                         onClick={prevStep}
-                                        className="flex items-center gap-2 text-xs font-black uppercase text-gray-400 hover:text-gray-600 transition-colors"
+                                        className="flex items-center gap-2 text-[10px] font-black uppercase text-gray-400 hover:text-purple-600 transition-colors tracking-widest"
                                     >
                                         <ArrowRight className="rotate-180" size={16} />
                                         Voltar
@@ -523,19 +581,19 @@ export default function AvaliarPage() {
                                     <Button
                                         onClick={handleCalculate}
                                         disabled={isCalculating}
-                                        className="h-16 px-16 bg-orange-600 hover:bg-orange-700 text-white rounded-[1.5rem] font-black uppercase tracking-widest transition-all shadow-xl shadow-orange-900/10 group"
+                                        className="w-full md:w-auto h-14 md:h-16 px-12 bg-purple-700 hover:bg-purple-800 text-white rounded-xl font-bold uppercase tracking-widest transition-all shadow-xl shadow-purple-900/20 group"
                                     >
                                         {isCalculating ? (
                                             <Loader2 size={24} className="animate-spin" />
                                         ) : (
                                             <>
-                                                Simular Preço Agora
+                                                Avaliar Imóvel
                                                 <Sparkles className="ml-2 group-hover:rotate-12 transition-transform" size={20} />
                                             </>
                                         )}
                                     </Button>
                                 </div>
-                                <p className="text-[10px] text-gray-400 text-center max-w-xs leading-relaxed">
+                                <p className="text-[9px] text-gray-400 text-center max-w-xs leading-relaxed uppercase font-bold tracking-widest opacity-60">
                                     Ao clicar, nossa IA cruzará dados reais do mercado angolano para sua estimativa.
                                 </p>
                             </div>
@@ -548,23 +606,23 @@ export default function AvaliarPage() {
                             animate={{ opacity: 1, y: 0 }}
                             className="space-y-8"
                         >
-                            <div className="bg-slate-900 rounded-[3rem] p-10 md:p-20 text-white relative overflow-hidden text-center">
-                                <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
+                            <div className="bg-[#0B0819] rounded-3xl p-6 md:p-16 text-white relative overflow-hidden text-center border border-purple-500/20 shadow-2xl">
+                                <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none text-purple-500">
                                     <TrendingUp size={400} />
                                 </div>
 
                                 <div className="relative z-10 space-y-12">
                                     <div className="space-y-2">
-                                        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-full text-orange-400 text-[10px] font-black uppercase tracking-widest mb-4">
+                                        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-full text-orange-400 text-[10px] font-black uppercase tracking-widest mb-4 border border-white/10">
                                             <Sparkles size={14} />
-                                            Relatório Gerado com Sucesso
+                                            Relatório de Avaliação Kercasa
                                         </div>
-                                        <h2 className="text-3xl md:text-5xl font-black tracking-tight leading-none mb-2">Valor Estimado <br />de Mercado</h2>
-                                        <p className="text-gray-400 font-medium">{searchTerm} â€¢ {tipoImovel} â€¢ {metragem}m²</p>
+                                        <h2 className="text-3xl md:text-5xl font-black tracking-tight leading-none mb-2 uppercase">Valor Estimado <br />de Mercado</h2>
+                                        <p className="text-gray-400 font-medium uppercase text-[10px] tracking-widest">{searchTerm} • {tipoImovel} • {metragem}m²</p>
                                     </div>
 
-                                    <div className="space-y-4">
-                                        <div className="text-5xl md:text-8xl font-black text-orange-500 leading-none glow-orange py-4">
+                                    <div className="space-y-4 px-2">
+                                        <div className="text-3xl sm:text-4xl md:text-8xl font-black text-orange-500 leading-none glow-orange py-4 tabular-nums break-words mx-auto max-w-full">
                                             {predictionResult ? (
                                                 <AnimatedNumber value={predictionResult.preco_akz} />
                                             ) : (
@@ -574,7 +632,7 @@ export default function AvaliarPage() {
                                         <div className="flex flex-wrap justify-center gap-6">
                                             <div className="flex flex-col items-center">
                                                 <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Dólares (Aprox.)</span>
-                                                <span className="text-2xl font-bold text-white">
+                                                <span className="text-2xl font-bold text-white tabular-nums">
                                                     {predictionResult ? predictionResult.preco_usd_fmt : (
                                                         formatAKZ(results.precoFinal / 830).replace('AKZ', 'USD')
                                                     )}
@@ -583,21 +641,55 @@ export default function AvaliarPage() {
                                             <div className="w-px h-12 bg-white/10 hidden md:block" />
                                             <div className="flex flex-col items-center">
                                                 <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Confiança do Modelo</span>
-                                                <span className="text-2xl font-bold text-green-500">Elevada (94%)</span>
+                                                <span className="text-2xl font-bold text-green-500 uppercase">{predictionResult ? 'Elevada (94%)' : 'Heurística (70%)'}</span>
                                             </div>
+                                        </div>
+                                    </div>
+
+                                    {/* --- DYNAMIC NATIVE ADS GRID --- */}
+                                    <div className="pt-10 border-t border-white/5 space-y-6">
+                                        <div className="flex items-center justify-center gap-3">
+                                            <div className="h-px bg-white/10 flex-1"></div>
+                                            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-gray-500">Imóveis Recomendados</span>
+                                            <div className="h-px bg-white/10 flex-1"></div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            {featuredProperties.map((prop) => (
+                                                <Link
+                                                    key={prop.id}
+                                                    href={`/propriedades/${prop.id}`}
+                                                    className="bg-white/5 border border-white/10 p-3 rounded-2xl flex items-center gap-4 text-left group hover:bg-white/10 transition-all"
+                                                >
+                                                    <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0">
+                                                        <img
+                                                            src={prop.image || '/house10.jpg'}
+                                                            alt={prop.title}
+                                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                                        />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-orange-400 text-[9px] font-black uppercase tracking-wider mb-0.5" suppressHydrationWarning>
+                                                            {formatAKZ(prop.price as number).replace(',00', '')}
+                                                        </p>
+                                                        <h4 className="text-white text-[11px] font-bold leading-tight line-clamp-2 uppercase">
+                                                            {prop.title}
+                                                        </h4>
+                                                        <p className="text-gray-500 text-[8px] mt-1 uppercase font-bold truncate">
+                                                            {prop.bairro || prop.cidade}
+                                                        </p>
+                                                    </div>
+                                                    <ArrowRight size={14} className="text-gray-600 group-hover:text-white transition-colors" />
+                                                </Link>
+                                            ))}
                                         </div>
                                     </div>
 
                                     <div className="flex flex-col md:flex-row gap-4 justify-center pt-8">
                                         <Button
                                             onClick={handlePublish}
-                                            className="h-16 px-12 bg-orange-600 hover:bg-orange-700 text-white rounded-[1.5rem] font-black uppercase tracking-widest transition-all shadow-xl shadow-orange-900/30 group relative overflow-hidden active:scale-95"
+                                            className="h-14 md:h-16 px-8 md:px-12 bg-white hover:bg-gray-100 text-purple-950 rounded-xl font-bold uppercase tracking-widest text-sm md:text-base transition-all shadow-xl shadow-white/5 group relative overflow-hidden active:scale-95"
                                         >
-                                            <motion.div
-                                                animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.3, 0.1] }}
-                                                transition={{ repeat: Infinity, duration: 2 }}
-                                                className="absolute inset-0 bg-orange-400"
-                                            />
                                             <span className="relative z-10 flex items-center gap-2">
                                                 Vender Imóvel Agora
                                                 <ArrowRight className="ml-2 group-hover:translate-x-2 transition-transform" size={20} />
@@ -605,22 +697,21 @@ export default function AvaliarPage() {
                                         </Button>
                                         <Button
                                             onClick={() => setStep(1)}
-                                            variant="ghost"
-                                            className="h-16 px-8 text-white hover:bg-white/5 rounded-[1.5rem] font-bold uppercase tracking-widest text-xs"
+                                            variant="outline"
+                                            className="h-14 md:h-16 px-8 text-white border-white/40 bg-white/5 backdrop-blur-sm hover:bg-white/10 rounded-xl font-bold uppercase tracking-widest text-xs transition-all"
                                         >
                                             Nova Simulação
                                         </Button>
                                     </div>
 
-                                    {/* New: Integrated Promotion/Ad Area inside Results Section */}
-                                    <div className="max-w-md mx-auto p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-4 group cursor-pointer hover:bg-white/10 transition-colors">
+                                    <div className="max-w-md mx-auto p-4 bg-purple-500/10 border border-purple-500/20 rounded-2xl flex items-center gap-4 group cursor-pointer hover:bg-purple-500/20 transition-colors">
                                         <div className="w-10 h-10 bg-purple-600/20 rounded-xl flex items-center justify-center text-purple-400">
                                             <ShieldCheck size={20} />
                                         </div>
                                         <div className="flex-1 text-left">
-                                            <p className="text-[8px] font-black text-purple-400 uppercase tracking-widest mb-0.5">Serviço Premium</p>
-                                            <p className="text-[10px] font-bold text-white">Certificação Kercasa</p>
-                                            <p className="text-[9px] text-gray-500">Aumente a confiança na venda em 85%.</p>
+                                            <p className="text-[8px] font-black text-purple-400 uppercase tracking-widest mb-0.5">Serviço Premium Kercasa</p>
+                                            <p className="text-[10px] font-bold text-white uppercase tracking-tight">Avaliação Certificada</p>
+                                            <p className="text-[9px] text-gray-500">Documento oficial para processos bancários e judiciais.</p>
                                         </div>
                                         <ArrowRight size={14} className="text-purple-400 group-hover:text-white transition-colors" />
                                     </div>
@@ -634,29 +725,35 @@ export default function AvaliarPage() {
 
             <style jsx>{`
                 .glow-orange {
-                  text-shadow: 0 0 40px rgba(234, 88, 12, 0.4);
+                  text-shadow: 0 0 40px rgba(234, 88, 12, 0.6);
+                }
+                .glow-purple {
+                  text-shadow: 0 0 30px rgba(124, 58, 237, 0.4);
                 }
                 input[type='range'] {
                     appearance: none;
+                    background: transparent;
                 }
                 input[type='range']::-webkit-slider-runnable-track {
-                    height: 8px;
+                    height: 6px;
                     background: #f1f5f9;
-                    border-radius: 4px;
+                    border-radius: 10px;
                 }
                 input[type='range']::-webkit-slider-thumb {
                     appearance: none;
                     width: 24px;
                     height: 24px;
-                    background: #ea580c;
+                    background: #7C3AED;
                     border-radius: 50%;
                     cursor: pointer;
-                    margin-top: -8px;
-                    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-                    transition: all 0.2s;
+                    margin-top: -9px;
+                    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3);
+                    border: 4px solid white;
+                    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                 }
                 input[type='range']::-webkit-slider-thumb:hover {
-                    transform: scale(1.1);
+                    transform: scale(1.15);
+                    box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
                 }
             `}</style>
         </div>
