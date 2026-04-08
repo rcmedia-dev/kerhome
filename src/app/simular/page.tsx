@@ -276,7 +276,9 @@ export default function SimularPage() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
+                    {/* --- COLUNA 1 & 2: Ferramentas (WIZARD 8 COLS) --- */}
+                    <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-8">
 
                     {/* Column 1: Inputs (Seção 5.1) */}
                     <motion.div
@@ -463,24 +465,26 @@ export default function SimularPage() {
                         />
                     </motion.div>
 
-                    {/* Column 3: Stack de Oportunidades Reais (Dynamic Native Ads) */}
+                    </div>
+
+                    {/* --- COLUNA 3: Sidebar de Sugestões (STICKY 4 COLS) --- */}
                     <motion.div
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="lg:col-span-4 flex flex-col gap-6"
+                        className="lg:col-span-4 lg:border-l lg:border-white/5 lg:pl-16 flex flex-col gap-6 sticky top-24"
                     >
-                        <div className="flex items-center justify-between mb-2">
-                             <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] flex items-center gap-2">
-                                Sugestões KerHome
-                                <span className="inline-block w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span>
+                        <div className="flex items-center justify-between mb-4">
+                             <p className="text-[10px] font-bold uppercase text-white/40 tracking-[0.2em] flex items-center gap-2">
+                                Sugestões Kercasa
+                                <span className="inline-block w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse shadow-[0_0_8px_rgba(249,115,22,0.8)]"></span>
                             </p>
                         </div>
 
                         {featuredProperties.length > 0 ? (
                             featuredProperties.map((prop) => (
-                                <Link 
-                                    key={prop.id} 
-                                    href={`/propriedades/${prop.id}`} 
+                                <Link
+                                    key={prop.id}
+                                    href={`/propriedades/${prop.id}`}
                                     className="bg-white p-4 rounded-3xl border border-gray-100 group cursor-pointer block hover:shadow-xl transition-all shadow-sm"
                                 >
                                     <div className="relative w-full h-44 rounded-2xl overflow-hidden shadow-sm mb-4">
@@ -514,18 +518,18 @@ export default function SimularPage() {
                         )}
 
                         <div className="bg-purple-50/50 backdrop-blur-md p-6 rounded-3xl border border-purple-200/50 relative overflow-hidden group">
-                           <div className="relative z-10">
+                            <div className="relative z-10">
                                 <h3 className="text-purple-900 font-bold text-lg leading-tight mb-2">Já sabe o valor da prestação?</h3>
                                 <p className="text-gray-600 text-xs mb-4 leading-relaxed">
                                     Agora use os filtros avançados da plataforma para encontrar a casa perfeita no seu orçamento.
                                 </p>
-                                <Link 
-                                    href="/propriedades" 
+                                <Link
+                                    href="/propriedades"
                                     className="text-xs font-black text-purple-700 uppercase tracking-widest flex items-center gap-2 group-hover:gap-3 transition-all"
                                 >
                                     Ir para catálogo <ArrowRight size={14} />
                                 </Link>
-                           </div>
+                            </div>
                         </div>
                     </motion.div>
 
@@ -554,21 +558,21 @@ export default function SimularPage() {
                         <div className="flex-1 flex flex-col sm:flex-row gap-4 w-full justify-center">
 
                             {/* CTA Secundário: Buscar (ESQUERDA) */}
-                            <Link 
-                                href={`/propriedades?maxPrice=${imovelValue}`} 
-                                className="flex-1 bg-transparent hover:bg-white/10 text-white backdrop-blur-sm border-2 border-white/30 px-8 py-4 h-auto rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-3 text-sm md:text-base group"
+                            <Link
+                                href={`/propriedades?maxPrice=${imovelValue}`}
+                                className="flex-1 bg-transparent hover:bg-white/10 text-white backdrop-blur-sm border-2 border-white/30 px-6 py-4 h-auto rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-3 text-xs sm:text-sm md:text-base group"
                             >
-                                <Search size={20} className="shrink-0 transition-transform group-hover:scale-110" />
-                                <span>Buscar até {formatAKZ(imovelValue).replace(',00', '')}</span>
+                                <Search size={18} className="shrink-0 transition-transform group-hover:scale-110" />
+                                <span className="whitespace-nowrap">Imóveis até {formatAKZ(imovelValue).replace(',00', '')}</span>
                             </Link>
 
                             {/* CTA Primário: Publicar (DIREITA - DESTAQUE) */}
                             <Button
                                 onClick={handlePublishPropertyClick}
-                                className="flex-1 bg-white hover:bg-gray-50 text-purple-900 px-8 py-4 h-auto rounded-xl font-bold transition-all shadow-xl flex items-center justify-center gap-3 text-sm md:text-base"
+                                className="flex-1 bg-white hover:bg-gray-50 text-purple-900 px-6 py-4 h-auto rounded-xl font-bold transition-all shadow-xl flex items-center justify-center gap-3 text-xs sm:text-sm md:text-base group"
                             >
-                                <Home size={20} className="text-purple-600" />
-                                <span>Publicar Imóvel</span>
+                                <Home size={18} className="text-purple-600 transition-transform group-hover:scale-110" />
+                                <span className="whitespace-nowrap">Publicar Imóvel</span>
                             </Button>
 
                         </div>
