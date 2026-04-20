@@ -1,6 +1,10 @@
-﻿import { supabase } from "@/lib/supabase";
+'use server';
+
+import { createClient } from "@/lib/supabase/server";
 
 export async function getOrCreateChat(userId: string, agentId: string, propertyId: string) {
+  const supabase = await createClient();
+  
   // 1. Buscar chat existente
   const { data: existingChat, error } = await supabase
     .from('chats')
@@ -23,4 +27,3 @@ export async function getOrCreateChat(userId: string, agentId: string, propertyI
   if (createError) throw new Error(createError.message);
   return newChat;
 }
-

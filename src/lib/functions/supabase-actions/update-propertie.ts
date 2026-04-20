@@ -1,7 +1,8 @@
-﻿'use server';
+'use server';
 
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { applyWatermark } from '@/lib/utils/image-watermark';
 
 interface PropertyData {
   id: string;
@@ -36,8 +37,8 @@ interface PropertyData {
   nota_privada?: string;
 }
 
-// Upload de arquivo para o Supabase Storage
-async function uploadFileToSupabase(file: File, bucket: string, path: string): Promise<string> {
+// Upload genérico (documentos — sem marca d'água)
+async function uploadFileToSupabase(supabase: any, file: File, bucket: string, path: string): Promise<string> {
   const fileExt = file.name.split('.').pop();
   const fileName = `${path}/${Math.random().toString(36).substring(2)}.${fileExt}`;
   const fileBuffer = await file.arrayBuffer();
@@ -58,8 +59,34 @@ async function uploadFileToSupabase(file: File, bucket: string, path: string): P
   return publicUrl;
 }
 
+// Upload de imagem COM marca d'água KerCasa
+async function uploadImageWithWatermark(supabase: any, file: File, bucket: string, path: string): Promise<string> {
+  // 1. Converter ficheiro para Buffer e aplicar marca d'água
+  const rawBuffer = Buffer.from(await file.arrayBuffer());
+  const { buffer: processedBuffer, contentType } = await applyWatermark(rawBuffer, file.type);
+
+  // 2. Definir extensão de saída
+  const fileExt = contentType === 'image/webp' ? 'webp' : (file.name.split('.').pop() ?? 'jpg');
+  const fileName = `${path}/${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+  // 3. Upload do buffer processado
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .upload(fileName, processedBuffer, {
+      contentType,
+      upsert: true,
+    });
+
+  if (error) {
+    throw new Error(`Erro no upload: ${error.message}`);
+  }
+
+  const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(data.path);
+  return publicUrl;
+}
+
 // Deletar arquivo do Supabase Storage
-async function deleteFileFromSupabase(bucket: string, filePath: string): Promise<void> {
+async function deleteFileFromSupabase(supabase: any, bucket: string, filePath: string): Promise<void> {
   const { error } = await supabase.storage
     .from(bucket)
     .remove([filePath]);
@@ -71,28 +98,29 @@ async function deleteFileFromSupabase(bucket: string, filePath: string): Promise
 }
 
 // Extrair caminho do arquivo a partir da URL pública
-function extractFilePathFromUrl(url: string, bucket: string): string {
+function extractFilePathFromUrl(supabase: any, url: string, bucket: string): string {
   const baseUrl = `${supabase.storage.from(bucket).getPublicUrl('').data.publicUrl}`;
   return url.replace(baseUrl, '').replace(/^\//, '');
 }
 
 // Processar uploads de arquivos para uma propriedade
-async function processPropertyUploads(formData: PropertyData, existingProperty?: any) {
+async function processPropertyUploads(supabase: any, formData: PropertyData, existingProperty?: any) {
   const processedData: any = {};
 
-  // Processar imagem de capa
+  // Processar imagem de capa (com marca d'água)
   if (formData.coverFile instanceof File && formData.coverFile.size > 0) {
     // Se havia uma imagem anterior, deletá-la
     if (existingProperty?.image) {
       try {
-        const oldFilePath = extractFilePathFromUrl(existingProperty.image, 'properties');
-        await deleteFileFromSupabase('properties', oldFilePath);
+        const oldFilePath = extractFilePathFromUrl(supabase, existingProperty.image, 'properties');
+        await deleteFileFromSupabase(supabase, 'properties', oldFilePath);
       } catch (error) {
         console.error('Erro ao deletar imagem anterior:', error);
       }
     }
     
-    processedData.image = await uploadFileToSupabase(
+    processedData.image = await uploadImageWithWatermark(
+      supabase,
       formData.coverFile, 
       'files', 
       'images'
@@ -109,7 +137,8 @@ async function processPropertyUploads(formData: PropertyData, existingProperty?:
     
     for (const file of formData.galleryFiles) {
       if (file instanceof File && file.size > 0) {
-        const url = await uploadFileToSupabase(file, 'files', 'gallery');
+        // Galeria também recebe marca d'água
+        const url = await uploadImageWithWatermark(supabase, file, 'files', 'gallery');
         galleryUrls.push(url);
       }
     }
@@ -126,6 +155,8 @@ async function processPropertyUploads(formData: PropertyData, existingProperty?:
 
 // Atualizar propriedade com suporte a upload de imagens
 export async function updateProperty(id: string, formData: PropertyData) {
+  const supabase = await createClient();
+  
   try {
     // Buscar propriedade existente para gerenciar exclusão de arquivos antigos
     const { data: existingProperty } = await supabase
@@ -135,7 +166,7 @@ export async function updateProperty(id: string, formData: PropertyData) {
       .single();
 
     // Processar uploads de arquivos
-    const uploadedData = await processPropertyUploads(formData, existingProperty);
+    const uploadedData = await processPropertyUploads(supabase, formData, existingProperty);
 
     // Converter valores numéricos vazios para null
     const sanitizedData = {
@@ -203,12 +234,14 @@ export async function updateProperty(id: string, formData: PropertyData) {
 
 // Deletar imagem da galeria
 export async function deleteGalleryImage(propertyId: string, imageUrl: string) {
+  const supabase = await createClient();
+  
   try {
     // Extrair caminho do arquivo a partir da URL
-    const filePath = extractFilePathFromUrl(imageUrl, 'properties');
+    const filePath = extractFilePathFromUrl(supabase, imageUrl, 'properties');
     
     // Deletar do storage
-    await deleteFileFromSupabase('properties', filePath);
+    await deleteFileFromSupabase(supabase, 'properties', filePath);
     
     // Remover da lista de imagens da propriedade
     const { data: property } = await supabase

@@ -1,5 +1,4 @@
-﻿import { create } from 'zustand';
-import { supabase } from '@/lib/supabase';
+import { create } from 'zustand';
 import { pusherClient } from '@/lib/pusher-client';
 
 export interface Profile {

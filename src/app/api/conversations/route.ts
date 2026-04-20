@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET(req: Request) {
+    const supabase = await createClient();
     const { searchParams } = new URL(req.url);
     const user_id = searchParams.get('user_id');
 
@@ -101,6 +102,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+    const supabase = await createClient();
     try {
         const { user_id, target_user_id, target_type = 'agent', imobiliaria_id } = await req.json();
 
@@ -111,10 +113,6 @@ export async function POST(req: Request) {
         // Determinar o user2_id (se for agência e não tiver target_user_id, usa o próprio user_id como placeholder até o claim)
         const u2 = target_user_id || user_id;
         
-        // Gerar user_pair ordenado para evitar duplicidade
-        const ids = [user_id, u2].sort();
-        const user_pair = `${ids[0]}-${ids[1]}`;
-
         // 1. Tentar encontrar conversa existente por IDs
         let query = supabase.from('conversations').select('*');
         if (target_type === 'agency' && imobiliaria_id) {
@@ -129,10 +127,6 @@ export async function POST(req: Request) {
 
         if (existing) {
             // Se for chat de agência, resetamos o status para 'open' para voltar à fila
-            if (target_type === 'agency' || existing.target_type === 'agency') {
-                return NextResponse.json({ conversation: existing, created: false });
-            }
-
             return NextResponse.json({ conversation: existing, created: false });
         }
 
@@ -172,4 +166,3 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Erro interno ao processar conversa" }, { status: 500 });
     }
 }
-

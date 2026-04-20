@@ -102,8 +102,10 @@ export function CustomSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
         <Image
           src="/kercasa_logo.png"
           alt="Kerhome Logo"
-          width={100}
-          height={100}
+          width={150}
+          height={40}
+          style={{ width: 'auto', height: 'auto' }}
+          className="object-contain"
           priority
         />
       </div>

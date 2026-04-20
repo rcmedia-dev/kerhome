@@ -1,12 +1,13 @@
-﻿// app/actions/plan-actions.ts
+// app/admin/dashboard/actions/update-user-plan.ts
 'use server';
 
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 
 export async function handlePlanRequest(
   requestId: string,
   action: "approved" | "rejected"
 ) {
+  const supabase = await createClient();
   try {
     // Buscar a solicitação
     const { data: request, error } = await supabase
@@ -59,15 +60,16 @@ export async function handleRequestPlanChange(
   planName: string,
   userData?: { nome?: string; email?: string }
 ) {
+  const supabase = await createClient();
   try {
-    // 1ï¸âƒ£ Mapear nome do plano para ID
+    // 1. Mapear nome do plano para ID
     const planId = await getPlanIdByName(planName);
 
     if (!planId) {
       return { success: false, error: "Plano não encontrado" };
     }
 
-    // 2ï¸âƒ£ Criar solicitação no banco
+    // 2. Criar solicitação no banco
     const { error } = await supabase
       .from("plan_requests")
       .insert([
@@ -83,7 +85,7 @@ export async function handleRequestPlanChange(
       return { success: false, error: error.message };
     }
 
-    // 3ï¸âƒ£ Enviar notificação via webhook (n8n)
+    // 3. Enviar notificação via webhook (n8n)
     try {
       await fetch("https://n8n.srv1157846.hstgr.cloud/webhook/notificate", {
         method: "POST",
@@ -115,7 +117,6 @@ export async function handleRequestPlanChange(
 
 // Função auxiliar para obter ID do plano pelo nome
 async function getPlanIdByName(planName: string): Promise<string | null> {
-  // Você precisa implementar esta função baseada na sua estrutura de banco
   const planMap: { [key: string]: string } = {
     "Plano Básico": "26404022-2e38-4770-a89a-9f9c04ec5336",
     "Plano Professional": "b6034f3a-7ac6-4da9-a825-bb5892c02a93", 

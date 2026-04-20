@@ -1,6 +1,6 @@
-﻿'use server';
+'use server';
 
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { unstable_noStore as noStore } from 'next/cache';
 import { UserPlan } from '@/lib/types/agent';
 
@@ -14,6 +14,7 @@ export async function updateUserPlan(
   newPlan: UserPlan
 ): Promise<UpdatePlanResult> {
   noStore();
+  const supabase = await createClient();
 
   try {
     // 1. Buscar o plano pelo nome (ex.: "BÁSICO", "PROFESSIONAL", "SUPER")
@@ -47,4 +48,3 @@ export async function updateUserPlan(
     return { success: false, error: 'Erro interno do servidor' };
   }
 }
-

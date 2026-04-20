@@ -1,6 +1,9 @@
-﻿import { supabase } from "@/lib/supabase";
+'use server';
+
+import { createClient } from "@/lib/supabase/server";
 
 export async function aproveAgent(requestId: string, userId: string): Promise<{success: boolean, message: string}>{
+    const supabase = await createClient();
     try {
         const { error } = await supabase
           .from('agente_requests')
@@ -25,6 +28,7 @@ export async function aproveAgent(requestId: string, userId: string): Promise<{s
 }
 
 export async function rejectAgent(requestId: string): Promise<{success: boolean, message: string}>{
+    const supabase = await createClient();
     try {
         const { error } = await supabase
         .from('agente_requests')

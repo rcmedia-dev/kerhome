@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { CheckCircle, Eye, MapPin, Plus, UserCircle2, XCircle, Clock, Check, X, Building, Settings, Trash2, Edit, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -323,7 +323,7 @@ interface PropertyCardProps {
 
 function ApprovalPropertyCard({ property, darkMode, onUpdate }: PropertyCardProps) {
   const { user } = useUserStore();
-  const mainImage = property.gallery?.[0] || '';
+  const mainImage = property.image || property.gallery?.[0] || '';
 
   const handleApprove = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -371,6 +371,7 @@ function ApprovalPropertyCard({ property, darkMode, onUpdate }: PropertyCardProp
             src={mainImage}
             alt={property.title || "Imóvel sem título"}
             fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
           />
         ) : (
@@ -473,7 +474,7 @@ interface ManagementPropertyCardProps {
 
 function ManagementPropertyCard({ property, darkMode, onUpdate, onDelete }: ManagementPropertyCardProps) {
   const { user } = useUserStore();
-  const mainImage = property.gallery?.[0] || '';
+  const mainImage = property.image || property.gallery?.[0] || '';
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async (e: React.MouseEvent) => {
@@ -518,6 +519,7 @@ function ManagementPropertyCard({ property, darkMode, onUpdate, onDelete }: Mana
             src={mainImage}
             alt={property.title || "Imóvel sem título"}
             fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
           />
         ) : (

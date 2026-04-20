@@ -45,7 +45,14 @@ export default function Footer() {
           <div className="space-y-6">
             {/* Ajuste do tamanho/logo aqui se necessario. Usei filter brightness para destacar no fundo escuro */}
             <div className="bg-white/10 p-4 rounded-xl inline-block backdrop-blur-sm w-fit">
-              <Image src="/kercasa_logo.png" alt="Kercasa" width={140} height={50} className="object-contain" />
+              <Image 
+                src="/kercasa_logo.png" 
+                alt="Kercasa" 
+                width={150} 
+                height={40} 
+                style={{ width: 'auto', height: 'auto' }}
+                className="object-contain" 
+              />
             </div>
 
             <h2 className="text-3xl font-bold text-white tracking-tight">

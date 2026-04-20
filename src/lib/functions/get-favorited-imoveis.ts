@@ -1,39 +1,41 @@
-﻿// lib/actions/get-imoveis-favoritos.ts
 'use server';
 
-import { supabase } from '@/lib/supabase';
-import { TFavoritedPropertyResponseSchema } from '@/lib/types/user';
+import { createClient } from '@/lib/supabase/server';
+import { TPropertyResponseSchema } from '@/lib/types/property';
 
-export async function getImoveisFavoritos(
-  userId?: string
-): Promise<TFavoritedPropertyResponseSchema[]> {
+export async function getImoveisFavoritos(userId: string): Promise<TPropertyResponseSchema[]> {
   if (!userId) return [];
-
+  
+  const supabase = await createClient();
+  
   try {
-    // 1. Buscar todos os favoritos do usuário (não usar maybeSingle pois pode ter vários)
-    const { data: favorites, error: favoritesError } = await supabase
+    // 1. Buscar todos os favoritos do usuário
+    const { data: favoritos, error: errorFavoritos } = await supabase
       .from('favoritos')
       .select('property_id')
       .eq('user_id', userId);
 
-    if (favoritesError) throw favoritesError;
-    if (!favorites || favorites.length === 0) return [];
+    if (errorFavoritos) {
+      console.error('Erro ao buscar favoritos:', errorFavoritos);
+      return [];
+    }
 
-    // 2. Extrair apenas os IDs dos imóveis favoritos
-    const propertyIds = favorites.map(fav => fav.property_id);
+    const idsFavoritos = favoritos.map(f => f.property_id);
 
-    // 3. Buscar os detalhes completos dos imóveis favoritados
-    const { data: properties, error: propertiesError } = await supabase
-      .from('properties') // Verifique se o nome da tabela está correto (no seu código tinha um espaço)
+    if (idsFavoritos.length === 0) return [];
+
+    // 2. Buscar os detalhes completos dos imóveis favoritados
+    const { data: imoveis, error: errorImoveis } = await supabase
+      .from('properties')
       .select('*')
-      .in('property_id', propertyIds);
+      .in('id', idsFavoritos);
 
-    if (propertiesError) throw propertiesError;
-    if (!properties) return [];
+    if (errorImoveis) {
+      console.error('Erro ao buscar imóveis favoritados:', errorImoveis);
+      return [];
+    }
 
-    // 4. Validar os dados com o schema
-
-    return properties;
+    return imoveis as TPropertyResponseSchema[];
   } catch (error) {
     console.error("Erro ao buscar imóveis favoritos:", error);
     return [];

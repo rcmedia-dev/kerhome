@@ -1,10 +1,11 @@
 'use server';
 
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import { getDefaultPacotes } from "@/lib/types/utils";
 
 // Funções de Tracking
 export async function trackBoostView(propertyId: string) {
+  const supabase = await createClient();
   try {
     const { error } = await supabase.rpc('increment_boost_view', {
       p_property_id: propertyId
@@ -23,6 +24,7 @@ export async function trackBoostView(propertyId: string) {
 }
 
 export async function trackBoostClick(propertyId: string) {
+  const supabase = await createClient();
   try {
     const { error } = await supabase.rpc("increment_boost_click", {
       p_property_id: propertyId,
@@ -41,6 +43,7 @@ export async function trackBoostClick(propertyId: string) {
 }
 
 export async function fetchPacotesFromSupabase() {
+  const supabase = await createClient();
   try {
     const { data, error } = await supabase
       .from('pacotes_destaque')
@@ -87,8 +90,10 @@ export async function addPropertiesToBoost(
   const now = new Date();
   const endDate = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
 
+  const supabase = await createClient();
+
   try {
-    // 1ï¸âƒ£ Buscar boosts ativos existentes
+    // 1. Buscar boosts ativos existentes
     const { data: existingBoosts, error: fetchError } = await supabase
       .from("properties_to_boost")
       .select("property_id, boost_end, status")
@@ -97,10 +102,10 @@ export async function addPropertiesToBoost(
 
     if (fetchError) throw new Error("Erro ao verificar boosts existentes.");
 
-    // 2ï¸âƒ£ Filtrar imóveis já com boost ativo
+    // 2. Filtrar imóveis já com boost ativo
     const activeIds = new Set(
       (existingBoosts || [])
-        .filter((b) => new Date(b.boost_end) > now)
+        .filter((b) => b.boost_end && new Date(b.boost_end) > now)
         .map((b) => b.property_id)
     );
 
@@ -110,7 +115,7 @@ export async function addPropertiesToBoost(
       return { message: "Todos os imóveis já têm um destaque ativo.", inserted: 0 };
     }
 
-    // 3ï¸âƒ£ Criar novos boosts
+    // 3. Criar novos boosts
     const boostData = propertiesToInsert.map((propertyId) => ({
       property_id: propertyId,
       plan_id: planId,
@@ -121,7 +126,7 @@ export async function addPropertiesToBoost(
       clicks: 0,
     }));
 
-    // 4ï¸âƒ£ Inserir
+    // 4. Inserir
     const { data, error: insertError } = await supabase
       .from("properties_to_boost")
       .insert(boostData)
@@ -129,7 +134,7 @@ export async function addPropertiesToBoost(
 
     if (insertError) throw insertError;
 
-    // 5ï¸âƒ£ Enviar webhook POST notificando o destaque
+    // 5. Enviar webhook POST notificando o destaque
     try {
       await fetch("https://n8n.srv1157846.hstgr.cloud/webhook/notificate", {
         method: "POST",
@@ -168,8 +173,8 @@ export async function addPropertiesToBoost(
   }
 }
 
-
 export async function createFatura(userId: string, total: number, servico: string) {
+  const supabase = await createClient();
   try {
     const { data, error } = await supabase
       .from('faturas')
@@ -222,6 +227,7 @@ export interface PerformanceMetrics {
 }
 
 export async function getBoostedProperties(userId: string): Promise<BoostedProperty[]> {
+  const supabase = await createClient();
   try {
     const { data, error } = await supabase
       .from('properties_to_boost')
@@ -302,6 +308,7 @@ export async function getBoostedProperties(userId: string): Promise<BoostedPrope
 }
 
 export async function getPerformanceMetrics(userId: string): Promise<PerformanceMetrics> {
+  const supabase = await createClient();
   try {
     // Primeiro busca os IDs das propriedades do usuário
     const { data: userProperties, error: propsError } = await supabase
@@ -365,6 +372,7 @@ export async function getPerformanceMetrics(userId: string): Promise<Performance
 
 // Função para obter estatísticas de uma propriedade específica
 export async function getBoostedPropertyStats(propertyId: string) {
+  const supabase = await createClient();
   try {
     const { data, error } = await supabase
       .from('properties_to_boost')
@@ -398,6 +406,7 @@ export async function getBoostedPropertyStats(propertyId: string) {
 
 // Função para verificar se uma propriedade está impulsionada
 export async function checkIfPropertyIsBoosted(propertyId: string): Promise<boolean> {
+  const supabase = await createClient();
   try {
     const { data, error } = await supabase
       .from('properties_to_boost')
@@ -474,6 +483,3 @@ function getDefaultMetrics(): PerformanceMetrics {
     total_revenue: 0
   };
 }
-
-
-

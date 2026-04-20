@@ -1,15 +1,10 @@
-﻿'use server';
+'use server';
 
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { Property } from '@/app/admin/dashboard/actions/get-properties';
 
-interface Profile {
-  id: string;
-  primeiro_nome: string | null;
-  ultimo_nome: string | null;
-}
-
 export async function getPropertyById(id: string): Promise<Property | null> {
+  const supabase = await createClient();
   try {
     const { data: propertyData, error: propertyError } = await supabase
       .from('properties')
@@ -22,14 +17,15 @@ export async function getPropertyById(id: string): Promise<Property | null> {
         tipo,
         endereco,
         created_at,
+        image,
         gallery,
         caracteristicas,
         aprovement_status,
         video_url,
         documents,
-        profiles:profiles!properties_owner_id_fkey(
-          id, 
-          primeiro_nome, 
+        owner_id:profiles!properties_owner_id_fkey (
+          id,
+          primeiro_nome,
           ultimo_nome
         )
       `)
@@ -47,10 +43,10 @@ export async function getPropertyById(id: string): Promise<Property | null> {
 
     // Tratamento seguro do perfil do proprietário
     let ownerProfile = null;
-    if (propertyData.profiles) {
-      ownerProfile = Array.isArray(propertyData.profiles) 
-        ? propertyData.profiles[0] 
-        : propertyData.profiles;
+    if (propertyData.owner_id) {
+      ownerProfile = Array.isArray(propertyData.owner_id) 
+        ? propertyData.owner_id[0] 
+        : propertyData.owner_id;
     }
 
     const property: Property = {
@@ -62,6 +58,7 @@ export async function getPropertyById(id: string): Promise<Property | null> {
       tipo: propertyData.tipo,
       endereco: propertyData.endereco,
       created_at: propertyData.created_at,
+      image: propertyData.image || null,
       gallery: propertyData.gallery || [],
       caracteristicas: propertyData.caracteristicas || [],
       aprovement_status: propertyData.aprovement_status,
@@ -74,7 +71,6 @@ export async function getPropertyById(id: string): Promise<Property | null> {
       } : null
     };
 
-    console.log('Fetched property:', property);
     return property;
 
   } catch (error) {

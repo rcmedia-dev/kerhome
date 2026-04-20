@@ -1,4 +1,6 @@
-﻿import { supabase } from "@/lib/supabase";
+'use server';
+
+import { createClient } from "@/lib/supabase/server";
 
 export interface SearchParams {
     q?: string;
@@ -13,6 +15,7 @@ export interface SearchParams {
 }
 
 export async function searchProperties(params: SearchParams) {
+    const supabase = await createClient();
     const {
         q,
         status,
@@ -29,47 +32,47 @@ export async function searchProperties(params: SearchParams) {
         .from("properties")
         .select("*", { count: "exact" });
 
-    // ðŸ” Filtro por título
+    // 🔍 Filtro por título
     if (q) {
         query = query.ilike("title", `%${q}%`);
     }
 
-    // ðŸ“ Status
+    // 📋 Status
     if (status) {
         query = query.eq("status", status);
     }
 
-    // ðŸ“ Cidade
+    // 📍 Cidade
     if (cidade) {
         query = query.ilike("cidade", `%${cidade}%`);
     }
 
-    // ðŸ  Tipo de imóvel
+    // 🏠 Tipo de imóvel
     if (tipo) {
         query = query.ilike("tipo", `%${tipo}%`);
     }
 
-    // ðŸš¿ Banheiros
+    // 🚿 Banheiros
     if (banheiros) {
         query = query.gte("banheiros", Number(banheiros));
     }
 
-    // ðŸ› Quartos
+    // 🛏️ Quartos
     if (quartos) {
         query = query.gte("quartos", Number(quartos));
     }
 
-    // ðŸš— Garagens
+    // 🚗 Garagens
     if (garagens) {
         query = query.gte("garagens", Number(garagens));
     }
 
-    // ðŸ’° Preço máximo
+    // 💰 Preço máximo
     if (preco_max) {
         query = query.lte("preco", Number(preco_max));
     }
 
-    // ðŸ“ Tamanho mínimo
+    // 📐 Tamanho mínimo
     if (tamanho_min) {
         query = query.gte("tamanho", Number(tamanho_min));
     }
@@ -83,4 +86,3 @@ export async function searchProperties(params: SearchParams) {
 
     return propertiesFoundData || [];
 }
-

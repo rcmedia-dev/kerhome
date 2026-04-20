@@ -1,13 +1,13 @@
-﻿// src/lib/actions/get-properties.ts
+// src/lib/actions/get-properties.ts
 
 'use server';
 
-import z, { unknown } from 'zod';
-import { supabase } from '@/lib/supabase';
-import { BoostStats, MixedProperty } from '@/lib/types/mixed-properties';
-import { propertyResponseSchema, TPropertyResponseSchema, TPropriedadeFormData } from '@/lib/types/property';
+import z from 'zod';
+import { createClient } from '@/lib/supabase/server';
+import { propertyResponseSchema, TPropertyResponseSchema } from '@/lib/types/property';
 
 export async function getProperties(): Promise<TPropertyResponseSchema[]> {
+  const supabase = await createClient();
   try {
     const properties = await supabase.from('properties')
       .select('*')
@@ -21,20 +21,6 @@ export async function getProperties(): Promise<TPropertyResponseSchema[]> {
   }
 }
 
-const mixedPropertyResponseSchema = propertyResponseSchema.extend({
-  // Campos adicionais do boost (não interferem com o schema original)
-  boost_id: z.number().optional(),
-  boost_plan: z.string().optional(),
-  boost_status: z.string().optional(),
-  boost_views: z.number().optional(),
-  boost_clicks: z.number().optional(),
-  boost_start: z.string().optional(),
-  boost_end: z.string().optional(),
-  is_active_boost: z.boolean().optional(),
-  weight: z.number(),
-  is_boosted: z.boolean()
-});
-
 export async function getMixedProperties(): Promise<{
   properties: z.infer<typeof propertyResponseSchema>[];
   stats: {
@@ -46,8 +32,9 @@ export async function getMixedProperties(): Promise<{
     total_properties: number;
   };
 }> {
+  const supabase = await createClient();
   try {
-    console.log("ðŸ” Buscando propriedades com critérios corretos...");
+    console.log("🔍 Buscando propriedades com critérios corretos...");
 
     // Buscar propriedades principais
     const { data: propertiesData, error: propertiesError } = await supabase
@@ -78,11 +65,11 @@ export async function getMixedProperties(): Promise<{
       .order("created_at", { ascending: false });
 
     if (propertiesError) {
-      console.error("âŒ Erro ao buscar propriedades:", propertiesError);
+      console.error("❌ Erro ao buscar propriedades:", propertiesError);
       throw propertiesError;
     }
 
-    console.log("ðŸ“¦ Propriedades encontradas:", propertiesData?.length);
+    console.log("📦 Propriedades encontradas:", propertiesData?.length);
 
     if (!propertiesData || propertiesData.length === 0) {
       return {
@@ -106,14 +93,14 @@ export async function getMixedProperties(): Promise<{
       .in("property_id", propertyIds)
       .eq("status", "active");
 
-    console.log("ðŸš€ Boosts ativos encontrados:", boostsData?.length);
+    console.log("🚀 Boosts ativos encontrados:", boostsData?.length);
 
     // Aplicar lógica de mixing (priorizar impulsionados)
     const mixedProperties = propertiesData
       .map((property) => {
         const boost = boostsData?.find((b) => b.property_id === property.id);
         const isBoosted =
-          boost && boost.status === "active" && new Date(boost.boost_end) > new Date();
+          boost && boost.status === "active" && boost.boost_end && new Date(boost.boost_end) > new Date();
 
         // Propriedades impulsionadas têm peso maior
         const weight = isBoosted ? Math.random() * 2 + 1 : Math.random();
@@ -127,7 +114,7 @@ export async function getMixedProperties(): Promise<{
       })
       .sort((a, b) => b.weight - a.weight);
 
-    console.log("ðŸŽ¯ Propriedades misturadas:", mixedProperties.length);
+    console.log("🎯 Propriedades misturadas:", mixedProperties.length);
 
     // Validação e transformação final
     const validatedProperties = mixedProperties
@@ -180,31 +167,9 @@ export async function getMixedProperties(): Promise<{
             owner: safeOwner,
           };
 
-          console.log("ðŸ‘¤ Owner preparado:", {
-            id: safeOwner.id,
-            hasCreatedAt: !!safeOwner.createdAt,
-          });
-
           return propertyResponseSchema.parse(transformedData);
         } catch (validationError) {
-          console.error("âŒ Erro de validação na propriedade:", item.id);
-
-          if (validationError instanceof z.ZodError) {
-            const issues = Array.isArray(validationError.issues)
-              ? validationError.issues
-              : [];
-
-            console.error(
-              "ðŸ“‹ Erros de validação:",
-              issues.map((err) => ({
-                path: err.path,
-                message: err.message,
-              }))
-            );
-          } else {
-            console.error("ðŸ“‹ Erro desconhecido:", validationError);
-          }
-
+          console.error("❌ Erro de validação na propriedade:", item.id);
           return null;
         }
       })
@@ -212,7 +177,7 @@ export async function getMixedProperties(): Promise<{
         (item): item is z.infer<typeof propertyResponseSchema> => item !== null
       );
 
-    console.log("âœ… Propriedades validadas:", validatedProperties.length);
+    console.log("✅ Propriedades validadas:", validatedProperties.length);
 
     // Estatísticas
     const stats = {
@@ -228,19 +193,19 @@ export async function getMixedProperties(): Promise<{
       ).length,
       expired_count:
         boostsData?.filter(
-          (b) => b.status === "active" && new Date(b.boost_end) <= new Date()
+          (b) => b.status === "active" && b.boost_end && new Date(b.boost_end) <= new Date()
         ).length || 0,
       total_properties: validatedProperties.length,
     };
 
-    console.log("ðŸ“Š Estatísticas finais:", stats);
+    console.log("📊 Estatísticas finais:", stats);
 
     return {
       properties: validatedProperties,
       stats,
     };
   } catch (error) {
-    console.error("âŒ Erro em getMixedProperties:", error);
+    console.error("❌ Erro em getMixedProperties:", error);
     return {
       properties: [],
       stats: {
@@ -255,8 +220,8 @@ export async function getMixedProperties(): Promise<{
   }
 }
 
-
 export async function getLimitedProperties(limit: number): Promise<TPropertyResponseSchema[]> {
+  const supabase = await createClient();
   try {
     const properties = await supabase.from('properties')
       .select('*')
@@ -272,6 +237,7 @@ export async function getLimitedProperties(limit: number): Promise<TPropertyResp
 }
 
 export async function getPropertyById(id: string | null): Promise<TPropertyResponseSchema | null> {
+  const supabase = await createClient();
   try {
     const propertieById = await supabase.from('properties')
       .select(`
@@ -307,6 +273,7 @@ export async function getPropertyById(id: string | null): Promise<TPropertyRespo
 }
 
 export async function getSupabaseUserProperties(userId?: string): Promise<TPropertyResponseSchema[]> {
+  const supabase = await createClient();
   // Buscar propriedades do usuário
   const { data: propertiesData, error } = await supabase
     .from('properties')

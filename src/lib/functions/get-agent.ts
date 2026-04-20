@@ -1,4 +1,6 @@
-import { supabase } from '@/lib/supabase';
+'use server';
+
+import { createClient } from '@/lib/supabase/server';
 import { TPropertyResponseSchema } from '@/lib/types/property';
 import { Agent } from '@/components/top-agent';
 
@@ -14,6 +16,7 @@ export interface PropertyOwner {
 }
 
 export async function getPropertyOwner(propertyId?: string): Promise<PropertyOwner> {
+  const supabase = await createClient();
   // Validação básica
   if (!propertyId || typeof propertyId !== 'string') {
     throw new Error('ID da propriedade inválido');
@@ -84,6 +87,7 @@ export interface AgentProfile {
 }
 
 export async function getAgentByEmail(email: string): Promise<AgentProfile> {
+  const supabase = await createClient();
   // Validação do email
   if (!email || typeof email !== 'string' || !email.includes('@')) {
     throw new Error('Email inválido');
@@ -132,6 +136,7 @@ export async function getAgentByEmail(email: string): Promise<AgentProfile> {
 }
 
 export async function getAgentProperties(userId: string): Promise<TPropertyResponseSchema[]> {
+  const supabase = await createClient();
   try {
     const properties = await supabase.from('properties')
       .select('*')
@@ -147,6 +152,7 @@ export async function getAgentProperties(userId: string): Promise<TPropertyRespo
 }
 
 export async function getAgents(limitParam?: number): Promise<Agent[]> {
+  const supabase = await createClient();
   let query = supabase
     .from("profiles")
     .select("*")

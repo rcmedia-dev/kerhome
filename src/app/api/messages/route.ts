@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import { pusher } from "@/lib/pusher";
 
 export async function POST(req: Request) {
   try {
+    const supabase = await createClient();
     const { conversation_id, sender_id, content, attachment_url, attachment_type, sender_type, sender_agency_id } = await req.json();
 
     if (!conversation_id || !sender_id || !content) {
@@ -69,6 +70,7 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+  const supabase = await createClient();
   const { searchParams } = new URL(req.url);
   const conversation_id = searchParams.get('conversation_id');
 

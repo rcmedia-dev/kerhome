@@ -1,7 +1,7 @@
-﻿import { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Fatura } from '@/lib/types/property';
 import { useUserStore } from '@/lib/store/user-store';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 
 export function useInvoiceManagement(initialInvoices: Fatura[] | null) {
@@ -9,6 +9,7 @@ export function useInvoiceManagement(initialInvoices: Fatura[] | null) {
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isDeletingAll, setIsDeletingAll] = useState(false);
   const [localInvoices, setLocalInvoices] = useState<Fatura[] | null>(initialInvoices);
+  const supabase = createClient();
 
   const handleDeleteFatura = useCallback(async (faturaId: string) => {
     if (!user) {

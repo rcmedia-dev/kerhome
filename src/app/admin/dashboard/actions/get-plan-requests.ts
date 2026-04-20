@@ -1,7 +1,7 @@
-﻿// lib/actions/get-plan-requests.ts
+// src/app/admin/dashboard/actions/get-plan-requests.ts
 'use server'
 
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@/lib/supabase/server"
 
 // Mapear nomes de planos para exibição e preços
 const PLAN_NAME_MAP: Record<string, string> = {
@@ -20,6 +20,7 @@ const PLAN_PRICES: Record<string, number> = {
 
 // Buscar todas as solicitações de plano
 export async function getPlanRequests() {
+  const supabase = await createClient();
   const { data: requests, error: reqError } = await supabase
     .from("plan_requests")
     .select(`
@@ -82,6 +83,7 @@ export async function approvePlanRequest(
   userId: string,
   planId: string
 ) {
+  const supabase = await createClient();
   try {
     // Atualiza o plano do usuário
     const { error: updateError } = await supabase
@@ -150,6 +152,7 @@ export async function approvePlanRequest(
 
 // Rejeita uma solicitação de plano
 export async function rejectPlanRequest(requestId: string) {
+  const supabase = await createClient();
   try {
     const { error } = await supabase
       .from("plan_requests")
@@ -175,6 +178,7 @@ export async function rejectPlanRequest(requestId: string) {
 
 // Remove uma subscrição de plano de um agente
 export async function removeSubscription(requestId: string, userId: string) {
+  const supabase = await createClient();
   try {
     const { data: existingRequest, error: fetchError } = await supabase
       .from("plan_requests")
@@ -222,4 +226,3 @@ export async function removeSubscription(requestId: string, userId: string) {
     }
   }
 }
-

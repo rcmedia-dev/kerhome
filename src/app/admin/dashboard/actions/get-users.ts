@@ -1,20 +1,17 @@
-﻿import { supabase } from "@/lib/supabase";
+'use server';
 
-
-
-type UserRole = 'admin' | 'agent' ; // Ajuste os valores conforme necessário
-type UserStatus = 'active' | 'offline' | string; // Exemplo de status
+import { createClient } from "@/lib/supabase/server";
 
 export interface User {
-  id: number;
+  id: string;
   primeiro_nome: string;
   ultimo_nome: string;
   email: string;
-  role: UserRole;
+  role: 'admin' | 'agent' | string;
   username: string;
   telefone: string;
   empresa: string;
-  status: UserStatus;
+  status: 'active' | 'offline' | string;
   licenca: string;
   website: string;
   facebook: string;
@@ -22,12 +19,12 @@ export interface User {
   instagram: string;
   youtube: string;
   sobre_mim: string;
-  created_at: string; // ISO 8601 format, ex: "2025-08-22T14:55:00Z"
+  created_at: string;
   updated_at: string;
 }
 
-
 export async function getUsers() {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('profiles')
     .select(`
@@ -60,6 +57,7 @@ export async function getUsers() {
 }
 
 export async function getUsersById(id: string) {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('profiles')
     .select(`
@@ -88,8 +86,6 @@ export async function getUsersById(id: string) {
   if (error) {
     throw new Error(`Erro ao buscar usuário: ${error.message}`);
   }
-
-  console.log('User data:', data);
 
   return data || null;
 }

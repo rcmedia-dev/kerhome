@@ -161,7 +161,9 @@ export function PropertyCard({ property, canBoost = true, onDelete }: PropertyCa
         if (!cancelled && mountedRef.current) {
           setFavorito(favoritos.some(fav => fav.id === property.id));
         }
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        console.error("Error in PropertyCard favorito useEffect:", e);
+      }
     })();
     return () => { cancelled = true; };
   }, [user, property.id]);
@@ -184,9 +186,16 @@ export function PropertyCard({ property, canBoost = true, onDelete }: PropertyCa
           let isSuspended = false;
           if (data.rejected_reason === 'suspicious') isSuspended = true;
 
-          if (data.status === 'active' && !isSuspended) {
-            const { data: planData } = await supabase.from('pacotes_destaque').select('dias').eq('id', data.plan_id).single();
-            if (planData?.dias) {
+          if (data.status === 'active' && !isSuspended && data.plan_id) {
+            const { data: planData, error: planError } = await supabase
+              .from('pacotes_destaque')
+              .select('dias')
+              .eq('id', data.plan_id)
+              .maybeSingle();
+            
+            if (planError) {
+              console.error("Error fetching boost plan details:", planError);
+            } else if (planData?.dias) {
               const expiresAt = new Date(new Date(data.created_at).setDate(new Date(data.created_at).getDate() + planData.dias));
               isExpired = new Date() > expiresAt;
             }
@@ -202,7 +211,9 @@ export function PropertyCard({ property, canBoost = true, onDelete }: PropertyCa
             });
           }
         }
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        console.error("Error in PropertyCard boosted status useEffect:", e);
+      }
     })();
     return () => { cancelled = true; };
   }, [property.id]);
@@ -248,6 +259,7 @@ export function PropertyCard({ property, canBoost = true, onDelete }: PropertyCa
           alt={property.title}
           fill
           priority
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover transition-transform duration-700 group-hover:scale-105"
         />
 

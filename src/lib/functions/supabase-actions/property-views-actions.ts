@@ -1,10 +1,11 @@
 'use server';
 
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import { TPropertyResponseSchema } from "@/lib/types/property";
 
 // --- INCREMENT VIEWS ---
 export async function incrementPropertyViews(propertyId: string, userId: string, ownerId: string) {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .rpc('increment_property_views', {
       p_property_id: propertyId,
@@ -35,6 +36,7 @@ export type TMyPropertiesWithViews = {
 export async function getMyPropertiesWithViews(
   ownerId?: string
 ): Promise<TMyPropertiesWithViews> {
+  const supabase = await createClient();
   const { data: views, error } = await supabase
     .from("property_views")
     .select(

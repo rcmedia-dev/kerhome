@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import {
@@ -10,7 +10,9 @@ import {
 import { CustomSignInForm } from '@/components/login-form';
 import { CustomSignUpForm } from '@/components/signup-form';
 import { useUserStore } from '@/lib/store/user-store';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
+
+const supabase = createClient();
 
 interface AuthDialogProps {
   trigger?: React.ReactNode;

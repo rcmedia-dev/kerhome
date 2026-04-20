@@ -1,9 +1,11 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Mail, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
+
+const supabase = createClient();
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');

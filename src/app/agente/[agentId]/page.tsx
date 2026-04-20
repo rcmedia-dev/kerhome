@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import React from 'react';
 
 // Subcomponentes
@@ -13,6 +13,8 @@ import { Sidebar } from '@/app/agente/components/sidebar';
 import { toast } from 'sonner';
 import { createDirectConversation, sendMessage } from '@/lib/functions/message-action';
 import { useUserStore } from '@/lib/store/user-store';
+
+const supabase = createClient();
 
 // Dados de estatísticas
 const agentStats = {
@@ -74,22 +76,22 @@ export default function AgentProfilePage(
     setIsSending(true);
 
     try {
-      // 1️⃣ Criar ou recuperar conversa direta entre o usuário atual e o agente
+      // 1. Criar ou recuperar conversa direta entre o usuário atual e o agente
       const conversation = await createDirectConversation(user.id, profile?.id);
 
       if (!conversation?.id) throw new Error("Falha ao criar conversa.");
 
-      // 2️⃣ Enviar mensagem
+      // 2. Enviar mensagem
       await sendMessage(conversation.id, user.id, message.trim());
 
-      // 3️⃣ Feedback ao usuário
+      // 3. Feedback ao usuário
       toast.success(
         "Mensagem enviada com sucesso! O agente entrará em contacto consigo brevemente."
       );
       setMessage("");
       setShowMessageBox(false);
     } catch (error: unknown) {
-      console.error("❌ Erro ao enviar mensagem:", error);
+      console.error("Erro ao enviar mensagem:", error);
       const errorMessage = error instanceof Error 
         ? 'Erro ao enviar mensagem. Tente novamente.'
         : 'Erro desconhecido ao enviar mensagem';

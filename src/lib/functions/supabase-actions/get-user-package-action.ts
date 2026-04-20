@@ -1,7 +1,7 @@
-﻿// lib/actions/get-user-plan.ts
+// lib/actions/get-user-plan.ts
 'use server';
 
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { unstable_noStore as noStore } from 'next/cache';
 
 interface UserPlan {
@@ -19,6 +19,8 @@ export async function getUserPlan(userId?: string): Promise<UserPlan> {
   if (!userId) {
     throw new Error('Usuário não autenticado');
   }
+
+  const supabase = await createClient();
 
   // 1. Buscar o ID do plano do usuário
   const { data: userData, error: userError } = await supabase
@@ -70,4 +72,3 @@ export async function getUserPlan(userId?: string): Promise<UserPlan> {
     pacote_agente_id: userData.pacote_agente_id,
   };
 }
-

@@ -12,7 +12,7 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import LoadingState from '@/app/propriedades/components/loading-state';
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 
-import { TFavoritedPropertyResponseSchema } from '@/lib/types/user';
+// import { TFavoritedPropertyResponseSchema } from '@/lib/types/user'; // Removed unused import
 import { Fatura, TPropertyResponseSchema } from '@/lib/types/property';
 import { TMyPropertiesWithViews } from '@/lib/functions/supabase-actions/property-views-actions';
 import { useInvoiceManagement } from '@/hooks/use-invoice-management';
@@ -189,7 +189,7 @@ export function MinhasPropriedades({ userProperties }: MinePropertiesProps) {
 // Favoritas
 // =======================
 type FavoritasProps = {
-  userFavoriteProperties: TFavoritedPropertyResponseSchema[] | null
+  userFavoriteProperties: TPropertyResponseSchema[] | null
 }
 
 export function Favoritas({ userFavoriteProperties }: FavoritasProps) {
@@ -212,7 +212,7 @@ export function Favoritas({ userFavoriteProperties }: FavoritasProps) {
             <AnimatePresence mode="popLayout">
               {userFavoriteProperties.map((property, index) => (
                 <motion.div
-                  key={property.propertyid}
+                  key={property.id}
                   layout
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -222,7 +222,12 @@ export function Favoritas({ userFavoriteProperties }: FavoritasProps) {
                   <PropertyFavoritedCard
                     property={{
                       ...property,
+                      propertyid: property.propertyid || property.id,
                       price: property.price != null ? String(property.price) : null,
+                      bedrooms: property.bedrooms ?? 0,
+                      bathrooms: property.bathrooms ?? 0,
+                      garagens: property.garagens ?? 0,
+                      size: property.size ?? '',
                     }}
                   />
                 </motion.div>

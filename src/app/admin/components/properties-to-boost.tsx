@@ -18,8 +18,10 @@ import {
   Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import { useUserStore } from '@/lib/store/user-store';
+
+const supabase = createClient();
 
 interface BoostedProperty {
   id: string;
@@ -390,7 +392,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
     if (boostStatus !== 'active') {
       return {
         expired: true,
-        text: boostStatus === 'pending' ? 'pending' :
+        text: boostStatus === 'pending' ? 'pendente' :
           boostStatus === 'rejected' ? 'Suspenso' :
             boostStatus === 'expired' ? 'Desimpulsionado' : 'Inativo',
         percentage: 0
@@ -485,9 +487,9 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       case 'active':
         return 'Ativo';
       case 'pending':
-        return 'pending';
+        return 'pendente';
       case 'rejected':
-        return 'rejected';
+        return 'rejeitado';
       case 'expired':
         return 'Desimpulsionado';
       default:

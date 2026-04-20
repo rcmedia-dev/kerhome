@@ -1,6 +1,6 @@
 'use server'
 
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 
 interface SignUpResponse {
@@ -24,6 +24,8 @@ function translateSignUpError(errorMsg: string | undefined): string {
 }
 
 export async function signUp(formData: FormData): Promise<SignUpResponse> {
+  const supabase = await createClient();
+
   // Extração segura dos dados do formulário
   const email = formData.get('email')?.toString()?.trim()
   const password = formData.get('password')?.toString()
@@ -89,8 +91,6 @@ export async function signUp(formData: FormData): Promise<SignUpResponse> {
 
     if (planoError || !planoData) {
       console.error('Erro ao buscar pacote FREE:', planoError);
-      // Rollback: remove o usuário criado se não conseguir atribuir o plano
-      await supabase.auth.admin.deleteUser(authData.user.id);
       return {
         success: false,
         error: 'Falha ao atribuir plano inicial'
@@ -105,18 +105,18 @@ export async function signUp(formData: FormData): Promise<SignUpResponse> {
 
     if (profilePlanError) {
       console.error('Erro ao atualizar profile com plano FREE:', profilePlanError);
-      // Rollback: remove o usuário criado se não conseguir salvar o plano
-      await supabase.auth.admin.deleteUser(authData.user.id);
       return {
         success: false,
         error: 'Falha ao associar plano inicial ao usuário'
       };
     }
 
-    // 3. Criar perfil do usuário
+    // 4. Criar perfil do usuário (Note: if you have a trigger on auth.users for profile creation, this might be redundant or needed depending on its implementation)
+    // Here we update/insert the remaining info. 
+    // Usually it's better to update since triggers might have created it already.
     const { error: profileError } = await supabase
       .from('profiles')
-      .insert({
+      .upsert({
         id: authData.user.id,
         email,
         primeiro_nome: primeiro_nome,
@@ -128,16 +128,13 @@ export async function signUp(formData: FormData): Promise<SignUpResponse> {
 
     if (profileError) {
       console.error('Erro ao criar perfil:', profileError)
-      // Rollback: remove o usuário e o pacote criados
-      await supabase.auth.admin.deleteUser(authData.user.id)
-      await supabase.from('planos_agente').delete().eq('id', planoData.id)
       return {
         success: false,
         error: 'Falha ao criar perfil do usuário'
       }
     }
 
-    // 4. Login automático
+    // Login automático
     const { data: sessionData, error: sessionError } = await supabase.auth.signInWithPassword({
       email,
       password
@@ -151,7 +148,7 @@ export async function signUp(formData: FormData): Promise<SignUpResponse> {
       }
     }
 
-    // 5. Armazenar sessão
+    // Armazenar sessão
     const { access_token, refresh_token } = sessionData.session
     const cookie = await cookies()
     cookie.set('sb-access-token', access_token, {

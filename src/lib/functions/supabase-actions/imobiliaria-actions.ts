@@ -1,6 +1,5 @@
 'use server';
 
-import { supabase } from "@/lib/supabase";
 import { createClient } from "@/lib/supabase/server";
 import { updateImobiliariaAction } from "./admin-imobiliaria-actions";
 import { Imobiliaria } from "@/lib/types/imobiliaria";
@@ -20,6 +19,7 @@ export interface ImobiliariaSearchParams {
  * Busca imobiliárias com filtros
  */
 export async function fetchImobiliarias(params: ImobiliariaSearchParams = {}) {
+  const supabase = await createClient();
   const { cidade, bairro, tipo_imovel, verificada, ordem, q, page, limit } = params;
 
   let query = supabase
@@ -105,6 +105,7 @@ export async function fetchImobiliarias(params: ImobiliariaSearchParams = {}) {
  * Busca uma imobiliária pelo Slug
  */
 export async function fetchImobiliariaBySlug(slug: string) {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("v_imobiliaria_stats")
     .select("*")
@@ -130,6 +131,7 @@ export async function fetchImobiliariaBySlug(slug: string) {
  * Busca os imóveis de uma imobiliária específica
  */
 export async function fetchPropertiesByAgency(imobiliaria_id: string) {
+  const supabase = await createClient();
   // Passo A: Buscar IDs de agentes vinculados
   const { data: agentProfiles, error: agentError } = await supabase
     .from("profiles")
@@ -167,6 +169,7 @@ export async function fetchPropertiesByAgency(imobiliaria_id: string) {
  * Busca localizações únicas das imobiliárias cadastradas (para os filtros inteligentes)
  */
 export async function fetchImobiliariaLocations() {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("imobiliarias")
     .select("cidade, bairro");
@@ -186,6 +189,7 @@ export async function fetchImobiliariaLocations() {
  * Busca os agentes vinculados a uma imobiliária
  */
 export async function fetchAgentsByAgency(imobiliaria_id: string) {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("profiles")
     .select("*")
@@ -205,6 +209,7 @@ export async function fetchAgentsByAgency(imobiliaria_id: string) {
  * Busca imobiliárias em destaque para o Carrossel da Home
  */
 export async function fetchFeaturedAgencies() {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("imobiliarias")
     .select("*")
@@ -225,6 +230,7 @@ export async function fetchFeaturedAgencies() {
  * Busca imobiliárias semelhantes (mesma cidade)
  */
 export async function fetchSimilarAgencies(localizacao: string, currentId: string) {
+  const supabase = await createClient();
   let query = supabase
     .from("imobiliarias")
     .select("*")

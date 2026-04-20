@@ -1,10 +1,12 @@
-﻿'use server'
+'use server'
 
 import { cookies } from 'next/headers'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/server'
 
 export async function logout() {
   try {
+    const supabase = await createClient();
+    
     // 1. Encerrar sessão no Supabase
     const { error } = await supabase.auth.signOut()
     const cookie = await cookies()
@@ -14,7 +16,7 @@ export async function logout() {
       return { success: false, error: error.message }
     }
 
-    // 2. Remover cookies de autenticação
+    // 2. Remover cookies de autenticação (supostamente cuidados pelo @supabase/ssr, mas aqui está manual)
     cookie.delete('sb-access-token')
     cookie.delete('sb-refresh-token')
 

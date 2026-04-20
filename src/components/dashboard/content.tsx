@@ -5,7 +5,6 @@ import { MinhasPropriedades, Favoritas, Faturas, PropriedadesMaisVisualizadas } 
 import { AgencyManagement } from './agency-management';
 import PropriedadesImpulsionadasDashboard from '@/components/boosted-properties';
 import { ConfiguracoesConta } from '@/components/account-setting';
-import type { TFavoritedPropertyResponseSchema } from '@/lib/types/user';
 import type { Fatura, TPropertyResponseSchema } from '@/lib/types/property';
 import type { TMyPropertiesWithViews } from '@/lib/functions/supabase-actions/property-views-actions';
 
@@ -13,7 +12,7 @@ interface DashboardContentProps {
     activeTab: string;
     user: any;
     userProperties: TPropertyResponseSchema[] | null;
-    userFavoriteProperties: TFavoritedPropertyResponseSchema[] | null;
+    userFavoriteProperties: TPropertyResponseSchema[] | null;
     userInvoices: Fatura[] | null;
     mostViewed: TMyPropertiesWithViews | null;
     userAgency: any;

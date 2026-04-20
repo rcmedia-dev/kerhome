@@ -1,6 +1,10 @@
-﻿import { supabase } from "@/lib/supabase";
+'use server';
+
+import { createClient } from "@/lib/supabase/server";
 
 export async function getUserMessagesList(userId: string) {
+  const supabase = await createClient();
+  
   // Buscar mensagens enviadas por este usuário
   const { data: messages, error } = await supabase
     .from('messages')
@@ -15,10 +19,12 @@ export async function getUserMessagesList(userId: string) {
 
   const receiverIds = messages.map(msg => msg.receiver_id);
   
+  if (receiverIds.length === 0) return [];
+
   // Buscar perfis dos destinatários
   const { data: profiles, error: profileError } = await supabase
     .from('profiles')
-    .select('id, name, avatar_url')
+    .select('id, primeiro_nome, ultimo_nome, avatar_url')
     .in('id', receiverIds);
 
   if (profileError || !profiles) {
@@ -36,4 +42,3 @@ export async function getUserMessagesList(userId: string) {
 
   return messagesWithReceiver;
 }
-

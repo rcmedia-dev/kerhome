@@ -1,15 +1,18 @@
-﻿// components/user-card.tsx
+// components/user-card.tsx
 'use client';
 
 import { useState, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { CanSeeIt } from '@/components/can';
 import { Pen, Upload, Globe, Facebook, Instagram, Linkedin, Youtube, Building, BadgeCheck } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import imageCompression from "browser-image-compression";
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { UserProfile } from '@/lib/store/user-store';
+import Image from 'next/image';
+
+const supabase = createClient();
 
 export type Stat = {
   label: string;
@@ -44,25 +47,27 @@ const AvatarSection = ({
       whileTap={{ scale: 0.98 }}
     >
       <div
-        className="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-2xl bg-gradient-to-br from-purple-100 to-orange-100 border-2 border-dashed border-purple-300 cursor-pointer transition-all duration-300 hover:border-orange-400 hover:shadow-xl"
+        className="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-2xl bg-gradient-to-br from-purple-100 to-orange-100 border-2 border-dashed border-purple-300 cursor-pointer transition-all duration-300 hover:border-orange-400 hover:shadow-xl overflow-hidden"
         onClick={onUploadClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         {user.avatar_url ? (
           <>
-            <motion.img
-              src={user.avatar_url}
-              alt="Foto de perfil"
-              className="w-full h-full object-cover rounded-2xl"
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.2 }}
-            />
+            <div className="relative w-full h-full">
+              <Image
+                src={user.avatar_url}
+                alt="Foto de perfil"
+                fill
+                className="object-cover rounded-2xl transition-transform duration-200"
+                sizes="(max-width: 768px) 96px, 112px"
+              />
+            </div>
 
             <AnimatePresence>
               {(isHovered || isUploading) && (
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-orange-500/20 rounded-2xl flex items-center justify-center backdrop-blur-sm"
+                  className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-orange-500/20 rounded-2xl flex items-center justify-center backdrop-blur-sm z-10"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -309,7 +314,6 @@ export function UserCard({ user, displayName, stats, housesRemaining, onAvatarUp
   };
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    // ... existing logic ...
     const file = event.target.files?.[0];
     if (!file || !user.id) return;
 

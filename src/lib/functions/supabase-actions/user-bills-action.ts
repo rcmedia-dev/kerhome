@@ -1,10 +1,11 @@
-﻿'use server';
+'use server';
 
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { Fatura, faturaSchema } from '@/lib/types/property';
 
 // Buscar faturas do usuário
 export async function getFaturas(userId: string): Promise<Fatura[]> {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('faturas')
     .select('*')
@@ -27,4 +28,3 @@ export async function getFaturas(userId: string): Promise<Fatura[]> {
     .filter((p) => p.success)
     .map((p) => (p as any).data);
 }
-

@@ -3,7 +3,7 @@ import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
 import { Send, X, Smile, Paperclip, ArrowLeft, UserCircle } from 'lucide-react';
 import { useChatStore } from '@/lib/store/chat-store';
 import { useUserStore } from '@/lib/store/user-store';
-import { supabase } from '@/lib/supabase';
+
 import { MessageBubble } from './message-bubble';
 import { toast } from 'sonner';
 

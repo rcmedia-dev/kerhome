@@ -1,7 +1,7 @@
-﻿// src/app/actions/getProperties.ts
+// src/app/admin/dashboard/actions/get-properties.ts
 'use server';
 
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 
 export interface PropertyOwner {
   id: string;
@@ -19,6 +19,7 @@ export interface Property {
   caracteristicas?: string[];
   endereco: string;
   created_at: Date | string;
+  image: string | null;   // imagem de capa
   gallery: string[];
   video_url?: string;
   documents?: string[];
@@ -27,6 +28,7 @@ export interface Property {
 }
 
 export async function getProperties(): Promise<Property[]> {
+  const supabase = await createClient();
   try {
     const { data: propertiesData, error: propertiesError } = await supabase
       .from('properties')
@@ -40,6 +42,7 @@ export async function getProperties(): Promise<Property[]> {
         caracteristicas,
         endereco,
         created_at,
+        image,
         gallery,
         video_url,
         documents,
@@ -63,7 +66,6 @@ export async function getProperties(): Promise<Property[]> {
       owner_id: p.owner_id ?? null
     }));
 
-    console.log('Fetched properties:', formattedData);
     return formattedData;
 
   } catch (err) {
@@ -71,4 +73,3 @@ export async function getProperties(): Promise<Property[]> {
     throw new Error('Failed to fetch properties');
   }
 }
-

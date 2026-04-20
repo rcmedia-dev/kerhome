@@ -1,13 +1,15 @@
-﻿import { pusher } from "@/lib/pusher";
-import { supabase } from "@/lib/supabase";
+'use server';
+
+import { createClient } from "@/lib/supabase/server";
 
 export async function createConversation(
   propertyId: string,
   agentId: string,
   clientId: string
 ) {
+  const supabase = await createClient();
   try {
-    // ðŸ” 1. Verificar se já existe uma conversa usando user_pair
+    // 1. Verificar se já existe uma conversa usando user_pair
     const { data: existing, error: checkError } = await supabase
       .from("conversations")
       .select("*")
@@ -19,11 +21,11 @@ export async function createConversation(
     if (checkError) throw checkError;
 
     if (existing && existing.length > 0) {
-      console.log("ðŸ’¬ Conversa já existente:", existing[0].id);
+      console.log("Conversa já existente:", existing[0].id);
       return existing[0];
     }
 
-    // ðŸ†• 2. Se não existir, cria uma nova conversa
+    // 2. Se não existir, cria uma nova conversa
     const { data, error } = await supabase
       .from("conversations")
       .insert([
@@ -40,16 +42,17 @@ export async function createConversation(
 
     if (error) throw error;
 
-    console.log("ðŸ†• Nova conversa criada:", data.id);
+    console.log("Nova conversa criada:", data.id);
     return data;
   } catch (error) {
-    console.error("âŒ Erro ao criar/verificar conversa:", error);
+    console.error("Erro ao criar/verificar conversa:", error);
     throw error;
   }
 }
 
 // Obter conversas - atualizado para nova estrutura
 export async function getConversations(userId: string) {
+  const supabase = await createClient();
   const { data: conversations, error } = await supabase
     .from("conversations")
     .select(`
@@ -154,8 +157,9 @@ export async function getConversations(userId: string) {
 
 // Enviar mensagem + Pusher - atualizado para nova estrutura
 export async function sendMessage(conversationId: string, senderId: string, content: string) {
+  const supabase = await createClient();
   try {
-    // ðŸ—„ï¸ Inserir mensagem no Supabase
+    // Inserir mensagem no Supabase
     const { data, error } = await supabase
       .from("messages")
       .insert([{
@@ -197,17 +201,21 @@ export async function sendMessage(conversationId: string, senderId: string, cont
       sender: Array.isArray(data.profiles) ? data.profiles[0] : data.profiles,
     };
 
-    console.log("âœ… Mensagem salva no banco:", message.id);
+    console.log("Mensagem salva no banco:", message.id);
 
-    // ðŸ”„ Atualizar updated_at da conversa
+    // Atualizar updated_at da conversa
     await supabase
       .from("conversations")
       .update({ updated_at: new Date().toISOString() })
       .eq("id", conversationId);
 
-    // ðŸ“¡ Chamar a API para notificar via Pusher
+    // Chamar a API para notificar via Pusher
     try {
-      const response = await fetch('/api/messages', {
+      // Nota: Em Server Actions, fetch absoluto é necessário se for externo, 
+      // ou podemos disparar Pusher diretamente aqui se quisermos evitar o fetch.
+      // Vou manter o fetch mas idealmente dispararíamos Pusher aqui agora que é server-side.
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+      const response = await fetch(`${baseUrl}/api/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -221,26 +229,26 @@ export async function sendMessage(conversationId: string, senderId: string, cont
       });
 
       if (response.ok) {
-        console.log("âœ… API Pusher chamada com sucesso!");
+        console.log("API Pusher chamada com sucesso!");
       } else {
         const errorText = await response.text();
-        console.error("âŒ Erro na API Pusher:", errorText);
+        console.error("Erro na API Pusher:", errorText);
       }
     } catch (apiError) {
-      console.error("âŒ Erro ao chamar API Pusher:", apiError);
-      // Não throw - a mensagem já foi salva no banco
+      console.error("Erro ao chamar API Pusher:", apiError);
     }
 
     return message;
 
   } catch (error) {
-    console.error("âŒ Erro ao enviar mensagem:", error);
+    console.error("Erro ao enviar mensagem:", error);
     throw error;
   }
 }
 
 // Obter mensagens - atualizado para nova estrutura
 export async function getMessages(conversationId: string) {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("messages")
     .select(`
@@ -281,6 +289,7 @@ export async function getMessages(conversationId: string) {
 
 // Marcar mensagens como lidas
 export async function markMessagesAsRead(conversationId: string, userId: string) {
+  const supabase = await createClient();
   try {
     const { data, error } = await supabase
       .from("messages")
@@ -291,16 +300,17 @@ export async function markMessagesAsRead(conversationId: string, userId: string)
 
     if (error) throw error;
 
-    console.log(`âœ… Mensagens marcadas como lidas na conversa: ${conversationId}`);
+    console.log(`Mensagens marcadas como lidas na conversa: ${conversationId}`);
     return data;
   } catch (error) {
-    console.error("âŒ Erro ao marcar mensagens como lidas:", error);
+    console.error("Erro ao marcar mensagens como lidas:", error);
     throw error;
   }
 }
 
 // Obter contagem de mensagens não lidas
 export async function getUnreadMessagesCount(userId: string) {
+  const supabase = await createClient();
   try {
     // Primeiro, buscar todas as conversas do usuário
     const { data: conversations, error: convError } = await supabase
@@ -325,13 +335,14 @@ export async function getUnreadMessagesCount(userId: string) {
 
     return count || 0;
   } catch (error) {
-    console.error("âŒ Erro ao obter contagem de mensagens não lidas:", error);
+    console.error("Erro ao obter contagem de mensagens não lidas:", error);
     return 0;
   }
 }
 
 // Criar conversa direta (sem property)
 export async function createDirectConversation(user1Id: string, user2Id: string) {
+  const supabase = await createClient();
   try {
     // Verificar se já existe conversa direta
     const { data: existing, error: checkError } = await supabase
@@ -344,7 +355,7 @@ export async function createDirectConversation(user1Id: string, user2Id: string)
     if (checkError) throw checkError;
 
     if (existing && existing.length > 0) {
-      console.log("ðŸ’¬ Conversa direta já existente:", existing[0].id);
+      console.log("Conversa direta já existente:", existing[0].id);
       return existing[0];
     }
 
@@ -365,10 +376,10 @@ export async function createDirectConversation(user1Id: string, user2Id: string)
 
     if (error) throw error;
 
-    console.log("ðŸ†• Nova conversa direta criada:", data.id);
+    console.log("Nova conversa direta criada:", data.id);
     return data;
   } catch (error) {
-    console.error("âŒ Erro ao criar conversa direta:", error);
+    console.error("Erro ao criar conversa direta:", error);
     throw error;
   }
 }
@@ -380,6 +391,7 @@ export async function getContacts(
   limit: number = 10,
   searchTerm: string = ''
 ) {
+  const supabase = await createClient();
   try {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
@@ -443,7 +455,7 @@ export async function getContacts(
     };
 
   } catch (error) {
-    console.error('âŒ Erro ao obter contactos:', error);
+    console.error('Erro ao obter contactos:', error);
     throw error;
   }
 }
@@ -460,6 +472,7 @@ export async function searchContacts(
 
 // Obter contactos sugeridos (usuários mais ativos ou populares)
 export async function getSuggestedContacts(userId: string, limit: number = 10) {
+  const supabase = await createClient();
   try {
     // Buscar usuários mais recentes ou com mais atividade
     const { data: contacts, error } = await supabase
@@ -505,13 +518,14 @@ export async function getSuggestedContacts(userId: string, limit: number = 10) {
 
     return contactsWithStatus;
   } catch (error) {
-    console.error('âŒ Erro ao obter contactos sugeridos:', error);
+    console.error('Erro ao obter contactos sugeridos:', error);
     throw error;
   }
 }
 
-// Adicione esta função ao seu message-action.ts
+// Eliminar conversa
 export async function deleteConversation(conversationId: string) {
+  const supabase = await createClient();
   try {
     const { error } = await supabase
       .from('conversations')
@@ -520,10 +534,10 @@ export async function deleteConversation(conversationId: string) {
 
     if (error) throw error;
 
-    console.log('âœ… Conversa eliminada:', conversationId);
+    console.log('Conversa eliminada:', conversationId);
     return { success: true };
   } catch (error) {
-    console.error('âŒ Erro ao eliminar conversa:', error);
+    console.error('Erro ao eliminar conversa:', error);
     throw error;
   }
 }

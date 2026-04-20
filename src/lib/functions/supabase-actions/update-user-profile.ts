@@ -1,4 +1,6 @@
-﻿import { supabase } from '@/lib/supabase';
+'use server';
+
+import { createClient } from '@/lib/supabase/server';
 
 interface UpdateUserProfileParams {
   userId: string;
@@ -25,6 +27,8 @@ export async function updateUserProfile({ userId, profileData }: UpdateUserProfi
   if (!userId || typeof userId !== 'string') {
     throw new Error('ID do usuário inválido');
   }
+
+  const supabase = await createClient();
 
   // Preparar dados para atualização
   const updateData = {

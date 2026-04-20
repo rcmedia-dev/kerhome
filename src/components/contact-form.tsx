@@ -1,8 +1,10 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
+
+const supabase = createClient();
 
 function AgentContactCard({ userIdLogado, adminId }: { userIdLogado?: string; adminId: string }) {
   const [mensagem, setMensagem] = useState('');

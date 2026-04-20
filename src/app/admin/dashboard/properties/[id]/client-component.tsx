@@ -8,10 +8,14 @@ import { Property } from '@/app/admin/dashboard/actions/get-properties';
 
 export default function PropertyDetailClient({ property }: { property: Property }) {
   const router = useRouter();
-  const [mainImage, setMainImage] = useState<string>(property.gallery?.[0] || '');
+  const [mainImage, setMainImage] = useState<string>(property.image || property.gallery?.[0] || '');
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
 
-  const allImages = property.gallery || [];
+  // Inclui a imagem principal mesmo que não esteja na galeria
+  const allImages = [
+    ...(property.image ? [property.image] : []),
+    ...(property.gallery || []).filter((img) => img !== property.image),
+  ];
 
   const handleThumbnailClick = (img: string, index: number) => {
     setMainImage(img);
@@ -76,6 +80,7 @@ export default function PropertyDetailClient({ property }: { property: Property 
               src={mainImage} 
               alt={`Imagem ${currentImageIndex + 1} de ${property.title}`}
               fill
+              sizes="(max-width: 1024px) 100vw, 70vw"
               className="w-full h-full object-cover"
               priority
             />

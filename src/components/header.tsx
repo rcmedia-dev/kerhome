@@ -1,6 +1,7 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   Menu,
@@ -25,7 +26,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import CadastrarImovelButton from '@/components/cadastrar-imovel-button';
 import { useQuery } from '@tanstack/react-query';
 import { getUserPlan } from '@/lib/functions/supabase-actions/get-user-package-action';
@@ -117,6 +118,7 @@ function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: bo
   const router = useRouter();
   const { setUser } = useUserStore();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const supabase = createClient();
 
   const handleDashboardClick = () => {
     if (user?.role === "admin") {
@@ -343,13 +345,20 @@ export default function Header() {
       >
         <div className="max-w-7xl mx-auto flex justify-between items-center py-3 px-4 md:px-6">
           <Link href="/" aria-label="Página inicial" className="flex-shrink-0">
-            <motion.img
-              src="/kercasa_logo.png"
-              alt="kerhome logo"
-              className="w-32 md:w-40 transition-all duration-300"
+            <motion.div
               whileHover={{ scale: 1.05 }}
               transition={springTransition}
-            />
+              className="w-32 md:w-40"
+            >
+              <Image
+                src="/kercasa_logo.png"
+                alt="kerhome logo"
+                width={160}
+                height={40}
+                style={{ width: 'auto', height: 'auto' }}
+                priority
+              />
+            </motion.div>
           </Link>
           <motion.div
             className="animate-pulse bg-gray-200 h-10 w-24 rounded-xl"
@@ -375,14 +384,21 @@ export default function Header() {
         <div className="max-w-7xl mx-auto flex justify-between items-center py-3 px-4 md:px-6">
           {/* Logo */}
           <Link href="/" aria-label="Página inicial" className="flex-shrink-0">
-            <motion.img
-              src="/kercasa_logo.png"
-              alt="kerhome logo"
-              className="w-32 md:w-40 transition-all duration-300"
+            <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={springTransition}
-            />
+              className="w-32 md:w-40"
+            >
+              <Image
+                src="/kercasa_logo.png"
+                alt="kerhome logo"
+                width={160}
+                height={40}
+                style={{ width: 'auto', height: 'auto' }}
+                priority
+              />
+            </motion.div>
           </Link>
 
           {/* Links de navegação - Desktop */}

@@ -2,7 +2,22 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ['images.unsplash.com', 'cqudsxxvpgkzsnwyuorq.supabase.co', 'lh3.googleusercontent.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cqudsxxvpgkzsnwyuorq.supabase.co',
+        port: '',
+        pathname: '/storage/v1/object/**', // cobre public/**, signed e uploads diretos
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+    ],
   },
   experimental: {
     serverActions: {

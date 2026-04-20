@@ -1,8 +1,9 @@
-﻿import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function PATCH(req: Request) {
     try {
+        const supabase = await createClient();
         const { conversation_id, user_id } = await req.json();
 
         if (!conversation_id || !user_id) {
@@ -29,4 +30,3 @@ export async function PATCH(req: Request) {
         return NextResponse.json({ error: "Internal Error" }, { status: 500 });
     }
 }
-

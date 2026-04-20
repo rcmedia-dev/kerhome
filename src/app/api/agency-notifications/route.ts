@@ -1,5 +1,4 @@
-﻿import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { NextResponse } from "next/server";
 import Pusher from "pusher";
 
 const appId = process.env.PUSHER_APP_ID || process.env.PUSHER_ID || process.env.NEXT_PUBLIC_PUSHER_ID;
@@ -24,7 +23,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Dados incompletos" }, { status: 400 });
     }
 
-    // ðŸ“¡ Disparar evento para o canal da agência
+    // Disparar evento para o canal da agência
     // Todos os agentes inscritos no canal agency-{id} receberão isso
     await pusher.trigger(`agency-${imobiliaria_id}`, "new-lead", {
       sender_id,
@@ -35,8 +34,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("âŒ Erro ao disparar notificação de agência:", error);
+    console.error("Erro ao disparar notificação de agência:", error);
     return NextResponse.json({ error: "Falha na notificação" }, { status: 500 });
   }
 }
-

@@ -1,10 +1,12 @@
-﻿'use server'
+'use server'
 
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 export async function deleteProperty(propertyId: string, userId?: string) {
+  const supabase = await createClient();
+  
   // 1. Verificar se o usuário é o dono da propriedade
   const { data: property, error: fetchError } = await supabase
     .from('properties')
@@ -17,26 +19,26 @@ export async function deleteProperty(propertyId: string, userId?: string) {
     throw new Error('Erro ao verificar propriedade');
   }
 
-  console.log('Owner Id:', property?.owner_id, 'User Id:', userId);
-
   if (property?.owner_id !== userId) {
     throw new Error('Você não tem permissão para deletar esta propriedade');
   }
 
   // 2. Deletar imagens associadas (se existirem)
-  if (property?.gallery[0] && property.gallery.length > 0) {
+  if (property?.gallery && property.gallery.length > 0) {
     const imagePaths = property.gallery.map((img: string) => 
       img.split('/').pop()
-    );
+    ).filter(Boolean) as string[];
 
-    const { error: storageError } = await supabase
-      .storage
-      .from('images')
-      .remove(imagePaths);
+    if (imagePaths.length > 0) {
+      const { error: storageError } = await supabase
+        .storage
+        .from('images')
+        .remove(imagePaths);
 
-    if (storageError) {
-      console.error('Erro ao deletar imagens:', storageError);
-      // Não interrompe o processo, apenas registra o erro
+      if (storageError) {
+        console.error('Erro ao deletar imagens:', storageError);
+        // Não interrompe o processo, apenas registra o erro
+      }
     }
   }
 
@@ -47,7 +49,8 @@ export async function deleteProperty(propertyId: string, userId?: string) {
     .eq('id', propertyId);
 
   if (deleteError) {
-    console.log('Erro ao deletar propriedade');
+    console.error('Erro ao deletar propriedade:', deleteError);
+    throw new Error('Erro ao deletar propriedade');
   }
 
   // 4. Invalidar cache e redirecionar

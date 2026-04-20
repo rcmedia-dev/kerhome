@@ -1,4 +1,6 @@
-﻿import { supabase } from "@/lib/supabase";
+'use server';
+
+import { createClient } from "@/lib/supabase/server";
 
 type ToggleFavoriteResult = {
   success: boolean;
@@ -11,6 +13,8 @@ export async function toggleFavoritoProperty(
   userId: string,
   propertyId: string
 ): Promise<ToggleFavoriteResult> {
+  const supabase = await createClient();
+
   if (!userId || !propertyId) {
     return { success: false, error: "Parâmetros inválidos", isFavorited: false };
   }
@@ -48,7 +52,7 @@ export async function toggleFavoritoProperty(
 
     if (insertError) {
       // Tratamento de duplicata (race condition)
-      if (/duplicate key/i.test(insertError.message)) {
+      if (insertError.message && /duplicate key/i.test(insertError.message)) {
         return { success: true, action: "already_added", isFavorited: true };
       }
       throw insertError;

@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import React, { useEffect, useState } from 'react';
 import { 
@@ -17,7 +17,6 @@ import {
   Mail,
   Award,
   Medal,
-  Megaphone,
   Rocket,
   Store,
 } from 'lucide-react';
@@ -28,12 +27,12 @@ import { RenderDashboard } from '@/app/admin/components/dashboard-component';
 import SubscricoesPage from '@/app/admin/components/subscriptions-component';
 import AgentSubscriptionsPage from '@/app/admin/components/agent-subscription-component';
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import PropertiesToBoost from '@/app/admin/components/properties-to-boost';
 import BoostManagement from '@/app/admin/components/properties-to-boost';
 import ImobiliariasManagement from '@/app/admin/components/imobiliarias-component';
 
-
+const supabase = createClient();
 
 type ChartItem = {
   name: string

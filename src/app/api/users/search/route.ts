@@ -1,7 +1,8 @@
-﻿import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET(req: Request) {
+    const supabase = await createClient();
     const { searchParams } = new URL(req.url);
     const query = searchParams.get('q');
     const exclude_id = searchParams.get('exclude_id');
@@ -31,4 +32,3 @@ export async function GET(req: Request) {
         return NextResponse.json({ error: "Erro interno" }, { status: 500 });
     }
 }
-

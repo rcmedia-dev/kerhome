@@ -1,10 +1,10 @@
-﻿'use client';
+'use client';
 
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { BedDouble, Ruler, MapPin, Tag, Trash, Heart } from "lucide-react";
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import { useUserStore } from "@/lib/store/user-store";
 
 type Property = {
@@ -37,6 +37,7 @@ export function PropertyFavoritedCard({ property, onRemove }: Props) {
   const [isRemoving, setIsRemoving] = useState(false);
   const [isRemoved, setIsRemoved] = useState(false);
   const { user } = useUserStore()
+  const supabase = createClient();
 
   const precoFormatado = parseNumber(property.price).toLocaleString("pt-AO", {
     style: "currency",

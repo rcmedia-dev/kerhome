@@ -1,11 +1,12 @@
-﻿// actions/property-actions.ts
+// actions/property-actions.ts
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
 import { PropertyDBData, PropertyFormData } from "@/lib/types/property";
 import { revalidatePath } from "next/cache";
+import { applyWatermark } from "@/lib/utils/image-watermark";
 
-// Função para upload de arquivos para o Supabase Storage
+// Upload genérico (documentos, vídeos — sem marca d'água)
 async function uploadFileToSupabase(file: File, bucket: string, path: string): Promise<string> {
   const supabase = await createClient();
   const fileExt = file.name.split(".").pop();
@@ -23,7 +24,37 @@ async function uploadFileToSupabase(file: File, bucket: string, path: string): P
     throw new Error(`Erro no upload: ${error.message}`);
   }
 
-  // Obter URL pública do arquivo
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from(bucket).getPublicUrl(data.path);
+
+  return publicUrl;
+}
+
+// Upload de imagem COM marca d'água KerCasa
+async function uploadImageWithWatermark(file: File, bucket: string, path: string): Promise<string> {
+  const supabase = await createClient();
+
+  // 1. Converter ficheiro para Buffer e aplicar marca d'água
+  const rawBuffer = Buffer.from(await file.arrayBuffer());
+  const { buffer: processedBuffer, contentType } = await applyWatermark(rawBuffer, file.type);
+
+  // 2. Definir extensão de saída baseada no content-type resultante
+  const fileExt = contentType === 'image/webp' ? 'webp' : (file.name.split(".").pop() ?? 'jpg');
+  const fileName = `${path}/${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+  // 3. Upload do buffer processado
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .upload(fileName, processedBuffer, {
+      contentType,
+      upsert: true,
+    });
+
+  if (error) {
+    throw new Error(`Erro no upload: ${error.message}`);
+  }
+
   const {
     data: { publicUrl },
   } = supabase.storage.from(bucket).getPublicUrl(data.path);
@@ -35,9 +66,9 @@ async function uploadFileToSupabase(file: File, bucket: string, path: string): P
 export async function processFileUploads(formData: PropertyFormData) {
   const processedData: Partial<PropertyDBData> = {};
 
-  // Processar imagem principal
+  // Processar imagem principal (com marca d'água)
   if (formData.image instanceof File && formData.image.size > 0) {
-    processedData.image = await uploadFileToSupabase(formData.image, "files", "images");
+    processedData.image = await uploadImageWithWatermark(formData.image, "files", "images");
   } else if (typeof formData.image === "string") {
     processedData.image = formData.image;
   } else {
@@ -50,7 +81,8 @@ export async function processFileUploads(formData: PropertyFormData) {
 
     for (const item of formData.gallery) {
       if (item instanceof File && item.size > 0) {
-        const url = await uploadFileToSupabase(item, "files", "gallery");
+        // Galeria também recebe marca d'água
+        const url = await uploadImageWithWatermark(item, "files", "gallery");
         galleryUrls.push(url);
       } else if (typeof item === "string") {
         galleryUrls.push(item);

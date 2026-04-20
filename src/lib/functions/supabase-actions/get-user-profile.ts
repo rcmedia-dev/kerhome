@@ -1,4 +1,6 @@
-﻿import { supabase } from '@/lib/supabase';
+'use server';
+
+import { createClient } from '@/lib/supabase/server';
 
 // Interface completa com todos os campos do perfil
 export interface UserProfile {
@@ -19,16 +21,17 @@ export interface UserProfile {
   avatar_url?: string;
   pacote_agente_id?: string;
   role?: string;
-  created_at?: string; // Adicionado como opcional
-  updated_at?: string; // Adicionado como opcional
+  created_at?: string;
+  updated_at?: string;
 }
 
 export async function getUserProfile(id?: string): Promise<UserProfile> {
-
   if (!id || typeof id !== 'string') {
-    console.error("âŒ ID inválido:", id);
+    console.error("❌ ID inválido:", id);
     throw new Error('ID do usuário inválido');
   }
+
+  const supabase = await createClient();
 
   try {
     const { data, error } = await supabase
@@ -58,19 +61,19 @@ export async function getUserProfile(id?: string): Promise<UserProfile> {
       .single();
 
     if (error) {
-      console.error('âŒ Erro ao buscar perfil:', error);
+      console.error('❌ Erro ao buscar perfil:', error);
       throw error;
     }
 
     if (!data) {
-      console.error('âš ï¸ Nenhum perfil encontrado para ID:', id);
+      console.error('⚠️ Nenhum perfil encontrado para ID:', id);
       throw new Error('Perfil não encontrado');
     }
 
     return data as UserProfile;
 
   } catch (error) {
-    console.error('ðŸ’¥ Falha ao buscar perfil:', error);
+    console.error('💥 Falha ao buscar perfil:', error);
     throw new Error(
       error instanceof Error 
         ? error.message 
@@ -78,4 +81,3 @@ export async function getUserProfile(id?: string): Promise<UserProfile> {
     );
   }
 }
-
