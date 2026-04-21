@@ -29,7 +29,7 @@ export default function ImoveisSemelhantes() {
         {imoveis.map((imovel) => {
           return (
             <Link
-              href={`/propriedades/${imovel.id}`}
+              href={imovel.slug ? `/propriedades/${imovel.slug}` : `/propriedades/${imovel.id}`}
               key={imovel.id}
               className="group block bg-white border border-gray-100 rounded-lg overflow-hidden hover:shadow-md transition-all duration-300"
             >

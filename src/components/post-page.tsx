@@ -56,7 +56,7 @@ const ReadingProgress = () => {
 const PropertyAd = ({ property, layout = 'horizontal' }: { property: TPropertyResponseSchema, layout?: 'horizontal' | 'sidebar' }) => {
   if (layout === 'sidebar') {
     return (
-      <Link href={`/propriedades/${property.id}`} className="bg-white p-4 rounded-3xl border border-gray-100 group cursor-pointer block hover:shadow-xl transition-all">
+      <Link href={property.slug ? `/propriedades/${property.slug}` : `/propriedades/${property.id}`} className="bg-white p-4 rounded-3xl border border-gray-100 group cursor-pointer block hover:shadow-xl transition-all">
         <div className="relative w-full h-44 rounded-2xl overflow-hidden shadow-sm mb-4">
           <img
             src={property.image || '/house10.jpg'}
@@ -106,7 +106,7 @@ const PropertyAd = ({ property, layout = 'horizontal' }: { property: TPropertyRe
 
           <div>
             <Link
-              href={`/propriedades/${property.id}`}
+              href={property.slug ? `/propriedades/${property.slug}` : `/propriedades/${property.id}`}
               className="inline-flex items-center gap-3 px-10 py-4 bg-[#7C3AED] text-white !text-white rounded-2xl text-base font-black hover:bg-[#6D28D9] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-purple-100/50"
             >
               <span className="text-white">Ver Detalhes do Imóvel</span>

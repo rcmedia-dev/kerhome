@@ -1,4 +1,4 @@
-import { getPropertyById } from "@/lib/functions/get-properties";
+import { getPropertyById, getPropertyBySlug } from "@/lib/functions/get-properties";
 import { getPropertyOwner } from "@/lib/functions/get-agent";
 import { TPropertyResponseSchema } from "@/lib/types/property";
 import ImoveisSemelhantes from "@/components/imoveis-destaque";
@@ -10,11 +10,17 @@ import { PropertyHeader } from "@/components/property-header";
 import { PropertyLocation } from "@/components/property-location";
 import { TechnicalDetails } from "@/components/techinical-details";
 import { checkIfPropertyIsBoosted, trackBoostView } from "@/lib/functions/supabase-actions/boost-functions";
+import { redirect } from "next/navigation";
+
+function isUUID(value: string): boolean {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(value);
+}
 
 // 🔑 METADATA DINMICA
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const property = await getPropertyById(id);
+  let property = isUUID(id) ? await getPropertyById(id) : await getPropertyBySlug(id);
 
   if (!property) {
     return {
@@ -24,6 +30,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const propertyUrl = property.slug 
+    ? `${siteUrl}/propriedades/${property.slug}`
+    : `${siteUrl}/propriedades/${property.id}`;
 
   return {
     title: property.title || "Imóvel Incrível",
@@ -31,7 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     openGraph: {
       title: property.title,
       description: property.description,
-      url: `${siteUrl}/propriedades/${property.id}`,
+      url: propertyUrl,
       type: "article",
       images: [
         {
@@ -46,7 +55,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       card: "summary_large_image",
       title: property.title,
       description: property.description,
-      images: [`${siteUrl}/propriedades/${property.id}/opengraph-image`],
+      images: [`${propertyUrl}/opengraph-image`],
     },
   };
 }
@@ -54,10 +63,15 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 // ===== COMPONENTE PRINCIPAL =====
 export default async function PropertyPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const property: TPropertyResponseSchema | null = await getPropertyById(id);
+  const property: TPropertyResponseSchema | null = isUUID(id) ? await getPropertyById(id) : await getPropertyBySlug(id);
 
   if (!property) {
     return <NotFoundState />;
+  }
+
+  // Redirect to slug URL if accessing by ID
+  if (property.slug && isUUID(id)) {
+    redirect(`/propriedades/${property.slug}`);
   }
 
   // Verifica se o imóvel está impulsionado

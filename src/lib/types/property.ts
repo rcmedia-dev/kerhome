@@ -1,4 +1,4 @@
-﻿import { z } from 'zod';
+import { z } from 'zod';
 
 
 
@@ -130,6 +130,7 @@ export const propertyResponseSchema = z.object({
 
   gallery: z.array(z.string()),
   image: z.string().nullable(),
+  slug: z.string().nullable(),
 
   createdAt: z.string().or(z.date()),
 

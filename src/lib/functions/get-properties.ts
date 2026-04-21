@@ -21,6 +21,49 @@ export async function getProperties(): Promise<TPropertyResponseSchema[]> {
   }
 }
 
+export async function getPropertyBySlug(slug: string): Promise<TPropertyResponseSchema | null> {
+  const supabase = await createClient();
+  try {
+    const { data: property, error } = await supabase.from('properties')
+      .select(`
+        *,
+        owner:profiles!owner_id (
+          id,
+          primeiro_nome,
+          ultimo_nome,
+          email,
+          telefone,
+          avatar_url,
+          created_at
+        ),
+        imobiliarias (
+          id,
+          nome,
+          slug,
+          logo,
+          verificada,
+          telefone,
+          whatsapp
+        )
+      `)
+      .eq('slug', slug)
+      .single();
+
+    if (error || !property) return null;
+    return property as TPropertyResponseSchema;
+  } catch (error) {
+    console.error('Erro ao buscar propriedade por slug:', error);
+    return null;
+  }
+}
+
+export function getPropertyUrl(property: { id: string; slug?: string | null }): string {
+  if (property.slug) {
+    return `/propriedades/${property.slug}`;
+  }
+  return `/propriedades/${property.id}`;
+}
+
 export async function getMixedProperties(): Promise<{
   properties: z.infer<typeof propertyResponseSchema>[];
   stats: {

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Tipos relacionados a Agentes de Imóveis
  */
 import type { Dispatch, SetStateAction } from 'react';
@@ -26,6 +26,7 @@ export interface AgentProfile {
 export interface AgentProperty {
   id: string;
   title: string;
+  slug?: string | null;
   description?: string;
   image?: string | null;
   gallery?: string[];

@@ -173,7 +173,7 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
   useEffect(() => {
     mountedRef.current = true;
     if (typeof window !== "undefined") {
-      setShareUrl(`${window.location.origin}/propriedades/${property.id}`);
+      setShareUrl(`${window.location.origin}/${property.slug ? `propriedades/${property.slug}` : `propriedades/${property.id}`}`);
     }
     return () => { mountedRef.current = false; };
   }, [property.id]);
@@ -288,7 +288,7 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
           onMouseLeave={() => setIsHovering(false)}
         >
         {isClickable ? (
-          <Link href={`/propriedades/${property.id}`} className="absolute inset-0 z-10" />
+          <Link href={property.slug ? `/propriedades/${property.slug}` : `/propriedades/${property.id}`} className="absolute inset-0 z-10" />
         ) : (
           <div className="absolute inset-0 z-10 cursor-default" />
         )}
@@ -380,7 +380,7 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
         {/* Title */}
         <h3 className="text-xl font-bold text-[#1A1A1A] leading-tight line-clamp-2 mb-3 h-[50px] overflow-hidden" title={property.title}>
           {isClickable ? (
-            <Link href={`/propriedades/${property.id}`}>
+            <Link href={property.slug ? `/propriedades/${property.slug}` : `/propriedades/${property.id}`}>
               {property.title}
             </Link>
           ) : (
@@ -425,7 +425,7 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
         <div className="pt-4 mt-auto border-t border-gray-100">
           {isClickable ? (
             <Link
-              href={`/propriedades/${property.id}`}
+              href={property.slug ? `/propriedades/${property.slug}` : `/propriedades/${property.id}`}
               className="w-full bg-[#820AD1] hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-xl text-center transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm"
             >
               <span>Ver Detalhes</span>

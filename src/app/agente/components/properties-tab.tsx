@@ -88,7 +88,7 @@ function PropertyCard({ property }: { property: AgentProperty }) {
           </div>
 
           <div className="flex gap-3 mt-6">
-            <Link href={`/propriedades/${property.id}`} className="flex-1">
+            <Link href={property.slug ? `/propriedades/${property.slug}` : `/propriedades/${property.id}`} className="flex-1">
               <Button className="w-full bg-[#820AD1] hover:bg-purple-700 text-white py-3 rounded-xl transition-colors duration-300">
                 <Sparkles className="w-4 h-4 mr-2" />
                 Ver Detalhes

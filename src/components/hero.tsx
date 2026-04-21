@@ -216,7 +216,7 @@ export default function HeroCarousel({ property }: HeroCarouselProps) {
                           {formatPrice(property.price)}
                         </span>
                       </div>
-                      <Link href={`/propriedades/${property.id}`}>
+                      <Link href={property.slug ? `/propriedades/${property.slug}` : `/propriedades/${property.id}`}>
                         <button className="mt-4 md:mt-8 w-full bg-white text-gray-900 hover:bg-gray-100 font-bold py-2 md:py-3 text-sm md:text-base rounded-xl transition-all shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98]">
                           Ver Detalhes Completos
                         </button>
