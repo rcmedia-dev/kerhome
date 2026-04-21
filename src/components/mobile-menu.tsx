@@ -8,9 +8,7 @@ export function MobileMenu() {
   const pathname = usePathname();
   const [activeIndex, setActiveIndex] = useState(0);
 
-  if (pathname.includes("/dashboard/cadastrar-imovel") || pathname.startsWith("/admin/dashboard")) {
-    return null;
-  }
+  const isExcludedRoute = pathname.includes("/dashboard/cadastrar-imovel") || pathname.startsWith("/admin/dashboard");
 
   const links = [
     {
@@ -82,6 +80,8 @@ export function MobileMenu() {
       setActiveIndex(currentIndex);
     }
   }, [pathname]);
+
+  if (isExcludedRoute) return null;
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-gray-200/60 z-50 p-3 shadow-2xl shadow-black/20">

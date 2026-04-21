@@ -49,7 +49,6 @@ export function MinhasPropriedades({ userProperties }: MinePropertiesProps) {
   }, []);
 
   const { pending, approved, suspended, hasSuspended } = useMemo(() => {
-    // Filtrar para mostrar apenas propriedades PESSOAIS (sem imobiliaria_id)
     const list = (localProperties || []).filter(p => !p.imobiliaria_id);
     const pending = list.filter(p => p.aprovement_status === 'pending');
     const approved = list.filter(p => p.aprovement_status === 'approved');
