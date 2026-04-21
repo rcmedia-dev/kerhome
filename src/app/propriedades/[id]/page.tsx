@@ -102,10 +102,10 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
 
-      {/* Immersive Gallery Section (Full Width Background) */}
-      <div className="w-full bg-gray-100 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <nav className="text-sm text-gray-500 mb-6 flex items-center gap-2">
+      {/* Immersive Gallery Section - Full Width */}
+      <div className="w-full">
+        <div className="px-0">
+          <nav className="text-sm text-gray-500 mb-4 ml-4 flex items-center gap-2">
             <a href="/" className="hover:text-purple-600 transition-colors">Início</a>
             <span className="text-gray-300">/</span>
             <a href="/propriedades" className="hover:text-purple-600 transition-colors">Imóveis</a>

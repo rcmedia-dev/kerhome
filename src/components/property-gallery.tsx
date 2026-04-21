@@ -91,14 +91,14 @@ export function PropertyGallery({ property }: { property: any }) {
     return (
       <>
         {mainImage && (
-          <div className="mb-6">
-            <div className="relative w-full h-[220px] sm:h-[300px] md:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 mb-4 group">
+          <div>
+            <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden group">
               <Image
                 src={mainImage}
                 alt={property.title}
                 fill
                 className="object-cover cursor-zoom-in"
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 70vw"
+                sizes="100vw"
                 priority
                 unoptimized={true}
                 onClick={() => openFullscreen(allImages.indexOf(mainImage))}
