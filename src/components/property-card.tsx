@@ -132,24 +132,20 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
     : [];
   const coverImage = property.image && typeof property.image === 'string' ? property.image : '/house.jpg';
   const hasMultipleImages = galleryImages.length > 1;
+  const totalImages = hasMultipleImages ? galleryImages.length : 0;
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
-  const isHoveringRef = useRef(false);
 
   useEffect(() => {
-    isHoveringRef.current = isHovering;
-  }, [isHovering]);
-
-  useEffect(() => {
-    if (!hasMultipleImages || !isHovering) return;
+    if (!hasMultipleImages || !isHovering || totalImages === 0) return;
     
     const timer = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % galleryImages.length);
+      setCurrentImageIndex(prev => (prev + 1) % totalImages);
     }, 800);
     
     return () => clearInterval(timer);
-  }, [isHovering, hasMultipleImages]);
+  }, [isHovering, hasMultipleImages, totalImages]);
 
   useEffect(() => {
     if (!isHovering) {
@@ -286,7 +282,11 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
     <div className="group relative w-full bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden border border-gray-100 pb-2">
 
       {/* IMAGEM & BADGES */}
-      <div className="relative h-[250px] w-full overflow-hidden shrink-0">
+      <div 
+          className="relative h-[250px] w-full overflow-hidden shrink-0"
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => setIsHovering(false)}
+        >
         {isClickable ? (
           <Link href={`/propriedades/${property.id}`} className="absolute inset-0 z-10" />
         ) : (
@@ -301,8 +301,6 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
           unoptimized={true}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover transition-transform duration-700 group-hover:scale-105"
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => setIsHovering(false)}
         />
 
         {/* Image Indicators */}
