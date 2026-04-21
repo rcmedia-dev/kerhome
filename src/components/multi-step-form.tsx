@@ -487,8 +487,8 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
 
   return (
     <FormProvider {...methods}>
-      {!hasMounted ? null : (
-      <div className="max-w-[1400px] w-full mx-auto grid grid-cols-1 lg:grid-cols-5 gap-6 h-auto lg:h-full min-h-[700px] lg:min-h-0">
+      {hasMounted ? (
+        <div className="max-w-[1400px] w-full mx-auto grid grid-cols-1 lg:grid-cols-5 gap-6 h-auto lg:h-full min-h-[700px] lg:min-h-0">
 
         {/* LADO ESQUERDO: FORMULÁRIO (60% => col-span-3) */}
         <div className="lg:col-span-3 flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 relative h-full">
@@ -821,8 +821,8 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
             </motion.div>
           )}
         </AnimatePresence>
-      )}
       </div>
+      ) : null}
     </FormProvider>
   );
 
