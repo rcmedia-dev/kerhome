@@ -272,6 +272,120 @@ export async function getLimitedProperties(limit: number): Promise<TPropertyResp
   }
 }
 
+// Imóveis similares por título (palavras-chave)
+export async function getSimilarPropertiesByTitle(
+  propertyId: string,
+  title: string,
+  limit: number = 3
+): Promise<TPropertyResponseSchema[]> {
+  const supabase = await createClient();
+  try {
+    // Extrair palavras relevantes do título
+    const words = title.toLowerCase()
+      .split(/[\s-]+/)
+      .filter(w => w.length > 3 && !['para', 'venda', 'aluga', 'imovel', 'casa', 'apartamento'].includes(w))
+      .slice(0, 3);
+
+    if (words.length === 0) return [];
+
+    // Buscar propriedades que contêm pelo menos uma palavra do título
+    const { data: properties, error } = await supabase
+      .from('properties')
+      .select('*')
+      .eq('aprovement_status', 'approved')
+      .neq('id', propertyId)
+      .or(words.map(w => `title.ilike.%${w}%`).join(','))
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return (properties || []).filter(p => p.id !== propertyId).slice(0, limit) as TPropertyResponseSchema[];
+  } catch (e) {
+    console.error('Erro ao buscar propriedades por título:', e);
+    return [];
+  }
+}
+
+// Imóveis similares por preço (faixa de ±20%)
+export async function getSimilarPropertiesByPrice(
+  propertyId: string,
+  price: number | null,
+  limit: number = 3
+): Promise<TPropertyResponseSchema[]> {
+  const supabase = await createClient();
+  try {
+    if (!price || price <= 0) return [];
+
+    const minPrice = price * 0.8;
+    const maxPrice = price * 1.2;
+
+    const { data: properties, error } = await supabase
+      .from('properties')
+      .select('*')
+      .eq('aprovement_status', 'approved')
+      .neq('id', propertyId)
+      .gte('price', minPrice)
+      .lte('price', maxPrice)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return properties as TPropertyResponseSchema[];
+  } catch (e) {
+    console.error('Erro ao buscar propriedades por preço:', e);
+    return [];
+  }
+}
+
+// Imóveis próximos por localização
+export async function getNearbyProperties(
+  propertyId: string,
+  cidade: string,
+  provincia: string,
+  limit: number = 3
+): Promise<TPropertyResponseSchema[]> {
+  const supabase = await createClient();
+  try {
+    const { data: properties, error } = await supabase
+      .from('properties')
+      .select('*')
+      .eq('aprovement_status', 'approved')
+      .neq('id', propertyId)
+      .or(`cidade.ilike.%${cidade}%,provincia.ilike.%${provincia}%`)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return properties as TPropertyResponseSchema[];
+  } catch (e) {
+    console.error('Erro ao buscar propriedades próximas:', e);
+    return [];
+  }
+}
+
+// Outras sugestões (aleatórias, excluindo as já mostradas)
+export async function getOtherSuggestions(
+  excludeIds: string[],
+  limit: number = 3
+): Promise<TPropertyResponseSchema[]> {
+  const supabase = await createClient();
+  try {
+    const { data: properties, error } = await supabase
+      .from('properties')
+      .select('*')
+      .eq('aprovement_status', 'approved')
+      .not('id', 'in', excludeIds)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return properties as TPropertyResponseSchema[];
+  } catch (e) {
+    console.error('Erro ao buscar sugestões:', e);
+    return [];
+  }
+}
+
 export async function getPropertyById(id: string | null): Promise<TPropertyResponseSchema | null> {
   const supabase = await createClient();
   try {

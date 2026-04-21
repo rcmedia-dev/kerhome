@@ -1,7 +1,7 @@
 import { getPropertyById, getPropertyBySlug } from "@/lib/functions/get-properties";
 import { getPropertyOwner } from "@/lib/functions/get-agent";
 import { TPropertyResponseSchema } from "@/lib/types/property";
-import ImoveisSemelhantes from "@/components/imoveis-destaque";
+import PropertySuggestions from "@/components/property-suggestions";
 import { NotFoundState } from "@/components/not-found";
 import { PropertyContact } from "@/components/property-contact";
 import { PropertyDescription } from "@/components/property-description";
@@ -157,9 +157,9 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
               </div>
             </div>
 
-            {/* Similar Properties (Below Content) */}
+            {/* Property Suggestions (Below Content) */}
             <div className="pt-12 border-t border-gray-200">
-              <ImoveisSemelhantes />
+              <PropertySuggestions property={property} />
             </div>
           </div>
 
