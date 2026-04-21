@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { useForm, FormProvider } from "react-hook-form";
+import ClientOnly from "@/components/layout/ClientOnly";
 import { PropertyFormData } from "@/lib/types/property";
 import FormStep from "@/components/form-step";
 import { createProperty } from "@/lib/functions/supabase-actions/create-propertie-action";
@@ -486,8 +487,8 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
   };
 
   return (
-    <FormProvider {...methods}>
-      {hasMounted ? (
+    <ClientOnly>
+      <FormProvider {...methods}>
         <div className="max-w-[1400px] w-full mx-auto grid grid-cols-1 lg:grid-cols-5 gap-6 h-auto lg:h-full min-h-[700px] lg:min-h-0">
 
         {/* LADO ESQUERDO: FORMULÁRIO (60% => col-span-3) */}
@@ -822,10 +823,9 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
           )}
         </AnimatePresence>
       </div>
-      ) : null}
     </FormProvider>
-  );
-
+  </ClientOnly>
+);
 };
 
 export default MultiStepForm;

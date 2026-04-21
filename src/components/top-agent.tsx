@@ -329,6 +329,7 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
                             alt={`${agent.primeiro_nome} ${agent.ultimo_nome}`}
                             fill
                             className="object-cover"
+                            unoptimized={true}
                           />
                         </motion.div>
                       </div>

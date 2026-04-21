@@ -45,6 +45,7 @@ export default function CorretoresEmDestaque() {
                   width={48}
                   height={48}
                   className="object-cover w-full h-full"
+                  unoptimized={true}
                 />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center">

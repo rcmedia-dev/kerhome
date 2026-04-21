@@ -123,6 +123,7 @@ const PropertyModalCard: React.FC<{
           alt={property.title}
           fill
           className="object-cover"
+          unoptimized={true}
         />
       </div>
       <div className="flex-1 min-w-0">

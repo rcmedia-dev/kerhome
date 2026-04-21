@@ -433,7 +433,7 @@ function ListView({ users, onDelete, onBan, onUnban, onPlanoAction }: {
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white">
                       {user.avatar ? (
-                        <Image src={user.avatar} alt="" width={40} height={40} className="rounded-xl" />
+                        <Image src={user.avatar} alt="" width={40} height={40} className="rounded-xl" unoptimized={true} />
                       ) : (
                         <User size={20} />
                       )}
@@ -561,7 +561,7 @@ function UserCard({ user, onDelete, onBan, onUnban, onPlanoAction }: {
               : 'bg-gradient-to-br from-blue-500 to-purple-600'
           }`}>
             {user.avatar ? (
-              <Image src={user.avatar} alt="" width={64} height={64} className="rounded-2xl" />
+              <Image src={user.avatar} alt="" width={64} height={64} className="rounded-2xl" unoptimized={true} />
             ) : (
               <User size={32} />
             )}

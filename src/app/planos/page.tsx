@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Star, ShieldCheck, Zap, ArrowLeft, ArrowRight } from "lucide-react";
 import { CheckoutView } from "@/components/checkout-view";
 import { useUserStore } from "@/lib/store/user-store";
+import ClientOnly from "@/components/layout/ClientOnly";
 
 interface PlanConfig {
   badge: string;
@@ -184,12 +185,12 @@ export default function PlanosPage() {
   const isUpgrading = useCallback((planName: string) => upgrading === planName, [upgrading]);
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 overflow-x-hidden pt-12 md:pt-24 pb-24">
-      {(!hasMounted || loading) ? (
-        <div className="min-h-[70vh] flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-700"></div>
-        </div>
-      ) : (
+    <ClientOnly fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-700"></div>
+      </div>
+    }>
+      <div className="min-h-screen bg-white font-sans text-gray-900 overflow-x-hidden pt-12 md:pt-24 pb-24">
         <AnimatePresence mode="wait">
         {view === 'pricing' ? (
           <motion.div
@@ -346,7 +347,6 @@ export default function PlanosPage() {
           </motion.div>
         )}
       </AnimatePresence>
-      )}
 
       <AnimatePresence>
         {success && (
@@ -376,6 +376,7 @@ export default function PlanosPage() {
         )}
       </AnimatePresence>
     </div>
+    </ClientOnly>
   );
 }
 

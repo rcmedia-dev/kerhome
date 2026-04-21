@@ -83,6 +83,7 @@ export default function PropertyDetailClient({ property }: { property: Property 
               sizes="(max-width: 1024px) 100vw, 70vw"
               className="w-full h-full object-cover"
               priority
+              unoptimized={true}
             />
           )}
           
@@ -125,6 +126,7 @@ export default function PropertyDetailClient({ property }: { property: Property 
                   width={96}
                   height={96}
                   className="w-full h-full object-cover"
+                  unoptimized={true}
                 />
               </button>
             ))}

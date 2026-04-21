@@ -26,8 +26,9 @@ export function ImobiliariaCard({ imobiliaria }: ImobiliariaCardProps) {
               src={imobiliaria.logo}
               alt={imobiliaria.nome}
               fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-contain transition-transform duration-700 group-hover:scale-110"
+              unoptimized={true}
             />
           </div>
         ) : (

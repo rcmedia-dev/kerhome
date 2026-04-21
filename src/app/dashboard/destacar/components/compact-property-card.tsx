@@ -18,7 +18,7 @@ export const CompactPropertyCard: React.FC<CompactPropertyCardProps> = ({
   >
     <div className="flex items-center gap-3">
       <div className="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0">
-        <Image src={property.image ?? '/house.jpg'} alt={property.title} fill className="object-cover" />
+        <Image src={property.image ?? '/house.jpg'} alt={property.title} fill className="object-cover" unoptimized={true} />
       </div>
       <div className="flex-1 min-w-0">
         <h4 className="font-semibold text-gray-900 text-sm line-clamp-1">{property.title}</h4>

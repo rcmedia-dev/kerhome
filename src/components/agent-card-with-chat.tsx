@@ -130,6 +130,7 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
                             alt={displayName}
                             fill
                             className="object-cover"
+                            unoptimized={true}
                         />
                     ) : (
                         <span className="text-purple-600 font-bold text-xl">

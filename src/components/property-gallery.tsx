@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { Heart, Share2, Maximize2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
@@ -100,6 +100,7 @@ export function PropertyGallery({ property }: { property: any }) {
                 className="object-cover cursor-zoom-in"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 70vw"
                 priority
+                unoptimized={true}
                 onClick={() => openFullscreen(allImages.indexOf(mainImage))}
               />
 
@@ -141,6 +142,7 @@ export function PropertyGallery({ property }: { property: any }) {
                         fill
                         className="object-cover"
                         sizes="(max-width: 640px) 80px, (max-width: 1024px) 128px, 160px"
+                        unoptimized={true}
                       />
 
                       <div
@@ -190,6 +192,7 @@ export function PropertyGallery({ property }: { property: any }) {
               className="object-cover"
               sizes="100vw"
               priority
+              unoptimized={true}
             />
 
             <div className="absolute top-4 right-4 flex gap-2">

@@ -219,6 +219,7 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
                             alt={agency.nome}
                             fill
                             className="object-contain p-2"
+                            unoptimized={true}
                           />
                         </motion.div>
                       </div>

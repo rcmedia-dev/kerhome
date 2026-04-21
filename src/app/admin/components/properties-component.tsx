@@ -373,6 +373,7 @@ function ApprovalPropertyCard({ property, darkMode, onUpdate }: PropertyCardProp
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+            unoptimized={true}
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
@@ -521,6 +522,7 @@ function ManagementPropertyCard({ property, darkMode, onUpdate, onDelete }: Mana
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+            unoptimized={true}
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
