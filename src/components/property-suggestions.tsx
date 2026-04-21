@@ -5,12 +5,11 @@ import Link from 'next/link';
 import { useEffect, useState, useRef } from 'react';
 import { TPropertyResponseSchema } from '@/lib/types/property';
 import { 
-  getSimilarPropertiesByTitle, 
-  getSimilarPropertiesByPrice, 
+  getSimilarProperties, 
   getNearbyProperties,
   getOtherSuggestions 
 } from '@/lib/functions/get-properties';
-import { ChevronLeft, ChevronRight, Home, MapPin, Tag, Building2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Home, MapPin, Building2 } from 'lucide-react';
 
 interface PropertyCardProps {
   property: TPropertyResponseSchema;
@@ -25,7 +24,7 @@ function PropertyCard({ property, variant = 'default' }: PropertyCardProps) {
   return (
     <Link
       href={property.slug ? `/propriedades/${property.slug}` : `/propriedades/${property.id}`}
-      className="group block bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 min-w-[280px]"
+      className="group block bg-gray-50 border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 min-w-[280px]"
     >
       <div className={`relative w-full ${imageHeight} overflow-hidden`}>
         <Image
@@ -147,8 +146,7 @@ interface PropertySuggestionsProps {
 }
 
 export default function PropertySuggestions({ property }: PropertySuggestionsProps) {
-  const [similarByTitle, setSimilarByTitle] = useState<TPropertyResponseSchema[]>([]);
-  const [similarByPrice, setSimilarByPrice] = useState<TPropertyResponseSchema[]>([]);
+  const [similar, setSimilar] = useState<TPropertyResponseSchema[]>([]);
   const [nearby, setNearby] = useState<TPropertyResponseSchema[]>([]);
   const [suggestions, setSuggestions] = useState<TPropertyResponseSchema[]>([]);
   const [loading, setLoading] = useState(true);
@@ -157,20 +155,13 @@ export default function PropertySuggestions({ property }: PropertySuggestionsPro
     async function fetchData() {
       setLoading(true);
       
-      const [byTitleResult, byPriceResult, nearbyResult, suggestionsResult] = await Promise.all([
-        getSimilarPropertiesByTitle(property.id, property.title, 3),
-        getSimilarPropertiesByPrice(property.id, property.price, 3),
+      const [similarResult, nearbyResult, suggestionsResult] = await Promise.all([
+        getSimilarProperties(property.id, property.title, property.price, 3),
         getNearbyProperties(property.id, property.cidade || '', property.provincia || '', 3),
         getOtherSuggestions([property.id], 3)
       ]);
 
-      const allSimilar = [...(byTitleResult || [])];
-      (byPriceResult || []).forEach(p => {
-        if (!allSimilar.find(x => x.id === p.id)) allSimilar.push(p);
-      });
-
-      setSimilarByTitle(allSimilar);
-      setSimilarByPrice(byPriceResult || []);
+      setSimilar(similarResult || []);
       setNearby(nearbyResult || []);
       setSuggestions(suggestionsResult || []);
       setLoading(false);
@@ -194,20 +185,14 @@ export default function PropertySuggestions({ property }: PropertySuggestionsPro
     );
   }
 
-  // Combine similar by title and price
-  const allSimilar = [...similarByTitle];
-  similarByPrice.forEach(p => {
-    if (!allSimilar.find(x => x.id === p.id)) allSimilar.push(p);
-  });
-
   return (
     <div className="py-8">
-      {allSimilar.length > 0 && (
+      {similar.length > 0 && (
         <CarouselSection
           title="Imóveis Semelhantes"
           subtitle="Baseado no título e preço"
           icon={<Building2 className="w-5 h-5" />}
-          properties={allSimilar.slice(0, 3)}
+          properties={similar.slice(0, 3)}
           variant="large"
         />
       )}

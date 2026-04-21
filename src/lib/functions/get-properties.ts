@@ -272,10 +272,11 @@ export async function getLimitedProperties(limit: number): Promise<TPropertyResp
   }
 }
 
-// Imóveis similares por título (palavras-chave)
-export async function getSimilarPropertiesByTitle(
+// Imóveis similares por título E preço (ambos os critérios)
+export async function getSimilarProperties(
   propertyId: string,
   title: string,
+  price: number | null,
   limit: number = 3
 ): Promise<TPropertyResponseSchema[]> {
   const supabase = await createClient();
@@ -286,53 +287,32 @@ export async function getSimilarPropertiesByTitle(
       .filter(w => w.length > 3 && !['para', 'venda', 'aluga', 'imovel', 'casa', 'apartamento'].includes(w))
       .slice(0, 3);
 
-    if (words.length === 0) return [];
-
-    // Buscar propriedades que contêm pelo menos uma palavra do título
-    const { data: properties, error } = await supabase
+    let query = supabase
       .from('properties')
       .select('*')
       .eq('aprovement_status', 'approved')
-      .neq('id', propertyId)
-      .or(words.map(w => `title.ilike.%${w}%`).join(','))
+      .neq('id', propertyId);
+
+    // Se tem palavras no título, buscar por elas
+    if (words.length > 0) {
+      query = query.or(words.map(w => `title.ilike.%${w}%`).join(','));
+    }
+
+    // Se tem preço, buscar por faixa de preço também
+    if (price && price > 0) {
+      const minPrice = price * 0.8;
+      const maxPrice = price * 1.2;
+      query = query.gte('price', minPrice).lte('price', maxPrice);
+    }
+
+    const { data: properties, error } = await query
       .order('created_at', { ascending: false })
-      .limit(limit);
+      .limit(limit * 3);
 
     if (error) throw error;
     return (properties || []).filter(p => p.id !== propertyId).slice(0, limit) as TPropertyResponseSchema[];
   } catch (e) {
-    console.error('Erro ao buscar propriedades por título:', e);
-    return [];
-  }
-}
-
-// Imóveis similares por preço (faixa de ±20%)
-export async function getSimilarPropertiesByPrice(
-  propertyId: string,
-  price: number | null,
-  limit: number = 3
-): Promise<TPropertyResponseSchema[]> {
-  const supabase = await createClient();
-  try {
-    if (!price || price <= 0) return [];
-
-    const minPrice = price * 0.8;
-    const maxPrice = price * 1.2;
-
-    const { data: properties, error } = await supabase
-      .from('properties')
-      .select('*')
-      .eq('aprovement_status', 'approved')
-      .neq('id', propertyId)
-      .gte('price', minPrice)
-      .lte('price', maxPrice)
-      .order('created_at', { ascending: false })
-      .limit(limit);
-
-    if (error) throw error;
-    return properties as TPropertyResponseSchema[];
-  } catch (e) {
-    console.error('Erro ao buscar propriedades por preço:', e);
+    console.error('Erro ao buscar propriedades similares:', e);
     return [];
   }
 }
