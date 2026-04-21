@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -7,6 +7,10 @@ import { useState, useEffect } from "react";
 export function MobileMenu() {
   const pathname = usePathname();
   const [activeIndex, setActiveIndex] = useState(0);
+
+  if (pathname.includes("/dashboard/cadastrar-imovel") || pathname.startsWith("/admin/dashboard")) {
+    return null;
+  }
 
   const links = [
     {

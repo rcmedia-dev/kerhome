@@ -117,12 +117,13 @@ interface PropertyCardProps {
   property: TPropertyResponseSchema;
   canBoost?: boolean;
   onDelete?: () => void;
+  isClickable?: boolean;
 }
 
 // =======================
 // Componente Principal
 // =======================
-export function PropertyCard({ property, canBoost = true, onDelete }: PropertyCardProps) {
+export function PropertyCard({ property, canBoost = true, isClickable = true, onDelete }: PropertyCardProps) {
   const { user } = useUserStore();
   const isOwner = user?.id === property.owner_id;
 
@@ -153,7 +154,10 @@ export function PropertyCard({ property, canBoost = true, onDelete }: PropertyCa
 
   // Check favorito
   useEffect(() => {
-    if (!user) { setFavorito(false); return; }
+    if (!user || property.id === 'preview-id') { 
+      setFavorito(false); 
+      return; 
+    }
     let cancelled = false;
     (async () => {
       try {
@@ -170,6 +174,7 @@ export function PropertyCard({ property, canBoost = true, onDelete }: PropertyCa
 
   // Check boosted status
   useEffect(() => {
+    if (property.id === 'preview-id') return;
     let cancelled = false;
     (async () => {
       try {
@@ -252,13 +257,18 @@ export function PropertyCard({ property, canBoost = true, onDelete }: PropertyCa
 
       {/* IMAGEM & BADGES */}
       <div className="relative h-[250px] w-full overflow-hidden shrink-0">
-        <Link href={`/propriedades/${property.id}`} className="absolute inset-0 z-10" />
+        {isClickable ? (
+          <Link href={`/propriedades/${property.id}`} className="absolute inset-0 z-10" />
+        ) : (
+          <div className="absolute inset-0 z-10 cursor-default" />
+        )}
 
         <Image
-          src={property.image ?? '/house.jpg'}
+          src={property.image && property.image.length > 0 ? property.image : '/house.jpg'}
           alt={property.title}
           fill
           priority
+          unoptimized={typeof property.image === 'string' && (property.image.startsWith('blob:') || property.image.startsWith('data:'))}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover transition-transform duration-700 group-hover:scale-105"
         />
@@ -293,7 +303,7 @@ export function PropertyCard({ property, canBoost = true, onDelete }: PropertyCa
               </button>
             </>
           )}
-          {isOwner && (
+          {isOwner && property.id !== 'preview-id' && (
             <div className="flex gap-2">
               <Link
                 href={`/propriedades/${property.id}/editar`}
@@ -325,9 +335,13 @@ export function PropertyCard({ property, canBoost = true, onDelete }: PropertyCa
 
         {/* Title */}
         <h3 className="text-xl font-bold text-[#1A1A1A] leading-tight line-clamp-2 mb-3 h-[50px] overflow-hidden" title={property.title}>
-          <Link href={`/propriedades/${property.id}`}>
-            {property.title}
-          </Link>
+          {isClickable ? (
+            <Link href={`/propriedades/${property.id}`}>
+              {property.title}
+            </Link>
+          ) : (
+            <span>{property.title}</span>
+          )}
         </h3>
 
         {/* Features Row - Justify Between (Left / Right split) */}
@@ -359,19 +373,26 @@ export function PropertyCard({ property, canBoost = true, onDelete }: PropertyCa
         <div className="flex items-center gap-2 mb-4">
           <Tag className="w-5 h-5 text-[#F97316] -rotate-90" />
           <span className="text-2xl font-bold text-[#F97316]">
-            {property.price?.toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Kz
+            {property.price?.toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {property.unidade_preco === 'dolar' ? '$' : property.unidade_preco === 'euro' ? '€' : 'Kz'}
           </span>
         </div>
 
         {/* Action Button */}
         <div className="pt-4 mt-auto border-t border-gray-100">
-          <Link
-            href={`/propriedades/${property.id}`}
-            className="w-full bg-[#820AD1] hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-xl text-center transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm"
-          >
-            <span>Ver Detalhes</span>
-            <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-          </Link>
+          {isClickable ? (
+            <Link
+              href={`/propriedades/${property.id}`}
+              className="w-full bg-[#820AD1] hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-xl text-center transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm"
+            >
+              <span>Ver Detalhes</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+            </Link>
+          ) : (
+            <div className="w-full bg-gray-100 text-gray-400 font-bold py-3 px-4 rounded-xl text-center flex items-center justify-center gap-2 cursor-default">
+              <span>Ver Detalhes</span>
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          )}
         </div>
 
       </div>

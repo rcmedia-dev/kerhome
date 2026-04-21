@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { usePathname } from "next/navigation";
 import Header from "@/components/header";
@@ -11,7 +11,7 @@ export default function LayoutClient({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isDashboardPage = pathname.startsWith("/admin/dashboard");
+  const isDashboardPage = pathname.startsWith("/admin/dashboard") || pathname.includes("/dashboard/cadastrar-imovel");
 
   return (
     <>
