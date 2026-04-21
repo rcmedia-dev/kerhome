@@ -142,7 +142,7 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
     
     const timer = setInterval(() => {
       setCurrentImageIndex(prev => (prev + 1) % totalImages);
-    }, 800);
+    }, 2000);
     
     return () => clearInterval(timer);
   }, [isHovering, hasMultipleImages, totalImages]);
