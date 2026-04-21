@@ -57,13 +57,6 @@ export async function getPropertyBySlug(slug: string): Promise<TPropertyResponse
   }
 }
 
-export function getPropertyUrl(property: { id: string; slug?: string | null }): string {
-  if (property.slug) {
-    return `/propriedades/${property.slug}`;
-  }
-  return `/propriedades/${property.id}`;
-}
-
 export async function getMixedProperties(): Promise<{
   properties: z.infer<typeof propertyResponseSchema>[];
   stats: {
