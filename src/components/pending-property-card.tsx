@@ -58,6 +58,7 @@ export function PendingPropertyCard({ property, onDelete }: { property: TPropert
           fill
           className="object-cover grayscale-[20%]"
           priority={false}
+          unoptimized={true}
         />
       </div>
 

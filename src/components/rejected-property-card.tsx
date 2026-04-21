@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { MapPin, Pencil, Trash, XCircle } from 'lucide-react';
 import Image from 'next/image';
@@ -59,6 +59,7 @@ export function RejectedPropertyCard({ property, onDelete }: { property: TProper
           fill
           className="object-cover grayscale-[20%]"
           priority={false}
+          unoptimized={true}
         />
       </div>
 

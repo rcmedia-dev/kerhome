@@ -42,6 +42,11 @@ export default function PlanosPage() {
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'confirmed' | null>(null);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
   const [view, setView] = useState<'pricing' | 'checkout'>('pricing');
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   // PLANOS ATUALIZADOS
   const PLANS: Plans = {
@@ -178,7 +183,7 @@ export default function PlanosPage() {
   const isCurrentPlan = useCallback((planName: string) => currentPlan === planName, [currentPlan]);
   const isUpgrading = useCallback((planName: string) => upgrading === planName, [upgrading]);
 
-  if (loading) {
+  if (!hasMounted || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-700"></div>

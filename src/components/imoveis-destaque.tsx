@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -39,6 +39,7 @@ export default function ImoveisSemelhantes() {
                   alt={imovel.title}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  unoptimized={true}
                 />
               </div>
               <div className="p-3">

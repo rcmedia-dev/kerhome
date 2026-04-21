@@ -21,6 +21,11 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
   const [serverError, setServerError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const methods = useForm<PropertyFormData>({
     defaultValues: {
@@ -479,6 +484,8 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
     gallery: [],
     caracteristicas: watchedAmenities || "",
   };
+
+  if (!hasMounted) return null;
 
   return (
     <FormProvider {...methods}>

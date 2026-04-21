@@ -128,6 +128,7 @@ export function PropertyFavoritedCard({ property, onRemove }: Props) {
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 300px"
             priority
+            unoptimized={true}
           />
         ) : (
           <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm">

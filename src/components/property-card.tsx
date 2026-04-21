@@ -268,7 +268,7 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
           alt={property.title}
           fill
           priority
-          unoptimized={typeof property.image === 'string' && (property.image.startsWith('blob:') || property.image.startsWith('data:'))}
+          unoptimized={true}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover transition-transform duration-700 group-hover:scale-105"
         />
