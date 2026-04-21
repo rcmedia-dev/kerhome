@@ -2,6 +2,7 @@ import { getPropertyById, getPropertyBySlug } from "@/lib/functions/get-properti
 import { getPropertyOwner } from "@/lib/functions/get-agent";
 import { TPropertyResponseSchema } from "@/lib/types/property";
 import PropertySuggestions from "@/components/property-suggestions";
+import { PropertyCreditSimulator } from "@/components/property-credit-simulator";
 import { NotFoundState } from "@/components/not-found";
 import { PropertyContact } from "@/components/property-contact";
 import { PropertyDescription } from "@/components/property-description";
@@ -175,6 +176,13 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
                   <PropertyContact property={property} ownerDetails={ownerDetails} />
                 </div>
               </div>
+
+              {/* Credit Simulator */}
+              <PropertyCreditSimulator 
+                propertyPrice={property.price || 0}
+                propertyTitle={property.title}
+                unidade_preco={property.unidade_preco}
+              />
 
               {/* Additional Info / Safety Tips could go here */}
               <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-100 text-sm text-blue-800">
