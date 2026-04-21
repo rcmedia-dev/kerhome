@@ -183,17 +183,14 @@ export default function PlanosPage() {
   const isCurrentPlan = useCallback((planName: string) => currentPlan === planName, [currentPlan]);
   const isUpgrading = useCallback((planName: string) => upgrading === planName, [upgrading]);
 
-  if (!hasMounted || loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-700"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 overflow-x-hidden pt-12 md:pt-24 pb-24">
-      <AnimatePresence mode="wait">
+      {(!hasMounted || loading) ? (
+        <div className="min-h-[70vh] flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-700"></div>
+        </div>
+      ) : (
+        <AnimatePresence mode="wait">
         {view === 'pricing' ? (
           <motion.div
             key="pricing-view"
@@ -349,6 +346,7 @@ export default function PlanosPage() {
           </motion.div>
         )}
       </AnimatePresence>
+      )}
 
       <AnimatePresence>
         {success && (

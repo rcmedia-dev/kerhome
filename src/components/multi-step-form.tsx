@@ -485,10 +485,9 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
     caracteristicas: watchedAmenities || "",
   };
 
-  if (!hasMounted) return null;
-
   return (
     <FormProvider {...methods}>
+      {!hasMounted ? null : (
       <div className="max-w-[1400px] w-full mx-auto grid grid-cols-1 lg:grid-cols-5 gap-6 h-auto lg:h-full min-h-[700px] lg:min-h-0">
 
         {/* LADO ESQUERDO: FORMULÁRIO (60% => col-span-3) */}
@@ -822,6 +821,7 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
             </motion.div>
           )}
         </AnimatePresence>
+      )}
       </div>
     </FormProvider>
   );
