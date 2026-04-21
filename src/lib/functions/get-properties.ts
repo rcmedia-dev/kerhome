@@ -350,16 +350,24 @@ export async function getOtherSuggestions(
 ): Promise<TPropertyResponseSchema[]> {
   const supabase = await createClient();
   try {
-    const { data: properties, error } = await supabase
+    let query = supabase
       .from('properties')
       .select('*')
       .eq('aprovement_status', 'approved')
-      .not('id', 'in', excludeIds)
       .order('created_at', { ascending: false })
-      .limit(limit);
+      .limit(limit + excludeIds.length * 2);
+
+    if (excludeIds.length > 0) {
+      const idsList = excludeIds.map(id => `"${id}"`).join(',');
+      query = query.not('id', 'in', `(${idsList})`);
+    }
+
+    const { data: properties, error } = await query;
 
     if (error) throw error;
-    return properties as TPropertyResponseSchema[];
+    // Filtrar os excluídos manualmente se necessário
+    const filtered = (properties || []).filter(p => !excludeIds.includes(p.id)).slice(0, limit);
+    return filtered as TPropertyResponseSchema[];
   } catch (e) {
     console.error('Erro ao buscar sugestões:', e);
     return [];
