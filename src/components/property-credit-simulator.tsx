@@ -79,23 +79,22 @@ export function PropertyCreditSimulator({
   const totalInterest = totalPaid - totalLoan;
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-      <div className="p-5 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-orange-50">
-        <div className="flex items-center gap-2">
-          <Calculator className="w-5 h-5 text-purple-600" />
-          <h3 className="font-bold text-gray-900">Simular Crédito</h3>
-        </div>
-        <p className="text-xs text-gray-500 mt-1">
-          Para {propertyTitle}
-        </p>
-      </div>
-
-      <div className="p-5 space-y-5">
-        {/* Valor do Imóvel */}
+    <div className="grid md:grid-cols-2 gap-8 items-start">
+      {/* Inputs */}
+      <div className="space-y-6">
         <div>
-          <div className="flex justify-between items-center mb-2">
-            <Label className="text-sm text-gray-600">Valor do Imóvel</Label>
+          <div className="flex items-center gap-2 mb-2">
+            <Calculator className="w-5 h-5 text-purple-600" />
+            <h3 className="font-bold text-gray-900">Simular Crédito</h3>
           </div>
+          <p className="text-sm text-gray-500">
+            Para {propertyTitle}
+          </p>
+        </div>
+
+        {/* Valor do Imóvel */}
+        <div className="bg-purple-50 rounded-xl p-4">
+          <Label className="text-sm text-gray-600">Valor do Imóvel</Label>
           <div className="text-2xl font-bold text-purple-700">
             {formatCurrency(propertyPrice)}
           </div>
@@ -103,11 +102,8 @@ export function PropertyCreditSimulator({
 
         {/* Entrada */}
         <div>
-          <div className="flex justify-between items-center mb-2">
-            <Label className="text-sm text-gray-600">Entrada</Label>
-            <span className="text-sm font-medium text-purple-600">{downPaymentPercent}%</span>
-          </div>
-          <div className="flex gap-1">
+          <Label className="text-sm text-gray-600 mb-2 block">Entrada ({downPaymentPercent}%)</Label>
+          <div className="flex gap-2">
             {[10, 20, 30, 40].map(percent => (
               <button
                 key={percent}
@@ -130,18 +126,18 @@ export function PropertyCreditSimulator({
         {/* Banco */}
         <div>
           <Label className="text-sm text-gray-600 mb-2 block">Banco</Label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div className="grid grid-cols-5 gap-2">
             {BANCOS.map(bank => (
               <button
                 key={bank.id}
                 onClick={() => setSelectedBankId(bank.id)}
-                className={`p-2 rounded-lg border text-sm font-medium transition-all ${
+                className={`p-2 rounded-lg border text-xs font-medium transition-all ${
                   selectedBankId === bank.id
                     ? 'bg-purple-100 border-purple-300 text-purple-700'
                     : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-purple-300'
                 }`}
               >
-                {bank.nome} ({bank.taxa}%)
+                {bank.nome}
               </button>
             ))}
           </div>
@@ -149,12 +145,9 @@ export function PropertyCreditSimulator({
 
         {/* Prazo */}
         <div>
-          <div className="flex justify-between items-center mb-2">
-            <Label className="text-sm text-gray-600">Prazo</Label>
-            <span className="text-sm font-medium text-purple-600">{years} anos</span>
-          </div>
-          <div className="flex gap-1">
-            {[10, 15, 20, 25].map(year => (
+          <Label className="text-sm text-gray-600 mb-2 block">Prazo ({years} anos)</Label>
+          <div className="flex gap-2">
+            {[10, 15, 20, 25, 30].map(year => (
               <button
                 key={year}
                 onClick={() => setYears(year)}
@@ -169,33 +162,35 @@ export function PropertyCreditSimulator({
             ))}
           </div>
         </div>
+      </div>
 
-        {/* Resultado */}
-        <div className="pt-4 border-t border-gray-200">
-          <div className="bg-gradient-to-r from-purple-600 to-orange-500 rounded-xl p-4 text-white">
-            <div className="text-center">
-              <p className="text-sm opacity-90 mb-1">Prestação Mensal</p>
-              <p className="text-3xl font-bold">
-                {formatCurrency(monthlyPayment)}
-              </p>
-            </div>
+      {/* Resultado */}
+      <div className="bg-gradient-to-br from-purple-600 to-orange-500 rounded-2xl p-6 text-white">
+        <div className="text-center mb-6">
+          <p className="text-lg opacity-90 mb-2">Prestação Mensal</p>
+          <p className="text-4xl font-bold">
+            {formatCurrency(monthlyPayment)}
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="bg-white/10 rounded-lg p-3">
+            <p className="opacity-80">Entrada</p>
+            <p className="font-bold">{formatCurrency(downPaymentAmount)}</p>
           </div>
-          
-          <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
-            <div>
-              <p className="text-gray-500">Valor Financiado</p>
-              <p className="font-semibold text-gray-900">{formatCurrency(totalLoan)}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Total Juros</p>
-              <p className="font-semibold text-orange-600">{formatCurrency(totalInterest)}</p>
-            </div>
+          <div className="bg-white/10 rounded-lg p-3">
+            <p className="opacity-80">Valor Financiado</p>
+            <p className="font-bold">{formatCurrency(totalLoan)}</p>
+          </div>
+          <div className="bg-white/10 rounded-lg p-3 col-span-2">
+            <p className="opacity-80">Total Juros</p>
+            <p className="font-bold">{formatCurrency(totalInterest)}</p>
           </div>
         </div>
 
         <a
           href="/simular"
-          className="block w-full py-3 bg-gray-900 text-white text-center rounded-xl font-medium hover:bg-gray-800 transition-colors"
+          className="block w-full py-3 mt-6 bg-white text-purple-700 text-center rounded-xl font-bold hover:bg-gray-100 transition-colors"
         >
           Simular Completo
         </a>

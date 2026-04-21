@@ -152,6 +152,16 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
                 <PropertyDescription property={property} />
               </div>
 
+              {/* Credit Simulator Section */}
+              <div className="border-t border-gray-200 pt-10">
+                <h3 className="text-2xl font-bold text-gray-900 mb-6">Simular Crédito</h3>
+                <PropertyCreditSimulator 
+                  propertyPrice={property.price || 0}
+                  propertyTitle={property.title}
+                  unidade_preco={property.unidade_preco}
+                />
+              </div>
+
               <div className="border-t border-gray-200 pt-10">
                 <h3 className="text-2xl font-bold text-gray-900 mb-6">Localização</h3>
                 <PropertyLocation property={property} />
@@ -176,13 +186,6 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
                   <PropertyContact property={property} ownerDetails={ownerDetails} />
                 </div>
               </div>
-
-              {/* Credit Simulator */}
-              <PropertyCreditSimulator 
-                propertyPrice={property.price || 0}
-                propertyTitle={property.title}
-                unidade_preco={property.unidade_preco}
-              />
 
               {/* Additional Info / Safety Tips could go here */}
               <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-100 text-sm text-blue-800">
