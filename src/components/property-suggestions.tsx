@@ -9,6 +9,8 @@ import {
   getNearbyProperties,
   getOtherSuggestions 
 } from '@/lib/functions/get-properties';
+import { getAgents } from '@/lib/functions/get-agent';
+import TopAgentsSection, { Agent } from '@/components/top-agent';
 import { ChevronLeft, ChevronRight, Home, MapPin, Building2 } from 'lucide-react';
 
 interface PropertyCardProps {
@@ -24,7 +26,7 @@ function PropertyCard({ property, variant = 'default' }: PropertyCardProps) {
   return (
     <Link
       href={property.slug ? `/propriedades/${property.slug}` : `/propriedades/${property.id}`}
-      className="group block bg-gray-50 border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 min-w-[280px]"
+      className="group block bg-gray-50 border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 min-w-[240px] sm:min-w-[280px]"
     >
       <div className={`relative w-full ${imageHeight} overflow-hidden`}>
         <Image
@@ -149,21 +151,24 @@ export default function PropertySuggestions({ property }: PropertySuggestionsPro
   const [similar, setSimilar] = useState<TPropertyResponseSchema[]>([]);
   const [nearby, setNearby] = useState<TPropertyResponseSchema[]>([]);
   const [suggestions, setSuggestions] = useState<TPropertyResponseSchema[]>([]);
+  const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
       
-      const [similarResult, nearbyResult, suggestionsResult] = await Promise.all([
+      const [similarResult, nearbyResult, suggestionsResult, agentsResult] = await Promise.all([
         getSimilarProperties(property.id, property.title, property.price, 3),
         getNearbyProperties(property.id, property.cidade || '', property.provincia || '', 3),
-        getOtherSuggestions([property.id], 3)
+        getOtherSuggestions([property.id], 3),
+        getAgents(6)
       ]);
-
+      
       setSimilar(similarResult || []);
       setNearby(nearbyResult || []);
       setSuggestions(suggestionsResult || []);
+      setAgents(agentsResult || []);
       setLoading(false);
     }
 
@@ -195,6 +200,15 @@ export default function PropertySuggestions({ property }: PropertySuggestionsPro
           properties={similar.slice(0, 3)}
           variant="large"
         />
+      )}
+      
+      {agents.length > 0 && (
+        <div className="py-4">
+          <TopAgentsSection 
+            agents={agents} 
+            className="py-12 bg-white rounded-2xl border border-gray-100 relative overflow-hidden" 
+          />
+        </div>
       )}
 
       {nearby.length > 0 && (

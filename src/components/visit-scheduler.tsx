@@ -1,11 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { X, Calendar, Phone, Mail, User, Send, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { useUserStore } from '@/lib/store/user-store';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Calendar as CalendarUI } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface VisitSchedulerProps {
   children?: React.ReactNode;
@@ -28,37 +33,41 @@ const HORARIOS = [
 ];
 
 export function VisitScheduler({ children, property, ownerData, userId }: VisitSchedulerProps) {
+  const { user } = useUserStore();
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState<'form' | 'success'>('form');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Pre-fill form when modal opens
+  useEffect(() => {
+    if (isOpen && user) {
+      setFormData(prev => ({
+        ...prev,
+        nome: prev.nome || `${user.primeiro_nome || ''} ${user.ultimo_nome || ''}`.trim(),
+        telefone: prev.telefone || user.telefone || '',
+        email: prev.email || user.email || '',
+      }));
+    }
+  }, [isOpen, user]);
 
   const [formData, setFormData] = useState({
     nome: '',
     telefone: '',
     email: '',
-    data: '',
+    data: undefined as Date | undefined,
     horario: '',
   });
 
   const [error, setError] = useState('');
 
-  const generateCalendarDays = () => {
-    const days = [];
-    const today = new Date();
-    for (let i = 1; i <= 14; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      if (date.getDay() !== 0) { // Skip Sundays
-        days.push(date);
-      }
-    }
-    return days.slice(0, 14);
-  };
-
-  const calendarDays = generateCalendarDays();
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('pt-AO', { weekday: 'short', day: '2-digit', month: 'short' });
+  const formatDate = (date: Date | undefined) => {
+    if (!date) return '';
+    return format(date, "EEEE, dd 'de' MMMM", { locale: ptBR });
   };
 
   const handleSubmit = async () => {
@@ -78,7 +87,7 @@ export function VisitScheduler({ children, property, ownerData, userId }: VisitS
       const messageContent = `📅 *Nova Solicitação de Visita*
 
 *Imóvel:* ${property.title}
-*Data:* ${formData.data} às ${formData.horario}
+*Data:* ${formData.data ? format(formData.data, "PPP", { locale: ptBR }) : ''} às ${formData.horario}
 *Nome:* ${formData.nome}
 *Telefone:* ${formData.telefone || 'Não informado'}
 ${formData.email ? `*Email:* ${formData.email}` : ''}`;
@@ -150,24 +159,20 @@ ${formData.email ? `*Email:* ${formData.email}` : ''}`;
   const resetAndClose = () => {
     setIsOpen(false);
     setStep('form');
-    setFormData({ nome: '', telefone: '', email: '', data: '', horario: '' });
+    setFormData({ nome: '', telefone: '', email: '', data: undefined, horario: '' });
     setError('');
   };
 
-  if (!isOpen) {
-    return <>{children}</>;
-  }
-
-  return (
+  const modalContent = (
     <>
-      {step === 'form' && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {isOpen && step === 'form' && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           {/* Backdrop */}
-          <div 
+          <div
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={resetAndClose}
           />
-          
+
           {/* Modal */}
           <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl">
             {/* Header */}
@@ -233,24 +238,21 @@ ${formData.email ? `*Email:* ${formData.email}` : ''}`;
               </div>
 
               {/* Calendar */}
-              <div>
-                <Label className="text-sm text-gray-600 mb-2 block">Data da Visita *</Label>
-                <div className="grid grid-cols-7 gap-2">
-                  {calendarDays.map((date, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setFormData({ ...formData, data: formatDate(date) })}
-                      disabled={date.getDay() === 0}
-                      className={`p-2 rounded-lg text-xs font-medium transition-all ${
-                        formData.data === formatDate(date)
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-purple-100'
-                      } disabled:opacity-50`}
-                    >
-                      <div className="text-[10px]">{date.toLocaleDateString('pt-AO', { weekday: 'short' })}</div>
-                      <div className="font-bold">{date.getDate()}</div>
-                    </button>
-                  ))}
+              <div className="flex flex-col items-center">
+                <Label className="text-sm text-gray-600 mb-2 w-full">Data da Visita *</Label>
+                <div className="bg-white border rounded-xl p-1 shadow-sm w-full flex justify-center">
+                  <CalendarUI
+                    mode="single"
+                    selected={formData.data}
+                    onSelect={(date) => setFormData({ ...formData, data: date })}
+                    disabled={(date) => {
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      // Disable past dates, today, and Sundays
+                      return date <= today || date.getDay() === 0;
+                    }}
+                    className="rounded-md border-0"
+                  />
                 </div>
               </div>
 
@@ -297,8 +299,8 @@ ${formData.email ? `*Email:* ${formData.email}` : ''}`;
         </div>
       )}
 
-      {step === 'success' && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {isOpen && step === 'success' && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
           <div className="relative bg-white rounded-2xl shadow-2xl p-8 text-center max-w-sm">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -306,7 +308,7 @@ ${formData.email ? `*Email:* ${formData.email}` : ''}`;
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Visita Agendada!</h3>
             <p className="text-gray-600 mb-4">
-              O corretor {ownerData.name} recebeu o seu pedido de visita para o dia {formData.data} às {formData.horario}.
+              O corretor {ownerData.name} recebeu o seu pedido de visita para o dia {formData.data ? format(formData.data, "dd 'de' MMMM", { locale: ptBR }) : ''} às {formData.horario}.
             </p>
             <p className="text-sm text-gray-500 mb-6">
               Em breve será contactado para confirmar.
@@ -320,6 +322,20 @@ ${formData.email ? `*Email:* ${formData.email}` : ''}`;
           </div>
         </div>
       )}
+    </>
+  );
+
+  if (!user) return null;
+
+  return (
+    <>
+      {/* Trigger */}
+      <div onClick={() => setIsOpen(true)} className="cursor-pointer">
+        {children}
+      </div>
+
+      {/* Modal rendered at document.body level via portal to escape CSS transforms */}
+      {mounted && createPortal(modalContent, document.body)}
     </>
   );
 }

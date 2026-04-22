@@ -1,4 +1,5 @@
-﻿import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ChatWindow } from './chat-window';
 import { ChatList } from './chat-list';
 import { UserSearch } from './user-search';
@@ -9,13 +10,17 @@ import { useUserStore } from '@/lib/store/user-store';
 export function ChatWidget() {
     const { isOpen, toggleChat, view, setView } = useChatStore();
     const { user } = useUserStore();
+    const [mounted, setMounted] = useState(false);
 
-    // If chat is open but no user, strictly speaking we should probably show login or something,
-    // but header handles login.
-    if (!isOpen) return null;
+    useEffect(() => {
+        setMounted(true);
+        return () => setMounted(false);
+    }, []);
 
-    return (
-        <AnimatePresence>
+    if (!isOpen || !mounted) return null;
+
+    return createPortal(
+        <AnimatePresence mode="wait">
             {isOpen && (
                 <motion.div
                     initial={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -25,17 +30,15 @@ export function ChatWidget() {
                     drag
                     dragMomentum={false}
                     dragElastic={0.1}
-                    className="fixed bottom-4 right-4 w-96 h-[500px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-100 z-50 font-sans cursor-move"
-                // Use a specific handle if we want, but for now whole widget is fine or maybe just header??
-                // Better to just make it draggable from anywhere or add dragListener={false} to children if needed.
-                // For simply "draggable", this works.
+                    className="fixed bottom-4 right-4 w-[calc(100vw-32px)] sm:w-96 h-[500px] max-h-[calc(100vh-100px)] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-100 z-[9999] font-sans cursor-move"
                 >
                     {view === 'list' && <ChatList />}
                     {view === 'search' && <UserSearch />}
                     {view === 'chat' && <ChatWindow onClose={toggleChat} />}
                 </motion.div>
             )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     );
 }
 

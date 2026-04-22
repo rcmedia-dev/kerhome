@@ -39,7 +39,8 @@ export interface Agent {
 }
 
 type TopAgentsSectionProps = {
-  agents: Agent[]
+  agents: Agent[];
+  className?: string;
 }
 
 // Configurações de transição
@@ -185,11 +186,10 @@ const backgroundVariants: Variants = {
   }
 };
 
-export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
+export default function TopAgentsSection({ agents, className }: TopAgentsSectionProps) {
   const [hoveredAgent, setHoveredAgent] = useState<string | null>(null);
 
-  // Filtrar agentes que têm avatar e limitar para o carrossel
-  const carouselAgents = agents.filter(agent => agent.avatar_url);
+  // Filtrar agentes para o carrossel (todos os agentes fornecidos)
 
   return (
     <motion.section
@@ -197,17 +197,17 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
       whileInView="visible"
       viewport={{ once: true, amount: 0.1 }}
       variants={containerVariants}
-      className="py-20 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden"
+      className={className || "py-10 md:py-20 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden"}
     >
       {/* Elementos decorativos animados */}
       <motion.div
         variants={backgroundVariants}
-        className="absolute top-10 right-10 w-80 h-80 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl"
+        className="absolute top-10 right-10 w-80 h-80 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20"
       ></motion.div>
       <motion.div
         variants={backgroundVariants}
         transition={{ delay: 1.5 }}
-        className="absolute bottom-10 left-10 w-80 h-80 bg-purple-50 rounded-full mix-blend-multiply filter blur-3xl"
+        className="absolute bottom-10 left-10 w-80 h-80 bg-purple-50 rounded-full mix-blend-multiply filter blur-3xl opacity-20"
       ></motion.div>
 
       <div className="max-w-7xl mx-auto px-4 relative z-10">
@@ -221,7 +221,7 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
             ...springTransition,
             duration: 0.8
           }}
-          className="text-center mb-12"
+          className="text-center mb-8 md:mb-12"
         >
           <motion.div
             variants={badgeVariants}
@@ -248,7 +248,7 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
               duration: 0.8,
               delay: 0.1
             }}
-            className="text-4xl md:text-5xl font-bold text-gray-900 mb-4"
+            className="text-3xl md:text-5xl font-bold text-gray-900 mb-4"
           >
             Nossos <span className="text-[#6D28D9]">Corretores</span>
           </motion.h2>
@@ -262,7 +262,7 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
               duration: 0.8,
               delay: 0.2
             }}
-            className="text-lg text-gray-600 max-w-2xl mx-auto"
+            className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto"
           >
             Profissionais qualificados com amplo portfólio de imóveis
           </motion.p>
@@ -295,7 +295,7 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
             }}
             className="pb-16 !px-4"
           >
-            {carouselAgents.map((agent) => (
+            {agents.map((agent) => (
               <SwiperSlide key={agent.id} className="h-auto pb-4">
                 <motion.div
                   variants={itemVariants}
@@ -322,15 +322,23 @@ export default function TopAgentsSection({ agents }: TopAgentsSectionProps) {
                       <div className="relative">
                         <motion.div
                           variants={avatarHoverVariants}
-                          className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg"
+                          className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg flex items-center justify-center bg-gray-100"
                         >
-                          <Image
-                            src={agent.avatar_url!}
-                            alt={`${agent.primeiro_nome} ${agent.ultimo_nome}`}
-                            fill
-                            className="object-cover"
-                            unoptimized={true}
-                          />
+                          {agent.avatar_url ? (
+                            <Image
+                              src={agent.avatar_url}
+                              alt={`${agent.primeiro_nome} ${agent.ultimo_nome}`}
+                              fill
+                              className="object-cover"
+                              unoptimized={true}
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-[#6D28D9] to-purple-800 flex items-center justify-center">
+                              <span className="text-white text-xl font-black uppercase">
+                                {agent.primeiro_nome?.[0]}{agent.ultimo_nome?.[0]}
+                              </span>
+                            </div>
+                          )}
                         </motion.div>
                       </div>
                       <motion.div

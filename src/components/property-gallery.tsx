@@ -4,6 +4,7 @@ import { Heart, Share2, Maximize2, ChevronLeft, ChevronRight } from "lucide-reac
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { FullscreenView } from "@/components/full-screen";
+import { useUserStore } from "@/lib/store/user-store";
 
 // ===== COMPONENTE PROPERTY GALLERY =====
 export function PropertyGallery({ property }: { property: any }) {
@@ -13,6 +14,8 @@ export function PropertyGallery({ property }: { property: any }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [allImages, setAllImages] = useState<string[]>([]);
   const [isMobile, setIsMobile] = useState(false);
+  const { user } = useUserStore();
+  const ownerDetails = property.owner || null;
 
   useEffect(() => {
     const checkIsMobile = () => {
@@ -174,6 +177,8 @@ export function PropertyGallery({ property }: { property: any }) {
           property={property}
           onClose={closeFullscreen}
           onNavigate={navigateImage}
+          ownerDetails={ownerDetails}
+          userId={user?.id}
         />
       </>
     );
@@ -230,14 +235,9 @@ export function PropertyGallery({ property }: { property: any }) {
               </button>
             </div>
 
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-              {allImages.map((_, index) => (
-                <div
-                  key={index}
-                  className={`w-2 h-2 rounded-full ${index === currentIndex ? 'bg-white' : 'bg-gray-400'
-                    }`}
-                />
-              ))}
+            {/* Contador de Fotos Mobile */}
+            <div className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-white font-bold text-xs">
+              {currentIndex + 1} / {allImages.length}
             </div>
           </div>
         </div>
@@ -250,6 +250,8 @@ export function PropertyGallery({ property }: { property: any }) {
         property={property}
         onClose={closeFullscreen}
         onNavigate={navigateImage}
+        ownerDetails={ownerDetails}
+        userId={user?.id}
       />
     </>
   );

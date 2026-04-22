@@ -60,6 +60,7 @@ export function PropertyCreditSimulator({
   const [downPaymentPercent, setDownPaymentPercent] = useState(20);
   const [selectedBankId, setSelectedBankId] = useState('bai');
   const [years, setYears] = useState(20);
+  const [isSimulated, setIsSimulated] = useState(false);
   
   const selectedBank = BANCOS.find(b => b.id === selectedBankId) || BANCOS[0];
   const annualRate = selectedBank.taxa;
@@ -126,12 +127,12 @@ export function PropertyCreditSimulator({
         {/* Banco */}
         <div>
           <Label className="text-sm text-gray-600 mb-2 block">Banco</Label>
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
             {BANCOS.map(bank => (
               <button
                 key={bank.id}
                 onClick={() => setSelectedBankId(bank.id)}
-                className={`p-2 rounded-lg border text-xs font-medium transition-all ${
+                className={`p-2 rounded-lg border text-[10px] sm:text-xs font-medium transition-all truncate ${
                   selectedBankId === bank.id
                     ? 'bg-purple-100 border-purple-300 text-purple-700'
                     : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-purple-300'
@@ -169,31 +170,40 @@ export function PropertyCreditSimulator({
         <div className="text-center mb-6">
           <p className="text-lg opacity-90 mb-2">Prestação Mensal</p>
           <p className="text-4xl font-bold">
-            {formatCurrency(monthlyPayment)}
+            {isSimulated ? formatCurrency(monthlyPayment) : '--- --- ---'}
           </p>
         </div>
         
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="bg-white/10 rounded-lg p-3">
             <p className="opacity-80">Entrada</p>
-            <p className="font-bold">{formatCurrency(downPaymentAmount)}</p>
+            <p className="font-bold">{isSimulated ? formatCurrency(downPaymentAmount) : '--- --- ---'}</p>
           </div>
           <div className="bg-white/10 rounded-lg p-3">
             <p className="opacity-80">Valor Financiado</p>
-            <p className="font-bold">{formatCurrency(totalLoan)}</p>
+            <p className="font-bold">{isSimulated ? formatCurrency(totalLoan) : '--- --- ---'}</p>
           </div>
           <div className="bg-white/10 rounded-lg p-3 col-span-2">
             <p className="opacity-80">Total Juros</p>
-            <p className="font-bold">{formatCurrency(totalInterest)}</p>
+            <p className="font-bold">{isSimulated ? formatCurrency(totalInterest) : '--- --- ---'}</p>
           </div>
         </div>
 
-        <a
-          href="/simular"
-          className="block w-full py-3 mt-6 bg-white text-purple-700 text-center rounded-xl font-bold hover:bg-gray-100 transition-colors"
-        >
-          Simular Completo
-        </a>
+        {!isSimulated ? (
+          <button
+            onClick={() => setIsSimulated(true)}
+            className="block w-full py-4 mt-6 bg-white text-purple-700 text-center rounded-xl font-bold hover:bg-gray-100 transition-all hover:scale-[1.02] shadow-lg active:scale-95"
+          >
+            Simular Crédito
+          </button>
+        ) : (
+          <button
+            onClick={() => setIsSimulated(false)}
+            className="block w-full py-3 mt-6 border border-white/30 text-white text-center rounded-xl font-medium hover:bg-white/10 transition-colors"
+          >
+            Simular Novamente
+          </button>
+        )}
       </div>
     </div>
   );

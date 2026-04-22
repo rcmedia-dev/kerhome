@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { TPropertyResponseSchema } from "@/lib/types/property";
 import { MapPin, BedDouble, Ruler, Tag, Bath, CarFront, Share2 } from "lucide-react";
@@ -11,16 +11,23 @@ export function PropertyHeader({ property }: { property: TPropertyResponseSchema
       <div className="flex flex-wrap items-center justify-between gap-4">
         {/* Status Badge */}
         <div className="flex items-center gap-3">
-          <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide uppercase ${property.status === "venda"
-            ? "bg-blue-100 text-blue-700"
-            : "bg-purple-100 text-purple-700"
+          <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold tracking-wide uppercase shadow-sm ${
+            property.status === "comprar"
+              ? "bg-green-500 text-white"
+              : "bg-blue-500 text-white"
             }`}>
-            {property.rotulo || (property.status === "arrendar" ? "Para Alugar" : "À Venda")}
+            {property.status === "arrendar" ? "Para Alugar" : "À Venda"}
           </span>
-          {property.tipo && (
-            <span className="text-gray-500 font-medium text-sm flex items-center gap-1">
-              â€¢ {property.tipo}
-            </span>
+          {(property.tipo || property.rotulo) && (
+            <div className="flex items-center gap-2 text-gray-500 font-bold text-sm">
+              <span>•</span>
+              {property.tipo && <span className="capitalize">{property.tipo}</span>}
+              {property.rotulo && (
+                <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-[10px] uppercase">
+                  {property.rotulo}
+                </span>
+              )}
+            </div>
           )}
         </div>
 
@@ -31,12 +38,12 @@ export function PropertyHeader({ property }: { property: TPropertyResponseSchema
 
       {/* Title & Address */}
       <div>
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.1] mb-3">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.1] mb-3 break-words">
           {property.title}
         </h1>
-        <div className="flex items-center gap-2 text-gray-500 text-lg">
-          <MapPin className="w-5 h-5 text-purple-600 flex-shrink-0" />
-          <span className="font-medium">
+        <div className="flex items-start gap-2 text-gray-500 text-lg">
+          <MapPin className="w-5 h-5 text-purple-600 flex-shrink-0 mt-1" />
+          <span className="font-medium break-words">
             {[property.endereco, property.bairro, property.cidade, property.provincia].filter(Boolean).join(", ")}
           </span>
         </div>
