@@ -174,7 +174,14 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
                         imobiliaria_id: ownerData.imobiliaria_id
                     }}
                     userId={userId}
-                />
+                >
+                    <button
+                        className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold shadow-lg shadow-orange-200 transition-all hover:-translate-y-0.5"
+                    >
+                        <Calendar size={20} />
+                        Agendar Visita
+                    </button>
+                </VisitScheduler>
 
                 {displayPhone && (
                     <a

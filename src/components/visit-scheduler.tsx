@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 
 interface VisitSchedulerProps {
+  children?: React.ReactNode;
   property: {
     id: string;
     title: string;
@@ -26,7 +27,7 @@ const HORARIOS = [
   '13:00', '14:00', '15:00', '16:00', '17:00'
 ];
 
-export function VisitScheduler({ property, ownerData, userId }: VisitSchedulerProps) {
+export function VisitScheduler({ children, property, ownerData, userId }: VisitSchedulerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState<'form' | 'success'>('form');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -154,15 +155,7 @@ ${formData.email ? `*Email:* ${formData.email}` : ''}`;
   };
 
   if (!isOpen) {
-    return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold shadow-lg shadow-orange-200 transition-all hover:-translate-y-0.5"
-      >
-        <Calendar size={20} />
-        Agendar Visita
-      </button>
-    );
+    return <>{children}</>;
   }
 
   return (
