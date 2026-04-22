@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { MessageCircle, Phone, ArrowRight } from 'lucide-react';
+import { MessageCircle, Phone, ArrowRight, Calendar } from 'lucide-react';
 import { useChatStore } from '@/lib/store/chat-store';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { VisitScheduler } from './visit-scheduler';
 
 interface AgentCardProps {
     ownerData: {
@@ -22,6 +23,7 @@ interface AgentCardProps {
     propertyImage?: string;
     userId?: string;
     agencyData?: {
+        id?: string;
         nome: string;
         logo: string | null;
         telefone?: string | null;
@@ -159,6 +161,20 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
                     <MessageCircle size={20} className="group-hover:animate-pulse" />
                     {loading ? 'Iniciando...' : (agencyData ? 'Chat com a Agência' : 'Enviar Mensagem ao Corretor')}
                 </button>
+
+                <VisitScheduler 
+                    property={{
+                        id: propertyId,
+                        title: propertyTitle || '',
+                        image: propertyImage
+                    }}
+                    ownerData={{
+                        id: ownerData.id,
+                        name: displayName,
+                        imobiliaria_id: ownerData.imobiliaria_id
+                    }}
+                    userId={userId}
+                />
 
                 {displayPhone && (
                     <a
