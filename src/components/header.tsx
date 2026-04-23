@@ -371,7 +371,6 @@ export default function Header() {
 
   return (
     <>
-      <ChatWidget />
       <motion.header
         initial="hidden"
         animate="visible"

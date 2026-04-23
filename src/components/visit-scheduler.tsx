@@ -92,13 +92,20 @@ export function VisitScheduler({ children, property, ownerData, userId }: VisitS
       const targetId = ownerData.id;
       const targetType = ownerData.imobiliaria_id ? 'agency' : 'agent';
       
-      const messageContent = `📅 *Nova Solicitação de Visita*
+      const formattedDate = formData.data
+        ? format(formData.data, "EEEE, dd 'de' MMMM", { locale: ptBR })
+        : '';
 
-*Imóvel:* ${property.title}
-*Data:* ${formData.data ? format(formData.data, "PPP", { locale: ptBR }) : ''} às ${formData.horario}
-*Nome:* ${formData.nome}
-*Telefone:* ${formData.telefone || 'Não informado'}
-${formData.email ? `*Email:* ${formData.email}` : ''}`;
+      const messageContent = [
+        '📅 Solicitação de Visita',
+        '─────────────────────',
+        `Imóvel: ${property.title}`,
+        `Data: ${formattedDate} às ${formData.horario}`,
+        '─────────────────────',
+        `Nome: ${formData.nome}`,
+        `Telefone: ${formData.telefone || 'Não informado'}`,
+        formData.email ? `Email: ${formData.email}` : '',
+      ].filter(Boolean).join('\n');
 
       // Create or get conversation
       const createRes = await fetch('/api/conversations', {
