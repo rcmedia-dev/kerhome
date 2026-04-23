@@ -6,7 +6,7 @@ import { Facebook, Instagram, Linkedin, Send } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="flex flex-col md:flex-row min-h-[400px]">
+    <footer className="flex flex-col md:flex-row min-h-[400px] w-full overflow-hidden">
 
       {/* 1. Sidebar Vertical (Esquerda) - Menu Principal */}
       <div className="w-full md:w-64 bg-purple-700 text-white p-10 flex flex-col justify-center">

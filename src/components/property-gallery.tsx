@@ -189,7 +189,7 @@ export function PropertyGallery({ property }: { property: any }) {
     <>
       {mainImage && (
         <div className="mb-6">
-          <div className="relative w-full h-[300px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 mb-4 group">
+          <div className="relative w-full max-w-full h-[300px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 mb-4 group">
             <Image
               src={allImages[currentIndex]}
               alt={property.title}

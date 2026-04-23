@@ -101,9 +101,9 @@ export function PropertyCreditSimulator({
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-x-8 gap-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* Entrada */}
-          <div className="flex-1 min-w-[200px]">
+          <div className="min-w-0">
             <Label className="text-sm text-gray-600 mb-2 block font-medium">Entrada ({downPaymentPercent}%)</Label>
             <div className="flex flex-wrap gap-1.5">
               {[10, 20, 30, 40].map(percent => (
@@ -126,7 +126,7 @@ export function PropertyCreditSimulator({
           </div>
 
           {/* Prazo */}
-          <div className="flex-1 min-w-[200px]">
+          <div className="min-w-0">
             <Label className="text-sm text-gray-600 mb-2 block font-medium">Prazo ({years} anos)</Label>
             <div className="flex flex-wrap gap-1.5">
               {[10, 15, 20, 25, 30].map(year => (
@@ -174,9 +174,9 @@ export function PropertyCreditSimulator({
       {/* Resultado */}
       <div className="bg-gradient-to-br from-purple-600 to-orange-500 rounded-2xl p-5 md:p-8 text-white shadow-xl flex flex-col justify-between min-h-[300px] w-full max-w-full overflow-hidden box-border">
         <div className="text-center mb-6 px-2">
-          <p className="text-sm md:text-lg opacity-90 mb-1">Prestação Mensal</p>
-          <div className="text-2xl md:text-4xl font-bold break-all flex flex-wrap justify-center">
-            {isSimulated ? formatCurrency(monthlyPayment) : '--- --- ---'}
+          <p className="text-sm opacity-90 mb-2">Prestação Mensal Estipada</p>
+          <div className="text-3xl md:text-5xl font-black tracking-tighter">
+            {isSimulated ? formatCurrency(monthlyPayment) : '--,---,--- Kz'}
           </div>
         </div>
         

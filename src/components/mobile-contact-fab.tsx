@@ -109,7 +109,7 @@ export function MobileContactFAB({ property, ownerDetails }: MobileContactFABPro
   ];
 
   return (
-    <div className="md:hidden fixed bottom-24 right-4 z-[9999] flex flex-col items-end">
+    <div className="md:hidden fixed bottom-32 right-4 z-[9999] flex flex-col items-end">
       <AnimatePresence>
         {isOpen && (
           <>
@@ -171,7 +171,7 @@ export function MobileContactFAB({ property, ownerDetails }: MobileContactFABPro
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         className={`w-14 h-14 rounded-full shadow-2xl flex items-center justify-center text-white border-2 border-white transition-all duration-300 ${
-          isOpen ? 'bg-gray-800' : 'bg-gradient-to-tr from-purple-600 to-orange-500'
+          isOpen ? 'bg-gray-800' : 'bg-linear-to-tr from-blue-600 to-indigo-700'
         }`}
       >
         {isOpen ? <X size={28} /> : <MessageSquare size={28} />}

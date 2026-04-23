@@ -117,8 +117,13 @@
   * {
     @apply border-border outline-ring/50;
   }
-  body {
+  html, body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   /* Prevent automatic word hyphenation across all browsers */
   h1, h2, h3, h4, h5, h6, p, span, a {

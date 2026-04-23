@@ -102,7 +102,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
   const ownerDetails = await getPropertyOwner(property.id);
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
+    <div className="min-h-screen bg-gray-50 text-gray-800 font-sans overflow-x-hidden">
 
       {/* Immersive Gallery Section - Full Width */}
       <div className="w-full">
@@ -119,10 +119,10 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
-        <div className="grid lg:grid-cols-12 gap-8 md:gap-12">
+        <div className="grid lg:grid-cols-12 gap-8 md:gap-12 min-w-0">
 
           {/* Main Content (Left Column) */}
-          <div className="lg:col-span-8 space-y-12">
+          <div className="lg:col-span-8 space-y-12 min-w-0">
 
             {/* Header & Title */}
             <PropertyHeader property={property} />
