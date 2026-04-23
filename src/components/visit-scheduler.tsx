@@ -93,42 +93,21 @@ export function VisitScheduler({ children, property, ownerData, userId }: VisitS
 ${formData.email ? `*Email:* ${formData.email}` : ''}`;
 
       // Create or get conversation
-      let conversationId = null;
-
-      const checkRes = await fetch('/api/conversations/check', {
+      const createRes = await fetch('/api/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          myId: userId,
-          targetId: targetId,
-          targetType: targetType,
-          imobiliariaId: ownerData.imobiliaria_id
+          user_id: userId,
+          target_user_id: targetId,
+          target_type: targetType,
+          imobiliaria_id: ownerData.imobiliaria_id
         })
       });
 
-      if (checkRes.ok) {
-        const data = await checkRes.json();
-        conversationId = data.conversationId || data.conversation_id;
-      }
-
-      // If no conversation, create one
-      if (!conversationId) {
-        const createRes = await fetch('/api/conversations', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            myId: userId,
-            targetId: targetId,
-            targetType: targetType,
-            propertyId: property.id,
-            imobiliariaId: ownerData.imobiliaria_id
-          })
-        });
-
-        if (createRes.ok) {
-          const data = await createRes.json();
-          conversationId = data.conversation?.id;
-        }
+      let conversationId = null;
+      if (createRes.ok) {
+        const data = await createRes.json();
+        conversationId = data.conversation?.id;
       }
 
       // Send message if we have conversation

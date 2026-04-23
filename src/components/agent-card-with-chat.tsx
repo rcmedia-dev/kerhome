@@ -59,7 +59,7 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
             const imobiliariaId = ownerData.imobiliaria_id;
 
             // 1. Check if conversation exists
-            let conversationId = await checkExistingConversation(userId, ownerData.id, targetType);
+            let conversationId = await checkExistingConversation(userId, ownerData.id, targetType, imobiliariaId);
             let isNew = false;
 
             // 2. If not, create one

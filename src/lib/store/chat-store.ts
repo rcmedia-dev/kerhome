@@ -84,7 +84,7 @@ interface ChatState {
 
     subscribeToConversation: (conversationId: string) => void;
     unsubscribeFromConversation: (conversationId: string) => void;
-    checkExistingConversation: (user1Id: string, user2Id: string, targetType?: 'agent' | 'agency') => Promise<string | null>;
+    checkExistingConversation: (user1Id: string, user2Id: string, targetType?: 'agent' | 'agency', imobiliariaId?: string) => Promise<string | null>;
     setTyping: (conversationId: string, userName: string, isTyping: boolean) => void;
 }
 
@@ -323,11 +323,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
         // Legacy
     },
 
-    checkExistingConversation: async (user1Id, user2Id, targetType = 'agent') => {
+    checkExistingConversation: async (user1Id, user2Id, targetType = 'agent', imobiliariaId) => {
         // 1. Check local state first
         const localConv = get().conversations.find(c => {
-            if (targetType === 'agency') {
-                return (c.user1_id === user1Id || c.user2_id === user1Id) && c.target_type === 'agency';
+            if (targetType === 'agency' && imobiliariaId) {
+                return (c.user1_id === user1Id || c.user2_id === user1Id) && 
+                       c.target_type === 'agency' && 
+                       c.imobiliaria_id === imobiliariaId;
             }
             return (
                 ((c.user1_id === user1Id && c.user2_id === user2Id) ||
@@ -343,8 +345,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
             if (!get().isInitialized) {
                 await get().fetchConversations(user1Id);
                 const freshLocal = get().conversations.find(c => {
-                    if (targetType === 'agency') {
-                        return (c.user1_id === user1Id || c.user2_id === user1Id) && c.target_type === 'agency';
+                    if (targetType === 'agency' && imobiliariaId) {
+                        return (c.user1_id === user1Id || c.user2_id === user1Id) && 
+                               c.target_type === 'agency' && 
+                               c.imobiliaria_id === imobiliariaId;
                     }
                     return (
                         ((c.user1_id === user1Id && c.user2_id === user2Id) ||
