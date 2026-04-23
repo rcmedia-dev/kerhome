@@ -189,7 +189,10 @@ const backgroundVariants: Variants = {
 export default function TopAgentsSection({ agents, className }: TopAgentsSectionProps) {
   const [hoveredAgent, setHoveredAgent] = useState<string | null>(null);
 
-  // Filtrar agentes para o carrossel (todos os agentes fornecidos)
+  // Filtrar apenas agentes que possuem foto
+  const agentsWithPhoto = agents.filter(agent => !!agent.avatar_url);
+
+  if (agentsWithPhoto.length === 0) return null;
 
   return (
     <motion.section
@@ -295,7 +298,7 @@ export default function TopAgentsSection({ agents, className }: TopAgentsSection
             }}
             className="pb-16 !px-4"
           >
-            {agents.map((agent) => (
+            {agentsWithPhoto.map((agent) => (
               <SwiperSlide key={agent.id} className="h-auto pb-4">
                 <motion.div
                   variants={itemVariants}
@@ -314,11 +317,8 @@ export default function TopAgentsSection({ agents, className }: TopAgentsSection
                     transition={fastSpringTransition}
                     className="relative bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-xl transition-all duration-500 h-full flex flex-col overflow-hidden"
                   >
-                    {/* Header do card */}
-                    <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-r from-purple-50 to-purple-100 opacity-60"></div>
-
                     {/* Avatar */}
-                    <div className="relative z-10 mx-auto mb-4 -mt-4">
+                    <div className="relative z-10 ml-0 mb-4 -mt-4">
                       <div className="relative">
                         <motion.div
                           variants={avatarHoverVariants}
@@ -350,12 +350,12 @@ export default function TopAgentsSection({ agents, className }: TopAgentsSection
                     </div>
 
                     {/* Conteúdo */}
-                    <div className="text-center flex-1 relative z-10 flex flex-col items-center justify-center">
-                      <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-[#6D28D9] transition-colors">
+                    <div className="text-left flex-1 relative z-10 flex flex-col items-start justify-center">
+                      <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-[#6D28D9] transition-colors line-clamp-1">
                         {agent.primeiro_nome} {agent.ultimo_nome}
                       </h3>
                       {agent.email && (
-                        <div className="flex items-center justify-center gap-2 text-gray-500 mb-6 p-2 bg-gray-50 rounded-lg w-full text-xs truncate">
+                        <div className="flex items-center justify-start gap-2 text-gray-500 mb-6 p-2 bg-gray-50 rounded-lg w-full text-xs truncate">
                           <Mail className="w-3 h-3 shrink-0" />
                           <span className="truncate">{agent.email}</span>
                         </div>

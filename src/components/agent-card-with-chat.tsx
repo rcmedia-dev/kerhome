@@ -124,8 +124,8 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
     return (
         <div className="flex flex-col gap-5">
             {/* Agent Info */}
-            <div className="flex items-center gap-4">
-                <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-purple-100 shadow-sm shrink-0 flex items-center justify-center bg-gray-100">
+            <div className="flex items-center gap-3 md:gap-4 min-w-0">
+                <div className="relative w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-purple-100 shadow-sm shrink-0 flex items-center justify-center bg-gray-100">
                     {displayAvatar ? (
                         <Image
                             src={displayAvatar}
@@ -135,7 +135,7 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
                             unoptimized={true}
                         />
                     ) : (
-                        <span className="text-purple-600 font-bold text-xl">
+                        <span className="text-purple-600 font-bold text-lg md:text-xl">
                             {displayName
                                 .split(' ')
                                 .map(n => n[0])
@@ -145,9 +145,9 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
                         </span>
                     )}
                 </div>
-                <div>
-                    <h4 className="font-bold text-gray-900 text-lg leading-tight">{displayName}</h4>
-                    <p className="text-sm text-purple-600 font-medium">{displayRole}</p>
+                <div className="min-w-0 flex-1">
+                    <h4 className="font-bold text-gray-900 text-base md:text-lg leading-tight truncate">{displayName}</h4>
+                    <p className="text-xs md:text-sm text-purple-600 font-medium truncate">{displayRole}</p>
                 </div>
             </div>
 
@@ -156,10 +156,12 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
                 <button
                     onClick={handleStartChat}
                     disabled={loading}
-                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-3 rounded-xl font-semibold shadow-lg shadow-purple-200 transition-all hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed group"
+                    className="w-full h-12 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-xl text-sm md:text-base font-bold shadow-md transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed group px-4"
                 >
-                    <MessageCircle size={20} className="group-hover:animate-pulse" />
-                    {loading ? 'Iniciando...' : (agencyData ? 'Chat com a Agência' : 'Enviar Mensagem ao Corretor')}
+                    <MessageCircle size={18} className="group-hover:animate-pulse shrink-0" />
+                    <span>
+                        {loading ? 'Iniciando...' : (agencyData ? 'Chat com a Agência' : 'Enviar Mensagem')}
+                    </span>
                 </button>
 
                 <VisitScheduler 
@@ -176,9 +178,9 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
                     userId={userId}
                 >
                     <button
-                        className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold shadow-lg shadow-orange-200 transition-all hover:-translate-y-0.5"
+                        className="w-full h-12 flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm md:text-base font-bold shadow-md transition-all active:scale-95"
                     >
-                        <Calendar size={20} />
+                        <Calendar size={18} className="shrink-0" />
                         Agendar Visita
                     </button>
                 </VisitScheduler>
@@ -188,21 +190,21 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
                         href={`https://wa.me/${displayPhone.replace(/\D/g, '')}?text=Olá, tenho interesse no imóvel: ${propertyTitle}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-semibold shadow-lg shadow-green-200 transition-all hover:-translate-y-0.5"
+                        className="w-full h-12 flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white rounded-xl text-sm md:text-base font-bold shadow-md transition-all active:scale-95 px-4"
                     >
-                        <Phone size={20} />
-                        WhatsApp {(agencyData ? 'da Agência' : '')}
+                        <Phone size={18} className="shrink-0" />
+                        WhatsApp {(agencyData ? '' : 'do Corretor')}
                     </a>
                 )}
             </div>
 
             {!agencyData && (
-                <div className="text-center">
+                <div className="text-left mt-2 px-1">
                     <button
                         onClick={() => router.push(`/agente/${ownerData.id}`)}
-                        className="text-sm text-gray-400 hover:text-purple-600 transition-colors flex items-center justify-center gap-1 mx-auto group"
+                        className="text-xs md:text-sm text-gray-400 hover:text-purple-600 transition-colors flex items-center gap-1 group"
                     >
-                        Ver perfil completo
+                        Ver perfil completo do corretor
                         <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
                     </button>
                 </div>

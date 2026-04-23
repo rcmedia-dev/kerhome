@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import AgentCardWithChat from "@/components/agent-card-with-chat";
 import { useUserStore } from "@/lib/store/user-store";
@@ -29,10 +29,7 @@ export function PropertyContact({
   }
 
   return (
-    <div className="bg-white rounded-xl p-5 shadow-sm border">
-      <h3 className="text-lg font-semibold mb-4 text-gray-800">
-        Entre em contato com o corretor
-      </h3>
+    <div className="space-y-4">
       <AgentCardWithChat
         ownerData={{
           id: ownerDetails.id,

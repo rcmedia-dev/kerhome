@@ -11,6 +11,7 @@ import { CustomSignInForm } from '@/components/login-form';
 import { CustomSignUpForm } from '@/components/signup-form';
 import { useUserStore } from '@/lib/store/user-store';
 import { createClient } from '@/lib/supabase/client';
+import { useUIStore } from '@/lib/store/ui-store';
 
 const supabase = createClient();
 
@@ -24,13 +25,13 @@ export const AuthDialog = forwardRef(function AuthDialog(
   { trigger, defaultMode = 'signIn', onSuccess }: AuthDialogProps,
   ref
 ) {
-  const [isOpen, setIsOpen] = useState(false);
+  const { isAuthModalOpen, authModalMode, closeAuthModal, openAuthModal } = useUIStore();
   const [isSignUp, setIsSignUp] = useState(defaultMode === 'signUp');
   const { setUser, fetchUserProfile } = useUserStore();
 
   useImperativeHandle(ref, () => ({
-    open: () => setIsOpen(true),
-    close: () => setIsOpen(false),
+    open: () => openAuthModal(),
+    close: () => closeAuthModal(),
   }));
 
   const handleSuccess = async () => {
@@ -44,7 +45,7 @@ export const AuthDialog = forwardRef(function AuthDialog(
         }
       }
       
-      setIsOpen(false);
+      closeAuthModal();
       onSuccess?.();
     } catch (error) {
       console.error('Erro ao buscar perfil do usuário:', error);
@@ -52,7 +53,7 @@ export const AuthDialog = forwardRef(function AuthDialog(
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isAuthModalOpen} onOpenChange={(open) => !open && closeAuthModal()}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 
       <DialogContent className="max-w-md p-0 border-none bg-transparent shadow-none">

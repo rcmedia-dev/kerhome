@@ -38,12 +38,12 @@ export function PropertyHeader({ property }: { property: TPropertyResponseSchema
 
       {/* Title & Address */}
       <div>
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.1] mb-3 break-words">
+        <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight mb-3 break-words">
           {property.title}
         </h1>
-        <div className="flex items-start gap-2 text-gray-500 text-lg">
-          <MapPin className="w-5 h-5 text-purple-600 flex-shrink-0 mt-1" />
-          <span className="font-medium break-words">
+        <div className="flex items-start gap-2 text-gray-500 text-base md:text-lg">
+          <MapPin className="w-4 h-4 md:w-5 md:h-5 text-purple-600 flex-shrink-0 mt-1" />
+          <span className="font-medium break-words leading-snug">
             {[property.endereco, property.bairro, property.cidade, property.provincia].filter(Boolean).join(", ")}
           </span>
         </div>

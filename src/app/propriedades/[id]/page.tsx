@@ -10,6 +10,7 @@ import { PropertyGallery } from "@/components/property-gallery";
 import { PropertyHeader } from "@/components/property-header";
 import { PropertyLocation } from "@/components/property-location";
 import { TechnicalDetails } from "@/components/techinical-details";
+import { MobileContactFAB } from "@/components/mobile-contact-fab";
 import { checkIfPropertyIsBoosted, trackBoostView } from "@/lib/functions/supabase-actions/boost-functions";
 import { redirect } from "next/navigation";
 
@@ -101,17 +102,17 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
   const ownerDetails = await getPropertyOwner(property.id);
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800 font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
 
       {/* Immersive Gallery Section - Full Width */}
       <div className="w-full">
         <div className="px-0">
-          <nav className="text-sm text-gray-500 mb-4 ml-4 flex items-center gap-2">
-            <a href="/" className="hover:text-purple-600 transition-colors">Início</a>
+          <nav className="text-[10px] md:text-sm text-gray-500 mb-6 flex flex-wrap items-center gap-1.5 md:gap-2 px-1">
+            <a href="/" className="hover:text-purple-600 transition-colors shrink-0">Início</a>
             <span className="text-gray-300">/</span>
-            <a href="/propriedades" className="hover:text-purple-600 transition-colors">Imóveis</a>
+            <a href="/propriedades" className="hover:text-purple-600 transition-colors shrink-0">Imóveis</a>
             <span className="text-gray-300">/</span>
-            <span className="text-gray-800 font-medium truncate max-w-[200px]">{property.title}</span>
+            <span className="text-gray-800 font-medium truncate max-w-[150px] md:max-w-[300px]">{property.title}</span>
           </nav>
           <PropertyGallery property={property} />
         </div>
@@ -127,18 +128,19 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
             <PropertyHeader property={property} />
 
             {/* Content Blocks */}
-            <div className="space-y-12">
+            <div className="space-y-8 md:space-y-12">
               <TechnicalDetails property={property} />
+
 
               {/* Características/Features */}
               {property.caracteristicas && property.caracteristicas.length > 0 && (
-                <div className="bg-white rounded-2xl p-6 border border-gray-100">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6">Características</h3>
+                <div className="bg-white rounded-2xl p-5 md:p-6 border border-gray-100 shadow-sm">
+                  <h3 className="text-xl font-bold text-gray-900 mb-5">Características</h3>
                   <div className="flex flex-wrap gap-2">
                     {property.caracteristicas.map((feature, idx) => (
                       <span 
                         key={idx} 
-                        className="px-4 py-2 bg-gradient-to-r from-purple-50 to-orange-50 text-gray-700 rounded-full text-sm font-medium border border-purple-100"
+                        className="px-4 py-2 bg-gradient-to-r from-purple-50 to-orange-50 text-gray-800 rounded-full text-xs font-semibold border border-purple-100"
                       >
                         {feature}
                       </span>
@@ -147,8 +149,8 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
                 </div>
               )}
 
-              <div className="prose max-w-none">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Sobre este imóvel</h3>
+              <div className="prose max-w-none bg-white rounded-2xl p-5 md:p-8 border border-gray-100 shadow-sm">
+                <h3 className="text-xl font-bold text-gray-900 mb-5 border-b border-gray-100 pb-3">Sobre este imóvel</h3>
                 <PropertyDescription property={property} />
               </div>
 
@@ -176,10 +178,10 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
 
           {/* Sticky Sidebar (Right Column) */}
           <div className="lg:col-span-4 space-y-8">
-            <div className="sticky top-24 space-y-6">
+            <div className="sticky top-[140px] space-y-6 z-10">
 
               {/* Contact Card */}
-              <div className="bg-white rounded-2xl shadow-xl shadow-purple-900/5 border border-purple-100 overflow-hidden transform transition-all hover:scale-[1.01] duration-300">
+              <div className="bg-white rounded-2xl shadow-xl shadow-purple-900/5 border border-purple-100 overflow-hidden transform transition-all hover:scale-[1.01] duration-300 hidden lg:block">
                 <div className="p-6 bg-linear-to-br from-purple-50 to-white">
                   <h3 className="text-lg font-bold text-gray-900 mb-1">Interessado?</h3>
                   <p className="text-sm text-gray-500 mb-6">Fale direto com o anunciante</p>
@@ -198,6 +200,9 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
 
         </div>
       </div>
+      
+      {/* Floating Action Button for Contact (Mobile Only) */}
+      <MobileContactFAB property={property} ownerDetails={ownerDetails} />
     </div>
   );
 }

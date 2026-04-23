@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -12,6 +12,7 @@ import {
   DialogFooter,
 } from "./ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useUIStore } from "@/lib/store/ui-store";
 
 interface AuthDialogRef {
   open: () => void;
@@ -28,22 +29,21 @@ interface UserPlan {
 
 interface CadastrarImovelButtonProps {
   user: any;
-  authDialogRef: React.RefObject<AuthDialogRef | null>;
   userPlan: UserPlan | null;
 }
 
 export default function CadastrarImovelButton({
   user,
-  authDialogRef,
   userPlan,
 }: CadastrarImovelButtonProps) {
   const router = useRouter();
   const [openDialog, setOpenDialog] = useState(false);
+  const { openAuthModal } = useUIStore();
 
   const handleClick = (e: React.MouseEvent) => {
     if (!user) {
       e.preventDefault();
-      authDialogRef.current?.open();
+      openAuthModal();
       return;
     }
 

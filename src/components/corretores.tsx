@@ -7,7 +7,11 @@ import Image from "next/image"
 export default function CorretoresEmDestaque() {
   const { data: agents, isLoading, error } = useQuery({
     queryKey: ["agents"],
-    queryFn: async () => await getAgents(),
+    queryFn: async () => {
+      const allAgents = await getAgents();
+      // Filtrar apenas corretores que tenham foto
+      return allAgents.filter((agent: any) => !!agent.avatar_url);
+    },
   })
 
   if (isLoading) {

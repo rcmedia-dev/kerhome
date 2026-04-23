@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import { Award, Trophy, Star, Shield, Home, Sparkles } from "lucide-react";
@@ -32,7 +32,7 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="lg:w-1/3 flex justify-center"
+            className="lg:w-1/3 flex justify-start"
           >
             {hasProfile && profile.avatar_url ? (
               <div className="relative group">
@@ -64,12 +64,12 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="lg:w-2/3 text-center lg:text-left"
+            className="lg:w-2/3 text-left"
           >
             {hasProfile && profile ? (
               <>
                 {/* BADGES */}
-                <div className="flex flex-wrap gap-3 justify-center lg:justify-start mb-6">
+                <div className="flex flex-wrap gap-3 justify-start mb-6">
                   <motion.div
                     whileHover={{ scale: 1.05 }}
                     className="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full text-white backdrop-blur-md border border-white/20 transition-all"
@@ -106,7 +106,7 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
                 </p>
 
                 {/* ESTATÍSTICAS */}
-                <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
+                <div className="flex flex-wrap gap-4 justify-start">
                   <motion.div
                     whileHover={{ y: -4 }}
                     className="flex items-center bg-white/15 hover:bg-white/25 rounded-xl px-5 py-3 backdrop-blur-md border border-white/20 transition-all"
@@ -133,7 +133,7 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
             ) : (
               /* SKELETON LOADING */
               <div className="animate-pulse">
-                <div className="h-10 bg-white/20 rounded-lg mb-6 w-3/4 mx-auto lg:mx-0"></div>
+                <div className="h-10 bg-white/20 rounded-lg mb-6 w-3/4"></div>
                 <div className="h-6 bg-white/20 rounded-lg mb-3 w-full"></div>
                 <div className="h-6 bg-white/20 rounded-lg w-2/3"></div>
               </div>

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { AuthDialog } from '@/components/login-modal';
+import { useUIStore } from '@/lib/store/ui-store';
 import React from 'react';
 
 import {
@@ -280,14 +281,11 @@ function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: bo
 
 
 
-// Definir o tipo para a referência do AuthDialog
-interface AuthDialogRef {
-  open: () => void;
-}
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const authDialogRef = useRef<AuthDialogRef>(null);
+  const { openAuthModal } = useUIStore();
+  const router = useRouter();
   const pathname = usePathname();
 
   // Usando a user store
@@ -322,7 +320,7 @@ export default function Header() {
   const handleCadastrarImovelClick = (e: React.MouseEvent) => {
     if (!user) {
       e.preventDefault();
-      authDialogRef.current?.open();
+      openAuthModal();
     }
   };
 
@@ -458,28 +456,23 @@ export default function Header() {
 
             <CadastrarImovelButton
               user={user}
-              authDialogRef={authDialogRef}
               userPlan={userPlanData.data || null}
             />
 
             {user ? (
               <UserDropdown user={user} />
             ) : (
-              <AuthDialog
-                ref={authDialogRef}
-                trigger={
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    transition={springTransition}
-                    className="group flex items-center gap-2 px-5 py-2.5 bg-orange-600 text-white rounded-full hover:bg-orange-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
-                    aria-label="Acessar minha conta"
-                  >
-                    <UserCircle className="w-5 h-5 text-white group-hover:text-white transition-colors" />
-                    <span className="hidden sm:inline font-medium">Entrar</span>
-                  </motion.button>
-                }
-              />
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => openAuthModal()}
+                transition={springTransition}
+                className="group flex items-center gap-2 px-5 py-2.5 bg-orange-600 text-white rounded-full hover:bg-orange-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                aria-label="Acessar minha conta"
+              >
+                <UserCircle className="w-5 h-5 text-white group-hover:text-white transition-colors" />
+                <span className="hidden sm:inline font-medium">Entrar</span>
+              </motion.button>
             )}
           </div>
 
@@ -566,40 +559,44 @@ export default function Header() {
               >
 
 
-                <Link
-                  href="/dashboard/cadastrar-imovel"
-                  className="w-full"
-                  onClick={() => setMenuOpen(false)}
+                <div
+                  className="w-full cursor-pointer"
+                  onClick={(e) => {
+                    setMenuOpen(false);
+                    if (!user) {
+                      openAuthModal();
+                    } else {
+                      router.push("/dashboard/cadastrar-imovel");
+                    }
+                  }}
                 >
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     transition={springTransition}
                     className="w-full px-4 py-2.5 bg-purple-700 hover:bg-purple-800 text-sm font-medium text-white rounded-xl border border-purple-700 transition-all duration-200"
-                    onClick={handleCadastrarImovelClick}
                   >
                     Cadastrar Imóvel
                   </motion.button>
-                </Link>
+                </div>
 
                 {user ? (
                   <UserDropdown user={user} mobile />
                 ) : (
-                  <AuthDialog
-                    ref={authDialogRef}
-                    trigger={
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        transition={springTransition}
-                        className="w-full flex items-center gap-2 px-4 py-2.5 border border-purple-700 text-purple-700 rounded-xl hover:bg-purple-50 transition-all duration-200 justify-center"
-                        aria-label="Acessar minha conta"
-                      >
-                        <UserCircle className="w-5 h-5" />
-                        Minha Conta
-                      </motion.button>
-                    }
-                  />
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      openAuthModal();
+                    }}
+                    transition={springTransition}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 border border-purple-700 text-purple-700 rounded-xl hover:bg-purple-50 transition-all duration-200 justify-center"
+                    aria-label="Acessar minha conta"
+                  >
+                    <UserCircle className="w-5 h-5" />
+                    Minha Conta
+                  </motion.button>
                 )}
               </motion.div>
             </motion.nav>

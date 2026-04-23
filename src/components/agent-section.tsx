@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
@@ -51,7 +51,7 @@ export default function AgentSection({ ownerId }: AgentSectionProps) {
   const color = randomColorFromName(fullName);
 
   return (
-    <div className="bg-white border shadow-md rounded-2xl p-6 flex flex-col items-center text-center">
+    <div className="bg-white border shadow-md rounded-2xl p-6 flex flex-col items-start text-left">
       <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-purple-600 mb-3 flex items-center justify-center bg-gray-100">
         {agent.avatar ? (
           <Image

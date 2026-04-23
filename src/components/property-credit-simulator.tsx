@@ -80,7 +80,7 @@ export function PropertyCreditSimulator({
   const totalInterest = totalPaid - totalLoan;
 
   return (
-    <div className="grid md:grid-cols-2 gap-8 items-start">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start w-full max-w-full overflow-hidden box-border">
       {/* Inputs */}
       <div className="space-y-6">
         <div>
@@ -94,114 +94,126 @@ export function PropertyCreditSimulator({
         </div>
 
         {/* Valor do Imóvel */}
-        <div className="bg-purple-50 rounded-xl p-4">
-          <Label className="text-sm text-gray-600">Valor do Imóvel</Label>
-          <div className="text-2xl font-bold text-purple-700">
+        <div className="bg-purple-50 rounded-xl p-3 border border-purple-100">
+          <Label className="text-xs text-purple-600 font-medium uppercase tracking-wider">Valor do Imóvel</Label>
+          <div className="text-xl md:text-2xl font-black text-purple-700 truncate mt-1">
             {formatCurrency(propertyPrice)}
           </div>
         </div>
 
-        {/* Entrada */}
-        <div>
-          <Label className="text-sm text-gray-600 mb-2 block">Entrada ({downPaymentPercent}%)</Label>
-          <div className="flex gap-2">
-            {[10, 20, 30, 40].map(percent => (
-              <button
-                key={percent}
-                onClick={() => setDownPaymentPercent(percent)}
-                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
-                  downPaymentPercent === percent
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {percent}%
-              </button>
-            ))}
+        <div className="flex flex-wrap gap-x-8 gap-y-6">
+          {/* Entrada */}
+          <div className="flex-1 min-w-[200px]">
+            <Label className="text-sm text-gray-600 mb-2 block font-medium">Entrada ({downPaymentPercent}%)</Label>
+            <div className="flex flex-wrap gap-1.5">
+              {[10, 20, 30, 40].map(percent => (
+                <button
+                  key={percent}
+                  onClick={() => setDownPaymentPercent(percent)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    downPaymentPercent === percent
+                      ? 'bg-purple-600 text-white shadow-md'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {percent}%
+                </button>
+              ))}
+            </div>
+            <div className="text-xs font-bold text-gray-500 mt-2">
+              {formatCurrency(downPaymentAmount)}
+            </div>
           </div>
-          <div className="text-sm text-gray-600 mt-2">
-            {formatCurrency(downPaymentAmount)}
+
+          {/* Prazo */}
+          <div className="flex-1 min-w-[200px]">
+            <Label className="text-sm text-gray-600 mb-2 block font-medium">Prazo ({years} anos)</Label>
+            <div className="flex flex-wrap gap-1.5">
+              {[10, 15, 20, 25, 30].map(year => (
+                <button
+                  key={year}
+                  onClick={() => setYears(year)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    years === year
+                      ? 'bg-purple-600 text-white shadow-md'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {year}a
+                </button>
+              ))}
+            </div>
+            <div className="text-xs font-bold text-gray-500 mt-2">
+              {years * 12} meses
+            </div>
           </div>
         </div>
 
         {/* Banco */}
         <div>
-          <Label className="text-sm text-gray-600 mb-2 block">Banco</Label>
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+          <Label className="text-sm text-gray-600 mb-2 block font-medium">Instituição Financeira</Label>
+          <div className="flex flex-wrap gap-2">
             {BANCOS.map(bank => (
               <button
                 key={bank.id}
                 onClick={() => setSelectedBankId(bank.id)}
-                className={`p-2 rounded-lg border text-[10px] sm:text-xs font-medium transition-all truncate ${
+                className={`px-4 py-2.5 rounded-xl border text-[11px] font-bold transition-all ${
                   selectedBankId === bank.id
-                    ? 'bg-purple-100 border-purple-300 text-purple-700'
-                    : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-purple-300'
+                    ? 'bg-purple-600 border-purple-600 text-white shadow-md'
+                    : 'bg-white border-gray-200 text-gray-600 hover:border-purple-300'
                 }`}
               >
-                {bank.nome}
+                {bank.nome} <span className="opacity-60 font-normal">({bank.taxa}%)</span>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Prazo */}
-        <div>
-          <Label className="text-sm text-gray-600 mb-2 block">Prazo ({years} anos)</Label>
-          <div className="flex gap-2">
-            {[10, 15, 20, 25, 30].map(year => (
-              <button
-                key={year}
-                onClick={() => setYears(year)}
-                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
-                  years === year
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {year}a
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* Resultado */}
-      <div className="bg-gradient-to-br from-purple-600 to-orange-500 rounded-2xl p-6 text-white">
-        <div className="text-center mb-6">
-          <p className="text-lg opacity-90 mb-2">Prestação Mensal</p>
-          <p className="text-4xl font-bold">
+      <div className="bg-gradient-to-br from-purple-600 to-orange-500 rounded-2xl p-5 md:p-8 text-white shadow-xl flex flex-col justify-between min-h-[300px] w-full max-w-full overflow-hidden box-border">
+        <div className="text-center mb-6 px-2">
+          <p className="text-sm md:text-lg opacity-90 mb-1">Prestação Mensal</p>
+          <div className="text-2xl md:text-4xl font-bold break-all flex flex-wrap justify-center">
             {isSimulated ? formatCurrency(monthlyPayment) : '--- --- ---'}
-          </p>
+          </div>
         </div>
         
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="bg-white/10 rounded-lg p-3">
-            <p className="opacity-80">Entrada</p>
-            <p className="font-bold">{isSimulated ? formatCurrency(downPaymentAmount) : '--- --- ---'}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/10">
+            <p className="text-[10px] uppercase tracking-wider opacity-70 mb-1">Entrada</p>
+            <p className="font-bold text-base">{isSimulated ? formatCurrency(downPaymentAmount) : '--- --- ---'}</p>
           </div>
-          <div className="bg-white/10 rounded-lg p-3">
-            <p className="opacity-80">Valor Financiado</p>
-            <p className="font-bold">{isSimulated ? formatCurrency(totalLoan) : '--- --- ---'}</p>
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/10">
+            <p className="text-[10px] uppercase tracking-wider opacity-70 mb-1">Valor Financiado</p>
+            <p className="font-bold text-base">{isSimulated ? formatCurrency(totalLoan) : '--- --- ---'}</p>
           </div>
-          <div className="bg-white/10 rounded-lg p-3 col-span-2">
-            <p className="opacity-80">Total Juros</p>
-            <p className="font-bold">{isSimulated ? formatCurrency(totalInterest) : '--- --- ---'}</p>
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/10 sm:col-span-2">
+            <p className="text-[10px] uppercase tracking-wider opacity-70 mb-1">Total Juros</p>
+            <p className="font-bold text-base">{isSimulated ? formatCurrency(totalInterest) : '--- --- ---'}</p>
           </div>
         </div>
 
         {!isSimulated ? (
           <button
             onClick={() => setIsSimulated(true)}
-            className="block w-full py-4 mt-6 bg-white text-purple-700 text-center rounded-xl font-bold hover:bg-gray-100 transition-all hover:scale-[1.02] shadow-lg active:scale-95"
+            className="w-full h-16 mt-8 bg-white flex items-center justify-center rounded-2xl shadow-2xl active:scale-95 transition-all group"
           >
-            Simular Crédito
+            <span 
+              className="font-black text-lg tracking-widest flex items-center gap-2" 
+              style={{ color: '#1e1b4b', display: 'flex', visibility: 'visible', opacity: 1 }}
+            >
+              <Calculator size={24} />
+              SIMULAR AGORA
+            </span>
           </button>
         ) : (
           <button
             onClick={() => setIsSimulated(false)}
-            className="block w-full py-3 mt-6 border border-white/30 text-white text-center rounded-xl font-medium hover:bg-white/10 transition-colors"
+            className="w-full h-14 mt-6 border-2 border-white/40 flex items-center justify-center rounded-xl transition-colors hover:bg-white/10"
           >
-            Simular Novamente
+            <span className="text-white font-bold" style={{ color: 'white' }}>SIMULAR NOVAMENTE</span>
           </button>
         )}
       </div>

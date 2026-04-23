@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import TopBar from "@/components/top-bar";
+import { AuthDialog } from "./login-modal";
 
 export default function LayoutClient({
   children,
@@ -29,6 +30,7 @@ export default function LayoutClient({
         </>
       )}
       {children}
+      <AuthDialog />
       {!isDashboardPage && <Footer />}
     </>
   );
