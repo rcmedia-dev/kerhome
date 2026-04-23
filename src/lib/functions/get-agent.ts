@@ -15,26 +15,15 @@ export interface PropertyOwner {
   sobre_mim?: string;
 }
 
-export async function getPropertyOwner(propertyId?: string): Promise<PropertyOwner> {
+export async function getPropertyOwner(ownerId?: string): Promise<PropertyOwner> {
   const supabase = await createClient();
-  // Validação básica
-  if (!propertyId || typeof propertyId !== 'string') {
-    throw new Error('ID da propriedade inválido');
+  
+  if (!ownerId || typeof ownerId !== 'string') {
+    throw new Error('ID do proprietário inválido');
   }
 
   try {
-    // Primeiro busca a propriedade para obter o user_id
-    const { data: property, error: propertyError } = await supabase
-      .from('properties')
-      .select('owner_id')
-      .eq('id', propertyId)
-      .single();
-
-    if (propertyError || !property) {
-      throw new Error(propertyError?.message || 'Propriedade não encontrada');
-    }
-
-    // Agora busca os dados do usuário/proprietário
+    // Busca os dados do usuário/proprietário diretamente pelo ID dele
     const { data: owner, error: ownerError } = await supabase
       .from('profiles')
       .select(`
@@ -47,11 +36,25 @@ export async function getPropertyOwner(propertyId?: string): Promise<PropertyOwn
         sobre_mim,
         avatar_url
       `)
-      .eq('id', property.owner_id)
-      .single();
+      .eq('id', ownerId)
+      .maybeSingle();
 
-    if (ownerError || !owner) {
-      throw new Error(ownerError?.message || 'Proprietário não encontrado');
+    if (ownerError) {
+      console.error('[KerCasa] Erro ao buscar perfil do dono:', ownerError);
+      throw new Error(`Erro ao buscar perfil: ${ownerError.message}`);
+    }
+
+    if (!owner) {
+      console.warn(`[KerCasa] Perfil do proprietário ${ownerId} não encontrado`);
+      // Retornar um fallback amigável em vez de quebrar a página
+      return {
+        id: ownerId,
+        primeiro_nome: 'Anunciante',
+        ultimo_nome: '',
+        email: '',
+        telefone: '',
+        avatar_url: undefined
+      };
     }
 
     return {
@@ -62,7 +65,7 @@ export async function getPropertyOwner(propertyId?: string): Promise<PropertyOwn
       telefone: owner.telefone || '',
       empresa: owner.empresa || undefined,
       sobre_mim: owner.sobre_mim,
-      avatar_url: owner.avatar_url || null
+      avatar_url: owner.avatar_url || undefined
     };
 
   } catch (error) {

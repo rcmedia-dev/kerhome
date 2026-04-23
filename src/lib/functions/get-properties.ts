@@ -47,7 +47,8 @@ export async function getPropertyBySlug(slug: string): Promise<TPropertyResponse
         )
       `)
       .eq('slug', slug)
-      .single();
+      .eq('aprovement_status', 'approved')
+      .maybeSingle();
 
     if (error || !property) return null;
     return property as TPropertyResponseSchema;
@@ -401,7 +402,12 @@ export async function getPropertyById(id: string | null): Promise<TPropertyRespo
       `)
       .eq('id', id)
       .eq('aprovement_status', 'approved')
-      .single();
+      .maybeSingle();
+
+    if (propertieById.error) {
+       console.error("Erro no Supabase ao buscar por ID:", propertieById.error);
+       return null;
+    }
 
     return propertieById.data as TPropertyResponseSchema;
   } catch (error) {

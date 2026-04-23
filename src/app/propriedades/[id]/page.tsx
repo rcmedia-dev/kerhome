@@ -11,6 +11,7 @@ import { PropertyHeader } from "@/components/property-header";
 import { PropertyLocation } from "@/components/property-location";
 import { TechnicalDetails } from "@/components/techinical-details";
 import { MobileContactFAB } from "@/components/mobile-contact-fab";
+import AgentSection from "@/components/agent-section";
 import { checkIfPropertyIsBoosted, trackBoostView } from "@/lib/functions/supabase-actions/boost-functions";
 import { redirect } from "next/navigation";
 
@@ -99,10 +100,10 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
   }
 
   // Dados do proprietário
-  const ownerDetails = await getPropertyOwner(property.id);
+  const ownerDetails = await getPropertyOwner(property.owner_id);
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800 font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
 
       {/* Immersive Gallery Section - Full Width */}
       <div className="w-full">
@@ -177,11 +178,11 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
           </div>
 
           {/* Sticky Sidebar (Right Column) */}
-          <div className="lg:col-span-4 space-y-8">
-            <div className="sticky top-[140px] space-y-6 z-10">
+          <div className="lg:col-span-4 space-y-8 relative">
+            <div className="sticky top-[120px] space-y-6 z-10 transition-all duration-300">
 
               {/* Contact Card */}
-              <div className="bg-white rounded-2xl shadow-xl shadow-purple-900/5 border border-purple-100 overflow-hidden transform transition-all hover:scale-[1.01] duration-300 hidden lg:block">
+              <div className="bg-white rounded-2xl shadow-2xl shadow-purple-900/10 border border-purple-100 overflow-hidden transform transition-all hover:scale-[1.01] duration-300 hidden lg:block">
                 <div className="p-6 bg-linear-to-br from-purple-50 to-white">
                   <h3 className="text-lg font-bold text-gray-900 mb-1">Interessado?</h3>
                   <p className="text-sm text-gray-500 mb-6">Fale direto com o anunciante</p>

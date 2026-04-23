@@ -69,19 +69,12 @@ export default function AgentSection({ ownerId }: AgentSectionProps) {
       </div>
 
       <p className="text-lg font-semibold text-gray-900">
-        <a href="/agente" className="hover:underline text-purple-700 cursor-pointer">
-          {fullName}
-        </a>
+        {fullName}
       </p>
       <p className="text-sm text-purple-700 font-medium">Agente de Imóveis</p>
       <p className="text-xs text-gray-500 mb-4">{agent.email}</p>
 
-      <Link
-        href={`/agente?email=${encodeURIComponent(agent.email)}`}
-        className="w-full bg-purple-700 text-white py-2 px-3 rounded-lg font-semibold hover:bg-purple-800 transition block text-center"
-      >
-        Ver outras propriedades
-      </Link>
+      {/* Botão removido a pedido do usuário */}
     </div>
   );
 }

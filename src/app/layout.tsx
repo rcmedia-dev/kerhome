@@ -1,5 +1,4 @@
-﻿import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-context";
 import { Toaster } from "@/components/ui/sonner";
@@ -8,16 +7,6 @@ import LayoutClient from "@/components/layout-client";
 import LoaderProviders from "@/app/providers";
 import { MobileMenu } from "@/components/mobile-menu";
 import GoogleAnalyticsClient from "@/components/google-analytics";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Kercasa - Seu lar, começa aqui",
@@ -31,7 +20,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
+      <body className="antialiased font-sans" suppressHydrationWarning>
         <AuthProvider>
           <LoaderProviders>
             <LayoutClient>
