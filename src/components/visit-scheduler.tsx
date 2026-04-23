@@ -71,6 +71,14 @@ export function VisitScheduler({ children, property, ownerData, userId }: VisitS
   };
 
   const handleSubmit = async () => {
+    const effectiveUserId = user?.id || userId;
+
+    if (!effectiveUserId) {
+      toast.error('Tem de iniciar sessão para agendar uma visita.');
+      setIsOpen(false);
+      return;
+    }
+
     if (!formData.nome || !formData.telefone || !formData.data || !formData.horario) {
       setError('Preencha todos os campos obrigatórios');
       return;
@@ -97,7 +105,7 @@ ${formData.email ? `*Email:* ${formData.email}` : ''}`;
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user_id: userId,
+          user_id: effectiveUserId,
           target_user_id: targetId,
           target_type: targetType,
           imobiliaria_id: ownerData.imobiliaria_id
@@ -117,7 +125,7 @@ ${formData.email ? `*Email:* ${formData.email}` : ''}`;
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             conversation_id: conversationId,
-            sender_id: userId,
+            sender_id: effectiveUserId,
             content: messageContent,
             attachment_url: property.image,
             attachment_type: 'image'

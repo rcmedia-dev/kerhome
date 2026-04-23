@@ -56,8 +56,12 @@ export async function POST(req: Request) {
 
     console.log("✅ Mensagem salva no Supabase:", message);
 
-    // 📢 2️⃣ Disparar evento via Pusher (tempo real) para o Chat Específico
-    await pusher.trigger(`chat-${conversation_id}`, "new-message", message);
+    // Fire Pusher without blocking the response — failure is non-critical
+    try {
+      await pusher.trigger(`chat-${conversation_id}`, "new-message", message);
+    } catch (pusherErr) {
+      console.warn("⚠️ Pusher trigger failed (non-critical):", pusherErr);
+    }
 
     return NextResponse.json({ success: true, message });
   } catch (error) {

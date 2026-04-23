@@ -13,11 +13,11 @@ interface UserPlan {
   pacote_agente_id: string;
 }
 
-export async function getUserPlan(userId?: string): Promise<UserPlan> {
+export async function getUserPlan(userId?: string): Promise<UserPlan | null> {
   noStore();
 
   if (!userId) {
-    throw new Error('Usuário não autenticado');
+    return null;
   }
 
   const supabase = await createClient();
@@ -34,7 +34,7 @@ export async function getUserPlan(userId?: string): Promise<UserPlan> {
   }
 
   if (!userData?.pacote_agente_id) {
-    throw new Error('Usuário não possui plano atribuído');
+    return null; // Utilizador sem plano — não lançar erro
   }
 
   // 2. Buscar os detalhes do plano
