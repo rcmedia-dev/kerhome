@@ -52,9 +52,9 @@ export async function applyWatermark(
     const imageHeight = imgMetadata.height ?? 800
     const originalFormat = imgMetadata.format
 
-    // ── 3. Calcular tamanho ideal do logo (30% da largura da imagem) ──────────
-    let targetLogoWidth = Math.round(imageWidth * 0.3)
-    if (targetLogoWidth < 150 && imageWidth > 200) targetLogoWidth = 150
+    // ── 3. Calcular tamanho ideal do logo (50% da largura da imagem) ──────────
+    let targetLogoWidth = Math.round(imageWidth * 0.5)
+    if (targetLogoWidth < 250 && imageWidth > 300) targetLogoWidth = 250
 
     // ── 4. Redimensionar logo ──────────────────────────────────────────────────
     const resizedLogo = await sharp(watermarkRaw)
