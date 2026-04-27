@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { notificateN8n } from '@/lib/functions/supabase-actions/n8n-notification-request';
@@ -23,16 +23,16 @@ export function useDashboardActions() {
             setIsUploading(true);
             const fileExt = file.name.split('.').pop();
             const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-            const filePath = `${user.id}/${fileName}`;
+            const filePath = `avatars/${fileName}`;
 
             const { error: uploadError } = await supabase.storage
-                .from('avatars')
+                .from('user-avatars')
                 .upload(filePath, file, { upsert: true });
 
             if (uploadError) throw uploadError;
 
             const { data: { publicUrl } } = supabase.storage
-                .from('avatars')
+                .from('user-avatars')
                 .getPublicUrl(filePath);
 
             await updateUser({ avatar_url: publicUrl });

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
  
 import { ProgressProvider } from '@bprogress/next/app';
  
@@ -6,7 +6,7 @@ const LoaderProviders = ({ children }: { children: React.ReactNode }) => {
   return (
     <ProgressProvider 
       height="4px"
-      color="#6D28D9"
+      color="#f97316"
       options={{ showSpinner: false }}
       shallowRouting
     >

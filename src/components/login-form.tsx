@@ -57,6 +57,7 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
       instagram: userData.instagram || undefined,
       youtube: userData.youtube || undefined,
       sobre_mim: userData.sobre_mim || undefined,
+      avatar_url: userData.avatar_url || undefined,
       role: userData.role || 'user',
       ...(userData.pacote_agente && {
         pacote_agente: {

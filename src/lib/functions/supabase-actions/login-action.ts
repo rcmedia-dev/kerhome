@@ -67,7 +67,9 @@ export async function login(formData: FormData): Promise<LoginResponse> {
     })
 
     if (authError || !authData.user) {
-      console.error('Erro de autenticação:', authError)
+      if (authError?.code !== 'invalid_credentials') {
+        console.error('Erro de autenticação:', authError)
+      }
       return { 
         success: false, 
         error: translateAuthError(authError?.message)
@@ -93,6 +95,7 @@ export async function login(formData: FormData): Promise<LoginResponse> {
         youtube,
         role,
         sobre_mim,
+        avatar_url,
         created_at,
         updated_at,
         pacote_agente:planos_agente(*)

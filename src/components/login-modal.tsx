@@ -35,21 +35,8 @@ export const AuthDialog = forwardRef(function AuthDialog(
   }));
 
   const handleSuccess = async () => {
-    try {
-      // Buscar o perfil do usuário após login/signup bem-sucedido
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const userProfile = await fetchUserProfile(user.id);
-        if (userProfile) {
-          setUser(userProfile);
-        }
-      }
-      
-      closeAuthModal();
-      onSuccess?.();
-    } catch (error) {
-      console.error('Erro ao buscar perfil do usuário:', error);
-    }
+    closeAuthModal();
+    onSuccess?.();
   };
 
   return (
