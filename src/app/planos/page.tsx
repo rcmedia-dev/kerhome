@@ -112,6 +112,12 @@ export default function PlanosPage() {
     "SUPER": "Plano Super",
   };
 
+  const PLAN_KEY_MAP: Record<string, string> = {
+    "Plano Básico": "BÁSICO",
+    "Plano Professional": "PROFESSIONAL",
+    "Plano Super": "SUPER",
+  };
+
   const fetchUserPlan = useCallback(async () => {
     if (!user?.id) {
       setLoading(false);
@@ -139,12 +145,13 @@ export default function PlanosPage() {
     fetchUserPlan();
   }, [fetchUserPlan]);
 
-  const handlePlanSelection = (planName: PlanName) => {
+  const handlePlanSelection = (planKey: string) => {
     if (!user?.id) {
       router.push("/login?redirect=/planos");
       return;
     }
-    setSelectedPlan(planName);
+    const planDisplayName = PLAN_NAME_MAP[planKey] || planKey;
+    setSelectedPlan(planDisplayName as PlanName);
     setView('checkout');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -298,7 +305,7 @@ export default function PlanosPage() {
                         </div>
                       ) : (
                         <button 
-                          onClick={() => handlePlanSelection(planName as PlanName)}
+                          onClick={() => handlePlanSelection(planName)}
                           disabled={isUpgrading(planName)}
                           className={`flex items-center mt-auto text-white border-0 py-4 px-6 w-full focus:outline-none rounded-2xl font-black text-sm uppercase tracking-widest transition-all duration-300 group ${
                             isRecommended 
@@ -332,12 +339,12 @@ export default function PlanosPage() {
             className="container px-5 mx-auto max-w-6xl"
           >
             <CheckoutView 
-              selectedPlan={PLAN_NAME_MAP[selectedPlan as PlanName] || selectedPlan}
+              selectedPlan={selectedPlan}
               planDetails={selectedPlan ? {
                 name: selectedPlan,
-                price: billingCycle === 'annually' ? PLANS[selectedPlan].price * 0.8 * 12 : PLANS[selectedPlan].price,
-                limite: PLANS[selectedPlan].limite,
-                destaquesPermitidos: PLANS[selectedPlan].destaquesPermitidos,
+                price: billingCycle === 'annually' ? PLANS[PLAN_KEY_MAP[selectedPlan]].price * 0.8 * 12 : PLANS[PLAN_KEY_MAP[selectedPlan]].price,
+                limite: PLANS[PLAN_KEY_MAP[selectedPlan]].limite,
+                destaquesPermitidos: PLANS[PLAN_KEY_MAP[selectedPlan]].destaquesPermitidos,
                 billingCycle: billingCycle
               } : null}
               paymentStatus={paymentStatus}

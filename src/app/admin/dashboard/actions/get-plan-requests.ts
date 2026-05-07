@@ -2,6 +2,7 @@
 'use server'
 
 import { createClient } from "@/lib/supabase/server"
+import { revalidatePath } from "next/cache"
 
 // Mapear nomes de planos para exibição e preços
 const PLAN_NAME_MAP: Record<string, string> = {
@@ -139,6 +140,10 @@ export async function approvePlanRequest(
     if (createFaturaErro) {
       throw new Error("Erro ao criar fatura: " + createFaturaErro.message);
     }
+
+    // Invalidar cache do utilizador para atualizar o plano no dashboard
+    revalidatePath('/dashboard');
+    revalidatePath('/planos');
 
     return { success: true, message: "Solicitação aprovada com sucesso!" };
   } catch (error) {

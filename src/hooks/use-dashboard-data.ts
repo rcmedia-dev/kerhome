@@ -54,7 +54,8 @@ export function useDashboardData(userId: string | undefined) {
             return await getUserPlan(userId);
         },
         enabled: !!userId,
-        staleTime: 10 * 60 * 1000,
+        staleTime: 60 * 1000, // 1 minuto
+        refetchOnWindowFocus: true,
     });
 
     const userAgency = useQuery({

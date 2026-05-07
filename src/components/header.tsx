@@ -170,7 +170,7 @@ function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: bo
             text-purple-700 bg-white 
             hover:bg-purple-700 hover:text-white 
             text-sm font-medium 
-            rounded-2xl shadow-sm 
+            rounded-xl shadow-sm 
             transition-all duration-300 
             gap-2 outline-none 
             focus:ring-2 focus:ring-purple-400`}
@@ -439,7 +439,7 @@ export default function Header() {
             {user && (
               <button
                 onClick={toggleChat}
-                className="p-2.5 rounded-full text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors relative"
+                className="p-2.5 rounded-xl text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors relative"
                 aria-label="Mensagens"
               >
                 <div className="relative">
@@ -466,7 +466,7 @@ export default function Header() {
                 whileTap={{ scale: 0.98 }}
                 onClick={() => openAuthModal()}
                 transition={springTransition}
-                className="group flex items-center gap-2 px-5 py-2.5 bg-orange-600 text-white rounded-full hover:bg-orange-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                className="group flex items-center gap-2 px-5 py-2.5 bg-orange-600 text-white rounded-xl hover:bg-orange-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                 aria-label="Acessar minha conta"
               >
                 <UserCircle className="w-5 h-5 text-white group-hover:text-white transition-colors" />
@@ -482,7 +482,7 @@ export default function Header() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleChat}
-                className="p-2 rounded-lg text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                className="p-2 rounded-xl text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
                 aria-label="Mensagens"
               >
                 <MessageSquare className="w-5 h-5" />
@@ -493,7 +493,7 @@ export default function Header() {
               whileTap={{ scale: 0.9 }}
               transition={springTransition}
               onClick={() => setMenuOpen(!menuOpen)}
-              className="p-2 rounded-lg text-purple-700 hover:bg-purple-50 transition-colors"
+              className="p-2 rounded-xl text-purple-700 hover:bg-purple-50 transition-colors"
               aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
               aria-expanded={menuOpen}
             >

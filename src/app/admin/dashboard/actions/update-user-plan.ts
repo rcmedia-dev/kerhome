@@ -69,7 +69,7 @@ export async function handleRequestPlanChange(
       return { success: false, error: "Plano não encontrado" };
     }
 
-    // 2. Criar solicitação no banco
+    // 2. Criar solicitação no banco (pendente de aprovação)
     const { error } = await supabase
       .from("plan_requests")
       .insert([

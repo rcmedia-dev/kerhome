@@ -122,13 +122,13 @@ export function CheckoutView({
                   Dados para Transferência
                </h2>
 
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[
-                    { label: "Banco", value: "Banco BIC", icon: <Building2 className="text-slate-400" size={18} /> },
-                    { label: "IBAN", value: "0051.0000.7755.1051.1014.9", icon: <ReceiptText className="text-slate-400" size={18} />, copy: true },
-                    { label: "NIF Empresa", value: "5000873160", icon: <AlertCircle className="text-slate-400" size={18} />, copy: true },
-                    { label: "Favorecido", value: "RC Gestão de Projectos", icon: <ShieldAlert className="text-slate-400" size={18} /> },
-                  ].map((item) => (
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   {[
+                     { label: "Banco", value: "BCI", icon: <Building2 className="text-slate-400" size={18} /> },
+                     { label: "IBAN", value: "AO06 0005 0001 4046 0051 0115", icon: <ReceiptText className="text-slate-400" size={18} />, copy: true },
+                     { label: "Nº Conta", value: "11404600510001", icon: <AlertCircle className="text-slate-400" size={18} />, copy: true },
+                     { label: "Favorecido", value: "RC MEDIA ANGOLA PRESTACAO DE SER LDA", icon: <ShieldAlert className="text-slate-400" size={18} /> },
+                   ].map((item) => (
                     <div key={item.label} className="p-4 border border-slate-300 rounded-md bg-white flex flex-col justify-between hover:border-purple-300 transition-all">
                       <div className="flex items-center gap-2 mb-2">
                         {item.icon}
