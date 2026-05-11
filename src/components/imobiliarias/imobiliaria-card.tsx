@@ -4,14 +4,24 @@ import { MapPin, Building, CheckCircle2, ShieldAlert, BadgeCheck, ArrowRight, Ho
 import Image from 'next/image';
 import Link from 'next/link';
 import { Imobiliaria } from '@/lib/types/imobiliaria';
+import { useTrackEvent } from '@/hooks/use-track-event';
 
 interface ImobiliariaCardProps {
   imobiliaria: Imobiliaria & { properties?: { length: number } | any[] };
 }
 
 export function ImobiliariaCard({ imobiliaria }: ImobiliariaCardProps) {
+  const { track } = useTrackEvent();
   // Garantir contagem correta (prioridade para propertyCount, depois _count_imoveis, depois o array original)
   const count = imobiliaria.total_imoveis ?? imobiliaria.propertyCount ?? (imobiliaria as any)._count_imoveis ?? (Array.isArray(imobiliaria.properties) ? imobiliaria.properties.length : 0);
+
+  const handleViewProfile = () => {
+    track({
+      event_type:  'view_profile',
+      entity_type: 'imobiliaria',
+      entity_id:   imobiliaria.id,
+    });
+  };
 
   return (
     <div className="group relative w-full bg-white rounded-[2rem] shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col overflow-hidden border border-gray-100 pb-2 h-full">
@@ -90,6 +100,7 @@ export function ImobiliariaCard({ imobiliaria }: ImobiliariaCardProps) {
         <div className="pt-4 mt-auto border-t border-gray-100">
           <Link
             href={`/imobiliaria/${imobiliaria.slug}`}
+            onClick={handleViewProfile}
             className="w-full bg-[#820AD1] hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-xl text-center transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm"
           >
             <span>Ver Perfil</span>

@@ -21,6 +21,7 @@ import {
 import Link from 'next/link';
 import Image from 'next/image';
 import { ImobiliariaSidebarClient } from '@/components/imobiliarias/imobiliaria-sidebar-client';
+import { PageViewTracker } from '@/components/page-view-tracker';
 
 interface PageProps {
   params: { slug: string };
@@ -53,6 +54,11 @@ export default async function ImobiliariaPerfilPage({ params }: { params: Promis
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
+      <PageViewTracker
+        eventType="view_agency"
+        entityType="imobiliaria"
+        entityId={imobiliaria.id}
+      />
 
       {/* Hero Section — Consistente com a Hero da página Notícias */}
       <div className="relative bg-gradient-to-r from-[#130f25] to-purple-900 text-white overflow-hidden pt-28 pb-20">

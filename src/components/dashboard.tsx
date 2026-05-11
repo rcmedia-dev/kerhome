@@ -1,7 +1,8 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { Home, Heart, BarChart3, Eye, User } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { useUserStore } from '@/lib/store/user-store';
 import { useDashboardData } from '@/hooks/use-dashboard-data';
 import { useDashboardActions } from '@/hooks/use-dashboard-actions';
@@ -80,7 +81,7 @@ export default function Dashboard() {
         userAgency={userAgency.data}
       />
 
-      <main className="flex-1 min-w-0 flex flex-col h-full lg:h-screen lg:overflow-y-auto custom-scrollbar p-0">
+      <main className={cn("flex-1 min-w-0 flex flex-col p-0", (activeTab === 'stats' || activeTab === 'messages') && "overflow-hidden h-screen")}>
         <div className="w-full h-full p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
           <DashboardContent
@@ -92,29 +93,32 @@ export default function Dashboard() {
             mostViewed={mostViewed.data || { total_views_all: 0, properties: [] }}
             userAgency={userAgency.data}
             isLoading={isDataLoading}
+            isFullWidth={activeTab === 'stats' || activeTab === 'messages'}
           />
 
-          <div className="lg:col-span-3 order-1 lg:order-2 flex flex-col gap-4 h-full">
-            <DashboardWelcomeCard
-              displayName={displayName}
-              avatarUrl={user.avatar_url}
-              role={user.role}
-              agentRequestStatus={user.current_agent_request_status}
-              isUploading={isUploading}
-              isRequestingAgent={isRequestingAgent}
-              onAvatarUpload={handleAvatarUpload}
-              onRequestAgent={handleRequestAgent}
-              userAgency={userAgency.data}
-            />
+          {activeTab !== 'stats' && activeTab !== 'messages' && (
+            <div className="lg:col-span-3 order-1 lg:order-2 flex flex-col gap-4 h-full">
+              <DashboardWelcomeCard
+                displayName={displayName}
+                avatarUrl={user.avatar_url}
+                role={user.role}
+                agentRequestStatus={user.current_agent_request_status}
+                isUploading={isUploading}
+                isRequestingAgent={isRequestingAgent}
+                onAvatarUpload={handleAvatarUpload}
+                onRequestAgent={handleRequestAgent}
+                userAgency={userAgency.data}
+              />
 
-            <DashboardPlanCard
-              planName={userPlan.data?.nome}
-              limit={userPlan.data?.limite || 0}
-              remaining={userPlan.data?.restante || 0}
-            />
+              <DashboardPlanCard
+                planName={userPlan.data?.nome}
+                limit={userPlan.data?.limite || 0}
+                remaining={userPlan.data?.restante || 0}
+              />
 
-            <DashboardStats stats={stats} isLoading={isDataLoading} />
-          </div>
+              <DashboardStats stats={stats} isLoading={isDataLoading} />
+            </div>
+          )}
         </div>
       </main>
     </div>

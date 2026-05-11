@@ -8,7 +8,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useUserStore } from '@/lib/store/user-store';
 
 export function ChatWidget() {
-    const { isOpen, toggleChat, view, setView } = useChatStore();
+    const { isOpen, toggleChat, view, setView, isDashboardMessages } = useChatStore();
     const { user } = useUserStore();
     const [mounted, setMounted] = useState(false);
 
@@ -17,7 +17,7 @@ export function ChatWidget() {
         return () => setMounted(false);
     }, []);
 
-    if (!isOpen || !mounted) return null;
+    if (!isOpen || !mounted || isDashboardMessages) return null;
 
     return createPortal(
         <AnimatePresence mode="wait">

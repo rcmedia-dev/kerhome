@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -30,8 +30,8 @@ const SoftMenuItem = ({
       className={cn(
         "relative flex items-center justify-between p-3 mb-1.5 rounded-md cursor-pointer select-none transition-all duration-300",
         isActive
-          ? "bg-gradient-to-r from-purple-600 to-orange-500 text-white shadow-md shadow-purple-200"
-          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 border border-transparent hover:border-gray-200"
+          ? "bg-white text-purple-700 shadow-sm border border-gray-100"
+          : "text-gray-500 hover:bg-gray-50/80 hover:text-gray-900 border border-transparent"
       )}
     >
       <div className="flex items-center space-x-3">
@@ -39,8 +39,8 @@ const SoftMenuItem = ({
           className={cn(
             "p-2 rounded-md transition-all duration-300",
             isActive
-              ? "bg-white/20 text-white"
-              : "bg-gray-100 text-gray-500 group-hover:bg-purple-50 group-hover:text-purple-600"
+              ? "bg-purple-50 text-purple-600"
+              : "bg-gray-100 text-gray-400 group-hover:bg-purple-50 group-hover:text-purple-600"
           )}
         >
           <item.icon className="w-4 h-4" />
@@ -48,8 +48,8 @@ const SoftMenuItem = ({
 
         <span
           className={cn(
-            "font-medium text-sm transition-colors duration-200",
-            isActive ? "text-white" : "text-gray-600"
+            "font-bold text-sm transition-colors duration-200",
+            isActive ? "text-purple-700" : "text-gray-500"
           )}
         >
           {item.label}
@@ -59,10 +59,10 @@ const SoftMenuItem = ({
       {item.badge !== undefined && (
         <span
           className={cn(
-            "px-2 py-0.5 text-[10px] font-bold rounded-md transition-all duration-300",
+            "px-2.5 py-0.5 text-[10px] font-black rounded-md transition-all duration-300",
             isActive
-              ? "bg-white text-purple-600"
-              : "bg-purple-100 text-purple-600"
+              ? "bg-purple-100 text-purple-700"
+              : "bg-gray-100 text-gray-400"
           )}
         >
           {item.badge}

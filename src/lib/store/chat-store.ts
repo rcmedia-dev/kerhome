@@ -45,6 +45,9 @@ export interface Conversation {
         sender_id: string;
     };
     unread_count?: number;
+    lead_temperature?: 'hot' | 'warm' | 'cold' | 'none';
+    internal_notes?: string;
+    property_id?: string;
 }
 
 interface ChatState {
@@ -61,11 +64,15 @@ interface ChatState {
     // Computed
     totalUnreadCount: number;
 
+    // Dashboard messages tab flag
+    isDashboardMessages: boolean;
+
     // Actions
     initializeChat: (userId: string) => Promise<void>;
 
     toggleChat: () => void;
     setIsOpen: (isOpen: boolean) => void;
+    setIsDashboardMessages: (val: boolean) => void;
     setView: (view: 'list' | 'chat' | 'search') => void;
     openChat: (conversationId: string, profile?: Profile | null) => void;
     backToList: () => void;
@@ -85,6 +92,7 @@ interface ChatState {
     subscribeToConversation: (conversationId: string) => void;
     unsubscribeFromConversation: (conversationId: string) => void;
     checkExistingConversation: (user1Id: string, user2Id: string, targetType?: 'agent' | 'agency', imobiliariaId?: string) => Promise<string | null>;
+    updateConversationCRM: (conversationId: string, data: { lead_temperature?: 'hot' | 'warm' | 'cold' | 'none', internal_notes?: string }) => Promise<void>;
     setTyping: (conversationId: string, userName: string, isTyping: boolean) => void;
 }
 
@@ -99,6 +107,27 @@ export const useChatStore = create<ChatState>((set, get) => ({
     isLoading: false,
     isInitialized: false,
     totalUnreadCount: 0,
+    isDashboardMessages: false,
+
+    updateConversationCRM: async (conversationId: string, data: { lead_temperature?: 'hot' | 'warm' | 'cold' | 'none', internal_notes?: string }) => {
+        // 1. Update local state immediately
+        set(state => ({
+            conversations: state.conversations.map(c => 
+                c.id === conversationId ? { ...c, ...data } : c
+            )
+        }));
+
+        // 2. Persist to DB
+        try {
+            await fetch('/api/conversations/update', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ conversation_id: conversationId, ...data })
+            });
+        } catch (e) {
+            console.error("Failed to persist CRM update", e);
+        }
+    },
 
     initializeChat: async (userId: string) => {
         // Prevent double init/subscription
@@ -166,6 +195,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     toggleChat: () => set((state) => ({ isOpen: !state.isOpen })),
     setIsOpen: (isOpen: boolean) => set({ isOpen }),
+    setIsDashboardMessages: (val: boolean) => set({ isDashboardMessages: val }),
     setView: (view) => set({ view }),
 
     openChat: (conversationId, profile = null) => {
@@ -189,7 +219,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
                 activeProfile: targetProfile,
                 view: 'chat',
                 messages: [],
-                isOpen: true // Automatically open the chat window
+                isOpen: !get().isDashboardMessages // Only open popup if NOT in dashboard messages tab
             };
         });
 

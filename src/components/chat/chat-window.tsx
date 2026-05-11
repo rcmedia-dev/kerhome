@@ -172,7 +172,7 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
     };
 
     return (
-        <div className="flex flex-col h-full bg-white z-50">
+        <div className="flex flex-col h-full bg-white">
             <input
                 type="file"
                 ref={fileInputRef}
@@ -181,7 +181,7 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
             />
 
             {/* Header */}
-            <div className="bg-gradient-to-r from-purple-700 to-purple-600 p-4 flex items-center justify-between text-white shrink-0 shadow-lg">
+            <div className="bg-gradient-to-r from-purple-700 to-purple-600 p-3 flex items-center justify-between text-white shrink-0">
                 <div className="flex items-center space-x-3">
                     <button onClick={backToList} className="p-1 hover:bg-white/10 rounded-full transition-colors mr-1">
                         <ArrowLeft size={20} />
@@ -215,7 +215,7 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 bg-[#f0f2f5] space-y-4 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 bg-white space-y-4 scrollbar-none">
                 {messages.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-gray-400 text-sm">
                         <p>Nenhuma mensagem ainda.</p>

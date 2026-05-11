@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { VisitScheduler } from './visit-scheduler';
 import { TPropertyResponseSchema } from '@/lib/types/property';
 import { useUserStore } from '@/lib/store/user-store';
+import { useTrackEvent } from '@/hooks/use-track-event';
 
 interface MobileContactFABProps {
   property: TPropertyResponseSchema;
@@ -21,6 +22,13 @@ export function MobileContactFAB({ property, ownerDetails }: MobileContactFABPro
   const router = useRouter();
   const { openChat, checkExistingConversation, createConversation } = useChatStore();
   const [loading, setLoading] = useState(false);
+  const { track } = useTrackEvent();
+
+  const trackBase = {
+    entity_type: 'imovel' as const,
+    entity_id:   property.id,
+    owner_id:    ownerDetails?.id,
+  };
 
   if (!ownerDetails) return null;
 
@@ -87,6 +95,7 @@ export function MobileContactFAB({ property, ownerDetails }: MobileContactFABPro
         if (displayPhone) {
           window.open(`https://wa.me/${displayPhone.replace(/\D/g, '')}?text=Olá, tenho interesse no imóvel: ${property.title}`, '_blank');
         }
+        track({ ...trackBase, event_type: 'whatsapp' });
         setIsOpen(false);
       }
     },
@@ -104,7 +113,10 @@ export function MobileContactFAB({ property, ownerDetails }: MobileContactFABPro
       icon: <MessageCircle size={20} />,
       color: 'bg-purple-600',
       description: 'Fale agora mesmo',
-      action: handleStartChat
+      action: () => {
+        track({ ...trackBase, event_type: 'chat' });
+        handleStartChat();
+      }
     }
   ];
 

@@ -14,6 +14,7 @@ import { MobileContactFAB } from "@/components/mobile-contact-fab";
 import AgentSection from "@/components/agent-section";
 import { checkIfPropertyIsBoosted, trackBoostView } from "@/lib/functions/supabase-actions/boost-functions";
 import { redirect } from "next/navigation";
+import { PageViewTracker } from "@/components/page-view-tracker";
 
 function isUUID(value: string): boolean {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -104,6 +105,12 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
+      <PageViewTracker
+        eventType="view_property"
+        entityType="imovel"
+        entityId={property.id}
+        ownerId={property.owner_id}
+      />
 
       {/* Immersive Gallery Section - Full Width */}
       <div className="w-full">

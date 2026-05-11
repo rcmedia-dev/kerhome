@@ -13,6 +13,8 @@ import { Sidebar } from '@/app/agente/components/sidebar';
 import { toast } from 'sonner';
 import { createDirectConversation, sendMessage } from '@/lib/functions/message-action';
 import { useUserStore } from '@/lib/store/user-store';
+import { useTrackEvent } from '@/hooks/use-track-event';
+import { useEffect } from 'react';
 
 const supabase = createClient();
 
@@ -32,7 +34,8 @@ export default function AgentProfilePage(
   const [showMessageBox, setShowMessageBox] = useState(false);
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const { user } = useUserStore()
+  const { user } = useUserStore();
+  const { track } = useTrackEvent();
 
 
   // Query para perfil
@@ -64,6 +67,18 @@ export default function AgentProfilePage(
   console.log(agentProfile.data);
 
   const profile = agentProfile.data?.[0] || null;
+
+  // Track View
+  useEffect(() => {
+    if (profile?.id) {
+      track({
+        event_type: 'view_agent',
+        entity_type: 'corretor',
+        entity_id: profile.id,
+        owner_id: profile.id
+      });
+    }
+  }, [profile?.id, track]);
 
   const handleSendMessage = async () => {
     if (isSending) return;

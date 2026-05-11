@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Calendar as CalendarUI } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useTrackEvent } from '@/hooks/use-track-event';
 
 interface VisitSchedulerProps {
   children?: React.ReactNode;
@@ -34,6 +35,7 @@ const HORARIOS = [
 
 export function VisitScheduler({ children, property, ownerData, userId }: VisitSchedulerProps) {
   const { user } = useUserStore();
+  const { track } = useTrackEvent();
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState<'form' | 'success'>('form');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -142,6 +144,12 @@ export function VisitScheduler({ children, property, ownerData, userId }: VisitS
 
       setStep('success');
       toast.success('Pedido de visita enviado ao corretor!');
+      track({
+        event_type:  'schedule_visit',
+        entity_type: 'imovel',
+        entity_id:   property.id,
+        owner_id:    ownerData.id,
+      });
     } catch (e) {
       console.error('Error scheduling visit:', e);
       setError('Erro ao enviar pedido. Tente novamente.');

@@ -14,27 +14,23 @@ export default function LayoutClient({
 }) {
   const pathname = usePathname();
   const isDashboardPage =
-    pathname.startsWith("/admin/dashboard") ||
-    pathname.includes("/dashboard/cadastrar-imovel");
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/admin/dashboard");
 
   return (
     <>
       {/* Chat widget rendered ONCE for the entire app — prevents double portal from dual Header mount */}
       <ChatWidget />
 
-      {!isDashboardPage && (
-        <>
-          {/* Desktop: TopBar + Header stacked */}
-          <div className="hidden md:flex sticky top-0 z-50 w-full flex-col [&_header]:top-10">
-            <TopBar />
-            <Header />
-          </div>
-          {/* Mobile: Header only */}
-          <div className="md:hidden">
-            <Header />
-          </div>
-        </>
-      )}
+      {/* Desktop: TopBar + Header stacked */}
+      <div className="hidden md:flex sticky top-0 z-50 w-full flex-col [&_header]:top-10">
+        <TopBar />
+        <Header />
+      </div>
+      {/* Mobile: Header only */}
+      <div className="md:hidden">
+        <Header />
+      </div>
 
       {children}
       <AuthDialog />

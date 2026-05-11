@@ -292,7 +292,7 @@ export default function Header() {
   const { user, isLoading, setUser, fetchUserProfile } = useUserStore();
 
   // Chat store
-  const { toggleChat, messages, isOpen, initializeChat, totalUnreadCount } = useChatStore();
+  const { toggleChat, messages, isOpen, initializeChat, totalUnreadCount, isDashboardMessages } = useChatStore();
 
 
 
@@ -435,8 +435,8 @@ export default function Header() {
           {/* Ações do usuário - Desktop */}
           <div className="hidden md:flex items-center gap-2">
 
-            {/* Message Button */}
-            {user && (
+            {/* Message Button — hidden on dashboard messages tab */}
+            {user && !isDashboardMessages && (
               <button
                 onClick={toggleChat}
                 className="p-2.5 rounded-xl text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors relative"
@@ -477,7 +477,7 @@ export default function Header() {
 
           {/* Botão do menu mobile */}
           <div className="md:hidden flex items-center gap-2">
-            {user && (
+            {user && !isDashboardMessages && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

@@ -1,9 +1,33 @@
-﻿import { Card, CardContent } from "@/components/ui/card";
+'use client';
+
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mail, Phone, Instagram, Linkedin, MessageCircle } from "lucide-react";
 import type { SidebarProps } from "@/types/agent";
+import { useTrackEvent } from "@/hooks/use-track-event";
 
 export function Sidebar({ profile, agentStats, onOpenMessageBox }: SidebarProps) {
+  const { track } = useTrackEvent();
+
+  const trackBase = {
+    entity_type: 'corretor' as const,
+    entity_id:   profile?.id ?? '',
+    owner_id:    profile?.id ?? undefined,
+  };
+
+  const handleLetsTalk = () => {
+    track({ ...trackBase, event_type: 'lets_talk' });
+    onOpenMessageBox?.();
+  };
+
+  const handleClickPhone = () => {
+    track({ ...trackBase, event_type: 'click_phone' });
+  };
+
+  const handleClickEmail = () => {
+    track({ ...trackBase, event_type: 'click_email' });
+  };
+
   return (
     <div className="pt-5 lg:w-1/3 space-y-6">
       {/* Card de Contato */}
@@ -16,7 +40,7 @@ export function Sidebar({ profile, agentStats, onOpenMessageBox }: SidebarProps)
           
           <div className="space-y-3">
             <Button 
-              onClick={onOpenMessageBox}
+              onClick={handleLetsTalk}
               className="w-full bg-gradient-to-r from-purple-600 to-orange-600 hover:from-purple-700 hover:to-orange-700 text-white py-3 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105"
             >
               <MessageCircle className="w-5 h-5 mr-2" />
@@ -30,19 +54,27 @@ export function Sidebar({ profile, agentStats, onOpenMessageBox }: SidebarProps)
             <h3 className="font-semibold text-gray-900 mb-4 text-center">Contacto Directo</h3>
             
             <div className="space-y-3">
-              <div className="flex items-center p-3 rounded-lg bg-white hover:bg-purple-50 transition-colors border border-purple-100">
+              <a
+                href={profile?.telefone ? `tel:${profile.telefone}` : undefined}
+                onClick={handleClickPhone}
+                className="flex items-center p-3 rounded-lg bg-white hover:bg-purple-50 transition-colors border border-purple-100 cursor-pointer"
+              >
                 <Phone className="w-4 h-4 mr-3 text-purple-600" />
                 <span className="text-sm font-medium text-gray-700">
                   {profile?.telefone || "A definir"}
                 </span>
-              </div>
+              </a>
               
-              <div className="flex items-center p-3 rounded-lg bg-white hover:bg-purple-50 transition-colors border border-purple-100">
+              <a
+                href={profile?.email ? `mailto:${profile.email}` : undefined}
+                onClick={handleClickEmail}
+                className="flex items-center p-3 rounded-lg bg-white hover:bg-purple-50 transition-colors border border-purple-100 cursor-pointer"
+              >
                 <Mail className="w-4 h-4 mr-3 text-purple-600" />
                 <span className="text-sm font-medium text-gray-700">
                   {profile?.email || "A definir"}
                 </span>
-              </div>
+              </a>
             </div>
             
             <div className="flex justify-center gap-4 mt-6 pt-4 border-t border-purple-200">

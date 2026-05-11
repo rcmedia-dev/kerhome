@@ -21,7 +21,10 @@ export async function GET(req: Request) {
             user2_id,
             target_type,
             imobiliaria_id,
-            status
+            status,
+            lead_temperature,
+            internal_notes,
+            property_id
         `);
 
         if (user_id) {
@@ -64,7 +67,22 @@ export async function GET(req: Request) {
             agenciesMap = new Map(agencies?.map(a => [a.id, a]));
         }
 
-        const conversationsWithProfiles = await Promise.all(conversations.map(async (conv) => {
+        const allPropertyIds = new Set<string>(
+            conversations
+                .filter(c => c.property_id)
+                .map(c => c.property_id as string)
+        );
+
+        let propertiesMap = new Map();
+        if (allPropertyIds.size > 0) {
+            const { data: properties } = await supabase
+                .from('properties')
+                .select('id, title, price, images, cidade, provincia')
+                .in('id', Array.from(allPropertyIds));
+            propertiesMap = new Map(properties?.map(p => [p.id, p]));
+        }
+
+        const conversationsWithDetails = await Promise.all(conversations.map(async (conv) => {
             const otherUserId = conv.user1_id === user_id ? conv.user2_id : conv.user1_id;
 
             // Fetch last message separately
@@ -89,12 +107,13 @@ export async function GET(req: Request) {
                 ...conv,
                 other_user: profilesMap.get(otherUserId) || null,
                 agency_details: agenciesMap.get(conv.imobiliaria_id) || null,
+                property_details: propertiesMap.get(conv.property_id) || null,
                 last_message: lastMsg,
                 unread_count: unreadCount || 0
             };
         }));
 
-        return NextResponse.json({ conversations: conversationsWithProfiles });
+        return NextResponse.json({ conversations: conversationsWithDetails });
     } catch (error) {
         console.error("Erro ao buscar conversas:", error);
         return NextResponse.json({ error: "Erro interno" }, { status: 500 });
