@@ -116,7 +116,7 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
             </div>
 
             {/* Sub-Tabs Selector */}
-            <div className="flex items-center p-1.5 bg-gray-100/50 rounded-2xl w-fit mb-8">
+            <div className="flex flex-wrap items-center p-1.5 bg-gray-100/50 rounded-2xl w-full sm:w-fit mb-8 gap-1">
                 <button
                     onClick={() => setActiveSubTab('general')}
                     className={cn(

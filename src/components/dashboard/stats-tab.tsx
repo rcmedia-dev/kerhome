@@ -164,7 +164,7 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
         </div>
 
         {/* Sub-Tabs Selector Padronizado rounded-md */}
-        <div className="flex items-center p-1 bg-gray-100/50 rounded-md w-fit mb-4">
+        <div className="flex flex-wrap items-center p-1.5 bg-gray-100/50 rounded-2xl w-full sm:w-fit mb-6 gap-1">
             <button
                 onClick={() => setActiveSubTab('performance')}
                 className={cn(

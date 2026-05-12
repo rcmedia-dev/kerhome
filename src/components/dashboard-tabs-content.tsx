@@ -1,5 +1,5 @@
 import React, { useState, useTransition, useCallback, useEffect, useMemo } from 'react';
-import { CheckCircle2, Heart, TrendingUp, Calendar, DollarSign, AlertTriangle, Download, Trash2, RefreshCw, ShieldAlert, Eye, Building2 } from 'lucide-react';
+import { CheckCircle2, Heart, TrendingUp, Calendar, DollarSign, AlertTriangle, Download, Trash2, RefreshCw, ShieldAlert, Eye, Building2, Clock, MapPin, CheckCircle, XCircle, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -15,6 +15,8 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } fr
 // import { TFavoritedPropertyResponseSchema } from '@/lib/types/user'; // Removed unused import
 import { Fatura, TPropertyResponseSchema } from '@/lib/types/property';
 import { TMyPropertiesWithViews } from '@/lib/functions/supabase-actions/property-views-actions';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { useInvoiceManagement } from '@/hooks/use-invoice-management';
 import { toPascalCase } from '@/lib/string-utils';
 import { cn } from '@/lib/utils';
@@ -111,7 +113,7 @@ export function MinhasPropriedades({ userProperties }: MinePropertiesProps) {
           {!localProperties || localProperties.length === 0 ? (
             <EmptyState message="Nenhum imóvel cadastrado ainda." icon={TrendingUp} />
           ) : (
-            <div className="flex flex-col lg:flex-row gap-6 overflow-x-auto pb-4 custom-scrollbar">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 lg:gap-10">
               <KanbanColumn
                 title="Em Análise & Pendentes"
                 count={pending.length + suspended.length}
@@ -196,11 +198,12 @@ export function Favoritas({ userFavoriteProperties }: FavoritasProps) {
   const hasFavorites = userFavoriteProperties && userFavoriteProperties.length > 0;
 
   return (
-    <SectionContainer>
+    <SectionContainer className="bg-transparent border-none p-0 shadow-none">
       <SectionHeader
         title="Imóveis Guardados"
         icon={Heart}
         description={`${userFavoriteProperties?.length || 0} propriedades salvas na sua lista`}
+        className="mb-8 px-2"
       />
 
       <AnimatePresence mode="wait">
@@ -340,7 +343,7 @@ export function Faturas({ invoices }: FaturasProps) {
           {!hasInvoices ? (
             <EmptyState message="Nenhuma fatura encontrada." icon={DollarSign} />
           ) : (
-            <div className="flex flex-col lg:flex-row gap-6 overflow-x-auto pb-4 custom-scrollbar">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 lg:gap-10">
               <KanbanColumn title="Pendentes" count={pending.length} color="orange" icon={AlertTriangle}>
                 <AnimatePresence mode="popLayout">
                   {pending.map((fatura) => (
@@ -350,23 +353,23 @@ export function Faturas({ invoices }: FaturasProps) {
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 10 }}
-                      className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all group"
+                      className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm hover:shadow-xl transition-all group"
                     >
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="font-semibold text-gray-800">{toPascalCase(fatura.servico)}</span>
-                        <span className="font-bold text-orange-600">{fatura.valor.toLocaleString('pt-AO')} Kz</span>
+                      <div className="flex justify-between items-start mb-4">
+                        <span className="font-black text-[13px] text-gray-800 uppercase tracking-tight">{toPascalCase(fatura.servico)}</span>
+                        <span className="font-black text-lg text-orange-600">{fatura.valor.toLocaleString('pt-AO')} Kz</span>
                       </div>
-                      <div className="flex justify-between items-center mt-3">
-                        <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                          <Calendar className="w-3.5 h-3.5" />
+                      <div className="flex justify-between items-center mt-6">
+                        <div className="flex items-center gap-2 text-xs text-gray-400 font-bold">
+                          <Calendar className="w-4 h-4" />
                           {new Date(fatura.created_at).toLocaleDateString('pt-AO')}
                         </div>
                         <button
                           onClick={() => handleDeleteClick(fatura.id)}
                           disabled={isDeleting === fatura.id}
-                          className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                          className="p-2.5 text-red-500 bg-red-50/50 hover:bg-red-50 rounded-xl transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
                         >
-                          {isDeleting === fatura.id ? <LoadingSpinner className="w-3.5 h-3.5 border-red-500" /> : <Trash2 className="w-3.5 h-3.5" />}
+                          {isDeleting === fatura.id ? <LoadingSpinner className="w-4 h-4 border-red-500" /> : <Trash2 className="w-4 h-4" />}
                         </button>
                       </div>
                     </motion.div>
@@ -388,25 +391,20 @@ export function Faturas({ invoices }: FaturasProps) {
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 10 }}
-                      className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden"
+                      className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm hover:shadow-xl transition-all group relative overflow-hidden"
                     >
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="font-semibold text-gray-800">{toPascalCase(fatura.servico)}</span>
-                        <span className="font-bold text-green-700">{fatura.valor.toLocaleString('pt-AO')} Kz</span>
+                      <div className="flex justify-between items-start mb-4">
+                        <span className="font-black text-[13px] text-gray-800 uppercase tracking-tight">{toPascalCase(fatura.servico)}</span>
+                        <span className="font-black text-lg text-green-700">{fatura.valor.toLocaleString('pt-AO')} Kz</span>
                       </div>
-                      <div className="flex justify-between items-center mt-3">
-                        <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-wider">
-                          <CheckCircle2 className="w-3 h-3" /> PAGO
+                      <div className="flex justify-between items-center mt-6">
+                        <span className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-3 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          Liquidado
                         </span>
-                        <div className="flex items-center gap-3">
-                          <span className="text-xs text-gray-400">{new Date(fatura.created_at).toLocaleDateString('pt-AO')}</span>
-                          <button
-                            onClick={() => handleDeleteClick(fatura.id)}
-                            disabled={isDeleting === fatura.id}
-                            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                        <div className="flex items-center gap-2 text-xs text-gray-400 font-bold">
+                          <Calendar className="w-4 h-4" />
+                          {new Date(fatura.created_at).toLocaleDateString('pt-AO')}
                         </div>
                       </div>
                     </motion.div>
@@ -414,7 +412,7 @@ export function Faturas({ invoices }: FaturasProps) {
                 </AnimatePresence>
                 {paid.length === 0 && (
                   <div className="p-12 text-center border-2 border-dashed border-gray-100 rounded-3xl">
-                    <p className="text-gray-400 text-sm">Nenhuma fatura paga registrada</p>
+                    <p className="text-gray-400 text-sm">Sem faturas pagas</p>
                   </div>
                 )}
               </KanbanColumn>
@@ -568,6 +566,7 @@ export function AgencyProperties({ properties, agencyName }: AgencyPropertiesPro
         title={`Imóveis da ${agencyName}`}
         icon={Building2}
         description="Gestão de inventário da agência."
+        className="mb-8 px-2"
       >
         <button
           onClick={handleRefresh}
@@ -579,7 +578,7 @@ export function AgencyProperties({ properties, agencyName }: AgencyPropertiesPro
         </button>
       </SectionHeader>
 
-      <div className="flex flex-col lg:flex-row gap-6 overflow-x-auto pb-4 custom-scrollbar">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 lg:gap-10">
         <KanbanColumn title="Em Análise" count={pending.length} color="orange" icon={AlertTriangle}>
           <AnimatePresence mode="popLayout">
             {pending.map(p => (
@@ -615,6 +614,254 @@ export function AgencyProperties({ properties, agencyName }: AgencyPropertiesPro
 }
 
 // =======================
+// Visitas Agendadas
+// =======================
+type VisitasProps = {
+  userId: string;
+}
+
+export function VisitasAgendadas({ userId }: VisitasProps) {
+  const [visits, setVisits] = useState<any[] | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [subTab, setSubTab] = useState<'pending' | 'confirmed' | 'history'>('pending');
+
+  const fetchVisits = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/visits?agent_id=${userId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setVisits(data.visits || []);
+      }
+    } catch (e) {
+      toast.error('Erro ao carregar visitas');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    fetchVisits();
+  }, [fetchVisits]);
+
+  const handleUpdateStatus = async (id: string, status: string) => {
+    try {
+      const res = await fetch('/api/visits', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status })
+      });
+      if (res.ok) {
+        setVisits(prev => prev ? prev.map(v => v.id === id ? { ...v, status } : v) : null);
+        toast.success('Status atualizado');
+      }
+    } catch (e) {
+      toast.error('Erro ao atualizar');
+    }
+  };
+
+  if (isLoading) return <LoadingState.LoadingSpinner />;
+
+  const pending = visits?.filter(v => v.status === 'pending') || [];
+  const confirmed = visits?.filter(v => v.status === 'confirmed') || [];
+  const history = visits?.filter(v => v.status === 'done' || v.status === 'cancelled') || [];
+
+  const currentList = subTab === 'pending' ? pending : subTab === 'confirmed' ? confirmed : history;
+
+  return (
+    <SectionContainer className="bg-transparent border-none p-0 shadow-none">
+      <SectionHeader
+        title="Visitas Agendadas"
+        icon={Calendar}
+        description="Gerencie seus compromissos com potenciais clientes."
+        className="mb-8 px-2"
+      >
+        <button
+          onClick={fetchVisits}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition-all shadow-sm text-sm font-medium"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Atualizar
+        </button>
+      </SectionHeader>
+
+      {!visits || visits.length === 0 ? (
+        <EmptyState message="Nenhuma visita agendada ainda." icon={Calendar} />
+      ) : (
+        <div className="space-y-8">
+          {/* Sub-tabs Navigation */}
+          <div className="flex p-1 bg-gray-100 rounded-2xl w-fit mx-auto lg:mx-0">
+            {[
+              { id: 'pending', label: 'Pendentes', count: pending.length, color: 'text-orange-600' },
+              { id: 'confirmed', label: 'Confirmadas', count: confirmed.length, color: 'text-purple-600' },
+              { id: 'history', label: 'Histórico', count: history.length, color: 'text-gray-600' }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setSubTab(tab.id as any)}
+                className={cn(
+                  "px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-2",
+                  subTab === tab.id 
+                    ? "bg-white text-gray-900 shadow-sm" 
+                    : "text-gray-400 hover:text-gray-600"
+                )}
+              >
+                {tab.label}
+                <span className={cn("px-2 py-0.5 rounded-full bg-gray-50 text-[10px]", subTab === tab.id ? tab.color : "text-gray-300")}>
+                  {tab.count}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {/* List Content */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={subTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8 min-w-0"
+            >
+              {currentList.length === 0 ? (
+                <div className="col-span-full py-20 text-center border-2 border-dashed border-gray-100 rounded-[40px]">
+                  <p className="text-gray-400 text-sm font-bold uppercase tracking-widest">Nada para mostrar aqui</p>
+                </div>
+              ) : (
+                currentList.map((visit) => (
+                  <VisitListItem key={visit.id} visit={visit} onUpdate={handleUpdateStatus} />
+                ))
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      )}
+    </SectionContainer>
+  );
+}
+
+function VisitListItem({ visit, onUpdate }: { visit: any, onUpdate: (id: string, status: string) => void }) {
+  const statusMap: any = {
+    pending: { label: 'Pendente', cls: 'bg-orange-50 text-orange-700 border-orange-100', icon: Clock },
+    confirmed: { label: 'Confirmada', cls: 'bg-purple-50 text-purple-700 border-purple-100', icon: CheckCircle },
+    cancelled: { label: 'Cancelada', cls: 'bg-red-50 text-red-700 border-red-100', icon: XCircle },
+    done: { label: 'Realizada', cls: 'bg-green-50 text-green-700 border-green-100', icon: CheckCircle2 },
+  };
+
+  const s = statusMap[visit.status] || statusMap.pending;
+  const StatusIcon = s.icon;
+
+  // Formatting date
+  const dateObj = visit.scheduled_date ? new Date(visit.scheduled_date + 'T12:00:00') : new Date();
+  const formattedDate = format(dateObj, "dd 'de' MMMM", { locale: ptBR });
+  const dayName = format(dateObj, "EEEE", { locale: ptBR });
+  const timeShort = visit.scheduled_time?.substring(0, 5) || '--:--';
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      className="bg-white p-6 md:p-8 lg:p-10 rounded-[40px] border border-gray-100 shadow-sm hover:shadow-2xl hover:border-purple-200 transition-all group space-y-7 relative overflow-hidden"
+    >
+      {/* Decorative background element */}
+      <div className={cn("absolute -right-6 -top-6 w-32 h-32 opacity-[0.03] rotate-12 transition-transform group-hover:scale-110", s.cls.split(' ')[0])}>
+        <StatusIcon className="w-full h-full" />
+      </div>
+
+      <div className="flex justify-between items-start relative z-10">
+        <div className={cn("flex items-center gap-2.5 px-4 py-2 rounded-full border text-[11px] font-black uppercase tracking-widest", s.cls)}>
+          <StatusIcon className="w-4 h-4" />
+          {s.label}
+        </div>
+        <div className="text-right">
+          <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Horário</p>
+          <div className="flex items-center gap-1.5 justify-end text-purple-600">
+            <Clock className="w-4 h-4" />
+            <p className="text-lg font-black">{timeShort}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-2 relative z-10">
+        <div className="flex items-center gap-2.5 text-orange-500">
+          <Calendar className="w-4 h-4" />
+          <span className="text-[11px] font-black uppercase tracking-widest">{dayName}</span>
+        </div>
+        <h3 className="text-2xl md:text-3xl font-black text-gray-900 leading-tight">
+          {formattedDate}
+        </h3>
+      </div>
+
+      <div className="p-6 bg-gray-50/50 rounded-[32px] border border-gray-100 space-y-5 relative z-10">
+        <div className="flex items-start gap-4">
+          <div className="w-10 h-10 rounded-2xl bg-white border border-gray-100 flex items-center justify-center shadow-sm shrink-0">
+            <Building2 className="w-5 h-5 text-gray-400" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Imóvel da Visita</p>
+            <p className="text-[13px] font-black text-gray-800 line-clamp-2 leading-snug">{visit.property_title || 'Não especificado'}</p>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-4">
+          <div className="w-10 h-10 rounded-2xl bg-white border border-gray-100 flex items-center justify-center shadow-sm shrink-0">
+            <User className="w-5 h-5 text-gray-400" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Lead / Cliente</p>
+            <p className="text-[13px] font-black text-gray-800 line-clamp-1 leading-snug">{visit.lead_name || 'Anónimo'}</p>
+          </div>
+        </div>
+      </div>
+
+      {visit.notes && (
+        <div className="px-6 py-4 bg-purple-50/40 rounded-[24px] border border-purple-100/40 relative z-10">
+          <p className="text-xs text-purple-700/80 font-semibold italic leading-relaxed">
+            "{visit.notes}"
+          </p>
+        </div>
+      )}
+
+      <div className="flex flex-col sm:flex-row gap-3 pt-2 relative z-10">
+        {visit.status === 'pending' && (
+          <>
+            <button
+              onClick={() => onUpdate(visit.id, 'confirmed')}
+              className="flex-1 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-[20px] text-[11px] font-black uppercase tracking-widest hover:from-purple-700 hover:to-indigo-700 transition-all shadow-xl shadow-purple-200 cursor-pointer flex items-center justify-center gap-2"
+            >
+              Confirmar
+            </button>
+            <button
+              onClick={() => onUpdate(visit.id, 'cancelled')}
+              className="px-5 py-4 bg-gray-50 text-gray-400 rounded-[20px] hover:bg-red-50 hover:text-red-500 transition-all border border-gray-100 cursor-pointer flex items-center justify-center"
+            >
+              <XCircle className="w-6 h-6" />
+            </button>
+          </>
+        )}
+        {visit.status === 'confirmed' && (
+          <button
+            onClick={() => onUpdate(visit.id, 'done')}
+            className="w-full py-4 md:py-5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-[20px] text-[10px] md:text-[11px] font-black uppercase tracking-widest hover:from-green-600 hover:to-emerald-700 transition-all shadow-xl shadow-green-200 flex items-center justify-center gap-3 cursor-pointer"
+          >
+            <CheckCircle2 className="w-5 h-5" />
+            Finalizar Visita
+          </button>
+        )}
+        {(visit.status === 'done' || visit.status === 'cancelled') && (
+           <div className="w-full py-4 text-center text-[10px] font-black text-gray-300 uppercase tracking-widest border-2 border-dashed border-gray-100 rounded-[20px]">
+             Concluído
+           </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// =======================
 // Export
 // =======================
 export const DashboardTabs = {
@@ -622,5 +869,6 @@ export const DashboardTabs = {
   Favoritas: React.memo(Favoritas),
   Faturas: React.memo(Faturas),
   PropriedadesMaisVisualizadas: React.memo(PropriedadesMaisVisualizadas),
-  AgencyProperties: React.memo(AgencyProperties)
+  AgencyProperties: React.memo(AgencyProperties),
+  VisitasAgendadas: React.memo(VisitasAgendadas)
 };

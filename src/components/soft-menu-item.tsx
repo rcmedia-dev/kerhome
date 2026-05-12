@@ -8,11 +8,13 @@ const SoftMenuItem = ({
   activeTab,
   setActiveTab,
   index,
+  isCollapsed,
 }: {
   item: any;
   activeTab: string;
   setActiveTab: (tab: string) => void;
   index: number;
+  isCollapsed?: boolean;
 }) => {
   const isActive = activeTab === item.id;
 
@@ -46,17 +48,19 @@ const SoftMenuItem = ({
           <item.icon className="w-4 h-4" />
         </div>
 
-        <span
-          className={cn(
-            "font-bold text-sm transition-colors duration-200",
-            isActive ? "text-purple-700" : "text-gray-500"
-          )}
-        >
-          {item.label}
-        </span>
+        {!isCollapsed && (
+          <span
+            className={cn(
+              "font-bold text-sm transition-colors duration-200 whitespace-nowrap",
+              isActive ? "text-purple-700" : "text-gray-500"
+            )}
+          >
+            {item.label}
+          </span>
+        )}
       </div>
 
-      {item.badge !== undefined && (
+      {!isCollapsed && item.badge !== undefined && (
         <span
           className={cn(
             "px-2.5 py-0.5 text-[10px] font-black rounded-md transition-all duration-300",

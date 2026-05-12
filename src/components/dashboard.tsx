@@ -13,6 +13,7 @@ import { AgencyNotificationsListener } from './dashboard/agency-notifications-li
 
 // Sub-components
 import { DashboardSidebar } from './dashboard/sidebar';
+import { MobileNavbar } from './dashboard/mobile-navbar';
 import { DashboardWelcomeCard } from './dashboard/welcome-card';
 import { DashboardPlanCard } from './dashboard/plan-card';
 import { DashboardStats } from './dashboard/stats';
@@ -21,6 +22,7 @@ import { DashboardContent } from './dashboard/content';
 export default function Dashboard() {
   const { user, isLoading: userLoading } = useUserStore();
   const [activeTab, setActiveTab] = useState('properties');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const {
     userProperties,
@@ -66,22 +68,32 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50/50 flex flex-col lg:flex-row relative overflow-hidden">
+    <div className="min-h-screen bg-gray-50/50 flex flex-col lg:flex-row relative">
       
       {/* ðŸ“¡ Listener de Notificações de Lead da Agência */}
       <AgencyNotificationsListener imobiliariaId={userAgency.data?.id || null} />
 
-      <DashboardSidebar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        propertyCount={userProperties.data?.length || 0}
-        favoriteCount={userFavoriteProperties.data?.length || 0}
-        invoiceCount={userInvoices.data?.length || 0}
-        viewCount={mostViewed.data?.total_views_all || 0}
-        userAgency={userAgency.data}
+      <MobileNavbar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        userAgency={userAgency.data} 
       />
 
-      <main className={cn("flex-1 min-w-0 flex flex-col p-0", (activeTab === 'stats' || activeTab === 'messages') && "overflow-hidden h-screen")}>
+      <div className="hidden lg:block h-full">
+        <DashboardSidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          propertyCount={userProperties.data?.length || 0}
+          favoriteCount={userFavoriteProperties.data?.length || 0}
+          invoiceCount={userInvoices.data?.length || 0}
+          viewCount={mostViewed.data?.total_views_all || 0}
+          userAgency={userAgency.data}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        />
+      </div>
+
+      <main className={cn("flex-1 min-w-0 flex flex-col p-0 overflow-y-auto h-screen custom-scrollbar")}>
         <div className="w-full h-full p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
           <DashboardContent

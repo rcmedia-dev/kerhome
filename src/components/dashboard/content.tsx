@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence, Variants, Easing } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { MinhasPropriedades, Favoritas, Faturas, PropriedadesMaisVisualizadas } from '@/components/dashboard-tabs-content';
+import { MinhasPropriedades, Favoritas, Faturas, PropriedadesMaisVisualizadas, VisitasAgendadas } from '@/components/dashboard-tabs-content';
 import { AgencyManagement } from './agency-management';
 import { StatsTab } from './stats-tab';
 import { MessagesTab } from './messages-tab';
@@ -46,9 +46,9 @@ export function DashboardContent({
     return (
         <div className={cn(
             isFullWidth ? "lg:col-span-12" : "lg:col-span-9",
-            "order-2 lg:order-1 h-full"
+            "order-2 lg:order-1"
         )}>
-            <div className="h-full">
+            <div>
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={activeTab}
@@ -57,9 +57,9 @@ export function DashboardContent({
                         animate="visible"
                         exit="exit"
                         className={cn(
-                            isFullWidth ? "bg-transparent border-none p-0" : "bg-white rounded-md p-6 lg:p-8 shadow-sm border border-gray-200",
-                            "h-full",
-                            !isFullWidth && "min-h-[calc(100vh-3rem)]"
+                            isFullWidth ? "bg-transparent border-none p-0" : "bg-white rounded-[32px] p-6 lg:p-10 shadow-sm border border-gray-100",
+                            "w-full",
+                            !isFullWidth && "min-h-[calc(100vh-6rem)] mb-8"
                         )}
                     >
                         {activeTab === 'properties' && <MinhasPropriedades userProperties={isLoading ? null : personalProperties} />}
@@ -69,6 +69,7 @@ export function DashboardContent({
                         { activeTab === 'agency' && <AgencyManagement agency={userAgency} agencyProperties={isLoading ? null : agencyProperties} /> }
                         { activeTab === 'settings' && <ConfiguracoesConta profile={user} /> }
                         { activeTab === 'messages' && <MessagesTab /> }
+                        { activeTab === 'visits' && <VisitasAgendadas userId={user?.id} /> }
                     </motion.div>
                 </AnimatePresence>
             </div>
