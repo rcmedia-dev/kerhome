@@ -166,17 +166,17 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
       <div className="absolute inset-0 overflow-hidden">
         <motion.div 
           variants={backgroundVariants}
-          className="absolute -top-20 -right-20 w-72 h-72 bg-orange-200/20 rounded-full blur-3xl"
+          className="absolute -top-20 -right-20 w-72 h-72 bg-orange-200/20 rounded-badge blur-3xl"
         ></motion.div>
         <motion.div 
           variants={backgroundVariants}
           transition={{ delay: 0.3 }}
-          className="absolute -bottom-20 -left-20 w-72 h-72 bg-blue-200/20 rounded-full blur-3xl"
+          className="absolute -bottom-20 -left-20 w-72 h-72 bg-blue-200/20 rounded-badge blur-3xl"
         ></motion.div>
         <motion.div 
           variants={backgroundVariants}
           transition={{ delay: 0.6 }}
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-200/10 rounded-full blur-3xl"
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-200/10 rounded-badge blur-3xl"
         ></motion.div>
       </div>
 
@@ -201,7 +201,7 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
             stiffness: 150,
             damping: 15
           }}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-medium mb-4"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-700 rounded-badge text-sm font-medium mb-4"
         >
           <motion.span 
             animate={{ 
@@ -213,7 +213,7 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
               repeat: Infinity,
               repeatType: "reverse"
             }}
-            className="w-2 h-2 bg-orange-500 rounded-full"
+            className="w-2 h-2 bg-orange-500 rounded-badge"
           ></motion.span>
           Propriedades Selecionadas
         </motion.div>
@@ -328,7 +328,7 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
               ...springTransition,
               delay: 0.8
             }}
-            className="group relative px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl shadow-orange-500/25"
+            className="group relative px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-button shadow-card"
           >
             <span className="relative z-10 flex items-center gap-2">
               Explorar Todas as Propriedades
@@ -340,7 +340,7 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
             </span>
             
             {/* Efeito de brilho no hover */}
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 rounded-button bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </motion.button>
         </Link>
       </motion.div>

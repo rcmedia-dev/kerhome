@@ -125,12 +125,12 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
       {/* Elementos decorativos animados para combinar com Corretores */}
       <motion.div
         variants={backgroundVariants}
-        className="absolute top-10 right-10 w-80 h-80 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
+        className="absolute top-10 right-10 w-80 h-80 bg-purple-100 rounded-badge mix-blend-multiply filter blur-3xl opacity-30"
       ></motion.div>
       <motion.div
         variants={backgroundVariants}
         transition={{ delay: 1.5 }}
-        className="absolute bottom-10 left-10 w-80 h-80 bg-purple-50 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
+        className="absolute bottom-10 left-10 w-80 h-80 bg-purple-50 rounded-badge mix-blend-multiply filter blur-3xl opacity-30"
       ></motion.div>
 
       <div className="max-w-7xl mx-auto px-4 relative z-10">
@@ -146,7 +146,7 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
             whileInView="visible"
             viewport={{ once: true }}
             transition={{ ...springTransition, stiffness: 150, damping: 15 }}
-            className="inline-flex items-center justify-center gap-2 bg-white rounded-full px-4 py-2 shadow-sm border border-gray-100 mb-4"
+            className="inline-flex items-center justify-center gap-2 bg-white rounded-badge px-4 py-2 shadow-card border border-border mb-4"
           >
             <VerifiedIcon className="w-4 h-4 text-[#6D28D9]" />
             <span className="text-sm font-medium text-gray-700">Agências Verificadas</span>
@@ -202,7 +202,7 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
                   <motion.div
                     variants={cardHoverVariants}
                     transition={fastSpringTransition}
-                    className="relative bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-xl transition-all duration-500 h-full flex flex-col overflow-hidden"
+                    className="relative bg-white rounded-card border border-border p-6 shadow-card hover:shadow-card-hover transition-all duration-500 h-full flex flex-col overflow-hidden"
                   >
                     {/* Barra Superior Decorativa (Unificação) */}
                     <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-r from-purple-50 to-purple-100 opacity-60"></div>
@@ -212,7 +212,7 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
                       <div className="relative">
                         <motion.div
                           variants={logoHoverVariants}
-                          className="relative w-20 h-20 bg-white rounded-2xl overflow-hidden border-4 border-white shadow-lg p-3"
+                          className="relative w-20 h-20 bg-white rounded-button overflow-hidden border-4 border-white shadow-card p-3"
                         >
                           <Image
                             src={agency.logo || '/logo-placeholder.png'}
@@ -226,7 +226,7 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
                       {agency.verificada && (
                         <motion.div
                           whileHover={{ scale: 1.2, rotate: 10 }}
-                          className="absolute -bottom-1 -right-1 bg-white p-1 rounded-full shadow-md border"
+                          className="absolute -bottom-1 -right-1 bg-white p-1 rounded-badge shadow-card border"
                         >
                           <CheckCircle2 className="w-4 h-4 text-[#6D28D9] fill-[#6D28D9] text-white" />
                         </motion.div>
@@ -238,7 +238,7 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
                       <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-[#6D28D9] transition-colors leading-tight line-clamp-2 h-[48px] flex items-center justify-center">
                         {agency.nome}
                       </h3>
-                      <div className="flex items-center justify-center gap-2 text-gray-500 mb-6 p-2 bg-gray-50 rounded-lg w-full text-xs font-black uppercase tracking-widest">
+                      <div className="flex items-center justify-center gap-2 text-gray-500 mb-6 p-2 bg-gray-50 rounded-button w-full text-xs font-black uppercase tracking-widest">
                         <span>{agency.cidade}</span>
                       </div>
                     </div>
@@ -249,7 +249,7 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
                         <motion.button
                           whileHover={{ scale: 1.05, x: 2 }}
                           whileTap={{ scale: 0.95 }}
-                          className="w-full py-2.5 px-4 bg-[#6D28D9] text-white font-semibold rounded-xl hover:bg-purple-800 transition-all duration-300 flex items-center justify-center gap-2 text-sm shadow-md"
+                          className="w-full py-2.5 px-4 bg-[#6D28D9] text-white font-semibold rounded-button hover:bg-purple-800 transition-all duration-300 flex items-center justify-center gap-2 text-sm shadow-card"
                         >
                           <Sparkles className="w-4 h-4" />
                           Ver Perfil
@@ -264,10 +264,10 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
 
           {/* Navigation Arrows (Unificada: Side & Circular) */}
           <div className="hidden lg:block">
-            <button className="swiper-prev-agency absolute top-1/2 -left-12 -translate-y-1/2 w-10 h-10 rounded-full bg-white border border-gray-100 shadow-lg flex items-center justify-center text-[#6D28D9] hover:bg-[#6D28D9] hover:text-white transition-all z-20">
+            <button className="swiper-prev-agency absolute top-1/2 -left-12 -translate-y-1/2 w-10 h-10 rounded-badge bg-white border border-border shadow-card flex items-center justify-center text-[#6D28D9] hover:bg-[#6D28D9] hover:text-white transition-all z-20">
               <ChevronLeft className="w-6 h-6" />
             </button>
-            <button className="swiper-next-agency absolute top-1/2 -right-12 -translate-y-1/2 w-10 h-10 rounded-full bg-white border border-gray-100 shadow-lg flex items-center justify-center text-[#6D28D9] hover:bg-[#6D28D9] hover:text-white transition-all z-20">
+            <button className="swiper-next-agency absolute top-1/2 -right-12 -translate-y-1/2 w-10 h-10 rounded-badge bg-white border border-border shadow-card flex items-center justify-center text-[#6D28D9] hover:bg-[#6D28D9] hover:text-white transition-all z-20">
               <ChevronRight className="w-6 h-6" />
             </button>
           </div>
@@ -289,7 +289,7 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
             <motion.button
               whileHover="hover"
               whileTap="tap"
-              className="group relative inline-flex items-center gap-3 px-10 py-4 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold shadow-lg shadow-orange-200 transition-all duration-500"
+              className="group relative inline-flex items-center gap-3 px-10 py-4 rounded-button bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold shadow-card transition-all duration-500"
             >
               <span className="relative z-10 flex items-center gap-3">
                 Explorar Todas Agências
@@ -297,7 +297,7 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
                    <ArrowRight className="w-5 h-5 relative z-10" />
                 </motion.span>
               </span>
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute inset-0 rounded-button bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </motion.button>
           </Link>
         </motion.div>

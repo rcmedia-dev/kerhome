@@ -116,12 +116,12 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
             </div>
 
             {/* Sub-Tabs Selector */}
-            <div className="flex flex-wrap items-center p-1.5 bg-gray-100/50 rounded-2xl w-full sm:w-fit mb-8 gap-1">
+            <div className="flex flex-wrap items-center p-1.5 bg-gray-100/50 rounded-card w-full sm:w-fit mb-8 gap-1">
                 <button
                     onClick={() => setActiveSubTab('general')}
                     className={cn(
-                        "flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all",
-                        activeSubTab === 'general' ? "bg-white text-purple-700 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                        "flex items-center gap-2 px-6 py-2.5 rounded-button text-sm font-bold transition-all",
+                        activeSubTab === 'general' ? "bg-white text-purple-700 shadow-card" : "text-gray-500 hover:text-gray-700"
                     )}
                 >
                     <Settings2 className="w-4 h-4" />
@@ -130,8 +130,8 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                 <button
                     onClick={() => setActiveSubTab('team')}
                     className={cn(
-                        "flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all",
-                        activeSubTab === 'team' ? "bg-white text-purple-700 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                        "flex items-center gap-2 px-6 py-2.5 rounded-button text-sm font-bold transition-all",
+                        activeSubTab === 'team' ? "bg-white text-purple-700 shadow-card" : "text-gray-500 hover:text-gray-700"
                     )}
                 >
                     <Users className="w-4 h-4" />
@@ -153,14 +153,14 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                                 {/* Imagem e Dados Principais */}
                                 <div className="lg:col-span-1 space-y-4">
                                     <div className="relative group">
-                                        <div className="w-full aspect-square rounded-2xl bg-gray-100 border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden">
+                                        <div className="w-full aspect-square rounded-card bg-gray-100 border-2 border-dashed border-border flex items-center justify-center overflow-hidden">
                                             {previewUrl ? (
                                                 <img src={previewUrl} alt="Logo" className="w-full h-full object-cover" />
                                             ) : (
                                                 <Building2 className="w-12 h-12 text-gray-300" />
                                             )}
                                         </div>
-                                        <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-2xl">
+                                        <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-card">
                                             <Camera className="w-8 h-8 text-white" />
                                             <input type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
                                         </label>
@@ -177,7 +177,7 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                                             name="nome"
                                             value={formData.nome}
                                             onChange={handleChange}
-                                            className="w-full p-3 rounded-xl border border-gray-100 bg-gray-50/50 focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all outline-none"
+                                            className="w-full p-3 rounded-button border border-border bg-gray-50/50 focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all outline-none"
                                             placeholder="Nome oficial da imobiliária"
                                             required
                                         />
@@ -190,7 +190,7 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                                             name="telefone"
                                             value={formData.telefone}
                                             onChange={handleChange}
-                                            className="w-full p-3 rounded-xl border border-gray-100 bg-gray-50/50 focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all outline-none"
+                                            className="w-full p-3 rounded-button border border-border bg-gray-50/50 focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all outline-none"
                                             placeholder="Ex: +244 9..."
                                         />
                                     </div>
@@ -202,7 +202,7 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                                             name="whatsapp"
                                             value={formData.whatsapp}
                                             onChange={handleChange}
-                                            className="w-full p-3 rounded-xl border border-gray-100 bg-gray-50/50 focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all outline-none"
+                                            className="w-full p-3 rounded-button border border-border bg-gray-50/50 focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all outline-none"
                                             placeholder="Link ou Número"
                                         />
                                     </div>
@@ -214,7 +214,7 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                                             name="website"
                                             value={formData.website}
                                             onChange={handleChange}
-                                            className="w-full p-3 rounded-xl border border-gray-100 bg-gray-50/50 focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all outline-none"
+                                            className="w-full p-3 rounded-button border border-border bg-gray-50/50 focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all outline-none"
                                             placeholder="https://..."
                                         />
                                     </div>
@@ -226,7 +226,7 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                                             value={formData.descricao}
                                             onChange={handleChange}
                                             rows={4}
-                                            className="w-full p-3 rounded-xl border border-gray-100 bg-gray-50/50 focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all outline-none resize-none"
+                                            className="w-full p-3 rounded-button border border-border bg-gray-50/50 focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all outline-none resize-none"
                                             placeholder="Descreva sua imobiliária, anos de mercado, especialidades..."
                                         />
                                     </div>
@@ -283,7 +283,7 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg shadow-purple-200 flex items-center gap-2 disabled:opacity-50"
+                                    className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-button font-bold transition-all shadow-card shadow-purple-200 flex items-center gap-2 disabled:opacity-50"
                                 >
                                     {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                                     Salvar Alterações

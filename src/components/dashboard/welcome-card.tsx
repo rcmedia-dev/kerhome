@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Pen, UserCircle, Store } from 'lucide-react';
 import { useRef } from 'react';
@@ -41,7 +41,7 @@ export function DashboardWelcomeCard({
     const hasPendingAgency = userAgency && userAgency.status === 'pending';
 
     return (
-        <div className="relative rounded-md bg-gradient-to-br from-purple-900 to-gray-900 overflow-hidden shadow-md p-6 group shrink-0 border border-purple-500/20">
+        <div className="relative rounded-card bg-gradient-to-br from-purple-900 to-gray-900 overflow-hidden shadow-card p-6 group shrink-0 border border-purple-500/20">
             <div className="relative z-10 flex flex-col gap-4 text-center items-center">
                 <div className="flex flex-col items-center">
                     <div className="relative mb-4 group/avatar">
@@ -78,7 +78,7 @@ export function DashboardWelcomeCard({
                     </div>
 
                     <div className="flex flex-col items-center gap-1">
-                        <span className="px-2 py-0.5 rounded-md bg-white/10 text-white/90 border border-white/10 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md">
+                        <span className="px-2 py-0.5 rounded-badge bg-white/10 text-white/90 border border-white/10 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md">
                             {isAgent ? 'Agente Kercasa' : 'Usuário'}
                         </span>
 
@@ -91,7 +91,7 @@ export function DashboardWelcomeCard({
                             <button
                                 disabled={isRequestingAgent || isPending}
                                 onClick={() => onRequestAgent(displayName)}
-                                className="w-full lg:w-auto mt-2 lg:mt-1 h-8 lg:h-6 text-xs px-3 lg:px-2 bg-orange-500 text-white rounded shadow-sm hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                className="w-full lg:w-auto mt-2 lg:mt-1 h-8 lg:h-6 text-xs px-3 lg:px-2 bg-orange-500 text-white rounded-button shadow-card hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                             >
                                 {isPending ? 'Aguardando Aprovação' : (isRequestingAgent ? 'Enviando...' : 'Solicitar ser Agente')}
                             </button>
@@ -101,7 +101,7 @@ export function DashboardWelcomeCard({
                         {showRegisterAgencyButton && (
                             <Link
                                 href="/imobiliarias/registar"
-                                className="w-full mt-2 h-8 text-xs px-3 bg-purple-600 hover:bg-purple-700 text-white rounded shadow-sm transition-all flex items-center justify-center gap-1.5"
+                                className="w-full mt-2 h-8 text-xs px-3 bg-purple-600 hover:bg-purple-700 text-white rounded-button shadow-card transition-all flex items-center justify-center gap-1.5"
                             >
                                 <Store className="w-3.5 h-3.5" />
                                 Cadastrar Agência

@@ -31,31 +31,7 @@ export class ErrorBoundary extends React.Component<
     }
 }
 
-// =======================
-// Layout Components
-// =======================
-export const SectionContainer = React.memo(({
-    children,
-    className
-}: {
-    children: React.ReactNode;
-    className?: string;
-}) => (
-    <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
-        className={cn(
-            "bg-white/70 backdrop-blur-xl rounded-3xl p-6 mb-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/20 relative",
-            "before:absolute before:inset-0 before:bg-gradient-to-br before:from-purple-50/30 before:via-transparent before:to-orange-50/30 before:pointer-events-none before:rounded-3xl",
-            className
-        )}
-    >
-        <div className="relative z-10">{children}</div>
-    </motion.div>
-));
 
-SectionContainer.displayName = 'SectionContainer';
 
 export const SectionHeader = ({
     title,
@@ -73,7 +49,7 @@ export const SectionHeader = ({
     <div className={cn("mb-8 px-2 sm:px-0", className)}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-4">
             <div className="flex items-center gap-4">
-                <div className="p-3 bg-gradient-to-r from-purple-100 to-orange-100 rounded-2xl shrink-0 shadow-sm">
+                <div className="p-3 bg-gradient-to-r from-purple-100 to-orange-100 rounded-card shrink-0 shadow-card">
                     <Icon className="w-6 h-6 text-purple-700" />
                 </div>
                 <div>
@@ -123,9 +99,9 @@ export const KanbanColumn = ({
 
     return (
         <div className="flex flex-col gap-5 w-full min-w-0 lg:min-w-[320px] lg:max-w-md flex-1">
-            <div className={cn("flex items-center justify-between p-5 rounded-[24px] border shadow-sm transition-all hover:shadow-md", colorStyles[color])}>
+            <div className={cn("flex items-center justify-between p-5 rounded-card border shadow-card transition-all hover:shadow-card-hover", colorStyles[color])}>
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white/50 rounded-xl">
+                    <div className="p-2 bg-white/50 rounded-badge">
                         {Icon && <Icon className="w-4 h-4" />}
                     </div>
                     <h3 className="font-black text-[11px] uppercase tracking-widest">{title}</h3>

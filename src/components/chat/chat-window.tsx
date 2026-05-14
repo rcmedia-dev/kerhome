@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
-import { Send, X, Smile, Paperclip, ArrowLeft, UserCircle } from 'lucide-react';
+import { Send, X, Smile, Paperclip, ArrowLeft, UserCircle, Info, MessageSquare } from 'lucide-react';
 import { useChatStore } from '@/lib/store/chat-store';
 import { useUserStore } from '@/lib/store/user-store';
 
@@ -9,9 +9,10 @@ import { toast } from 'sonner';
 
 interface ChatWindowProps {
     onClose: () => void;
+    onShowCRM?: () => void;
 }
 
-export function ChatWindow({ onClose }: ChatWindowProps) {
+export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
     const {
         messages,
         activeConversationId,
@@ -22,7 +23,8 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
         backToList,
         markAsRead,
         setTyping,
-        typingUsers
+        typingUsers,
+        isDashboardMessages
     } = useChatStore();
     const { user } = useUserStore();
     const [inputValue, setInputValue] = useState('');
@@ -172,7 +174,7 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
     };
 
     return (
-        <div className="flex flex-col h-full bg-white">
+        <div className="grid grid-rows-[auto_1fr_auto] h-full max-h-full overflow-hidden bg-white min-h-0 w-full">
             <input
                 type="file"
                 ref={fileInputRef}
@@ -181,12 +183,12 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
             />
 
             {/* Header */}
-            <div className="bg-gradient-to-r from-purple-700 to-purple-600 p-3 flex items-center justify-between text-white shrink-0">
-                <div className="flex items-center space-x-3">
-                    <button onClick={backToList} className="p-1 hover:bg-white/10 rounded-full transition-colors mr-1">
+            <div className="bg-gradient-to-r from-purple-700 to-purple-600 p-3 flex items-center justify-between text-white shrink-0 min-w-0">
+                <div className="flex items-center space-x-3 min-w-0">
+                    <button onClick={backToList} className="p-1 hover:bg-white/10 rounded-full transition-colors mr-1 shrink-0">
                         <ArrowLeft size={20} />
                     </button>
-                    <div className="relative">
+                    <div className="relative shrink-0">
                         <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center overflow-hidden border border-white/30">
                             {isAgencyChat && currentConversation?.agency_details?.logo ? (
                                 <img src={currentConversation.agency_details.logo} alt="Agency" className="w-full h-full object-cover" />
@@ -198,8 +200,8 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
                         </div>
                         <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-purple-700 rounded-full"></span>
                     </div>
-                    <div>
-                        <h3 className="font-semibold text-sm">
+                    <div className="min-w-0">
+                        <h3 className="font-semibold text-sm truncate">
                             {isAgencyChat && currentConversation?.agency_details?.nome 
                                 ? currentConversation.agency_details.nome 
                                 : activeProfile ? `${activeProfile.primeiro_nome} ${activeProfile.ultimo_nome}` : 'Conversa'}
@@ -209,13 +211,36 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
                         </span>
                     </div>
                 </div>
-                <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-full transition-colors">
-                    <X size={20} />
-                </button>
+                <div className="flex items-center gap-1 shrink-0">
+                    {onShowCRM && isDashboardMessages && (
+                        <button 
+                            onClick={onShowCRM} 
+                            className="md:hidden p-2 hover:bg-white/10 rounded-full transition-colors"
+                            title="Ver Detalhes do Lead"
+                        >
+                            <Info size={20} />
+                        </button>
+                    )}
+                    {!isDashboardMessages && (
+                        <button 
+                            onClick={() => {
+                                onClose();
+                                window.location.href = `/dashboard?tab=messages&conv=${activeConversationId}`;
+                            }}
+                            className="p-1.5 hover:bg-white/10 rounded-md transition-colors"
+                            title="Expandir para o Dashboard"
+                        >
+                            <MessageSquare size={20} />
+                        </button>
+                    )}
+                    <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-full transition-colors">
+                        <X size={20} />
+                    </button>
+                </div>
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 bg-white space-y-4 scrollbar-none">
+            <div className="overflow-y-auto p-4 bg-white space-y-4 custom-scrollbar min-h-0">
                 {messages.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-gray-400 text-sm">
                         <p>Nenhuma mensagem ainda.</p>

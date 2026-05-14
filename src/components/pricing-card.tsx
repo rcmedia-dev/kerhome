@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -17,7 +17,7 @@ interface LocalUserPlan {
   pacote_agente_id: string;
 }
 
-interface PlanoCardProps {
+interface PricingCardProps {
   plan?: LocalUserPlan;
   userProperties: number;
 }
@@ -54,7 +54,7 @@ const PlanFeature = ({
         scale: 1.02,
         x: 4
       }}
-      className="flex items-center justify-between p-3 rounded-xl bg-white border border-gray-100 hover:shadow-md transition-all duration-300 group"
+      className="flex items-center justify-between p-3 rounded-button bg-white border border-border hover:shadow-card transition-all duration-300 group"
     >
       <div className="flex items-center space-x-3">
         <div className={cn(
@@ -87,7 +87,7 @@ const PlanBadge = ({ planName }: { planName: string }) => (
   <motion.div
     initial={{ scale: 0 }}
     animate={{ scale: 1 }}
-    className="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-700 to-orange-500 text-white px-4 py-2 rounded-full shadow-lg"
+    className="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-700 to-orange-500 text-white px-4 py-2 rounded-badge shadow-card"
   >
     <Crown className="w-4 h-4" />
     <span className="text-sm font-semibold">{planName}</span>
@@ -106,13 +106,13 @@ const ProgressBar = ({ used, total }: { used: number; total: number }) => {
         <span>Utilizado: {used}/{total}</span>
         <span>{percentage.toFixed(0)}%</span>
       </div>
-      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+      <div className="w-full bg-gray-200 rounded-badge h-2 overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${percentage}%` }}
           transition={{ duration: 1, ease: "easeOut" }}
           className={cn(
-            "h-full rounded-full transition-all duration-300",
+            "h-full rounded-badge transition-all duration-300",
             isLow 
               ? "bg-gradient-to-r from-orange-500 to-red-500" 
               : isMedium
@@ -171,8 +171,8 @@ const ActionButton = ({
       onClick={onClick}
       disabled={isLoading}
       className={cn(
-        "w-full mt-6 flex items-center justify-center space-x-2 text-white py-3 rounded-xl font-semibold shadow-lg transition-all duration-300 relative overflow-hidden",
-        `bg-gradient-to-r ${config.gradient} hover:shadow-xl`
+        "w-full mt-6 flex items-center justify-center space-x-2 text-white py-3 rounded-button font-semibold shadow-card transition-all duration-300 relative overflow-hidden",
+        `bg-gradient-to-r ${config.gradient} hover:shadow-card-hover`
       )}
     >
       {/* Efeito de brilho no hover */}
@@ -194,7 +194,7 @@ const ActionButton = ({
   );
 };
 
-export function PlanoCard({ plan, userProperties }: PlanoCardProps) {
+export function PricingCard({ plan, userProperties }: PricingCardProps) {
   const router = useRouter();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
@@ -211,14 +211,14 @@ export function PlanoCard({ plan, userProperties }: PlanoCardProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      <Card className="shadow-xl border-0 bg-gradient-to-br from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm overflow-hidden">
+      <Card className="shadow-card border-0 bg-gradient-to-br from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm overflow-hidden rounded-card">
         {/* Efeito de gradiente no topo usando as cores especificadas */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-700 via-purple-500 to-orange-500" />
         
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <CardTitle className="text-gray-800 flex items-center text-lg">
-              <div className="p-2 bg-purple-100 rounded-lg mr-3">
+              <div className="p-2 bg-purple-100 rounded-button mr-3">
                 <Package className="w-5 h-5 text-purple-700" />
               </div>
               Meu Plano
@@ -246,7 +246,7 @@ export function PlanoCard({ plan, userProperties }: PlanoCardProps) {
                 />
 
                 {/* Listagens com barra de progresso */}
-                <div className="p-3 rounded-xl bg-white border border-gray-100">
+                <div className="p-3 rounded-button bg-white border border-border">
                   <PlanFeature
                     icon={Home}
                     label="Listagens Totais"
@@ -299,7 +299,7 @@ export function PlanoCard({ plan, userProperties }: PlanoCardProps) {
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 rounded-xl p-3"
+                    className="bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 rounded-button p-3"
                   >
                     <div className="flex items-center space-x-2">
                       <TrendingUp className="w-4 h-4 text-orange-700" />
@@ -319,7 +319,7 @@ export function PlanoCard({ plan, userProperties }: PlanoCardProps) {
                 animate={{ opacity: 1 }}
                 className="text-center py-8"
               >
-                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-purple-100 rounded-badge flex items-center justify-center mx-auto mb-4">
                   <Package className="w-8 h-8 text-purple-700" />
                 </div>
                 <p className="text-gray-500 text-sm mb-2">
@@ -333,7 +333,7 @@ export function PlanoCard({ plan, userProperties }: PlanoCardProps) {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleManagePlan}
-                  className="mt-4 bg-gradient-to-r from-purple-700 to-orange-500 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="mt-4 bg-gradient-to-r from-purple-700 to-orange-500 text-white px-6 py-2 rounded-button text-sm font-medium shadow-card hover:shadow-card-hover transition-all duration-300"
                 >
                   Ver Planos
                 </motion.button>

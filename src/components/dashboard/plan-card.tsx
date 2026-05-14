@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Star, Settings, Rocket } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -20,7 +20,7 @@ export function DashboardPlanCard({ planName, limit, remaining }: DashboardPlanC
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-md p-5 shadow-sm border border-gray-200"
+            className="bg-white rounded-card p-5 shadow-card border border-border"
         >
             <div className="flex justify-between items-start mb-4">
                 <div>
@@ -31,7 +31,7 @@ export function DashboardPlanCard({ planName, limit, remaining }: DashboardPlanC
                     </h3>
                 </div>
                 <Link href="/planos">
-                    <Button size="icon" variant="ghost" className="h-8 w-8 rounded-md hover:bg-purple-50 text-gray-400 hover:text-purple-600 transition-colors">
+                    <Button size="icon" variant="ghost" className="h-8 w-8 rounded-button hover:bg-purple-50 text-gray-400 hover:text-purple-600 transition-colors">
                         <Settings className="w-4 h-4" />
                     </Button>
                 </Link>
@@ -49,7 +49,7 @@ export function DashboardPlanCard({ planName, limit, remaining }: DashboardPlanC
                     <p className="text-[10px] text-gray-400 text-right">{used} / {limit || "âˆž"} imóveis</p>
                 </div>
                 <Link href="/planos" className="block">
-                    <Button size="sm" className="w-full bg-gray-900 text-white hover:bg-gray-800 h-9 text-xs rounded-md shadow-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]">
+                    <Button size="sm" className="w-full bg-gray-900 text-white hover:bg-gray-800 h-9 text-xs rounded-button shadow-card font-medium transition-all hover:scale-[1.02] active:scale-[0.98]">
                         Fazer Upgrade <Rocket className="w-3 h-3 ml-2" />
                     </Button>
                 </Link>

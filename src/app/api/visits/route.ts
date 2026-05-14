@@ -116,3 +116,33 @@ export async function PATCH(req: Request) {
         return NextResponse.json({ error: "Internal error" }, { status: 500 });
     }
 }
+
+export async function DELETE(req: Request) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+
+    if (!user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!id) {
+        return NextResponse.json({ error: "Missing id" }, { status: 400 });
+    }
+
+    try {
+        const { error } = await supabase
+            .from('visits')
+            .delete()
+            .eq('id', id)
+            .eq('agent_id', user.id);
+
+        if (error) throw error;
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error("Error deleting visit:", error);
+        return NextResponse.json({ error: "Internal error" }, { status: 500 });
+    }
+}

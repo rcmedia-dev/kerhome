@@ -205,12 +205,12 @@ export default function TopAgentsSection({ agents, className }: TopAgentsSection
       {/* Elementos decorativos animados */}
       <motion.div
         variants={backgroundVariants}
-        className="absolute top-10 right-10 w-80 h-80 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20"
+        className="absolute top-10 right-10 w-80 h-80 bg-purple-100 rounded-badge mix-blend-multiply filter blur-3xl opacity-20"
       ></motion.div>
       <motion.div
         variants={backgroundVariants}
         transition={{ delay: 1.5 }}
-        className="absolute bottom-10 left-10 w-80 h-80 bg-purple-50 rounded-full mix-blend-multiply filter blur-3xl opacity-20"
+        className="absolute bottom-10 left-10 w-80 h-80 bg-purple-50 rounded-badge mix-blend-multiply filter blur-3xl opacity-20"
       ></motion.div>
 
       <div className="max-w-7xl mx-auto px-4 relative z-10">
@@ -236,7 +236,7 @@ export default function TopAgentsSection({ agents, className }: TopAgentsSection
               stiffness: 150,
               damping: 15
             }}
-            className="inline-flex items-center justify-center gap-2 bg-white rounded-full px-4 py-2 shadow-sm border border-gray-100 mb-4"
+            className="inline-flex items-center justify-center gap-2 bg-white rounded-badge px-4 py-2 shadow-card border border-border mb-4"
           >
             <VerifiedIcon className="w-4 h-4 text-[#6D28D9]" />
             <span className="text-sm font-medium text-gray-700">Agentes Verificados</span>
@@ -315,14 +315,14 @@ export default function TopAgentsSection({ agents, className }: TopAgentsSection
                   <motion.div
                     variants={cardHoverVariants}
                     transition={fastSpringTransition}
-                    className="relative bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-xl transition-all duration-500 h-full flex flex-col overflow-hidden"
+                    className="relative bg-white rounded-card border border-border p-6 shadow-card hover:shadow-card-hover transition-all duration-500 h-full flex flex-col overflow-hidden"
                   >
                     {/* Avatar */}
                     <div className="relative z-10 ml-0 mb-4 -mt-4">
                       <div className="relative">
                         <motion.div
                           variants={avatarHoverVariants}
-                          className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg flex items-center justify-center bg-gray-100"
+                          className="relative w-20 h-20 rounded-badge overflow-hidden border-4 border-white shadow-card flex items-center justify-center bg-gray-100"
                         >
                           {agent.avatar_url ? (
                             <Image
@@ -343,7 +343,7 @@ export default function TopAgentsSection({ agents, className }: TopAgentsSection
                       </div>
                       <motion.div
                         whileHover={{ scale: 1.2, rotate: 10 }}
-                        className="absolute -bottom-1 -right-1 bg-white p-1 rounded-full shadow-md border"
+                        className="absolute -bottom-1 -right-1 bg-white p-1 rounded-badge shadow-card border"
                       >
                         <VerifiedIcon className="w-4 h-4 text-[#6D28D9]" />
                       </motion.div>
@@ -355,7 +355,7 @@ export default function TopAgentsSection({ agents, className }: TopAgentsSection
                         {agent.primeiro_nome} {agent.ultimo_nome}
                       </h3>
                       {agent.email && (
-                        <div className="flex items-center justify-start gap-2 text-gray-500 mb-6 p-2 bg-gray-50 rounded-lg w-full text-xs truncate">
+                        <div className="flex items-center justify-start gap-2 text-gray-500 mb-6 p-2 bg-gray-50 rounded-button w-full text-xs truncate">
                           <Mail className="w-3 h-3 shrink-0" />
                           <span className="truncate">{agent.email}</span>
                         </div>
@@ -367,7 +367,7 @@ export default function TopAgentsSection({ agents, className }: TopAgentsSection
                       <Link href={`/agente/${agent.id}`}>
                         <motion.button
                           variants={buttonHoverVariants}
-                          className="w-full py-2.5 px-4 bg-[#6D28D9] text-white font-semibold rounded-xl hover:bg-purple-800 transition-all duration-300 flex items-center justify-center gap-2 text-sm shadow-md"
+                          className="w-full py-2.5 px-4 bg-[#6D28D9] text-white font-semibold rounded-button hover:bg-purple-800 transition-all duration-300 flex items-center justify-center gap-2 text-sm shadow-card"
                         >
                           <Sparkles className="w-4 h-4" />
                           Ver Perfil
@@ -382,10 +382,10 @@ export default function TopAgentsSection({ agents, className }: TopAgentsSection
 
           {/* Navigation Arrows (Circular as per request) */}
           <div className="hidden lg:block">
-            <button className="swiper-prev-agents absolute top-1/2 -left-12 -translate-y-1/2 w-10 h-10 rounded-full bg-white border border-gray-100 shadow-lg flex items-center justify-center text-[#6D28D9] hover:bg-[#6D28D9] hover:text-white transition-all z-20">
+            <button className="swiper-prev-agents absolute top-1/2 -left-12 -translate-y-1/2 w-10 h-10 rounded-badge bg-white border border-border shadow-card flex items-center justify-center text-[#6D28D9] hover:bg-[#6D28D9] hover:text-white transition-all z-20">
               <ChevronLeft className="w-6 h-6" />
             </button>
-            <button className="swiper-next-agents absolute top-1/2 -right-12 -translate-y-1/2 w-10 h-10 rounded-full bg-white border border-gray-100 shadow-lg flex items-center justify-center text-[#6D28D9] hover:bg-[#6D28D9] hover:text-white transition-all z-20">
+            <button className="swiper-next-agents absolute top-1/2 -right-12 -translate-y-1/2 w-10 h-10 rounded-badge bg-white border border-border shadow-card flex items-center justify-center text-[#6D28D9] hover:bg-[#6D28D9] hover:text-white transition-all z-20">
               <ChevronRight className="w-6 h-6" />
             </button>
           </div>

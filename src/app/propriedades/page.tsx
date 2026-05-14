@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import React, { useState, useEffect, ReactNode, useCallback, useRef } from 'react';
 import {
@@ -20,6 +20,7 @@ import { PropertyCard } from '@/components/property-card';
 import { useQuery } from '@tanstack/react-query';
 import { getMixedProperties, getProperties } from '@/lib/functions/get-properties';
 import { motion, Variants, Transition, AnimatePresence } from 'framer-motion';
+import LoadingState from './components/loading-state';
 
 // Hook personalizado para debounce (sem bibliotecas externas)
 const useDebouncedCallback = (fn: (...args: any[]) => void, wait = 350) => {
@@ -532,7 +533,7 @@ const PropertyListing = () => {
           {/* Header do Card de Busca */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-white/10 pb-4">
             <div className="flex items-center gap-2 text-white">
-              <div className="p-2 bg-white/10 rounded-lg text-white">
+              <div className="p-2 bg-orange-500 rounded-lg text-white shadow-lg">
                 <Search size={20} />
               </div>
               <span className="font-semibold text-lg">Filtrar Imóveis</span>
@@ -571,22 +572,31 @@ const PropertyListing = () => {
       >
         <motion.div
           variants={containerVariants}
-          className="flex flex-col items-center md:grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="w-full"
         >
-          {sortedProperties?.map((property, index) => (
+          {properties.isLoading ? (
+            <LoadingState.LoadingGrid viewMode="grid" />
+          ) : (
             <motion.div
-              key={property.id}
-              variants={itemVariants}
-              transition={{
-                ...springTransition,
-                delay: index * 0.05
-              }}
-              whileHover={{ y: -8 }}
-              className="w-full flex justify-center"
+              variants={containerVariants}
+              className="flex flex-col items-center md:grid md:grid-cols-2 lg:grid-cols-3 gap-8"
             >
-              <PropertyCard property={property} />
+              {sortedProperties?.map((property, index) => (
+                <motion.div
+                  key={property.id}
+                  variants={itemVariants}
+                  transition={{
+                    ...springTransition,
+                    delay: index * 0.05
+                  }}
+                  whileHover={{ y: -8 }}
+                  className="w-full flex justify-center"
+                >
+                  <PropertyCard property={property} />
+                </motion.div>
+              ))}
             </motion.div>
-          ))}
+          )}
         </motion.div>
 
         {/* Empty State */}
@@ -607,7 +617,7 @@ const PropertyListing = () => {
               </p>
               <button
                 onClick={clearFilters}
-                className="px-8 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-all font-medium shadow-lg hover:shadow-purple-500/20"
+                className="px-8 py-3 bg-orange-600 text-white rounded-xl hover:bg-orange-700 transition-all font-medium shadow-lg hover:shadow-orange-500/20"
               >
                 Limpar todos os filtros
               </button>
@@ -626,7 +636,7 @@ const PropertyListing = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowFilterModal(true)}
-            className="fixed right-6 top-1/2 -translate-y-1/2 z-40 p-4 bg-gray-900/90 text-white rounded-2xl shadow-2xl backdrop-blur-md hover:bg-black transition-all flex flex-col items-center gap-2 cursor-pointer border border-white/10"
+            className="fixed right-6 top-1/2 -translate-y-1/2 z-40 p-4 bg-orange-600 text-white rounded-2xl shadow-2xl backdrop-blur-md hover:bg-orange-700 transition-all flex flex-col items-center gap-2 cursor-pointer border border-white/20"
           >
             <SlidersHorizontal size={24} />
             <span className="text-[10px] font-bold uppercase tracking-wider writing-mode-vertical">Filtros</span>
@@ -652,7 +662,7 @@ const PropertyListing = () => {
             {/* Header do Painel */}
             <div className="flex items-center justify-between p-5 border-b border-gray-100/50 bg-white/50">
               <div className="flex items-center gap-2 font-bold text-gray-800">
-                <div className="p-1.5 bg-purple-100 rounded-lg text-purple-600">
+                <div className="p-1.5 bg-orange-100 rounded-lg text-orange-600">
                   <SlidersHorizontal size={18} />
                 </div>
                 <span>Filtros</span>

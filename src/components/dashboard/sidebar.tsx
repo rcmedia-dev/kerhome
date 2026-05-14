@@ -52,13 +52,13 @@ export function DashboardSidebar({
 
     return (
         <aside className={cn(
-            "bg-gray-50/50 border-r border-gray-100 flex flex-col shrink-0 lg:h-screen lg:sticky lg:top-0 z-40 transition-all duration-300 relative",
+            "bg-gray-50/50 border-r border-gray-100 flex flex-col shrink-0 lg:h-full lg:sticky lg:top-0 z-40 transition-all duration-300 relative",
             isCollapsed ? "w-full lg:w-20" : "w-full lg:w-72"
         )}>
             {/* Toggle Button */}
             <button
                 onClick={onToggleCollapse}
-                className="hidden lg:flex absolute -right-3 top-10 w-6 h-6 bg-white border border-gray-100 rounded-full items-center justify-center shadow-sm text-gray-400 hover:text-purple-600 transition-all z-50 cursor-pointer"
+                className="hidden lg:flex absolute -right-3.5 top-1/2 -translate-y-1/2 w-7 h-7 bg-orange-500 text-white rounded-full items-center justify-center shadow-lg hover:bg-orange-600 hover:scale-110 transition-all z-50 cursor-pointer border-2 border-white"
             >
                 {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             </button>

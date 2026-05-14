@@ -43,7 +43,7 @@ export function MobileNavbar({ activeTab, setActiveTab, userAgency }: MobileNavb
 
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className="p-2 bg-gray-50 rounded-xl text-gray-500 hover:bg-gray-100 transition-all"
+                className="p-2 bg-gray-50 rounded-button text-gray-500 hover:bg-gray-100 transition-all"
             >
                 {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -64,7 +64,7 @@ export function MobileNavbar({ activeTab, setActiveTab, userAgency }: MobileNavb
                                     setIsOpen(false);
                                 }}
                                 className={cn(
-                                    "flex items-center gap-3 p-3 rounded-xl transition-all",
+                                    "flex items-center gap-3 p-3 rounded-button transition-all",
                                     activeTab === item.id ? "bg-purple-50 text-purple-700" : "text-gray-500 active:bg-gray-50"
                                 )}
                             >

@@ -4,7 +4,7 @@ import { CheckCircle2, AlertCircle, XCircle, Target, Calendar, Eye, TrendingUp }
 import { useEffect } from "react";
 
 // Card para propriedades impulsionadas com tracking
-const BoostedPropertyCard = ({ property, user }: { property: BoostedProperty; user: any }) => {
+const BoostedPropertyCard = ({ property, user }: { property: BoostedProperty; user?: unknown }) => {
   const calculateTimeLeft = (expiresAt: string, boostStatus: string) => {
     if (boostStatus !== 'active') {
       return { 

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { 
@@ -23,7 +23,7 @@ import SectionContainer from '@/components/section-container';
 import SectionHeader from '@/components/section-header';
 import { AnimatedGrid, EmptyState } from '@/components/empty-state';
 import LoadingSpinner from '@/components/loading-spinner';
-import BoostedPropertyCard from '@/components/boosted-propertie-card';
+import BoostedPropertyCard from '@/components/boosted-property-card';
 
 
 

@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { TPropertyResponseSchema } from '@/lib/types/property';
-import { Agent } from '@/components/top-agent';
+import { Agent } from '@/components/top-agents';
 
 export interface PropertyOwner {
   id: string;

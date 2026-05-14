@@ -1,4 +1,4 @@
-﻿// components/dashboard-client.tsx
+// components/dashboard-client.tsx
 'use client';
 
 import { useState } from 'react';
@@ -17,7 +17,7 @@ import {
   Faturas,
 } from '@/components/dashboard-tabs-content';
 import { ConfiguracoesConta } from '@/components/account-setting';
-import { PlanoCard } from '@/components/plano-card';
+import { PricingCard } from '@/components/pricing-card';
 import { CanSeeIt } from '@/components/can';
 import { UserCard } from '@/components/user-card';
 import { UserAction } from '@/components/user-action';
@@ -188,7 +188,7 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.6 }}
               >
-                <PlanoCard plan={userPlan} userProperties={userProperties.length} />
+                <PricingCard plan={userPlan} userProperties={userProperties.length} />
               </motion.div>
 
               <SoftCard className="mt-4 bg-gradient-to-r from-orange-50 to-amber-50 py-4 border-orange-200">

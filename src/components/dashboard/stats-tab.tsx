@@ -35,7 +35,7 @@ import {
   BoostedProperty, 
   getBoostedProperties, 
 } from '@/lib/functions/supabase-actions/boost-functions';
-import BoostedPropertyCard from '@/components/boosted-propertie-card';
+import BoostedPropertyCard from '@/components/boosted-property-card';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
 import { getEventStats } from '@/lib/functions/supabase-actions/get-event-stats-action';
@@ -48,7 +48,7 @@ import { PerformanceTipsModal } from './performance-tips-modal';
 interface StatsTabProps {
   ownerId: string;
   mostViewedProperties?: TMyPropertiesWithViews | null;
-  user?: any;
+  user?: unknown;
 }
 
 const EVENT_LABEL_MAP: Record<string, string> = {
@@ -143,21 +143,21 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
            </div>
            
            <div className="flex items-center gap-3">
-              <div className="flex bg-gray-100/50 p-1 rounded-md border border-gray-100/50">
+              <div className="flex bg-gray-100/50 p-1 rounded-card border border-border-subtle">
                  {[7, 30, 90].map((d) => (
                     <button
                       key={d}
                       onClick={() => setPeriod(d)}
                       className={cn(
-                        "px-4 py-1.5 rounded-md text-[10px] font-bold transition-all",
-                        period === d ? "bg-white text-purple-700 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                        "px-4 py-1.5 rounded-button text-[10px] font-bold transition-all",
+                        period === d ? "bg-white text-purple-700 shadow-card" : "text-gray-500 hover:text-gray-700"
                       )}
                     >
                       {d} DIAS
                     </button>
                  ))}
               </div>
-              <button onClick={handleRefresh} disabled={isPending} className="p-2.5 bg-white hover:bg-gray-50 rounded-md border border-gray-100 text-gray-400 transition-all shadow-sm">
+              <button onClick={handleRefresh} disabled={isPending} className="p-2.5 bg-white hover:bg-gray-50 rounded-button border border-border text-gray-400 transition-all shadow-card">
                  <RefreshCw className={cn("w-4 h-4", isPending && "animate-spin")} />
               </button>
            </div>
@@ -168,8 +168,8 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
             <button
                 onClick={() => setActiveSubTab('performance')}
                 className={cn(
-                    "flex items-center gap-2 px-6 py-2.5 rounded-md text-xs font-bold transition-all",
-                    activeSubTab === 'performance' ? "bg-white text-purple-700 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                    "flex items-center gap-2 px-6 py-2.5 rounded-button text-xs font-bold transition-all",
+                    activeSubTab === 'performance' ? "bg-white text-purple-700 shadow-card" : "text-gray-500 hover:text-gray-700"
                 )}
             >
                 <LayoutDashboard className="w-4 h-4" />
@@ -178,8 +178,8 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
             <button
                 onClick={() => setActiveSubTab('boosts')}
                 className={cn(
-                    "flex items-center gap-2 px-6 py-2.5 rounded-md text-xs font-bold transition-all relative",
-                    activeSubTab === 'boosts' ? "bg-white text-purple-700 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                    "flex items-center gap-2 px-6 py-2.5 rounded-button text-xs font-bold transition-all relative",
+                    activeSubTab === 'boosts' ? "bg-white text-purple-700 shadow-card" : "text-gray-500 hover:text-gray-700"
                 )}
             >
                 <Rocket className="w-4 h-4" />
@@ -193,8 +193,8 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
             <button
                 onClick={() => setActiveSubTab('popular')}
                 className={cn(
-                    "flex items-center gap-2 px-6 py-2.5 rounded-md text-xs font-bold transition-all",
-                    activeSubTab === 'popular' ? "bg-white text-purple-700 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                    "flex items-center gap-2 px-6 py-2.5 rounded-button text-xs font-bold transition-all",
+                    activeSubTab === 'popular' ? "bg-white text-purple-700 shadow-card" : "text-gray-500 hover:text-gray-700"
                 )}
             >
                 <Trophy className="w-4 h-4" />
@@ -219,7 +219,7 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
                     </div>
 
                     <div className="grid lg:grid-cols-12 gap-6">
-                       <div className="lg:col-span-7 bg-white rounded-md border border-gray-100 shadow-sm p-6">
+                       <div className="lg:col-span-7 bg-white rounded-card border border-border shadow-card p-6">
                           <h3 className="text-base font-bold text-gray-900 flex items-center gap-2 mb-6">
                              <TrendingUp className="w-4 h-4 text-purple-600" />
                              Canais de Atração
@@ -231,7 +231,7 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
                           </div>
                        </div>
 
-                       <div className="lg:col-span-5 bg-white rounded-md border border-gray-100 shadow-sm p-6 flex flex-col items-center">
+                       <div className="lg:col-span-5 bg-white rounded-card border border-border shadow-card p-6 flex flex-col items-center">
                           <h3 className="text-base font-bold text-gray-900 flex items-center gap-2 mb-6 self-start">
                              <PieChartIcon className="w-4 h-4 text-orange-500" />
                              Mix de Tráfego
@@ -301,11 +301,11 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
                     )}
                   </>
                 ) : (
-                  <div className="bg-white rounded-md border border-gray-100 p-12 text-center shadow-sm">
+                  <div className="bg-white rounded-card border border-border p-12 text-center shadow-card">
                     <Rocket className="w-16 h-16 text-gray-100 mx-auto mb-4" />
                     <h3 className="text-lg font-bold text-gray-900 mb-2">Sem imóveis impulsionados</h3>
                     <p className="text-gray-500 text-xs max-w-sm mx-auto mb-8">Destaque os seus anúncios para aparecerem no topo das pesquisas.</p>
-                    <button className="px-8 py-3 bg-purple-600 text-white rounded-md font-bold text-xs shadow-lg shadow-purple-200 hover:bg-purple-700 transition-all">
+                    <button className="px-8 py-3 bg-purple-600 text-white rounded-button font-bold text-xs shadow-card shadow-purple-200 hover:bg-purple-700 transition-all">
                        Impulsionar Agora
                     </button>
                   </div>
@@ -317,7 +317,7 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
             {activeSubTab === 'popular' && (
               <motion.div key="popular" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
                 {hasPopularProperties ? (
-                  <div className="bg-white rounded-md border border-gray-100 shadow-sm p-8">
+                  <div className="bg-white rounded-card border border-border shadow-card p-8">
                      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
                         <div>
                            <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
@@ -326,7 +326,7 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
                            </h3>
                            <p className="text-xs text-gray-500">Ranking dos anúncios com maior tráfego orgânico.</p>
                         </div>
-                        <div className="bg-purple-50 px-4 py-2 rounded-md border border-purple-100 flex flex-col items-center">
+                        <div className="bg-purple-50 px-4 py-2 rounded-card border border-purple-100 flex flex-col items-center">
                            <p className="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Total</p>
                            <p className="text-lg font-black text-purple-700">{viewsData.total_views_all.toLocaleString()}</p>
                         </div>
@@ -338,7 +338,7 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
                               <div className="scale-95 group-hover:scale-100 transition-transform duration-500">
                                  <PropertyCard property={property} />
                               </div>
-                              <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md text-gray-900 px-3 py-1.5 rounded-md text-[10px] font-black shadow-xl flex items-center gap-1.5 border border-white z-10">
+                              <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md text-gray-900 px-3 py-1.5 rounded-button text-[10px] font-black shadow-card flex items-center gap-1.5 border border-white z-10">
                                  <Eye className="w-3 h-3 text-purple-600" />
                                  <span>{property.total_views}</span>
                               </div>
@@ -347,7 +347,7 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
                      </div>
                   </div>
                 ) : (
-                  <div className="bg-white rounded-md border border-gray-100 p-12 text-center shadow-sm">
+                  <div className="bg-white rounded-card border border-border p-12 text-center shadow-card">
                     <Trophy className="w-16 h-16 text-gray-100 mx-auto mb-4" />
                     <p className="text-gray-400 italic text-sm">Ranking ainda não disponível.</p>
                   </div>
@@ -359,7 +359,7 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
         </div>
 
         {/* Insight Card Padronizado rounded-md */}
-        <div className="bg-purple-600 rounded-md p-6 text-white flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative shadow-lg shadow-purple-900/10">
+        <div className="bg-purple-600 rounded-card p-6 text-white flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative shadow-card shadow-purple-900/10">
            <div className="absolute top-0 right-0 -translate-y-4 translate-x-4 opacity-10">
               <Zap className="w-32 h-32" />
            </div>
@@ -375,7 +375,7 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
            </div>
            <button 
               onClick={() => setIsTipsModalOpen(true)}
-              className="relative z-10 px-8 py-3 bg-white text-purple-700 rounded-md font-bold text-xs shadow-xl hover:bg-gray-50 transition-all"
+              className="relative z-10 px-8 py-3 bg-white text-purple-700 rounded-button font-bold text-xs shadow-card hover:bg-gray-50 transition-all"
            >
               Ver Guia
            </button>
@@ -391,7 +391,7 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
   );
 }
 
-function MetricCard({ label, value, icon: Icon, color, description }: { label: string, value: string | number, icon: any, color: string, description: string }) {
+function MetricCard({ label, value, icon: Icon, color, description }: { label: string, value: string | number, icon: React.ElementType, color: string, description: string }) {
   const colors = {
     purple: "text-purple-600 bg-purple-50 border-purple-100",
     green: "text-green-600 bg-green-50 border-green-100",
@@ -400,7 +400,7 @@ function MetricCard({ label, value, icon: Icon, color, description }: { label: s
   };
 
   return (
-    <div className="bg-white rounded-md p-5 border border-gray-100 shadow-sm hover:border-purple-200 transition-all group flex flex-col">
+    <div className="bg-white rounded-card p-5 border border-border shadow-card hover:border-purple-200 transition-all group flex flex-col">
        <div className="flex justify-between items-start mb-4">
           <div className={cn("p-2.5 rounded-md flex items-center justify-center transition-transform group-hover:scale-110", colors[color as keyof typeof colors])}>
              <Icon className="w-4 h-4" />
@@ -440,7 +440,7 @@ function ActionRow({ type, count, total }: { type: string, count: number, total:
 
 function EmptyStatsMessage() {
   return (
-    <div className="bg-white p-16 rounded-md border border-gray-100 text-center shadow-sm">
+    <div className="bg-white p-16 rounded-card border border-border text-center shadow-card">
        <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
           <BarChart3 className="w-8 h-8 text-gray-200" />
        </div>

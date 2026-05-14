@@ -1,7 +1,7 @@
-﻿import React, { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useChatStore } from '@/lib/store/chat-store';
 import { useUserStore } from '@/lib/store/user-store';
-import { UserCircle, Plus, X } from 'lucide-react';
+import { UserCircle, Plus, X, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -110,6 +110,20 @@ export function ChatList() {
                         </div>
                     ))
                 )}
+            </div>
+
+            {/* Footer Shortcut */}
+            <div className="p-3 border-t border-gray-100 bg-gray-50/50 shrink-0">
+                <button
+                    onClick={() => {
+                        toggleChat();
+                        window.location.href = '/dashboard?tab=messages';
+                    }}
+                    className="w-full py-2.5 px-4 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 transition-all flex items-center justify-center gap-2 group/dash"
+                >
+                    <MessageSquare size={16} className="text-purple-600 group-hover/dash:scale-110 transition-transform" />
+                    <span className="text-xs font-black text-gray-700 uppercase tracking-wider">Ver todas no Dashboard</span>
+                </button>
             </div>
         </div>
     );

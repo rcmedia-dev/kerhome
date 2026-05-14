@@ -104,7 +104,7 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
                         setInviteSent(false);
                         setInviteEmail('');
                     }}
-                    className="bg-[#820AD1] hover:bg-[#6A08AA] text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-purple-200 flex items-center justify-center gap-2 text-sm"
+                    className="bg-[#820AD1] hover:bg-[#6A08AA] text-white px-6 py-3 rounded-button font-bold transition-all shadow-card shadow-purple-200 flex items-center justify-center gap-2 text-sm"
                 >
                     <UserPlus className="w-4 h-4" />
                     Convidar Corretor
@@ -120,8 +120,8 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
                     <div className="space-y-3">
                         {agents.length > 0 ? (
                             agents.map((agent) => (
-                                <div key={agent.id} className="bg-white p-4 rounded-3xl border border-gray-100 flex items-center gap-4 group hover:shadow-md transition-all">
-                                    <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-purple-50 shrink-0">
+                                <div key={agent.id} className="bg-white p-4 rounded-card border border-border flex items-center gap-4 group hover:shadow-card-hover transition-all">
+                                    <div className="relative w-12 h-12 rounded-badge overflow-hidden border-2 border-purple-50 shrink-0">
                                         <Image
                                             src={agent.avatar_url || '/placeholder-avatar.png'}
                                             alt={agent.primeiro_nome || 'Agente'}
@@ -144,7 +144,7 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
                                 </div>
                             ))
                         ) : (
-                            <div className="py-10 text-center bg-gray-50/50 rounded-3xl border-2 border-dashed border-gray-100">
+                            <div className="py-10 text-center bg-gray-50/50 rounded-card border-2 border-dashed border-border">
                                 <p className="text-gray-400 text-sm">Nenhum corretor vinculado.</p>
                             </div>
                         )}
@@ -159,9 +159,9 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
                     <div className="space-y-3">
                         {invites.some(i => i.status === 'pending') ? (
                             invites.filter(i => i.status === 'pending').map((invite) => (
-                                <div key={invite.id} className="bg-white p-4 rounded-3xl border border-gray-100 flex items-center gap-4 relative overflow-hidden group">
+                                <div key={invite.id} className="bg-white p-4 rounded-card border border-border flex items-center gap-4 relative overflow-hidden group">
                                     <div className="absolute top-0 left-0 w-1 h-full bg-orange-400"></div>
-                                    <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center shrink-0">
+                                    <div className="w-10 h-10 rounded-badge bg-orange-50 flex items-center justify-center shrink-0">
                                         <Mail className="w-5 h-5 text-orange-500" />
                                     </div>
                                     <div className="flex-1 min-w-0">
@@ -176,7 +176,7 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
                                     </div>
                                     <button
                                         onClick={() => copyToClipboard(`${window.location.origin}/aceitar-convite?token=${invite.token}`)}
-                                        className="p-2 hover:bg-gray-100 rounded-xl transition-all text-gray-400 hover:text-purple-600"
+                                        className="p-2 hover:bg-gray-100 rounded-button transition-all text-gray-400 hover:text-purple-600"
                                         title="Copiar Link"
                                     >
                                         <Copy className="w-4 h-4" />
@@ -184,7 +184,7 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
                                 </div>
                             ))
                         ) : (
-                            <div className="py-10 text-center bg-gray-50/50 rounded-3xl border-2 border-dashed border-gray-100">
+                            <div className="py-10 text-center bg-gray-50/50 rounded-card border-2 border-dashed border-border">
                                 <p className="text-gray-400 text-sm">Nenhum convite pendente.</p>
                             </div>
                         )}
@@ -216,12 +216,12 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
                     <motion.div 
                         initial={{ scale: 0.95, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className="w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl relative flex flex-col"
+                        className="w-full max-w-md bg-white rounded-card-lg p-8 shadow-floating relative flex flex-col"
                     >
                         {/* Botão de Fechar */}
                         <button 
                             onClick={() => setShowInviteModal(false)}
-                            className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-full hover:bg-gray-100"
+                            className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-badge hover:bg-gray-100"
                         >
                             <X className="w-5 h-5" />
                         </button>
@@ -251,7 +251,7 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
                                                 value={inviteEmail}
                                                 onChange={(e) => setInviteEmail(e.target.value)}
                                                 placeholder="exemplo@kercasa.com"
-                                                className="w-full pl-12 pr-4 py-4 rounded-xl bg-gray-50 border border-gray-200 focus:border-purple-600 focus:ring-2 focus:ring-purple-600/10 transition-all outline-none font-medium text-gray-900 placeholder-gray-400"
+                                                className="w-full pl-12 pr-4 py-4 rounded-button bg-gray-50 border border-border focus:border-purple-600 focus:ring-2 focus:ring-purple-600/10 transition-all outline-none font-medium text-gray-900 placeholder-gray-400"
                                                 required
                                             />
                                         </div>
@@ -259,7 +259,7 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
                                     <button
                                         type="submit"
                                         disabled={isInviting}
-                                        className="w-full bg-[#820AD1] hover:bg-[#6A08AA] text-white py-4 rounded-xl font-bold transition-all shadow-xl shadow-purple-500/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full bg-[#820AD1] hover:bg-[#6A08AA] text-white py-4 rounded-button font-bold transition-all shadow-card shadow-purple-500/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isInviting ? <Loader2 className="w-5 h-5 animate-spin" /> : <UserPlus className="w-5 h-5" />}
                                         {isInviting ? 'Gerando...' : 'Enviar Convite'}
@@ -267,8 +267,8 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
                                 </form>
                             ) : (
                                 <div className="space-y-6 animate-in fade-in duration-500">
-                                    <div className="bg-green-50 p-6 rounded-2xl border border-green-100 text-center">
-                                        <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg shadow-green-500/20">
+                                    <div className="bg-green-50 p-6 rounded-card border border-green-100 text-center">
+                                        <div className="w-12 h-12 bg-green-500 rounded-badge flex items-center justify-center mx-auto mb-3 shadow-card shadow-green-500/20">
                                             <CheckCircle2 className="w-6 h-6 text-white" />
                                         </div>
                                         <p className="text-gray-600 text-sm font-medium mt-4">
@@ -278,7 +278,7 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
 
                                     <button
                                         onClick={() => setShowInviteModal(false)}
-                                        className="w-full py-3 bg-[#820AD1] hover:bg-[#6A08AA] text-white rounded-xl transition-all text-sm font-bold shadow-md shadow-purple-500/20"
+                                        className="w-full py-3 bg-[#820AD1] hover:bg-[#6A08AA] text-white rounded-button transition-all text-sm font-bold shadow-card shadow-purple-500/20"
                                     >
                                         Fechar Janela
                                     </button>

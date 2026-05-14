@@ -1,4 +1,5 @@
-﻿import { motion } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 // Loading Spinner Component
 const LoadingSpinner = () => (
@@ -11,29 +12,59 @@ const LoadingSpinner = () => (
   </div>
 );
 
-// Loading Grid Skeleton
+// Loading Grid Skeleton with Shimmer Effect
 export const LoadingGrid = ({ viewMode }: { viewMode: 'grid' | 'list' }) => (
-  <div className={`grid gap-8 ${
+  <div className={cn(
+    "grid gap-8",
     viewMode === 'grid' 
       ? 'grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3' 
       : 'grid-cols-1'
-  }`}>
-    {[...Array(9)].map((_, i) => (
+  )}>
+    {[...Array(6)].map((_, i) => (
       <div
         key={i}
-        className="bg-white rounded-2xl shadow-lg p-6 animate-pulse"
+        className="bg-white rounded-card shadow-card p-6 relative overflow-hidden group border border-border"
       >
-        <div className="bg-gray-300 h-64 rounded-xl mb-4"></div>
+        {/* Shimmer Effect */}
+        <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer z-10" />
+        
+        <div className="bg-gray-100 h-64 rounded-card mb-4 relative overflow-hidden">
+           <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+        </div>
         <div className="space-y-4">
-          <div className="h-6 bg-gray-300 rounded w-3/4"></div>
-          <div className="h-4 bg-gray-300 rounded w-1/2"></div>
-          <div className="h-4 bg-gray-300 rounded w-2/3"></div>
-          <div className="flex gap-3">
-            <div className="h-8 bg-gray-300 rounded w-20"></div>
-            <div className="h-8 bg-gray-300 rounded w-20"></div>
-            <div className="h-8 bg-gray-300 rounded w-20"></div>
+          <div className="h-7 bg-gray-200 rounded-button w-3/4 animate-pulse"></div>
+          <div className="h-4 bg-gray-100 rounded-button w-1/2 animate-pulse"></div>
+          <div className="h-4 bg-gray-100 rounded-button w-2/3 animate-pulse"></div>
+          <div className="flex gap-3 pt-2">
+            <div className="h-9 bg-gray-100 rounded-button w-24 animate-pulse"></div>
+            <div className="h-9 bg-gray-100 rounded-button w-24 animate-pulse"></div>
           </div>
         </div>
+      </div>
+    ))}
+  </div>
+);
+
+// Loading List Skeleton for Table-like views
+export const LoadingList = ({ count = 5 }) => (
+  <div className="space-y-4 w-full">
+    {[...Array(count)].map((_, i) => (
+      <div
+        key={i}
+        className="bg-white rounded-card shadow-card p-5 relative overflow-hidden border border-border flex items-center gap-4"
+      >
+        {/* Shimmer Effect */}
+        <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer z-10" />
+        
+        <div className="w-12 h-12 bg-gray-100 rounded-button shrink-0 animate-pulse"></div>
+        <div className="flex-1 space-y-3">
+          <div className="h-5 bg-gray-200 rounded-button w-1/3 animate-pulse"></div>
+          <div className="h-3 bg-gray-100 rounded-button w-1/4 animate-pulse"></div>
+        </div>
+        <div className="hidden sm:block space-y-2">
+          <div className="h-4 bg-gray-100 rounded-button w-24 animate-pulse"></div>
+        </div>
+        <div className="w-20 h-8 bg-gray-100 rounded-button animate-pulse"></div>
       </div>
     ))}
   </div>
@@ -119,6 +150,7 @@ export const LoadMoreState = ({
 export default {
   LoadingSpinner,
   LoadingGrid,
+  LoadingList,
   EmptyState,
   LoadMoreState
 };

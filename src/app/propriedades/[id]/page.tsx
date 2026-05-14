@@ -9,7 +9,7 @@ import { PropertyDescription } from "@/components/property-description";
 import { PropertyGallery } from "@/components/property-gallery";
 import { PropertyHeader } from "@/components/property-header";
 import { PropertyLocation } from "@/components/property-location";
-import { TechnicalDetails } from "@/components/techinical-details";
+import { TechnicalDetails } from "@/components/technical-details";
 import { MobileContactFAB } from "@/components/mobile-contact-fab";
 import AgentSection from "@/components/agent-section";
 import { checkIfPropertyIsBoosted, trackBoostView } from "@/lib/functions/supabase-actions/boost-functions";

@@ -24,12 +24,7 @@ export default function RootLayout({
         <AuthProvider>
           <LoaderProviders>
             <LayoutClient>
-              <main className="pb-14"> {/* ðŸ‘ˆ dá espaço pro menu fixo */}
-                <GoogleAnalyticsClient />
-                {children}
-              </main>
-              <Toaster richColors position="top-right" />
-              <MobileMenu /> {/* ðŸ‘ˆ aqui o menu aparece em todas as páginas */}
+              {children}
             </LayoutClient>
           </LoaderProviders>
         </AuthProvider>

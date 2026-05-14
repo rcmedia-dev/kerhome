@@ -176,7 +176,7 @@ export function VisitScheduler({ children, property, ownerData, userId }: VisitS
           />
 
           {/* Modal */}
-          <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl">
+          <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-white rounded-card shadow-floating">
             {/* Header */}
             <div className="sticky top-0 bg-white border-b px-5 py-4 flex items-center justify-between z-10">
               <div>
@@ -185,7 +185,7 @@ export function VisitScheduler({ children, property, ownerData, userId }: VisitS
               </div>
               <button
                 onClick={resetAndClose}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-badge transition-colors"
               >
                 <X size={20} className="text-gray-500" />
               </button>
@@ -194,7 +194,7 @@ export function VisitScheduler({ children, property, ownerData, userId }: VisitS
             {/* Property Preview */}
             <div className="px-5 py-3 bg-gray-50 flex items-center gap-3">
               {property.image && (
-                <div className="w-16 h-12 rounded-lg overflow-hidden relative">
+                <div className="w-16 h-12 rounded-button overflow-hidden relative">
                   <Image src={property.image} alt={property.title} fill className="object-cover" unoptimized />
                 </div>
               )}
@@ -242,7 +242,7 @@ export function VisitScheduler({ children, property, ownerData, userId }: VisitS
               {/* Calendar */}
               <div className="flex flex-col items-center">
                 <Label className="text-sm text-gray-600 mb-2 w-full">Data da Visita *</Label>
-                <div className="bg-white border rounded-xl p-1 shadow-sm w-full flex justify-center">
+                <div className="bg-white border rounded-card p-1 shadow-card w-full flex justify-center">
                   <CalendarUI
                     mode="single"
                     selected={formData.data}
@@ -267,7 +267,7 @@ export function VisitScheduler({ children, property, ownerData, userId }: VisitS
                       <button
                         key={hora}
                         onClick={() => setFormData({ ...formData, horario: hora })}
-                        className={`py-2 rounded-lg text-xs font-medium transition-all ${
+                        className={`py-2 rounded-button text-xs font-medium transition-all ${
                           formData.horario === hora
                             ? 'bg-purple-600 text-white'
                             : 'bg-gray-100 text-gray-600 hover:bg-purple-100'
@@ -287,7 +287,7 @@ export function VisitScheduler({ children, property, ownerData, userId }: VisitS
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting || !formData.data || !formData.horario}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white py-3 rounded-xl font-semibold shadow-lg transition-all disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white py-3 rounded-button font-semibold shadow-floating transition-all disabled:opacity-50"
               >
                 {isSubmitting ? 'Enviando...' : (
                   <>
@@ -304,8 +304,8 @@ export function VisitScheduler({ children, property, ownerData, userId }: VisitS
       {isOpen && step === 'success' && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-          <div className="relative bg-white rounded-2xl shadow-2xl p-8 text-center max-w-sm">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="relative bg-white rounded-card shadow-floating p-8 text-center max-w-sm">
+            <div className="w-20 h-20 bg-green-100 rounded-badge flex items-center justify-center mx-auto mb-4">
               <CheckCircle size={40} className="text-green-600" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Visita Agendada!</h3>
@@ -317,7 +317,7 @@ export function VisitScheduler({ children, property, ownerData, userId }: VisitS
             </p>
             <button
               onClick={resetAndClose}
-              className="w-full bg-gray-900 text-white py-3 rounded-xl font-semibold"
+              className="w-full bg-gray-900 text-white py-3 rounded-button font-semibold"
             >
               Fechar
             </button>

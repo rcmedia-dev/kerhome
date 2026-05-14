@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -33,7 +33,7 @@ export function PropertyFilterSidebar({ property }: { property: TPropertyRespons
   };
 
   return (
-    <div className="bg-white border shadow-md rounded-2xl p-6 space-y-4">
+    <div className="bg-white border border-border shadow-card rounded-card p-6 space-y-4">
       <h3 className="text-lg font-semibold text-gray-800">Filtrar imóveis</h3>
 
       <select
@@ -97,7 +97,7 @@ export function PropertyFilterSidebar({ property }: { property: TPropertyRespons
       <button
         onClick={handleSearch}
         disabled={true}
-        className="w-full bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600 transition"
+        className="w-full bg-orange-500 text-white py-2 rounded-button hover:bg-orange-600 transition"
       >
         Buscar
       </button>

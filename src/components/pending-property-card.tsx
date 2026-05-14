@@ -1,12 +1,13 @@
 'use client';
 
-import { MapPin, Pencil, Trash, Clock, EyeOff } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
+import { Pencil, Trash, Clock, EyeOff } from 'lucide-react';
+import { toast } from 'sonner';
+
 import { TPropertyResponseSchema } from '@/lib/types/property';
 import { deleteProperty } from '@/lib/functions/supabase-actions/delete-propertie';
-import { toast } from 'sonner';
 import { useUserStore } from '@/lib/store/user-store';
+import { PropertyCardBase } from '@/components/ui/property-card-base';
 
 export function PendingPropertyCard({ property, onDelete }: { property: TPropertyResponseSchema; onDelete?: () => void }) {
   const { user } = useUserStore();
@@ -22,72 +23,51 @@ export function PendingPropertyCard({ property, onDelete }: { property: TPropert
     }
   };
 
-  return (
-    <div className="w-[320px] bg-white rounded-2xl shadow-lg overflow-hidden h-full flex flex-col relative border-1 transition-all duration-300hover:shadow-xl">
-      {/* Overlay e badge de status pendente */}
+  const topBadge = (
+    <span className="bg-orange-500 text-white text-sm font-semibold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
+      <Clock className="w-4 h-4" />
+      Aguardando aprovação
+    </span>
+  );
 
-      <span className="absolute top-4 left-4 bg-orange-500 text-white text-sm font-semibold px-3 py-2 rounded-full shadow-lg z-20 flex items-center gap-1.5">
-        <Clock className="w-4 h-4" />
-        Aguardando aprovação
-      </span>
+  const topRightActions = isOwner ? (
+    <>
+      <Link
+        href={`/dashboard/editar-imovel/${property.id}`}
+        className="bg-white p-2.5 rounded-full shadow-md hover:bg-purple-50 transition-all hover:scale-110"
+        title="Editar propriedade"
+      >
+        <Pencil className="w-4 h-4 text-purple-700" />
+      </Link>
+      <button
+        onClick={(e) => { e.preventDefault(); handleDelete(); }}
+        className="bg-white p-2.5 rounded-full shadow-md hover:bg-red-50 transition-all hover:scale-110"
+        title="Eliminar propriedade"
+      >
+        <Trash className="w-4 h-4 text-red-600" />
+      </button>
+    </>
+  ) : undefined;
 
-      {/* Botões de ação do dono */}
-      {isOwner && (
-        <div className="absolute top-4 right-4 z-20 flex gap-2">
-          <Link
-            href={`/dashboard/editar-imovel/${property.id}`}
-            className="bg-white p-2 rounded-full shadow-md hover:bg-purple-50 transition-all hover:scale-110"
-            title="Editar propriedade"
-          >
-            <Pencil className="w-4 h-4 text-purple-700" />
-          </Link>
-          <button
-            onClick={handleDelete}
-            className="bg-white p-2 rounded-full shadow-md hover:bg-red-50 transition-all hover:scale-110"
-            title="Eliminar propriedade"
-          >
-            <Trash className="w-4 h-4 text-red-600" />
-          </button>
-        </div>
-      )}
-
-      <div className="relative h-60 w-full">
-        <Image
-          src={property.image || "/house.jpg"}
-          alt={property.title || "Imóvel"}
-          fill
-          className="object-cover grayscale-[20%]"
-          priority={false}
-          unoptimized={true}
-        />
+  const footerAction = (
+    <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mt-2">
+      <div className="flex items-center gap-2 text-orange-700 mb-1">
+        <EyeOff className="w-4 h-4" />
+        <span className="font-semibold text-sm">Não visível publicamente</span>
       </div>
-
-      {/* Conteúdo */}
-      <div className="p-5 flex flex-col flex-1 space-y-4 z-20 relative">
-        <div className="space-y-3 flex-1">
-          {/* Localização */}
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <MapPin className="w-4 h-4 text-gray-500" />
-            <span className="line-clamp-1">{property.endereco}</span>
-          </div>
-
-          {/* Título */}
-          <h3 className="text-xl font-medium text-gray-900 line-clamp-2 leading-tight">
-            {property.title}
-          </h3>
-
-          {/* Mensagem de status */}
-          <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mt-3">
-            <div className="flex items-center gap-2 text-orange-700 mb-1">
-              <EyeOff className="w-4 h-4" />
-              <span className="font-semibold">Não visível publicamente</span>
-            </div>
-            <p className="text-xs text-orange-600">
-              Seu imóvel está em análise pela nossa equipe. Você será notificado quando for aprovado.
-            </p>
-          </div>
-        </div>
-      </div>
+      <p className="text-xs text-orange-600">
+        Seu imóvel está em análise pela nossa equipe. Você será notificado quando for aprovado.
+      </p>
     </div>
+  );
+
+  return (
+    <PropertyCardBase
+      property={property}
+      topBadge={topBadge}
+      topRightActions={topRightActions}
+      footerAction={footerAction}
+      isClickable={false}
+    />
   );
 }

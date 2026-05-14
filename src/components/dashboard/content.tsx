@@ -45,34 +45,31 @@ export function DashboardContent({
 
     return (
         <div className={cn(
-            isFullWidth ? "lg:col-span-12" : "lg:col-span-9",
-            "order-2 lg:order-1"
+            isFullWidth ? "md:col-span-12 h-full flex flex-col min-h-0" : "md:col-span-9 h-full flex flex-col min-h-0",
+            "order-2 md:order-1"
         )}>
-            <div>
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={activeTab}
-                        variants={tabContentVariants}
-                        initial="hidden"
-                        animate="visible"
-                        exit="exit"
-                        className={cn(
-                            isFullWidth ? "bg-transparent border-none p-0" : "bg-white rounded-[32px] p-6 lg:p-10 shadow-sm border border-gray-100",
-                            "w-full",
-                            !isFullWidth && "min-h-[calc(100vh-6rem)] mb-8"
-                        )}
-                    >
-                        {activeTab === 'properties' && <MinhasPropriedades userProperties={isLoading ? null : personalProperties} />}
-                        {activeTab === 'favorites' && <Favoritas userFavoriteProperties={isLoading ? null : userFavoriteProperties} />}
-                        {activeTab === 'invoices' && <Faturas invoices={isLoading ? null : userInvoices} />}
-                        { activeTab === 'stats' && <StatsTab user={user} ownerId={user?.id} mostViewedProperties={isLoading ? null : mostViewed} /> }
-                        { activeTab === 'agency' && <AgencyManagement agency={userAgency} agencyProperties={isLoading ? null : agencyProperties} /> }
-                        { activeTab === 'settings' && <ConfiguracoesConta profile={user} /> }
-                        { activeTab === 'messages' && <MessagesTab /> }
-                        { activeTab === 'visits' && <VisitasAgendadas userId={user?.id} /> }
-                    </motion.div>
-                </AnimatePresence>
-            </div>
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={activeTab}
+                    variants={tabContentVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className={cn(
+                        "w-full h-full flex flex-col min-h-0",
+                        isFullWidth ? "bg-transparent border-none p-0" : "bg-white rounded-card-lg p-4 lg:p-8 shadow-card border border-border overflow-y-auto custom-scrollbar"
+                    )}
+                >
+                    {activeTab === 'properties' && <MinhasPropriedades userProperties={isLoading ? null : personalProperties} />}
+                    {activeTab === 'favorites' && <Favoritas userFavoriteProperties={isLoading ? null : userFavoriteProperties} />}
+                    {activeTab === 'invoices' && <Faturas invoices={isLoading ? null : userInvoices} />}
+                    { activeTab === 'stats' && <StatsTab user={user} ownerId={user?.id} mostViewedProperties={isLoading ? null : mostViewed} /> }
+                    { activeTab === 'agency' && <AgencyManagement agency={userAgency} agencyProperties={isLoading ? null : agencyProperties} /> }
+                    { activeTab === 'settings' && <ConfiguracoesConta profile={user} /> }
+                    { activeTab === 'messages' && <MessagesTab /> }
+                    { activeTab === 'visits' && <VisitasAgendadas userId={user?.id} /> }
+                </motion.div>
+            </AnimatePresence>
         </div>
     );
 }

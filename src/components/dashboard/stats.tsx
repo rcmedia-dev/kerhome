@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { motion } from 'framer-motion';
 import { LucideIcon } from 'lucide-react';
@@ -23,7 +23,7 @@ export function DashboardStats({ stats, isLoading }: DashboardStatsProps) {
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 * i }}
-                    className="flex items-center gap-4 bg-white p-4 rounded-md shadow-sm border border-gray-200 hover:border-purple-200 hover:shadow-md transition-all group"
+                    className="flex items-center gap-4 bg-white p-4 rounded-card shadow-card border border-border hover:border-purple-200 hover:shadow-card-hover transition-all group"
                 >
                     <div className="w-12 h-12 rounded-md bg-purple-50 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors shrink-0">
                         <stat.icon className="w-6 h-6" />

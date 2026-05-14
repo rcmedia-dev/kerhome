@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Home, Heart, BarChart3, Eye, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUserStore } from '@/lib/store/user-store';
@@ -19,10 +20,19 @@ import { DashboardPlanCard } from './dashboard/plan-card';
 import { DashboardStats } from './dashboard/stats';
 import { DashboardContent } from './dashboard/content';
 
-export default function Dashboard() {
+function DashboardInner() {
   const { user, isLoading: userLoading } = useUserStore();
-  const [activeTab, setActiveTab] = useState('properties');
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'properties');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  // Sync tab with URL parameter
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && tab !== activeTab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const {
     userProperties,
@@ -68,7 +78,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50/50 flex flex-col lg:flex-row relative">
+    <div className="h-[calc(100vh-64px)] lg:h-[calc(100vh-104px)] bg-gray-50/50 flex flex-col lg:flex-row relative overflow-hidden">
       
       {/* ðŸ“¡ Listener de Notificações de Lead da Agência */}
       <AgencyNotificationsListener imobiliariaId={userAgency.data?.id || null} />
@@ -93,8 +103,8 @@ export default function Dashboard() {
         />
       </div>
 
-      <main className={cn("flex-1 min-w-0 flex flex-col p-0 overflow-y-auto h-screen custom-scrollbar")}>
-        <div className="w-full h-full p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <main className={cn("flex-1 min-w-0 flex flex-col p-0 overflow-hidden relative")}>
+        <div className="w-full h-full p-0 md:p-4 grid grid-cols-1 md:grid-cols-12 gap-0 md:gap-6">
 
           <DashboardContent
             activeTab={activeTab}
@@ -134,5 +144,13 @@ export default function Dashboard() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <Suspense fallback={<SoftLoading />}>
+      <DashboardInner />
+    </Suspense>
   );
 }

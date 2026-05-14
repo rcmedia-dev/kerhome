@@ -47,7 +47,7 @@ const AvatarSection = ({
       whileTap={{ scale: 0.98 }}
     >
       <div
-        className="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-2xl bg-gradient-to-br from-purple-100 to-orange-100 border-2 border-dashed border-purple-300 cursor-pointer transition-all duration-300 hover:border-orange-400 hover:shadow-xl overflow-hidden"
+        className="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-card bg-gradient-to-br from-purple-100 to-orange-100 border-2 border-dashed border-purple-300 cursor-pointer transition-all duration-300 hover:border-orange-400 hover:shadow-card-hover overflow-hidden"
         onClick={onUploadClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -59,7 +59,7 @@ const AvatarSection = ({
                 src={user.avatar_url}
                 alt="Foto de perfil"
                 fill
-                className="object-cover rounded-2xl transition-transform duration-200"
+                className="object-cover rounded-card transition-transform duration-200"
                 sizes="(max-width: 768px) 96px, 112px"
               />
             </div>
@@ -67,7 +67,7 @@ const AvatarSection = ({
             <AnimatePresence>
               {(isHovered || isUploading) && (
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-orange-500/20 rounded-2xl flex items-center justify-center backdrop-blur-sm z-10"
+                  className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-orange-500/20 rounded-card flex items-center justify-center backdrop-blur-sm z-10"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -94,7 +94,7 @@ const AvatarSection = ({
           </>
         ) : (
           <motion.div
-            className="w-full h-full rounded-2xl flex flex-col items-center justify-center text-purple-400 hover:text-purple-600 transition-colors"
+            className="w-full h-full rounded-card flex flex-col items-center justify-center text-purple-400 hover:text-purple-600 transition-colors"
             whileHover={{ scale: 1.05 }}
           >
             {isUploading ? (
@@ -155,7 +155,7 @@ const RoleBadge = ({ role }: { role?: string }) => {
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       className={cn(
-        "ml-2 text-xs px-3 py-1.5 rounded-full flex items-center space-x-1 shadow-sm",
+        "ml-2 text-xs px-3 py-1.5 rounded-badge flex items-center space-x-1 shadow-sm",
         config.bg,
         config.text
       )}
@@ -180,7 +180,7 @@ const StatCard = ({ stat, index }: { stat: Stat; index: number }) => {
         y: -2
       }}
       className={cn(
-        "p-4 bg-gradient-to-br from-white to-purple-50 rounded-2xl flex items-center justify-between border border-purple-100 transition-all duration-300 hover:shadow-lg",
+        "p-4 bg-gradient-to-br from-white to-purple-50 rounded-card flex items-center justify-between border border-purple-100 transition-all duration-300 hover:shadow-card",
         "relative overflow-hidden group"
       )}
     >
@@ -231,7 +231,7 @@ const SocialIcon = ({ platform, url }: { platform: string; url: string }) => {
       whileHover={{ scale: 1.2, y: -2 }}
       whileTap={{ scale: 0.9 }}
       className={cn(
-        "w-8 h-8 bg-white rounded-lg flex items-center justify-center border border-gray-200 text-gray-400 transition-all duration-200 shadow-sm",
+        "w-8 h-8 bg-white rounded-button flex items-center justify-center border border-gray-200 text-gray-400 transition-all duration-200 shadow-sm",
         config.color
       )}
     >
@@ -381,7 +381,7 @@ export function UserCard({ user, displayName, stats, housesRemaining, onAvatarUp
       transition={{ duration: 0.6 }}
       className='p-4'
     >
-      <Card className=" shadow-lg border-0 bg-gradient-to-br from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm overflow-hidden">
+      <Card className="shadow-card border-0 bg-gradient-to-br from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm overflow-hidden">
         {/* Efeito de gradiente no topo */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-orange-500 to-pink-500" />
 

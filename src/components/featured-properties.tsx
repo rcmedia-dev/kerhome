@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { TPropertyResponseSchema } from '@/lib/types/property';
 import { getLimitedProperties } from '@/lib/functions/get-properties';
 
-export default function ImoveisSemelhantes() {
+export default function FeaturedProperties() {
   const [imoveis, setImoveis] = useState<TPropertyResponseSchema[]>([]);
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export default function ImoveisSemelhantes() {
             <Link
               href={imovel.slug ? `/propriedades/${imovel.slug}` : `/propriedades/${imovel.id}`}
               key={imovel.id}
-              className="group block bg-white border border-gray-100 rounded-lg overflow-hidden hover:shadow-md transition-all duration-300"
+              className="group block bg-white border border-border rounded-button overflow-hidden hover:shadow-card transition-all duration-300"
             >
               <div className="w-full h-32 relative overflow-hidden">
                 <Image

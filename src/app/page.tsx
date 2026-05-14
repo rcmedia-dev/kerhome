@@ -1,11 +1,11 @@
-﻿export const revalidate = 0;
+export const revalidate = 0;
 export const dynamic = "force-dynamic";
 
 
 import HeroCarousel from '@/components/hero';
 import PropertiesShowcase from '@/components/property-showcase';
 import ActionCardsSection from '@/components/actions-card';
-import TopAgentsSection, { Agent } from '@/components/top-agent';
+import TopAgentsSection, { Agent } from '@/components/top-agents';
 import { getLimitedProperties } from '@/lib/functions/get-properties';
 import { TPropertyResponseSchema } from '@/lib/types/property';
 import { getAgents } from '@/lib/functions/get-agent';

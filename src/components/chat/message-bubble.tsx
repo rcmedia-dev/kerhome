@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { cn } from '@/lib/utils';
 import { Message, Profile } from '@/lib/store/chat-store';
 import { UserCircle, FileText, Download, Trash2, MoreVertical } from 'lucide-react';
@@ -49,7 +49,7 @@ export function MessageBubble({ message, isMe }: MessageBubbleProps) {
         )}>
             {/* Avatar for other user / Agency */}
             {!isMe && (
-                <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gray-200 overflow-hidden border border-gray-100">
+                <div className="flex-shrink-0 h-8 w-8 rounded-badge bg-gray-200 overflow-hidden border border-border">
                     {message.sender_type === 'agency' ? (
                         message.agency?.logo ? (
                             <img src={message.agency.logo} alt="Agency" className="h-full w-full object-cover" />
@@ -67,15 +67,15 @@ export function MessageBubble({ message, isMe }: MessageBubbleProps) {
             )}
 
             <div className={cn(
-                "relative px-4 py-2 shadow-sm rounded-lg flex flex-col gap-1",
+                "relative px-4 py-2 shadow-card rounded-card flex flex-col gap-1",
                 isMe
                     ? "bg-gradient-to-r from-purple-600 to-purple-500 text-white rounded-br-none"
-                    : "bg-white border border-gray-100 text-gray-800 rounded-bl-none"
+                    : "bg-white border border-border text-gray-800 rounded-bl-none"
             )}>
                 {/* 3-dots Menu */}
                 <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <DropdownMenu>
-                        <DropdownMenuTrigger className="p-1 rounded-full hover:bg-black/10 focus:outline-none">
+                        <DropdownMenuTrigger className="p-1 rounded-badge hover:bg-black/10 focus:outline-none">
                             <MoreVertical size={14} className={isMe ? "text-white" : "text-gray-500"} />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align={isMe ? "end" : "start"}>
@@ -104,7 +104,7 @@ export function MessageBubble({ message, isMe }: MessageBubbleProps) {
                             />
                         ) : (
                             <div className="flex items-center gap-3 p-3 bg-white/10 rounded-md cursor-pointer" onClick={handleDownload}>
-                                <div className="p-2 bg-gray-100 rounded-full text-purple-600">
+                                <div className="p-2 bg-gray-100 rounded-badge text-purple-600">
                                     <FileText size={24} />
                                 </div>
                                 <div className="flex flex-col overflow-hidden">

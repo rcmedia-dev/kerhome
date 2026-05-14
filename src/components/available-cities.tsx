@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 
@@ -7,7 +7,7 @@ interface Cidade {
   quantidade: number;
 }
 
-export function CidadesDisponiveis() {
+export function AvailableCities() {
   const [cidades, setCidades] = useState<Cidade[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -22,7 +22,7 @@ export function CidadesDisponiveis() {
  // }, []);
 
   return (
-    <div className="bg-white border shadow-md rounded-2xl p-6 space-y-2">
+    <div className="bg-white border border-border shadow-card rounded-card p-6 space-y-2">
       <h3 className="text-lg font-semibold text-gray-800 mb-2">
         Cidades com imóveis
       </h3>

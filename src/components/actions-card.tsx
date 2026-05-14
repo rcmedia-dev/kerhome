@@ -160,13 +160,13 @@ export default function ActionCardsSection() {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 0.3, scale: 1 }}
           transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
-          className="absolute top-0 left-0 w-72 h-72 bg-purple-100 rounded-full mix-blend-multiply filter blur-xl"
+          className="absolute top-0 left-0 w-72 h-72 bg-purple-100 rounded-badge mix-blend-multiply filter blur-xl"
         ></motion.div>
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 0.3, scale: 1 }}
           transition={{ duration: 2, repeat: Infinity, repeatType: "reverse", delay: 1 }}
-          className="absolute bottom-0 right-0 w-72 h-72 bg-orange-100 rounded-full mix-blend-multiply filter blur-xl"
+          className="absolute bottom-0 right-0 w-72 h-72 bg-orange-100 rounded-badge mix-blend-multiply filter blur-xl"
         ></motion.div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -194,7 +194,7 @@ export default function ActionCardsSection() {
                 damping: 15,
                 duration: 0.5
               }}
-              className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 border border-gray-200 mb-4"
+              className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-badge px-4 py-2 border border-border mb-4"
             >
               <Sparkles className="w-4 h-4 text-orange-500" />
               <span className="text-sm font-medium text-gray-700">Comece sua jornada</span>
@@ -253,12 +253,12 @@ export default function ActionCardsSection() {
                 onMouseLeave={() => setHoveredCard(null)}
               >
                 {/* Efeito de brilho no hover */}
-                <div className={`absolute inset-0 bg-gradient-to-r ${action.gradient} rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
+                <div className={`absolute inset-0 bg-gradient-to-r ${action.gradient} rounded-card opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
 
                 <motion.div
                   variants={cardHoverVariants}
                   transition={fastSpringTransition}
-                  className={`relative rounded-2xl p-8 h-full flex flex-col justify-between transition-all duration-300 ${hoveredCard === index ? 'shadow-2xl' : 'shadow-lg'
+                  className={`relative rounded-card p-8 h-full flex flex-col justify-between transition-all duration-300 ${hoveredCard === index ? 'shadow-floating' : 'shadow-card'
                     } ${action.bgColor} border border-white/50 backdrop-blur-sm`}
                 >
 
@@ -268,7 +268,7 @@ export default function ActionCardsSection() {
                       <motion.div
                         whileHover={{ scale: 1.1, rotate: 5 }}
                         transition={fastSpringTransition}
-                        className={`p-3 rounded-xl bg-gradient-to-r ${action.gradient} text-white shadow-lg`}
+                        className={`p-3 rounded-button bg-gradient-to-r ${action.gradient} text-white shadow-card`}
                       >
                         {action.icon}
                       </motion.div>
@@ -281,7 +281,7 @@ export default function ActionCardsSection() {
                             type: "spring",
                             stiffness: 200
                           }}
-                          className="px-3 py-1 bg-orange-500 text-white text-xs font-medium rounded-full"
+                          className="px-3 py-1 bg-orange-500 text-white text-xs font-medium rounded-badge"
                         >
                           Mais procurado
                         </motion.span>
@@ -312,7 +312,7 @@ export default function ActionCardsSection() {
                             initial="rest"
                             whileHover="hover"
                             transition={fastSpringTransition}
-                            className={`w-full py-3 px-6 bg-gradient-to-r ${action.gradient} hover:${action.hoverGradient} text-white font-semibold rounded-xl shadow-lg hover:shadow-xl flex items-center justify-center gap-2`}
+                            className={`w-full py-3 px-6 bg-gradient-to-r ${action.gradient} hover:${action.hoverGradient} text-white font-semibold rounded-button shadow-card hover:shadow-card-hover flex items-center justify-center gap-2`}
                             onClick={handleVenderClick}
                           >
                             {action.button}
@@ -331,7 +331,7 @@ export default function ActionCardsSection() {
                           initial="rest"
                           whileHover="hover"
                           transition={fastSpringTransition}
-                          className={`w-full py-3 px-6 bg-gradient-to-r ${action.gradient} hover:${action.hoverGradient} text-white font-semibold rounded-xl shadow-lg hover:shadow-xl flex items-center justify-center gap-2`}
+                          className={`w-full py-3 px-6 bg-gradient-to-r ${action.gradient} hover:${action.hoverGradient} text-white font-semibold rounded-button shadow-card hover:shadow-card-hover flex items-center justify-center gap-2`}
                         >
                           {action.button}
                           <motion.span variants={iconVariants}>
@@ -343,8 +343,8 @@ export default function ActionCardsSection() {
                   </div>
 
                   {/* Efeito de borda sutil no hover */}
-                  <div className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${action.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10`}>
-                    <div className="absolute inset-[2px] rounded-2xl bg-white"></div>
+                  <div className={`absolute inset-0 rounded-card bg-gradient-to-r ${action.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10`}>
+                    <div className="absolute inset-[2px] rounded-card bg-white"></div>
                   </div>
                 </motion.div>
               </motion.div>

@@ -10,7 +10,7 @@ import {
   getOtherSuggestions 
 } from '@/lib/functions/get-properties';
 import { getAgents } from '@/lib/functions/get-agent';
-import TopAgentsSection, { Agent } from '@/components/top-agent';
+import TopAgentsSection, { Agent } from '@/components/top-agents';
 import { ChevronLeft, ChevronRight, Home, MapPin, Building2 } from 'lucide-react';
 
 interface PropertyCardProps {
@@ -26,7 +26,7 @@ function PropertyCard({ property, variant = 'default' }: PropertyCardProps) {
   return (
     <Link
       href={property.slug ? `/propriedades/${property.slug}` : `/propriedades/${property.id}`}
-      className="group block bg-gray-50 border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 min-w-[240px] sm:min-w-[280px]"
+      className="group block bg-gray-50 border border-border rounded-card overflow-hidden hover:shadow-card transition-all duration-300 min-w-[240px] sm:min-w-[280px]"
     >
       <div className={`relative w-full ${imageHeight} overflow-hidden`}>
         <Image
@@ -103,7 +103,7 @@ function CarouselSection({ title, subtitle, icon, properties, variant = 'default
   return (
     <div className="mb-10">
       <div className="flex items-center gap-3 mb-4">
-        {icon && <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600">{icon}</div>}
+        {icon && <div className="w-10 h-10 rounded-button bg-purple-100 flex items-center justify-center text-purple-600">{icon}</div>}
         <div>
           <h3 className="text-xl font-bold text-gray-900">{title}</h3>
           {subtitle && <p className="text-sm text-gray-500">{subtitle}</p>}
@@ -114,7 +114,7 @@ function CarouselSection({ title, subtitle, icon, properties, variant = 'default
         {canScrollLeft && (
           <button
             onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-lg rounded-full flex items-center justify-center text-gray-600 hover:text-purple-600 hover:shadow-xl transition-all"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-card rounded-badge flex items-center justify-center text-gray-600 hover:text-purple-600 hover:shadow-card-hover transition-all"
           >
             <ChevronLeft size={20} />
           </button>
@@ -133,7 +133,7 @@ function CarouselSection({ title, subtitle, icon, properties, variant = 'default
         {canScrollRight && (
           <button
             onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-lg rounded-full flex items-center justify-center text-gray-600 hover:text-purple-600 hover:shadow-xl transition-all"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-card rounded-badge flex items-center justify-center text-gray-600 hover:text-purple-600 hover:shadow-card-hover transition-all"
           >
             <ChevronRight size={20} />
           </button>
@@ -182,7 +182,7 @@ export default function PropertySuggestions({ property }: PropertySuggestionsPro
           <div className="h-8 bg-gray-200 rounded w-64 mx-auto" />
           <div className="flex gap-4 justify-center">
             {[1, 2, 3].map(i => (
-              <div key={i} className="w-72 h-48 bg-gray-200 rounded-xl" />
+              <div key={i} className="w-72 h-48 bg-gray-200 rounded-card" />
             ))}
           </div>
         </div>
@@ -206,7 +206,7 @@ export default function PropertySuggestions({ property }: PropertySuggestionsPro
         <div className="py-4">
           <TopAgentsSection 
             agents={agents} 
-            className="py-12 bg-white rounded-2xl border border-gray-100 relative overflow-hidden" 
+            className="py-12 bg-white rounded-card border border-border relative overflow-hidden" 
           />
         </div>
       )}
