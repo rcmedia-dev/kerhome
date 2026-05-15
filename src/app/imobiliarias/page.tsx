@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ImobiliariaFilters } from '@/components/imobiliarias/imobiliaria-filters';
 import { ImobiliariaCard } from '@/components/imobiliarias/imobiliaria-card';
 import { fetchImobiliarias } from '@/lib/functions/supabase-actions/imobiliaria-actions';
 import { Imobiliaria } from '@/lib/types/imobiliaria';
-import { Building2, Search, MapPin } from 'lucide-react';
+import { Building2, Search, MapPin, SlidersHorizontal, X } from 'lucide-react';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ImobiliariasPage() {
   const [imobiliarias, setImobiliarias] = useState<Imobiliaria[]>([]);
@@ -14,9 +15,10 @@ export default function ImobiliariasPage() {
   const [filters, setFilters] = useState<any>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+  const [showFilterModal, setShowFilterModal] = useState(false);
   const pageSize = 6;
 
-  const loadData = async (currentFilters: any, page: number) => {
+  const loadData = useCallback(async (currentFilters: any, page: number) => {
     setLoading(true);
     try {
       const { data, count } = await fetchImobiliarias({ ...currentFilters, page, limit: pageSize });
@@ -27,21 +29,36 @@ export default function ImobiliariasPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pageSize]);
 
   useEffect(() => {
     loadData(filters, currentPage);
-  }, [filters, currentPage]);
+  }, [filters, currentPage, loadData]);
 
-  const handleFilterChange = (newFilters: any) => {
-    setFilters(newFilters);
-    setCurrentPage(1);
-  };
+  const [isSticky, setIsSticky] = useState(false);
 
-  const handleCityTab = (city: string) => {
-    setFilters({ ...filters, cidade: city });
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsSticky(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleFilterChange = useCallback((newFilters: any) => {
+    // Only update if filters actually changed (shallow comparison)
+    setFilters((prev: any) => {
+      const isSame = JSON.stringify(prev) === JSON.stringify(newFilters);
+      if (isSame) return prev;
+      return newFilters;
+    });
     setCurrentPage(1);
-  };
+  }, []);
+
+  const handleCityTab = useCallback((city: string) => {
+    setFilters((prev: any) => ({ ...prev, cidade: city }));
+    setCurrentPage(1);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50/50">
@@ -70,27 +87,11 @@ export default function ImobiliariasPage() {
         </section>
 
         <div className="max-w-7xl mx-auto px-4">
-          {/* Filters */}
-          <ImobiliariaFilters onFilterChange={handleFilterChange} />
-
-          {/* City Quick Tabs (Inspired by screenshot) */}
-          <div className="flex flex-wrap items-center gap-3 mb-10 overflow-x-auto pb-4 scrollbar-hide">
-            <button
-              onClick={() => handleCityTab('')}
-              className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${!filters.cidade ? 'bg-orange-100 text-orange-700 shadow-sm border border-orange-200' : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'}`}
-            >
-              Todas
-            </button>
-            {['Luanda', 'Benguela', 'Huila', 'Cabinda', 'Huambo'].map(city => (
-              <button
-                key={city}
-                onClick={() => handleCityTab(city)}
-                className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${filters.cidade === city ? 'bg-orange-100 text-orange-700 shadow-sm border border-orange-200' : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'}`}
-              >
-                {city}
-              </button>
-            ))}
+          {/* Filters - Desktop only */}
+          <div className="hidden md:block">
+            <ImobiliariaFilters onFilterChange={handleFilterChange} />
           </div>
+
 
           {/* Results Grid */}
           {loading ? (
@@ -111,7 +112,7 @@ export default function ImobiliariasPage() {
                 {totalItems > pageSize && (
                   <div className="flex justify-center items-center gap-2 mt-12">
                     <button
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      onClick={() => setCurrentPage((prev: number) => Math.max(prev - 1, 1))}
                       disabled={currentPage === 1}
                       className="px-4 py-2 rounded-lg text-sm font-semibold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
@@ -135,7 +136,7 @@ export default function ImobiliariasPage() {
                     </div>
 
                     <button
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(totalItems / pageSize)))}
+                      onClick={() => setCurrentPage((prev: number) => Math.min(prev + 1, Math.ceil(totalItems / pageSize)))}
                       disabled={currentPage === Math.ceil(totalItems / pageSize)}
                       className="px-4 py-2 rounded-lg text-sm font-semibold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
@@ -178,6 +179,83 @@ export default function ImobiliariasPage() {
           </div>
         </div>
       </main>
+
+      {/* Floating Action Button (Mobile Only) */}
+      <AnimatePresence>
+        {(isSticky || (typeof window !== 'undefined' && window.innerWidth < 768)) && !showFilterModal && (
+          <motion.button
+            initial={{ x: 100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 100, opacity: 0 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowFilterModal(true)}
+            className="fixed right-6 top-1/2 -translate-y-1/2 z-40 p-4 bg-orange-600 text-white rounded-2xl shadow-2xl backdrop-blur-md hover:bg-orange-700 transition-all flex flex-col items-center justify-center gap-1 cursor-pointer border border-white/20 min-w-[70px] min-h-[70px]"
+          >
+            <SlidersHorizontal size={24} className="mb-1" />
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-center leading-none">Filtros</span>
+            {totalItems > 0 && (
+              <span className="absolute -top-2 -left-2 bg-purple-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black border-2 border-white shadow-lg">
+                {totalItems}
+              </span>
+            )}
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* 🛑 PAINEL LATERAL DE FILTROS (SEM OVERLAY - Reusando padrão Imóveis) 🛑 */}
+      <AnimatePresence>
+        {showFilterModal && (
+          <motion.div
+            initial={{ x: 100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 100, opacity: 0 }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed right-6 top-1/2 -translate-y-1/2 z-50 bg-white/90 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl w-[320px] max-h-[85vh] flex flex-col overflow-hidden"
+          >
+            {/* Header do Painel */}
+            <div className="flex items-center justify-between p-5 border-b border-gray-100/50 bg-white/50">
+              <div className="flex items-center gap-2 font-bold text-gray-800">
+                <div className="p-1.5 bg-orange-100 rounded-lg text-orange-600">
+                  <SlidersHorizontal size={18} />
+                </div>
+                <span>Filtros</span>
+              </div>
+              <button
+                onClick={() => setShowFilterModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-red-500"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Conteúdo Scrollavel */}
+            <div className="p-5 overflow-y-auto flex-1 custom-scrollbar space-y-4">
+              <ImobiliariaFilters 
+                onFilterChange={handleFilterChange} 
+                onApply={() => setShowFilterModal(false)}
+                isMobileModal={true} 
+              />
+            </div>
+
+            {/* Footer Compacto */}
+            <div className="p-4 border-t border-gray-100/50 bg-gray-50/50 flex justify-between items-center gap-4">
+              <button
+                onClick={() => {
+                  setFilters({});
+                  setShowFilterModal(false);
+                }}
+                className="text-xs font-semibold text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors"
+              >
+                Limpar
+              </button>
+              <div className="text-xs font-medium text-gray-500">
+                <strong className="text-gray-900 text-sm">{totalItems}</strong> imobiliárias
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
