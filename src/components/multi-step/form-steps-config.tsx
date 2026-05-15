@@ -85,19 +85,17 @@ export const getFormSteps = () => {
           name: "bedrooms",
           label: "Número de Quartos",
           type: "number",
-          required: true,
           question: "Quantos quartos tem?",
           placeholder: "Ex: 3",
-          validation: { required: "Número de quartos é obrigatório", min: { value: 0, message: "Não pode ser negativo" } }
+          validation: { min: { value: 0, message: "Não pode ser negativo" } }
         },
         {
           name: "bathrooms",
           label: "Número de Banheiros",
           type: "number",
-          required: true,
           question: "E casas de banho?",
           placeholder: "Ex: 2",
-          validation: { required: "Número de banheiros é obrigatório", min: { value: 0, message: "Não pode ser negativo" } }
+          validation: { min: { value: 0, message: "Não pode ser negativo" } }
         },
         { name: "garagens", label: "Vagas de Garagem", type: "number", question: "Tem garagem? Quantas vagas?", placeholder: "Ex: 2" },
         { name: "garagem_tamanho", label: "Tamanho da Garagem", type: "number", question: "Qual o tamanho da garagem em m²?", placeholder: "Ex: 20" },

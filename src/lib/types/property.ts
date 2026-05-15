@@ -184,7 +184,7 @@ export interface PropertyFormData {
   image: string | File;
   gallery: (string | File)[];
   caracteristicas?: string | string[];
-  detalhes_adicionais: string;
+  detalhes_adicionais: string | { titulo: string; valor: string }[];
   created_at?: string;
   updated_at?: string;
   aprovement_status: string;

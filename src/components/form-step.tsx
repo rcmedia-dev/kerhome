@@ -246,7 +246,7 @@ const FormStep = ({ title, description, fields, maxVisibleFields, showQuestions,
         </>
       )}
 
-      <div className="relative min-h-[400px]" ref={scrollRef}>
+      <div className="relative min-h-[300px]" ref={scrollRef}>
         {isCompressing && (
           <div className="absolute inset-0 bg-white/50 backdrop-blur-[2px] z-50 flex items-center justify-center rounded-xl border border-purple-100 shadow-sm">
             <div className="flex flex-col items-center gap-3 bg-white p-6 rounded-2xl shadow-xl border border-purple-50">

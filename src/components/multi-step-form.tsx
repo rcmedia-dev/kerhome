@@ -134,18 +134,35 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
     }
   }, [showSuccess, reset]);
 
+  const onFormError = (errors: any) => {
+    console.error("Erros de validação:", errors);
+    setServerError("Existem erros no formulário. Por favor, verifique todos os campos obrigatórios em todos os passos.");
+    
+    // Tentar encontrar o primeiro passo com erro e abrir
+    const errorStepIndex = steps.findIndex(step => 
+      step.props.fields.some((field: any) => !!errors[field.name])
+    );
+    if (errorStepIndex !== -1) {
+      setOpenStepIndex(errorStepIndex);
+    }
+  };
+
   const onFormSubmit = async (data: PropertyFormData) => {
     setIsSubmitting(true);
     setServerError(null);
     setSuccessMessage(null);
 
     try {
-      const numericPrice = parseInt(data.price.toString().replace(/\D/g, ''), 10);
+      // Garantir que o preço seja um número limpo
+      const priceStr = data.price?.toString() || "0";
+      const numericPrice = parseInt(priceStr.replace(/\D/g, ''), 10);
+      
       const formData = { 
         ...data, 
         price: numericPrice,
         imobiliaria_id: selectedIdentity === 'agency' ? userAgency?.id : null
       };
+
       const result = await createProperty(formData, userId);
 
       if (result.success) {
@@ -156,7 +173,7 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
       }
     } catch (error) {
       console.error("Erro no formulário:", error);
-      setServerError('Erro interno do servidor. Por favor, tente novamente mais tarde.');
+      setServerError('Erro interno do servidor ao tentar publicar. Por favor, tente novamente mais tarde.');
     } finally {
       setIsSubmitting(false);
     }
@@ -217,12 +234,16 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
     const currentFields = steps[openStepIndex].props.fields;
     let count = 1;
     for (let i = 0; i < currentFields.length; i++) {
-      const fieldName = currentFields[i].name as keyof typeof formValues;
+      const field = currentFields[i];
+      const fieldName = field.name as keyof typeof formValues;
       const val = formValues[fieldName];
       const isFilled = val !== undefined && val !== null && val !== '' && !(Array.isArray(val) && val.length === 0);
-      if (isFilled) {
+      
+      // If it's filled, OR if it's NOT required, we can show the next one
+      if (isFilled || !field.required) {
         count = Math.min(i + 2, currentFields.length);
       } else {
+        // If it's required and NOT filled, we stop here
         break;
       }
     }
@@ -261,10 +282,10 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
   return (
     <ClientOnly>
       <FormProvider {...methods}>
-        <div className="max-w-[1400px] w-full mx-auto grid grid-cols-1 lg:grid-cols-5 gap-6 h-auto lg:h-full min-h-[700px] lg:min-h-0">
+        <div className="max-w-[1400px] w-full mx-auto grid grid-cols-1 lg:grid-cols-5 gap-6 min-h-[500px]">
 
         {/* LADO ESQUERDO: FORMULÁRIO (60% => col-span-3) */}
-        <div className="lg:col-span-3 flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 relative h-full">
+        <div className="lg:col-span-3 flex flex-col bg-white rounded-3xl shadow-2xl border border-gray-100 relative h-auto lg:h-[85dvh] min-h-[500px] overflow-hidden">
           
           {/* HEADER - muda conforme o modo */}
           <div className="p-6 lg:p-8 border-b border-gray-100 bg-gray-50/80 shrink-0">
@@ -366,7 +387,7 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
 
           {/* FORM BODY */}
           <div className="flex-1 overflow-y-auto custom-scrollbar">
-            <form onSubmit={handleSubmit(onFormSubmit)}>
+            <form onSubmit={handleSubmit(onFormSubmit, onFormError)}>
               <input type="hidden" {...methods.register("owner_id")} />
 
               {serverError && (
@@ -511,7 +532,7 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
         </div>
 
         {/* LADO DIREITO: PREVIEW (40% => col-span-2) - ESCONDIDO NO MOBILE */}
-        <div className="hidden lg:flex lg:col-span-2 flex-col relative items-center justify-center w-full h-full">
+        <div className="hidden lg:flex lg:col-span-2 flex-col relative items-center justify-center w-full min-h-full">
           {/* Fundo Decorativo */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-purple-200 blur-3xl opacity-20 rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-200 blur-3xl opacity-20 rounded-full -translate-x-1/2 translate-y-1/2 pointer-events-none"></div>

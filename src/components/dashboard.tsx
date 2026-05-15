@@ -119,7 +119,7 @@ function DashboardInner() {
           />
 
           {activeTab !== 'stats' && activeTab !== 'messages' && (
-            <div className="lg:col-span-3 order-1 lg:order-2 flex flex-col gap-4 h-full">
+            <div className="lg:col-span-3 order-1 lg:order-2 flex flex-col gap-4 h-full overflow-y-auto custom-scrollbar pr-1">
               <DashboardWelcomeCard
                 displayName={displayName}
                 avatarUrl={user.avatar_url}

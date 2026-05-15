@@ -20,9 +20,9 @@ export default function Home() {
   }
 
   return (
-    <div className="fixed inset-0 bg-gray-100 py-4 lg:py-[4dvh] flex flex-col justify-center overflow-hidden z-40">
+    <div className="h-full overflow-y-auto bg-gray-100 py-4 lg:py-[4dvh] z-40 relative custom-scrollbar">
       {/* Absolute Back Button */}
-      <div className="absolute top-4 left-4 lg:top-6 lg:left-6 z-50">
+      <div className="absolute top-4 left-4 lg:top-8 lg:left-8 z-50">
         <button 
           onClick={() => router.back()}
           className="flex items-center gap-2 px-4 py-2.5 bg-white/90 backdrop-blur-md hover:bg-white text-gray-700 hover:text-purple-600 rounded-full shadow-sm hover:shadow-md transition-all font-semibold text-sm group"
@@ -32,7 +32,7 @@ export default function Home() {
         </button>
       </div>
 
-      <div className="container mx-auto px-4 mt-16 lg:mt-0 h-full lg:h-[92dvh] flex flex-col justify-center">
+      <div className="container mx-auto px-4 mt-16 lg:mt-6 min-h-[90vh] flex flex-col">
         <MultiStepForm 
           userId={user?.id} 
           agentName={user?.primeiro_nome as string} 
