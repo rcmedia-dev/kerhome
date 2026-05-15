@@ -221,7 +221,7 @@ const agentUsers = useQuery({
       </div>
 
       {/* Main Content */}
-      <div className={`${sidebarOpen ? 'lg:ml-64' : 'ml-0'} transition-all duration-300`}>
+      <div className={`${sidebarOpen ? 'lg:ml-64' : 'ml-0'} transition-all duration-300 flex flex-col h-screen`}>
         {/* Header */}
         <header className={`sticky top-0 z-40 px-4 lg:px-6 py-4 border-b ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
           <div className="flex items-center justify-between">
@@ -278,7 +278,7 @@ const agentUsers = useQuery({
         </header>
 
         {/* Page Content */}
-        <main className="p-4 lg:p-6">
+        <main className="p-4 lg:p-6 flex-1 overflow-y-auto custom-scrollbar">
           {renderContent()}
         </main>
       </div>
