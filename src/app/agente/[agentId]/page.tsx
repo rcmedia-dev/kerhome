@@ -97,7 +97,17 @@ export default function AgentProfilePage(
       if (!conversation?.id) throw new Error("Falha ao criar conversa.");
 
       // 2. Enviar mensagem
-      await sendMessage(conversation.id, user.id, message.trim());
+      const messageObj = await sendMessage(conversation.id, user.id, message.trim());
+
+      if (messageObj) {
+          try {
+              const { realtimeClient } = await import('@/lib/supabase-realtime');
+              const channel = realtimeClient.subscribe(`chat-${conversation.id}`);
+              channel.trigger('new-message', messageObj);
+          } catch (e) {
+              console.error('Failed to broadcast message:', e);
+          }
+      }
 
       // 3. Feedback ao usuário
       toast.success(

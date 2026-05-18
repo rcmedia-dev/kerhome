@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { pusherClient } from '@/lib/pusher-client';
+import { realtimeClient } from '@/lib/supabase-realtime';
 
 export interface Profile {
     id: string;
@@ -144,7 +144,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         // Real implementation would want a dynamic "user channel" to hear about NEW conversations too.
         const conversations = get().conversations;
         conversations.forEach(c => {
-            const channel = pusherClient.subscribe(`chat-${c.id}`);
+            const channel = realtimeClient.subscribe(`chat-${c.id}`);
             channel.bind('new-message', (msg: Message) => {
                 // If we are already in this chat, add message to list
                 if (get().activeConversationId === c.id) {
@@ -397,12 +397,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
     },
 
     setTyping: (conversationId, userName, isTyping) => {
-        // Just trigger the event via API
-        fetch('/api/messages/typing', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ conversation_id: conversationId, user_name: userName, is_typing: isTyping })
-        }).catch(e => console.error("Failed to send typing status", e));
+        // Just trigger the event via Realtime Broadcast
+        try {
+            const channel = realtimeClient.subscribe(`chat-${conversationId}`);
+            channel.trigger('typing', { userName, isTyping });
+        } catch (e) {
+            console.error("Failed to send typing status", e);
+        }
     }
 }));
 

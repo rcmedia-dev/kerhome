@@ -126,6 +126,15 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
             if (response.ok) {
                 const data = await response.json();
                 addMessage(data.message);
+                
+                // Broadcast via Supabase Realtime
+                try {
+                    const { realtimeClient } = await import('@/lib/supabase-realtime');
+                    const channel = realtimeClient.subscribe(`chat-${activeConversationId}`);
+                    channel.trigger('new-message', data.message);
+                } catch (e) {
+                    console.error('Failed to broadcast message:', e);
+                }
             }
         } catch (error) {
             console.error('Failed to send message:', error);

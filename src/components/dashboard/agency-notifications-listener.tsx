@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import { useEffect } from 'react';
-import { pusherClient } from '@/lib/pusher-client';
+import { realtimeClient } from '@/lib/supabase-realtime';
 import { toast } from 'sonner';
 import { Bell, MessageSquare } from 'lucide-react';
 
@@ -14,7 +14,7 @@ export function AgencyNotificationsListener({ imobiliariaId }: AgencyNotificatio
     if (!imobiliariaId) return;
 
     const channelName = `agency-${imobiliariaId}`;
-    const channel = pusherClient.subscribe(channelName);
+    const channel = realtimeClient.subscribe(channelName);
 
     channel.bind('new-lead', (data: { sender_name: string; message: string }) => {
       toast.custom((t) => (
@@ -47,7 +47,7 @@ export function AgencyNotificationsListener({ imobiliariaId }: AgencyNotificatio
     });
 
     return () => {
-      pusherClient.unsubscribe(channelName);
+      realtimeClient.unsubscribe(channelName);
     };
   }, [imobiliariaId]);
 

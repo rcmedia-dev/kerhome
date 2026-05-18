@@ -50,8 +50,6 @@
     "panolens": "^0.12.1",
     "pg": "^8.16.3",
     "prettier": "^3.8.1",
-    "pusher": "^5.2.0",
-    "pusher-js": "^8.4.0",
     "react": "^19.0.0",
     "react-day-picker": "^8.10.1",
     "react-dom": "^19.0.0",

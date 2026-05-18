@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { pusher } from "@/lib/pusher";
 
 export async function POST(req: Request) {
   try {
@@ -56,12 +55,7 @@ export async function POST(req: Request) {
 
     console.log("✅ Mensagem salva no Supabase:", message);
 
-    // Fire Pusher without blocking the response — failure is non-critical
-    try {
-      await pusher.trigger(`chat-${conversation_id}`, "new-message", message);
-    } catch (pusherErr) {
-      console.warn("⚠️ Pusher trigger failed (non-critical):", pusherErr);
-    }
+    // Supabase Realtime broadcast is now handled on the client-side.
 
     return NextResponse.json({ success: true, message });
   } catch (error) {

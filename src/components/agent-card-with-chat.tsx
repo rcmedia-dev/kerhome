@@ -93,7 +93,7 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
                     const messageContent = `Olá, estou interessado nisto: ${propertyTitle || 'Imóvel'}`;
 
                     try {
-                        await fetch('/api/messages', {
+                        const msgRes = await fetch('/api/messages', {
                             method: 'POST',
                             body: JSON.stringify({
                                 conversation_id: conversationId,
@@ -104,6 +104,17 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
                                 imobiliaria_id: imobiliariaId
                             })
                         });
+                        
+                        if (msgRes.ok) {
+                            try {
+                                const { message } = await msgRes.json();
+                                const { realtimeClient } = await import('@/lib/supabase-realtime');
+                                const channel = realtimeClient.subscribe(`chat-${conversationId}`);
+                                channel.trigger('new-message', message);
+                            } catch (e) {
+                                console.error('Failed to broadcast message:', e);
+                            }
+                        }
                         // fetchMessages is called by openChat automatically
                     } catch (msgError) {
                         console.error("Failed to send interest message", msgError);

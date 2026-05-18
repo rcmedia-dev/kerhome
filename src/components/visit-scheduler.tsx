@@ -129,7 +129,7 @@ export function VisitScheduler({ children, property, ownerData, userId }: VisitS
 
       // Send message if we have conversation
       if (conversationId) {
-        await fetch('/api/messages', {
+        const msgRes = await fetch('/api/messages', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -140,6 +140,17 @@ export function VisitScheduler({ children, property, ownerData, userId }: VisitS
             attachment_type: 'image'
           })
         });
+
+        if (msgRes.ok) {
+           try {
+               const { message } = await msgRes.json();
+               const { realtimeClient } = await import('@/lib/supabase-realtime');
+               const channel = realtimeClient.subscribe(`chat-${conversationId}`);
+               channel.trigger('new-message', message);
+           } catch (e) {
+               console.error('Failed to broadcast message:', e);
+           }
+        }
       }
 
       setStep('success');
