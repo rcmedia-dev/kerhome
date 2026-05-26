@@ -6,6 +6,7 @@ import Footer from "@/components/footer";
 import TopBar from "@/components/top-bar";
 import { AuthDialog } from "./login-modal";
 import { ChatWidget } from "./chat/chat-widget";
+import { AssistantLauncher } from "./assistant-launcher";
 import { cn } from "@/lib/utils";
 import GoogleAnalyticsClient from "@/components/google-analytics";
 import { MobileMenu } from "@/components/mobile-menu";
@@ -53,6 +54,7 @@ export default function LayoutClient({
           <MobileMenu />
         </>
       )}
+      <AssistantLauncher />
     </div>
   );
 }

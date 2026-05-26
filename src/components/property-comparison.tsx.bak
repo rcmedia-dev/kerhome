@@ -1,0 +1,719 @@
+'use client';
+
+import { useState, useCallback, useMemo, createContext, useContext, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, ArrowLeftRight, Check, BarChart3, Sparkles, Loader2, ArrowRight, Ruler, BedDouble, Car, Building, ShieldCheck, MapPin } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+interface CompareContextType {
+  selectionMode: boolean;
+  selectedIds: string[];
+  toggleSelect: (id: string) => void;
+}
+
+const CompareContext = createContext<CompareContextType>({ selectionMode: false, selectedIds: [], toggleSelect: () => {} });
+export const useCompare = () => useContext(CompareContext);
+
+interface PropertyComparisonProps {
+  properties: Record<string, unknown>[];
+  children?: React.ReactNode;
+}
+
+interface TableRow {
+  field: string;
+  label: string;
+  values: unknown[];
+  allSame: boolean;
+}
+
+interface ComparisonResult {
+  table: TableRow[];
+  summary: string;
+}
+
+const LABELS: Record<string, string> = {
+  title: 'Título', price: 'Preço', tipo: 'Tipo', cidade: 'Cidade',
+  bairro: 'Bairro', bedrooms: 'Quartos', bathrooms: 'Banheiros',
+  garagens: 'Garagens', size: 'Área', status: 'Status',
+};
+
+// === COMPONENTE AUXILIAR: GALERIA DE IMAGENS PREMIUM COM ARREDONDAMENTO KERCASA ===
+interface PropertyGalleryProps {
+  images: string[];
+  title: string;
+  aspectClassName?: string;
+}
+
+function PropertyGallery({ images, title, aspectClassName }: PropertyGalleryProps) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  // Auto-play suave com tempos ligeiramente dessincronizados para evitar trocas simultâneas
+  useEffect(() => {
+    if (images.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentIndex(prev => (prev + 1) % images.length);
+    }, 5500 + Math.random() * 1000);
+    return () => clearInterval(interval);
+  }, [images.length]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setMousePosition({ x: x * 10, y: y * 10 });
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setMousePosition({ x: 0, y: 0 });
+  };
+
+  return (
+    <div 
+      className={`relative rounded-card overflow-hidden cursor-pointer shadow-md bg-gray-50 border border-gray-100 select-none group ${aspectClassName || 'aspect-[4/3]'}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      <AnimatePresence mode="wait">
+        <motion.img
+          key={currentIndex}
+          src={images[currentIndex] || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80'}
+          alt={title}
+          className="w-full h-full object-cover select-none"
+          initial={{ opacity: 0 }}
+          animate={{ 
+            opacity: 1,
+            scale: isHovered ? 1.05 : 1,
+            x: mousePosition.x,
+            y: mousePosition.y
+          }}
+          exit={{ opacity: 0 }}
+          transition={{
+            opacity: { duration: 0.4 },
+            scale: { duration: 0.3 },
+            x: { type: 'tween', ease: 'easeOut', duration: 0.2 },
+            y: { type: 'tween', ease: 'easeOut', duration: 0.2 }
+          }}
+        />
+      </AnimatePresence>
+
+      {/* Contador Discreto */}
+      <div className="absolute top-4 left-4 bg-black/45 backdrop-blur-md text-white text-xs font-medium px-3 py-1 rounded-button border border-white/10">
+        {currentIndex + 1}/{images.length}
+      </div>
+
+      {/* Dots de Navegação */}
+      {images.length > 1 && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-20 pointer-events-none">
+          {images.map((_, i) => (
+            <div
+              key={i}
+              className={`w-1.5 h-1.5 rounded-full transition-all duration-350 ${
+                i === currentIndex ? 'bg-white w-3.5 shadow-sm' : 'bg-white/50'
+              }`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// === COMPONENTE AUXILIAR: ESPECIFICAÇÃO SIMPLES (um imóvel por card) ===
+interface SimpleSpecProps {
+  icon: React.ReactNode;
+  label: string;
+  value: number | string | null | undefined;
+  compareValue?: number | string | null | undefined;
+  isPrice?: boolean;
+  unit?: string;
+}
+
+function SimpleSpec({ icon, label, value, compareValue, isPrice = false, unit = '' }: SimpleSpecProps) {
+  const parseNum = (val: any): number => {
+    if (val === null || val === undefined) return 0;
+    if (typeof val === 'number') return val;
+    const clean = String(val).replace(/[^\d.-]/g, '');
+    return parseFloat(clean) || 0;
+  };
+
+  const num = parseNum(value);
+  const numCompare = parseNum(compareValue);
+
+  const formatted = (() => {
+    if (value === null || value === undefined || value === '') return '-';
+    if (isPrice) return `Kz ${num.toLocaleString()}`;
+    return `${value}${unit ? ` ${unit}` : ''}`;
+  })();
+
+  // Badge de vantagem comparativa
+  let badge = '';
+  if (compareValue !== undefined && num !== numCompare) {
+    if (isPrice) {
+      if (num < numCompare) badge = 'melhor preço';
+    } else if (num > numCompare) {
+      const label2 = label === 'Área Útil' || label === 'Área'
+        ? `+${Math.round(((num - numCompare) / numCompare) * 100)}%`
+        : `+${num - numCompare}`;
+      badge = label2;
+    }
+  }
+
+  const hasCompare = compareValue !== undefined && !isPrice && (label === 'Quartos' || label === 'Garagens' || label === 'Área');
+  
+  const progressPercent = (() => {
+    if (!hasCompare) return 0;
+    const maxVal = Math.max(num, numCompare);
+    return maxVal > 0 ? (num / maxVal) * 100 : 0;
+  })();
+
+  return (
+    <div className={`flex flex-col gap-1.5 p-2.5 sm:p-3 rounded-xl border select-none transition-all duration-200 hover:shadow-sm ${
+      badge
+        ? 'bg-purple-50/60 border-purple-200/50 shadow-xs'
+        : 'bg-gray-50/50 border-gray-100'
+    }`}>
+      <div className="flex items-center gap-2.5 min-w-0">
+        <span className={`shrink-0 ${ badge ? 'text-[#820AD1]' : 'text-gray-400' }`}>
+          {icon}
+        </span>
+        <div className="flex flex-col leading-tight min-w-0 flex-1">
+          <span className="text-[9px] uppercase tracking-widest font-extrabold opacity-55 text-gray-500">{label}</span>
+          <span className={`font-extrabold text-[12px] truncate ${ badge ? 'text-[#820AD1] font-black' : 'text-gray-800' }`}>
+            {formatted}
+          </span>
+        </div>
+        {badge && (
+          <span className={`shrink-0 text-[9px] px-2 py-0.5 rounded-full font-extrabold whitespace-nowrap ${
+            badge === 'melhor preço' ? 'bg-[#820AD1] text-white shadow-xs' : 'bg-emerald-500 text-white shadow-xs'
+          }`}>
+            {badge}
+          </span>
+        )}
+      </div>
+
+      {hasCompare && (
+        <div className="w-full bg-gray-200/60 h-1.5 rounded-full overflow-hidden mt-1 shrink-0">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${progressPercent}%` }}
+            transition={{ type: 'spring', stiffness: 100, damping: 15 }}
+            className={`h-full rounded-full ${
+              badge ? 'bg-gradient-to-r from-purple-500 to-[#820AD1]' : 'bg-gradient-to-r from-orange-400 to-[#F97316]'
+            }`}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function PropertyComparison({ properties, children }: PropertyComparisonProps) {
+  const pathname = usePathname();
+  const isPropriedades = pathname === '/propriedades';
+
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const selectedProperties = useMemo(
+    () => (properties.filter(p => selectedIds.includes(String(p.id))) as any[]),
+    [properties, selectedIds]
+  );
+  const [showSidebar, setShowSidebar] = useState(false);
+  const [comparing, setComparing] = useState(false);
+  const [comparisonResult, setComparisonResult] = useState<ComparisonResult | null>(null);
+  const [tutorialDismissed, setTutorialDismissed] = useState(false);
+
+  // Estados para geração sob demanda do Resumo IA MYWAI
+  const [showAiModal, setShowAiModal] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiSummary, setAiSummary] = useState('');
+  const [aiStep, setAiStep] = useState(0);
+
+  // Refs para fechar o popover e controlar scroll do tour
+  const aiPopoverRef = useRef<HTMLDivElement>(null);
+  const cardARef = useRef<HTMLDivElement>(null);
+  const cardBRef = useRef<HTMLDivElement>(null);
+
+  // Parser inteligente do resumo IA para criar passos do onboarding tutorial
+  const tutorialSteps = useMemo(() => {
+    if (!aiSummary) return [];
+    
+    // Divide o resumo por linhas e remove vazios
+    const paragraphs = aiSummary.split(/\n+/).map(p => p.trim()).filter(p => p.length > 0);
+    
+    return paragraphs.map((text, index) => {
+      let target: 'A' | 'B' | 'both' = 'both';
+      
+      const textLower = text.toLowerCase();
+      const nameALower = String(selectedProperties[0]?.title || '').toLowerCase();
+      const nameBLower = String(selectedProperties[1]?.toLowerCase || '').toLowerCase();
+      
+      const mentionsA = textLower.includes('imóvel a') || textLower.includes('imóvel 1') || (nameALower && textLower.includes(nameALower)) || textLower.includes('primeiro');
+      const mentionsB = textLower.includes('imóvel b') || textLower.includes('imóvel 2') || (nameBLower && textLower.includes(nameBLower)) || textLower.includes('segundo');
+      
+      if (mentionsA && !mentionsB) {
+        target = 'A';
+      } else if (mentionsB && !mentionsA) {
+        target = 'B';
+      } else {
+        // Fallback dinâmico conforme ordem de leitura comum
+        if (index === 0) target = 'A';
+        else if (index === 1) target = 'B';
+        else target = 'both';
+      }
+      
+      const propTitle = target === 'A' 
+        ? (selectedProperties[0]?.title || 'Imóvel A') 
+        : target === 'B' 
+          ? (selectedProperties[1]?.title || 'Imóvel B') 
+          : 'Destaques e Conclusão';
+
+      return {
+        text,
+        target,
+        title: target === 'A' ? `Análise do Imóvel A` :
+               target === 'B' ? `Análise do Imóvel B` :
+               'Comparativo e Decisão',
+        propTitle
+      };
+    });
+  }, [aiSummary, selectedProperties]);
+
+  const isTourActive = useMemo(() => {
+    return showAiModal && !!aiSummary && !aiLoading && selectedProperties.length === 2;
+  }, [showAiModal, aiSummary, aiLoading, selectedProperties]);
+
+  const activeTarget = useMemo(() => {
+    return tutorialSteps[aiStep]?.target || 'both';
+  }, [tutorialSteps, aiStep]);
+
+  // Efeito para rolar suavemente a tela focando no imóvel em análise (ótimo em mobile!)
+  useEffect(() => {
+    if (!isTourActive) return;
+    
+    const activeRef = activeTarget === 'A' ? cardARef : activeTarget === 'B' ? cardBRef : null;
+    if (activeRef?.current) {
+      activeRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [aiStep, activeTarget, isTourActive]);
+
+  useEffect(() => {
+    if (!showAiModal) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (aiPopoverRef.current && !aiPopoverRef.current.contains(e.target as Node)) {
+        setShowAiModal(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showAiModal]);
+
+  const toggleSelect = useCallback((id: string) => {
+    if (!selectionMode) return;
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : prev.length < 5 ? [...prev, id] : prev
+    );
+  }, [selectionMode]);
+
+
+
+  const handleFabClick = useCallback(() => {
+    if (selectionMode) {
+      setSelectionMode(false);
+      setSelectedIds([]);
+      return;
+    }
+    if (!tutorialDismissed) {
+      setShowTutorial(true);
+    } else {
+      setSelectionMode(true);
+      setSelectedIds([]);
+    }
+  }, [tutorialDismissed, selectionMode]);
+
+  const handleStartSelection = useCallback(() => {
+    setShowTutorial(false);
+    setTutorialDismissed(true);
+    setSelectionMode(true);
+    setSelectedIds([]);
+  }, []);
+
+  const formatCell = (field: string, value: unknown, allValues: unknown[]): string => {
+    if (field === 'price') return `Kz ${Number(value).toLocaleString()}`;
+    if (field === 'bedrooms' || field === 'bathrooms' || field === 'garagens')
+      return String(value ?? '-');
+    return String(value || '-');
+  };
+
+  const handleCompare = useCallback(() => {
+    if (selectedIds.length < 2) return;
+
+    const selected = properties.filter(p => selectedIds.includes(String(p.id)));
+
+    const fields = ['title', 'price', 'tipo', 'cidade', 'bairro', 'bedrooms', 'bathrooms', 'garagens', 'size', 'status'];
+    const rows = fields.map(f => {
+      const vals = selected.map(p => p[f]);
+      const allSame = vals.every(v => String(v) === String(vals[0]));
+      return {
+        field: f,
+        label: LABELS[f] || f,
+        values: vals,
+        allSame,
+      };
+    });
+
+    setComparisonResult({ table: rows, summary: '' });
+    setAiSummary('');
+    setShowSidebar(true);
+  }, [selectedIds, properties]);
+
+  const handleClose = useCallback(() => {
+    setShowSidebar(false);
+    setSelectionMode(false);
+    setSelectedIds([]);
+    setComparisonResult(null);
+    setAiSummary('');
+    setShowAiModal(false);
+    setAiStep(0);
+  }, []);
+
+  const handleGenerateAiSummary = useCallback(async () => {
+    setShowAiModal(true);
+    setAiStep(0);
+    if (aiSummary) return; // Já carregou anteriormente
+
+    setAiLoading(true);
+    try {
+      const selected = properties.filter(p => selectedIds.includes(String(p.id)));
+      const res = await fetch('/api/mywai/compare', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          properties: selected.map(p => ({
+            title: p.title, price: p.price, tipo: p.tipo, cidade: p.cidade,
+            bairro: p.bairro, bedrooms: p.bedrooms, bathrooms: p.bathrooms,
+            garagens: p.garagens, size: p.size, status: p.status,
+          }))
+        }),
+      });
+      const data = res.ok ? await res.json() : { summary: '' };
+      setAiSummary(data.summary || 'Não foi possível gerar a análise inteligente neste momento. Tente novamente.');
+    } catch {
+      setAiSummary('Erro ao gerar a análise. Verifique sua conexão e tente novamente.');
+    } finally {
+      setAiLoading(false);
+    }
+  }, [selectedIds, properties, aiSummary]);
+
+  // Extrair imagens da galeria de um imóvel
+  const getPropertyImages = useCallback((p: any): string[] => {
+    if (Array.isArray(p.gallery) && p.gallery.length > 0) return p.gallery;
+    if (p.image) return [p.image];
+    return ['https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80'];
+  }, []);
+
+  const ctx = useMemo(() => ({ selectionMode, selectedIds, toggleSelect }), [selectionMode, selectedIds, toggleSelect]);
+
+  if (!isPropriedades) return null;
+
+  return (
+    <CompareContext.Provider value={ctx}>
+      {/* Tutorial */}
+      {showTutorial && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 z-[9998] bg-black/40 flex items-center justify-center p-4"
+          onClick={() => setShowTutorial(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-card max-w-sm w-full p-6 shadow-floating border border-purple-50"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#820AD1] to-purple-600 flex items-center justify-center mx-auto mb-4">
+              <BarChart3 size={24} className="text-white" />
+            </div>
+            <h3 className="text-lg font-bold text-center text-gray-800 mb-2">Comparar Imóveis</h3>
+            <p className="text-sm text-gray-500 text-center mb-6 leading-relaxed">
+              Seleciona dois ou mais imóveis para comparar características lado a lado.
+              O MYWAI vai resumir as diferenças para te ajudar a escolher!
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowTutorial(false)}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-button hover:bg-gray-200 transition-colors">
+                Agora não
+              </button>
+              <button onClick={handleStartSelection}
+                className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-[#820AD1] to-[#F97316] rounded-button transition-all">
+                Começar
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Floating Selection Bar */}
+      {selectionMode && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9997]">
+          <motion.div
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="bg-white rounded-full shadow-floating border border-purple-100 px-5 py-3 flex items-center gap-4"
+          >
+            <span className="text-sm text-gray-600 whitespace-nowrap select-none">
+              {selectedIds.length === 0
+                ? 'Clica nos imóveis para selecionar'
+                : `${selectedIds.length} selecionado${selectedIds.length !== 1 ? 's' : ''} — mínimo 2`}
+            </span>
+            <button
+              onClick={handleCompare}
+              disabled={selectedIds.length < 2 || comparing}
+              className="flex items-center gap-1.5 px-4 py-1.5 text-sm font-bold text-white bg-[#820AD1] rounded-button hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {comparing ? <Loader2 size={14} className="animate-spin" /> : <ArrowLeftRight size={14} />}
+              Comparar
+            </button>
+            <button onClick={handleClose}
+              className="p-1.5 text-gray-400 hover:text-[#820AD1] rounded-full hover:bg-gray-100 transition-colors">
+              <X size={16} />
+            </button>
+          </motion.div>
+        </div>
+      )}
+
+      {/* OVERLAY DE COMPARAÇÃO */}
+      <AnimatePresence>
+        {showSidebar && comparisonResult && (
+          selectedProperties.length === 2 ? (
+            // ============================================
+            // MODO 1: VERSUS DUAL PREMIUM (TELA CHEIA)
+            // ============================================
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 150 }}
+              className="fixed inset-0 z-[9999] bg-[#faf9f7] overflow-y-auto px-4 py-8 md:p-12 flex flex-col justify-start items-center select-none"
+              style={{
+                backgroundImage: `
+                  radial-gradient(ellipse at 20% 50%, rgba(130, 10, 209, 0.03) 0%, transparent 50%),
+                  radial-gradient(ellipse at 80% 20%, rgba(249, 115, 22, 0.03) 0%, transparent 50%)
+                `
+              }}
+            >
+              {/* Header */}
+              <div className="w-full max-w-6xl flex justify-between items-center mb-8 shrink-0">
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-[#820AD1] bg-[#F3E8FF] px-3.5 py-1 rounded-button uppercase tracking-wider w-fit mb-2 border border-purple-105 select-none">
+                    Compare e Escolha
+                  </span>
+                  <h2 className="text-2xl md:text-3xl font-light text-[#1A1A1A] select-none">
+                    Qual imóvel <span className="font-bold bg-gradient-to-r from-[#820AD1] to-[#F97316] bg-clip-text text-transparent">combina mais</span> com você?
+                  </h2>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <button
+                      onClick={handleGenerateAiSummary}
+                      className="flex items-center gap-2 px-5 py-2.5 text-xs font-extrabold text-white bg-gradient-to-r from-[#820AD1] to-[#F97316] rounded-button hover:shadow-md hover:opacity-95 transition-all shadow-xs shrink-0"
+                    >
+                      <Sparkles size={14} className="animate-pulse" />
+                      <span>Gerar Resumo Inteligente</span>
+                    </button>
+                    
+                    <AnimatePresence>
+                      {showAiModal && (!isTourActive || aiLoading) && (
+                        <motion.div
+                          ref={aiPopoverRef}
+                          initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                          transition={{ type: 'spring', damping: 25, stiffness: 180 }}
+                          className="absolute top-full right-0 mt-4 z-50 w-[360px] sm:w-[460px] md:w-[560px] bg-white rounded-card p-8 md:p-10 shadow-floating border border-purple-100 select-none overflow-visible flex flex-col gap-6 text-left"
+                        >
+                          {/* Arrow pointing UP */}
+                          <div className="absolute right-6 -top-2 w-4 h-4 rotate-45 border-l border-t border-purple-100 bg-white" />
+
+                          {/* Glow de fundo */}
+                          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/10 to-orange-500/10 rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none" />
+                          
+                          {/* Header */}
+                          <div className="flex items-center justify-between shrink-0 pb-4 border-b border-gray-100 relative z-10">
+                            <div className="flex items-center gap-3 text-purple-900">
+                              <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#820AD1]/10 to-[#F97316]/10 text-[#820AD1] border border-[#820AD1]/15">
+                                <Sparkles size={20} className={aiLoading ? 'animate-spin' : 'animate-pulse'} />
+
+                 {/* Tabela de Dados */}
+                <div className="overflow-x-auto rounded-card border border-gray-150 bg-white shadow-sm">
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr>
+                        <th className="sticky top-0 bg-gray-50 h-[60px] px-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-200 select-none min-w-[140px]">
+                          Característica
+                        </th>
+                        {selectedProperties.map((prop, i) => (
+                          <th key={i} className="sticky top-0 bg-gray-50 h-[60px] px-4 text-left border-b border-gray-200 border-l border-gray-100 min-w-[150px]">
+                            <div className="flex flex-col items-center gap-2 py-2">
+                              <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200">
+                                <img
+                                  src={String(prop.image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80')}
+                                  alt={String(prop.title)}
+                                  className="w-full h-full object-cover select-none"
+                                />
+                              </div>
+                              <span className="text-[10px] font-semibold text-gray-500 select-none">Imóvel {i + 1}</span>
+                            </div>
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {comparisonResult.table.map((row, i) => {
+                        const isDiff = !row.allSame;
+                        return (
+                          <tr key={row.field} className={`${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} ${isDiff ? 'bg-amber-50/30' : ''} transition-colors`}>
+                            <td className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100 select-none">
+                              {row.label}
+                            </td>
+                            {row.values.map((val: unknown, j: number) => {
+                              const formatted = formatCell(row.field, val, row.values);
+                              const isBestPrice = row.field === 'price' && val === Math.min(...row.values.map(v => Number(v) || Infinity));
+                              const isBiggest = (row.field === 'size' || row.field === 'bedrooms' || row.field === 'bathrooms' || row.field === 'garagens') && val === Math.max(...row.values.map(v => Number(v) || -Infinity));
+
+                              return (
+                                <td key={j} className={`px-4 py-3 text-xs border-b border-gray-100 border-l border-gray-50 ${
+                                  isBestPrice ? 'font-semibold text-purple-700' : ''
+                                } ${
+                                  isBiggest ? 'font-semibold text-amber-700' : 'text-gray-600'
+                                }`}>
+                                  <div className="flex items-center gap-1.5 w-full">
+                                    <span className="truncate">{formatted}</span>
+                                    {isBestPrice && (
+                                      <span className="text-[8px] px-1.5 py-0.5 rounded-button bg-purple-100 text-purple-700 font-bold whitespace-nowrap select-none">
+                                        melhor preço
+                                      </span>
+                                    )}
+                                    {isBiggest && (
+                                      <span className="text-[8px] px-1.5 py-0.5 rounded-button bg-amber-100 text-amber-700 font-bold whitespace-nowrap select-none">
+                                        maior
+                                      </span>
+                                    )}
+                                  </div>
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </motion.div>
+          )
+        )}
+      </AnimatePresence>      {/* ONBOARDING TUTORIAL TOUR IA (VERSUS MODE) */}
+      <AnimatePresence>
+        {isTourActive && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 50, scale: 0.95 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 150 }}
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[10001] w-[92%] sm:w-[500px] md:w-[620px] bg-white rounded-card p-6 sm:p-8 shadow-floating border border-purple-100 flex flex-col gap-5 text-left select-none"
+          >
+            {/* Glow de fundo */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/10 to-orange-500/10 rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none" />
+
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 relative z-10">
+              <div className="flex items-center gap-3 text-purple-900">
+                <div className="p-2 rounded-xl bg-gradient-to-br from-[#820AD1]/10 to-[#F97316]/10 text-[#820AD1] border border-[#820AD1]/15">
+                  <Sparkles size={18} className="animate-pulse" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[9px] uppercase tracking-widest font-black opacity-60">MYWAI AI TOUR</span>
+                  <h4 className="font-extrabold text-xs sm:text-sm tracking-tight text-gray-800">
+                    {tutorialSteps[aiStep]?.title}
+                  </h4>
+                </div>
+              </div>
+              <div className="text-[10px] font-extrabold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-button select-none">
+                Passo {aiStep + 1} de {tutorialSteps.length}
+              </div>
+            </div>
+
+            {/* Corpo do Passo */}
+            <div className="flex-1 max-h-[200px] overflow-y-auto pr-2 relative z-10 scrollbar-thin">
+              <motion.p
+                key={aiStep}
+                initial={{ opacity: 0, x: 15 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -15 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 180 }}
+                className="text-sm md:text-base text-gray-700 leading-relaxed font-medium whitespace-pre-line"
+              >
+                {tutorialSteps[aiStep]?.text}
+              </motion.p>
+            </div>
+
+            {/* Controles / Footer */}
+            <div className="flex items-center justify-between pt-3 border-t border-gray-100 relative z-10 shrink-0">
+              <button
+                onClick={() => setShowAiModal(false)}
+                className="text-xs font-bold text-gray-400 hover:text-red-500 transition-colors"
+              >
+                Sair do Tour
+              </button>
+              
+              <div className="flex items-center gap-3">
+                {aiStep > 0 && (
+                  <button
+                    onClick={() => setAiStep(prev => prev - 1)}
+                    className="px-5 py-2 text-xs font-extrabold text-[#820AD1] border border-purple-200 rounded-button hover:bg-purple-50 transition-colors"
+                  >
+                    Anterior
+                  </button>
+                )}
+                
+                {aiStep < tutorialSteps.length - 1 ? (
+                  <button
+                    onClick={() => setAiStep(prev => prev + 1)}
+                    className="px-6 py-2.5 text-xs font-extrabold text-white bg-[#820AD1] rounded-button hover:bg-purple-700 transition-colors shadow-xs"
+                  >
+                    Avançar
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setShowAiModal(false)}
+                    className="px-6 py-2.5 text-xs font-extrabold text-white bg-gradient-to-r from-[#820AD1] to-[#F97316] rounded-button hover:shadow-md transition-all shadow-xs"
+                  >
+                    Concluir Tour 🚀
+                  </button>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* Floating FAB Button */}
+      <motion.button
+        onClick={handleFabClick}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="fixed bottom-24 right-6 z-[9997] w-14 h-14 rounded-full bg-gradient-to-br from-[#820AD1] to-purple-800 text-white shadow-lg border-2 border-white flex items-center justify-center hover:shadow-xl hover:from-purple-600 hover:to-[#820AD1] transition-all duration-300"
+        title="Comparar imóveis"
+      >
+        {selectionMode ? <X size={22} /> : <BarChart3 size={22} />}
+      </motion.button>
+      {children}
+    </CompareContext.Provider>
+  );
+}

@@ -1,6 +1,6 @@
-'use client'
+﻿'use client'
 
-import React, { useState, useEffect, ReactNode, useCallback, useRef } from 'react';
+import React, { useState, useEffect, ReactNode, useCallback, useRef, Suspense } from 'react';
 import {
   Bed,
   Bath,
@@ -14,10 +14,13 @@ import {
   TrendingUp,
   Sparkles,
   LucideIcon,
-  Search
+  Search,
+  Check
 } from 'lucide-react';
 import { PropertyCard } from '@/components/property-card';
+import { PropertyComparison, useCompare } from '@/components/property-comparison';
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'next/navigation';
 import { getMixedProperties, getProperties } from '@/lib/functions/get-properties';
 import { motion, Variants, Transition, AnimatePresence } from 'framer-motion';
 import LoadingState from './components/loading-state';
@@ -245,6 +248,7 @@ const FilterSelect = React.memo(({
 FilterSelect.displayName = 'FilterSelect';
 
 const PropertyListing = () => {
+  const searchParamsStr = useSearchParams().toString();
   const [filters, setFilters] = useState({
     status: '',
     minPrice: '',
@@ -254,7 +258,8 @@ const PropertyListing = () => {
     bathrooms: '',
     garagens: '',
     tipo: '',
-    sortBy: 'recent'
+    sortBy: 'recent',
+    q: '',
   });
 
   // Estados locais para inputs com debounce
@@ -295,6 +300,46 @@ const PropertyListing = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const [searchBanner, setSearchBanner] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!searchParamsStr) return;
+    const params = new URLSearchParams(searchParamsStr);
+    const tipo = params.get('tipo');
+    const cidade = params.get('cidade');
+    const preco_max = params.get('preco_max');
+    const quartos = params.get('quartos');
+    const banheiros = params.get('banheiros');
+    const garagensParam = params.get('garagens');
+    const status = params.get('status');
+    const q = params.get('q');
+
+    const newFilters: Record<string, string> = {};
+    if (tipo) newFilters.tipo = tipo;
+    if (cidade) newFilters.location = cidade;
+    if (preco_max) newFilters.maxPrice = preco_max;
+    if (quartos) newFilters.bedrooms = quartos;
+    if (banheiros) newFilters.bathrooms = banheiros;
+    if (garagensParam) newFilters.garagens = garagensParam;
+    if (status) newFilters.status = status;
+    if (q) newFilters.q = q;
+
+    if (Object.keys(newFilters).length === 0) return;
+
+    setFilters(prev => {
+      const hasChanges = Object.entries(newFilters).some(([k, v]) => (prev as any)[k] !== v);
+      if (!hasChanges) return prev;
+      return { ...prev, ...newFilters };
+    });
+
+    const parts: string[] = [];
+    if (tipo) parts.push(tipo);
+    if (quartos) parts.push(`T${quartos}`);
+    if (cidade) parts.push(`em ${cidade}`);
+    if (preco_max) parts.push(`até Kz ${Number(preco_max).toLocaleString()}`);
+    if (parts.length > 0) setSearchBanner(parts.join(' '));
+  }, [searchParamsStr]);
+
   const clearFilters = () => {
     setFilters({
       status: '',
@@ -305,7 +350,8 @@ const PropertyListing = () => {
       bathrooms: '',
       garagens: '',
       tipo: '',
-      sortBy: 'recent'
+      sortBy: 'recent',
+      q: '',
     });
   };
 
@@ -316,11 +362,13 @@ const PropertyListing = () => {
     queryKey: ['properties', 'mixed'],
     queryFn: async () => {
       const response = await getMixedProperties();
-      return response.properties; // â† Retorna array no formato propertyResponseSchema
-    }
+      return response.properties;
+    },
+    staleTime: 60000,
+    refetchOnMount: false,
   });
 
-  // ðŸ” Funções de debounce para localização e preços
+  // Ã°Å¸â€Â Funções de debounce para localização e preços
   const updateFilterLocation = useDebouncedCallback((value: string) => {
     setFilters(prev => ({ ...prev, location: value }));
   }, 350);
@@ -333,7 +381,7 @@ const PropertyListing = () => {
     setFilters(prev => ({ ...prev, maxPrice: value }));
   }, 350);
 
-  // ðŸŽ¯ Handlers para inputs com debounce - useCallback para manter referência estável
+  // Ã°Å¸Å½Â¯ Handlers para inputs com debounce - useCallback para manter referência estável
   const handleLocalLocationChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLocalLocation(value);
@@ -393,7 +441,7 @@ const PropertyListing = () => {
     setFilters(prev => ({ ...prev, sortBy: e.target.value }));
   }, []);
 
-  // ðŸ” FILTRAGEM NO FRONTEND
+  // Ã°Å¸â€Â FILTRAGEM NO FRONTEND
   const filteredProperties = properties?.data?.filter((property: any) => {
     const {
       status,
@@ -404,17 +452,26 @@ const PropertyListing = () => {
       bathrooms,
       garagens,
       tipo,
+      q,
     } = filters;
 
     const matchesStatus = !status || property.status === status;
-    const matchesTipo = !tipo || property.tipo === tipo;
-    const matchesLocation = !location ||
-      property.endereco?.toLowerCase().includes(location.toLowerCase());
+    const matchesTipo = !tipo || property.tipo?.toLowerCase() === tipo.toLowerCase();
+    const matchesLocation = !location || (
+      property.endereco?.toLowerCase().includes(location.toLowerCase()) ||
+      property.cidade?.toLowerCase().includes(location.toLowerCase())
+    );
     const matchesBedrooms = !bedrooms || property.bedrooms >= Number(bedrooms);
     const matchesBathrooms = !bathrooms || property.bathrooms >= Number(bathrooms);
     const matchesGaragens = !garagens || property.garagens >= Number(garagens);
     const matchesMinPrice = !minPrice || property.price >= Number(minPrice);
     const matchesMaxPrice = !maxPrice || property.price <= Number(maxPrice);
+    const matchesQ = !q || (() => {
+      const keywords = q.toLowerCase().split(/\s+/).filter(Boolean);
+      if (keywords.length === 0) return true;
+      const text = `${property.title?.toLowerCase() || ''} ${property.description?.toLowerCase() || ''}`;
+      return keywords.some(kw => text.includes(kw));
+    })();
 
     return (
       matchesStatus &&
@@ -424,11 +481,12 @@ const PropertyListing = () => {
       matchesBathrooms &&
       matchesGaragens &&
       matchesMinPrice &&
-      matchesMaxPrice
+      matchesMaxPrice &&
+      matchesQ
     );
   });
 
-  // ðŸŽ¯ ORDENAÇÃƒO
+  // Ã°Å¸Å½Â¯ ORDENAÃ‡ÃƒÆ’O
   const sortedProperties = React.useMemo(() => {
     if (!filteredProperties) return [];
 
@@ -514,7 +572,7 @@ const PropertyListing = () => {
         <option value="recent">Mais Recentes</option>
         <option value="price_asc">Preço: Menor</option>
         <option value="price_desc">Preço: Maior</option>
-        <option value="area">Maior Área</option>
+        <option value="area">Maior Ãrea</option>
       </FilterSelect>
     </div>
   );
@@ -522,82 +580,22 @@ const PropertyListing = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
 
-      {/* ðŸ” SEARCH CARD (INLINE) */}
-      <div className="relative z-20 max-w-6xl mx-auto px-4 mt-8 mb-12 w-full hidden md:block">
-        <motion.div
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.6, type: "spring" }}
-          className="bg-gradient-to-r from-[#130f25] to-purple-900 rounded-3xl shadow-xl border border-white/10 p-6 md:p-8 backdrop-blur-xl"
-        >
-          {/* Header do Card de Busca */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-white/10 pb-4">
-            <div className="flex items-center gap-2 text-white">
-              <div className="p-2 bg-orange-500 rounded-lg text-white shadow-lg">
-                <Search size={20} />
-              </div>
-              <span className="font-semibold text-lg">Filtrar Imóveis</span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="text-sm text-gray-300">
-                <span className="font-bold text-white">{sortedProperties?.length || 0}</span> resultados
-              </div>
-              <AnimatePresence>
-                {hasActiveFilters && (
-                  <motion.button
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    onClick={clearFilters}
-                    className="text-xs font-medium text-red-300 hover:bg-white/10 px-3 py-1.5 rounded-full transition-colors flex items-center gap-1"
-                  >
-                    <X size={12} /> Limpar
-                  </motion.button>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-
-          <FilterGrid />
-        </motion.div>
-      </div>
-
-      {/* ðŸ˜ï¸ LISTAGEM DE IMÓVEIS */}
       <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="max-w-7xl mx-auto px-4 w-full pb-20 pt-0"
+        className="max-w-7xl mx-auto px-4 w-full pb-20 pt-20"
       >
-        <motion.div
-          variants={containerVariants}
-          className="w-full"
-        >
+        <div className="w-full">
           {properties.isLoading ? (
             <LoadingState.LoadingGrid viewMode="grid" />
           ) : (
-            <motion.div
-              variants={containerVariants}
-              className="flex flex-col items-center md:grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-            >
-              {sortedProperties?.map((property, index) => (
-                <motion.div
-                  key={property.id}
-                  variants={itemVariants}
-                  transition={{
-                    ...springTransition,
-                    delay: index * 0.05
-                  }}
-                  whileHover={{ y: -8 }}
-                  className="w-full flex justify-center"
-                >
-                  <PropertyCard property={property} />
-                </motion.div>
-              ))}
-            </motion.div>
+            <PropertyComparison properties={sortedProperties || []}>
+              <div className="flex flex-col items-center md:grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {sortedProperties?.map((property, index) => (
+                  <PropertyCardItem key={property.id} property={property} index={index} />
+                ))}
+              </div>
+            </PropertyComparison>
           )}
-        </motion.div>
+        </div>
 
         {/* Empty State */}
         <AnimatePresence>
@@ -649,7 +647,7 @@ const PropertyListing = () => {
         )}
       </AnimatePresence>
 
-      {/* ðŸ›‘ PAINEL LATERAL DE FILTROS (SEM OVERLAY) ðŸ›‘ */}
+      {/* PAINEL LATERAL DE FILTROS (SEM OVERLAY) */}
       <AnimatePresence>
         {showFilterModal && (
           <motion.div
@@ -699,4 +697,45 @@ const PropertyListing = () => {
   );
 };
 
-export default PropertyListing;
+function PropertyCardItem({ property, index }: { property: any; index: number }) {
+  const { selectionMode, selectedIds, toggleSelect } = useCompare();
+  const isSelected = selectedIds.includes(property.id);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.03, duration: 0.3, ease: 'easeOut' }}
+      whileHover={{ y: selectionMode ? -4 : -8 }}
+      onClick={(e) => {
+        if (selectionMode) {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleSelect(property.id);
+        }
+      }}
+      className={`w-full flex justify-center relative cursor-pointer transition-all ${selectionMode ? (isSelected ? 'ring-2 ring-purple-500 rounded-[24px] ring-offset-2' : 'ring-1 ring-gray-200 rounded-[24px] ring-offset-1 hover:ring-purple-300') : ''}`}
+    >
+      {selectionMode && (
+        <div className="absolute top-3 left-3 z-10">
+          <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center shadow-sm transition-colors ${isSelected ? 'bg-purple-700 border-purple-700' : 'bg-white/90 border-gray-300'}`}>
+            {isSelected && <Check size={16} className="text-white" />}
+          </div>
+        </div>
+      )}
+      <PropertyCard property={property} isClickable={!selectionMode} />
+    </motion.div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" /></div>}>
+      <PropertyListing />
+    </Suspense>
+  );
+}
+
+
+
+
