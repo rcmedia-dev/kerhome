@@ -11,6 +11,7 @@ import { TPropertyResponseSchema } from '@/lib/types/property';
 import { getAgents } from '@/lib/functions/get-agent';
 import { fetchFeaturedAgencies } from '@/lib/functions/supabase-actions/imobiliaria-actions';
 import AgencyCarousel from '@/components/agency-carousel';
+import { SplashScreen } from '@/components/splash-screen';
 
 export default async function HomePage() {
   const properties: TPropertyResponseSchema[] = await getLimitedProperties(8);
@@ -27,6 +28,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <SplashScreen />
       <HeroCarousel property={properties} />
       <ActionCardsSection />
       <TopAgentsSection agents={agents}/>
