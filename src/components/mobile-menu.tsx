@@ -16,7 +16,7 @@ export function MobileMenu() {
   const { user } = useUserStore();
   const { openAuthModal } = useUIStore();
 
-  const isExcludedRoute = pathname.includes("/dashboard/cadastrar-imovel") || pathname.startsWith("/admin/dashboard");
+  const isExcludedRoute = pathname.startsWith("/dashboard") || pathname.startsWith("/admin/dashboard");
 
   const links = [
     {

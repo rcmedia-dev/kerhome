@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import { AuthDialog } from "@/components/login-modal";
 import { useUserStore } from "@/lib/store/user-store";
 import { motion, Variants, Transition } from 'framer-motion';
+import { cn } from "@/lib/utils";
 
 // Configurações de transição reutilizáveis
 const springTransition: Transition = {
@@ -248,7 +249,7 @@ export default function ActionCardsSection() {
                   ...springTransition,
                   duration: 0.6
                 }}
-                className={`relative group cursor-pointer ${action.special ? 'lg:transform lg:scale-105' : ''}`}
+                className={cn("relative group cursor-pointer", action.special && "lg:transform lg:scale-105")}
                 onMouseEnter={() => setHoveredCard(index)}
                 onMouseLeave={() => setHoveredCard(null)}
               >

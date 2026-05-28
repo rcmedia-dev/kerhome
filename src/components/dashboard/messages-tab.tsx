@@ -37,6 +37,7 @@ import { cn } from '@/lib/utils';
 import { Calendar as CalendarUI } from '@/components/ui/calendar';
 import { toast } from 'sonner';
 import { getSupabaseUserProperties } from '@/lib/functions/get-properties';
+import { AiReplySuggestions } from './ai-reply-suggestions';
 
 type LeadTemperature = 'hot' | 'warm' | 'cold' | 'none';
 
@@ -81,7 +82,7 @@ export function MessagesTab() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<LeadTemperature | 'all'>('all');
   const [localNote, setLocalNote] = useState('');
-  const [isNoteOpen, setIsNoteOpen] = useState(false);
+  const [isMobileCrmOpen, setIsMobileCrmOpen] = useState(false);
   const [isEditingNote, setIsEditingNote] = useState(false);
   const [isVisitModalOpen, setIsVisitModalOpen] = useState(false);
   const [visits, setVisits] = useState<Visit[]>([]);
@@ -139,15 +140,15 @@ export function MessagesTab() {
   const currentTemp = activeConversation?.lead_temperature || 'none';
   const property = (activeConversation as any)?.property_details;
 
-  const myMessagesCount = messages.filter(m => m.sender_id === user?.id).length;
-  const showTemplates = view === 'chat' && activeConversationId && myMessagesCount === 0;
+  const showTemplates = view === 'chat' && activeConversationId && messages.length === 0;
+  const showAiSuggestions = view === 'chat' && activeConversationId && messages.length > 0;
 
   // Update local note when conversation changes
   useEffect(() => {
     if (activeConversation) {
       const note = activeConversation.internal_notes || '';
       setLocalNote(note);
-      setIsNoteOpen(!!note);
+      setIsMobileCrmOpen(false); // Close mobile CRM when switching chats
       
       // Auto-select property if available in conversation
       const prop = (activeConversation as any)?.property_details;
@@ -155,7 +156,7 @@ export function MessagesTab() {
         setVisitForm(v => ({ ...v, propertyId: prop.id, propertyTitle: prop.title }));
       }
     } else {
-      setIsNoteOpen(false);
+      setIsMobileCrmOpen(false);
     }
   }, [activeConversationId, activeConversation?.internal_notes]);
 
@@ -167,6 +168,34 @@ export function MessagesTab() {
       setVisits([]);
     }
   }, [activeConversationId]);
+
+  // Lead classification
+  useEffect(() => {
+    if (!activeConversationId || messages.length < 2) return;
+    if (activeConversation?.lead_temperature && activeConversation.lead_temperature !== 'none') return;
+
+    const convMessages = messages.map(m => ({
+      sender_id: m.sender_id === user?.id ? 'agent' : 'lead',
+      content: m.content,
+    }));
+
+    const timer = setTimeout(() => {
+      fetch('/api/mywai/classify-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: convMessages }),
+      })
+        .then(res => res.json())
+        .then(json => {
+          if (json.temperature && json.temperature !== 'none') {
+            updateConversationCRM(activeConversationId, { lead_temperature: json.temperature });
+          }
+        })
+        .catch(() => {});
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [activeConversationId, messages.length]);
 
   const fetchVisits = async (convId: string) => {
     setIsLoadingVisits(true);
@@ -425,18 +454,8 @@ export function MessagesTab() {
         )}>
           {activeConversationId ? (
             <div className="flex-1 flex flex-col min-h-0 relative">
-              {/* Mobile Back Button (Floating Over Chat) */}
-              <div className="md:hidden absolute top-4 left-4 z-[30]">
-                <button 
-                  onClick={backToList}
-                  className="p-2.5 bg-white shadow-xl border border-gray-100 rounded-badge text-gray-400 hover:text-purple-600 active:scale-95 transition-all"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-              </div>
-
               {/* Chat Core */}
-              <ChatWindow onClose={backToList} onShowCRM={() => setIsNoteOpen(true)} />
+              <ChatWindow onClose={backToList} onShowCRM={() => setIsMobileCrmOpen(true)} />
               
               {/* Contextual Quick Replies */}
               <AnimatePresence>
@@ -460,6 +479,18 @@ export function MessagesTab() {
                     </div>
                   </motion.div>
                 )}
+                {showAiSuggestions && (
+                  <div className="border-t border-gray-50 bg-white">
+                    <AiReplySuggestions
+                      messages={messages.map(m => ({ role: m.sender_id === user?.id ? 'assistant' : 'user', content: m.content }))}
+                      propertyContext={property || undefined}
+                      onSelectReply={(text) => {
+                        const event = new CustomEvent('insert-ai-reply', { detail: text });
+                        window.dispatchEvent(event);
+                      }}
+                    />
+                  </div>
+                )}
               </AnimatePresence>
             </div>
           ) : (
@@ -478,27 +509,25 @@ export function MessagesTab() {
 
         {/* COLUMN 3: CRM Dashboard (3/12) */}
         <div className={cn(
-          "md:col-span-3 flex flex-col h-full overflow-hidden bg-white md:bg-gray-50/30",
-          isNoteOpen ? "fixed inset-0 z-[60] md:relative md:inset-auto md:flex shadow-2xl md:shadow-none" : "hidden md:flex"
+          "flex-col h-full overflow-hidden bg-white md:bg-gray-50/30",
+          // Desktop: always show
+          "md:flex md:col-span-3",
+          // Mobile: show only if isMobileCrmOpen is true
+          !isMobileCrmOpen ? "hidden" : "absolute inset-0 z-[40] flex"
         )}>
-          {/* Mobile Overlay Header */}
-          {isNoteOpen && (
-            <div className="md:hidden p-5 bg-white border-b border-gray-100 flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 bg-purple-600 rounded-full animate-pulse" />
-                <h3 className="text-xs font-black text-gray-900 uppercase tracking-[0.2em]">Gestão Estratégica</h3>
-              </div>
-              <button onClick={() => setIsNoteOpen(false)} className="p-2 bg-gray-50 rounded-badge hover:bg-gray-100 transition-colors">
-                <X className="w-5 h-5 text-gray-500" />
-              </button>
-            </div>
-          )}
 
           {activeConversationId ? (
             <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col pb-10">
               
               {/* Profile Overview - Premium Card Style */}
-              <div className="p-6 bg-white border-b border-gray-100 shadow-sm shrink-0">
+              <div className="p-6 bg-white border-b border-gray-100 shadow-sm shrink-0 relative">
+                {/* Mobile Back Button */}
+                <button 
+                  onClick={() => setIsMobileCrmOpen(false)}
+                  className="md:hidden absolute top-4 left-4 p-2 bg-gray-50 rounded-full text-gray-500 hover:text-gray-900 transition-colors"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
                 <div className="flex flex-col items-center text-center space-y-3 mb-6">
                   <div className="relative">
                     {contactAvatar ? (

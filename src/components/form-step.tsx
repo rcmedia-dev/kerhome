@@ -17,6 +17,7 @@ interface FormStepProps {
   nextLabel?: string;
 }
 
+import { AiEnhanceButton } from "@/components/ai-enhance-button";
 import { ImageUploadField } from "@/components/ui/uploads/image-upload-field";
 import { GalleryUploadField } from "@/components/ui/uploads/gallery-upload-field";
 import { VideoUploadField } from "@/components/ui/uploads/video-upload-field";
@@ -195,6 +196,43 @@ const FormStep = ({ title, description, fields, maxVisibleFields, showQuestions,
 
   const [isCompressing, setIsCompressing] = React.useState(false);
 
+  const aiEnhanceFields = ['title', 'description'];
+  const watchedTipo = watch('tipo');
+  const watchedCidade = watch('cidade');
+  const watchedBairro = watch('bairro');
+  const watchedBedrooms = watch('bedrooms');
+  const watchedBathrooms = watch('bathrooms');
+  const watchedGaragens = watch('garagens');
+  const watchedSize = watch('size');
+  const watchedPrice = watch('price');
+  const watchedStatus = watch('status');
+  const watchedCaracteristicas = watch('caracteristicas');
+  const formDataForAI = React.useMemo(() => ({
+    tipo: watchedTipo,
+    cidade: watchedCidade,
+    bairro: watchedBairro,
+    bedrooms: watchedBedrooms,
+    bathrooms: watchedBathrooms,
+    garagens: watchedGaragens,
+    size: watchedSize,
+    price: watchedPrice,
+    status: watchedStatus,
+    caracteristicas: watchedCaracteristicas,
+  }), [watchedTipo, watchedCidade, watchedBairro, watchedBedrooms, watchedBathrooms, watchedGaragens, watchedSize, watchedPrice, watchedStatus, watchedCaracteristicas]);
+
+  const renderAiButton = (fieldName: string) => {
+    if (!aiEnhanceFields.includes(fieldName)) return null;
+    const value = watch(fieldName as keyof PropertyFormData) as string | undefined;
+    return (
+      <AiEnhanceButton
+        fieldName={fieldName}
+        currentValue={value}
+        formData={formDataForAI}
+        onEnhanced={(newVal) => setValue(fieldName as keyof PropertyFormData, newVal, { shouldDirty: true })}
+        size="xs"
+      />
+    );
+  };
 
 
   const handleFileChange = async (
@@ -285,9 +323,12 @@ const FormStep = ({ title, description, fields, maxVisibleFields, showQuestions,
                   className="space-y-6"
                 >
                   <div className="space-y-4 p-8 rounded-[2.5rem] bg-white border border-purple-100/50 shadow-[0_32px_64px_-16px_rgba(124,58,237,0.08)] ring-1 ring-purple-600/5">
-                    <p className="text-xl font-bold text-gray-900 leading-tight">
-                      {currentField.question}
-                    </p>
+                    <div className="flex items-start justify-between gap-4">
+                      <p className="text-xl font-bold text-gray-900 leading-tight">
+                        {currentField.question}
+                      </p>
+                      {renderAiButton(currentField.name)}
+                    </div>
 
                     <div className="pt-2">
                       {renderFieldContent(currentField)}
@@ -337,10 +378,13 @@ const FormStep = ({ title, description, fields, maxVisibleFields, showQuestions,
           <div className="space-y-6">
             {fields.map((field) => (
               <div key={field.name} className="space-y-2">
-                <Label htmlFor={field.name} className="text-gray-700 font-semibold">
-                  {field.label}
-                  {field.required && <span className="text-red-500 ml-1">*</span>}
-                </Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor={field.name} className="text-gray-700 font-semibold">
+                    {field.label}
+                    {field.required && <span className="text-red-500 ml-1">*</span>}
+                  </Label>
+                  {renderAiButton(field.name)}
+                </div>
                 {renderFieldContent(field)}
               </div>
             ))}

@@ -37,7 +37,7 @@ export function MinhasPropriedades({ userProperties }: MinePropertiesProps) {
   }, []);
 
   const { pending, approved, suspended, hasSuspended } = useMemo(() => {
-    const list = (localProperties || []).filter(p => !p.imobiliaria_id);
+    const list = localProperties || [];
     const pending = list.filter(p => p.aprovement_status === 'pending');
     const approved = list.filter(p => p.aprovement_status === 'approved');
     const suspended = list.filter((p: any) => p.rejected_reason === 'suspicious' || p.is_boost_suspended);
@@ -74,9 +74,9 @@ export function MinhasPropriedades({ userProperties }: MinePropertiesProps) {
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-border text-gray-600 rounded-button hover:bg-gray-50 transition-all disabled:opacity-50 shadow-card text-sm font-medium"
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-white border border-border text-gray-600 rounded-button hover:bg-gray-50 transition-all disabled:opacity-50 shadow-card text-[11px] sm:text-sm font-medium"
           >
-            <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
+            <RefreshCw className={cn("w-3.5 h-3.5 sm:w-4 sm:h-4", isRefreshing && "animate-spin")} />
             {isRefreshing ? 'Atualizando...' : 'Atualizar'}
           </button>
         </SectionHeader>
@@ -85,12 +85,12 @@ export function MinhasPropriedades({ userProperties }: MinePropertiesProps) {
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
-            className="mb-6 bg-red-50 border border-red-100 rounded-card p-4 flex items-start gap-3 shadow-card"
+            className="mb-4 sm:mb-6 bg-red-50 border border-red-100 rounded-card p-3 sm:p-4 flex items-start gap-2 sm:gap-3 shadow-card"
           >
-            <ShieldAlert className="w-5 h-5 text-red-600 mt-0.5" />
+            <ShieldAlert className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 mt-0.5 shrink-0" />
             <div>
-              <h4 className="text-red-800 font-semibold mb-1">Impulsionamento Suspenso</h4>
-              <p className="text-red-700 text-xs">Verifique suas propriedades suspensas abaixo para regularizar.</p>
+              <h4 className="text-red-800 font-semibold text-[11px] sm:text-base mb-0.5 sm:mb-1">Impulsionamento Suspenso</h4>
+              <p className="text-red-700 text-[10px] sm:text-xs">Verifique suas propriedades suspensas abaixo para regularizar.</p>
             </div>
           </motion.div>
         )}

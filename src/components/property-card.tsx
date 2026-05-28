@@ -171,7 +171,7 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
     (boostInfo.isBoosted || boostInfo.isSuspended || boostInfo.isExpired) ? (
       <BoostedBadge isExpired={boostInfo.isExpired} isSuspended={boostInfo.isSuspended} />
     ) : (
-      <div className={`px-4 py-1.5 rounded-badge text-white text-sm font-semibold shadow-card ${property.status === 'comprar' ? 'bg-[#10B981]' : 'bg-blue-500'}`}>
+      <div className={`px-2 sm:px-4 py-1 sm:py-1.5 rounded-badge text-white text-[11px] sm:text-sm font-semibold shadow-card ${property.status === 'comprar' ? 'bg-[#10B981]' : 'bg-blue-500'}`}>
         {property.status === 'comprar' ? 'À venda' : 'Arrendar'}
       </div>
     )

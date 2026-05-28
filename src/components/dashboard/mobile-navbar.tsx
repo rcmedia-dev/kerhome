@@ -1,9 +1,24 @@
 'use client';
 
-import { Home, Heart, MessageCircle, Calendar, Settings, Menu, X, Store, BarChart3 } from 'lucide-react';
+import {
+    Home,
+    Heart,
+    MessageCircle,
+    Activity,
+    MoreHorizontal,
+    Calendar,
+    BarChart3,
+    Settings,
+    Store,
+    X,
+    LogOut,
+    ArrowLeft
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useUserStore } from '@/lib/store/user-store';
+import { createClient } from '@/lib/supabase/client';
 
 interface MobileNavbarProps {
     activeTab: string;
@@ -12,69 +27,186 @@ interface MobileNavbarProps {
 }
 
 export function MobileNavbar({ activeTab, setActiveTab, userAgency }: MobileNavbarProps) {
-    const [isOpen, setIsOpen] = useState(false);
+    const [showMore, setShowMore] = useState(false);
+    const supabase = createClient();
 
-    const menuItems = [
-        { id: 'properties', label: 'Propriedades', icon: Home },
+    const handleLogout = async () => {
+        try {
+            const store = useUserStore.getState();
+            if (typeof store.signOut === 'function') {
+                await store.signOut();
+            } else {
+                await supabase.auth.signOut();
+            }
+            window.location.href = '/login';
+        } catch (error) {
+            console.error('Error during logout:', error);
+            window.location.href = '/login';
+        }
+    };
+
+    const primaryTabs = [
+        { id: 'properties', label: 'Imóveis', icon: Home },
         { id: 'favorites', label: 'Favoritas', icon: Heart },
-        { id: 'messages', label: 'Mensagens', icon: MessageCircle },
+        { id: 'messages', label: 'Chat', icon: MessageCircle },
+        { id: 'stats', label: 'Stats', icon: Activity },
+    ];
+
+    const secondaryTabs = [
         { id: 'visits', label: 'Visitas', icon: Calendar },
         { id: 'invoices', label: 'Faturas', icon: BarChart3 },
-        { id: 'stats', label: 'Estatísticas', icon: BarChart3 },
         { id: 'settings', label: 'Ajustes', icon: Settings },
     ];
 
-    if (userAgency && userAgency.status === 'approved') {
-        menuItems.splice(menuItems.findIndex(i => i.id === 'settings'), 0, {
-            id: 'agency',
-            label: 'Agência',
-            icon: Store
-        });
+    if (userAgency?.status === 'approved') {
+        secondaryTabs.unshift({ id: 'agency', label: 'Agência', icon: Store });
     }
 
+    const isSecondaryActive = secondaryTabs.some(t => t.id === activeTab);
+
     return (
-        <div className="lg:hidden w-full bg-white border-b border-gray-100 sticky top-0 z-50 px-4 py-3 flex items-center justify-between shadow-sm">
-            <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
-                    <span className="text-white font-black text-sm">K</span>
-                </div>
-                <span className="text-sm font-black text-gray-900 uppercase tracking-tighter">Dashboard</span>
-            </div>
-
-            <button 
-                onClick={() => setIsOpen(!isOpen)}
-                className="p-2 bg-gray-50 rounded-button text-gray-500 hover:bg-gray-100 transition-all"
+        <>
+            {/* ── Fixed Bottom Navigation Bar ── */}
+            <nav
+                className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/96 backdrop-blur-xl border-t border-gray-100 shadow-[0_-2px_24px_rgba(0,0,0,0.07)]"
+                style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
             >
-                {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        className="absolute top-full left-0 w-full bg-white border-b border-gray-100 shadow-xl p-4 flex flex-col gap-2"
-                    >
-                        {menuItems.map((item) => (
+                <div className="flex items-center h-16 px-2">
+                    {primaryTabs.map((tab) => {
+                        const isActive = activeTab === tab.id && !showMore;
+                        return (
                             <button
-                                key={item.id}
-                                onClick={() => {
-                                    setActiveTab(item.id);
-                                    setIsOpen(false);
-                                }}
-                                className={cn(
-                                    "flex items-center gap-3 p-3 rounded-button transition-all",
-                                    activeTab === item.id ? "bg-purple-50 text-purple-700" : "text-gray-500 active:bg-gray-50"
-                                )}
+                                key={tab.id}
+                                onClick={() => { setActiveTab(tab.id); setShowMore(false); }}
+                                className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 transition-all duration-150 active:scale-90 outline-none"
+                                aria-label={tab.label}
                             >
-                                <item.icon className="w-5 h-5" />
-                                <span className="text-sm font-bold">{item.label}</span>
+                                <div className={cn(
+                                    'w-11 h-7 rounded-full flex items-center justify-center transition-all duration-200',
+                                    isActive ? 'bg-purple-100' : ''
+                                )}>
+                                    <tab.icon className={cn(
+                                        'w-[19px] h-[19px] transition-all duration-200',
+                                        isActive ? 'text-purple-600' : 'text-gray-400'
+                                    )} />
+                                </div>
+                                <span className={cn(
+                                    'text-[9.5px] font-semibold leading-none transition-colors duration-200',
+                                    isActive ? 'text-purple-600' : 'text-gray-400'
+                                )}>
+                                    {tab.label}
+                                </span>
                             </button>
-                        ))}
+                        );
+                    })}
+
+                    {/* More button */}
+                    <button
+                        onClick={() => setShowMore(v => !v)}
+                        className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 transition-all duration-150 active:scale-90 outline-none"
+                        aria-label="Mais opções"
+                    >
+                        <div className={cn(
+                            'w-11 h-7 rounded-full flex items-center justify-center transition-all duration-200',
+                            (showMore || isSecondaryActive) ? 'bg-purple-100' : ''
+                        )}>
+                            <AnimatePresence mode="wait" initial={false}>
+                                {showMore ? (
+                                    <motion.div key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }}>
+                                        <X className="w-[19px] h-[19px] text-purple-600" />
+                                    </motion.div>
+                                ) : (
+                                    <motion.div key="more" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.15 }}>
+                                        <MoreHorizontal className={cn(
+                                            'w-[19px] h-[19px]',
+                                            (showMore || isSecondaryActive) ? 'text-purple-600' : 'text-gray-400'
+                                        )} />
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                        <span className={cn(
+                            'text-[9.5px] font-semibold leading-none transition-colors duration-200',
+                            (showMore || isSecondaryActive) ? 'text-purple-600' : 'text-gray-400'
+                        )}>
+                            Mais
+                        </span>
+                    </button>
+                </div>
+            </nav>
+
+            {/* ── Bottom Sheet backdrop + panel ── */}
+            <AnimatePresence>
+                {showMore && (
+                    <motion.div
+                        key="backdrop"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.18 }}
+                        className="lg:hidden fixed inset-0 bg-black/25 z-40 backdrop-blur-[3px]"
+                        onClick={() => setShowMore(false)}
+                    />
+                )}
+
+                {showMore && (
+                    <motion.div
+                        key="sheet"
+                        initial={{ y: '100%' }}
+                        animate={{ y: 0 }}
+                        exit={{ y: '100%' }}
+                        transition={{ type: 'spring', damping: 34, stiffness: 420 }}
+                        className="lg:hidden fixed bottom-16 left-0 right-0 bg-white rounded-t-[28px] z-50 shadow-2xl px-4 pt-5 pb-6"
+                        style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))' }}
+                    >
+                        {/* Handle */}
+                        <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5" />
+
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 px-1">
+                            Mais opções
+                        </p>
+
+                        <div className="grid grid-cols-3 gap-3">
+                            {secondaryTabs.map((tab) => {
+                                const isActive = activeTab === tab.id;
+                                return (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => { setActiveTab(tab.id); setShowMore(false); }}
+                                        className={cn(
+                                            'flex flex-col items-center justify-center gap-2 p-4 rounded-2xl transition-all active:scale-95',
+                                            isActive
+                                                ? 'bg-gradient-to-br from-purple-500 to-purple-700 text-white shadow-lg shadow-purple-200'
+                                                : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                                        )}
+                                    >
+                                        <tab.icon className="w-5 h-5" />
+                                        <span className="text-xs font-semibold">{tab.label}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Extra Actions */}
+                        <div className="mt-6 pt-6 border-t border-gray-100 flex gap-3">
+                            <button
+                                onClick={() => window.location.href = '/'}
+                                className="flex-1 flex items-center justify-center gap-2 p-3 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-xl transition-all active:scale-95 font-semibold text-xs"
+                            >
+                                <ArrowLeft className="w-4 h-4" />
+                                Voltar ao Site
+                            </button>
+                            <button
+                                onClick={handleLogout}
+                                className="flex items-center justify-center gap-2 p-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition-all active:scale-95 font-semibold text-xs"
+                            >
+                                <LogOut className="w-4 h-4" />
+                                Sair
+                            </button>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
-        </div>
+        </>
     );
 }

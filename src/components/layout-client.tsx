@@ -1,13 +1,11 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import TopBar from "@/components/top-bar";
 import { AuthDialog } from "./login-modal";
 import { ChatWidget } from "./chat/chat-widget";
 import { AssistantLauncher } from "./assistant-launcher";
-import { cn } from "@/lib/utils";
 import GoogleAnalyticsClient from "@/components/google-analytics";
 import { MobileMenu } from "@/components/mobile-menu";
 
@@ -16,17 +14,8 @@ export default function LayoutClient({
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-  const isDashboardPage =
-    pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/admin/dashboard");
-
   return (
-    <div className={cn(
-      "flex flex-col min-h-screen",
-      isDashboardPage && "h-screen overflow-hidden"
-    )}>
-      {/* Chat widget rendered ONCE for the entire app — prevents double portal from dual Header mount */}
+    <div id="global-layout-root" className="flex flex-col min-h-screen">
       <ChatWidget />
 
       {/* Desktop: TopBar + Header stacked */}
@@ -35,25 +24,18 @@ export default function LayoutClient({
         <Header />
       </div>
       {/* Mobile: Header only */}
-      <div className="md:hidden shrink-0">
+      <div id="global-mobile-header" className="md:hidden shrink-0">
         <Header />
       </div>
 
-      <main className={cn(
-        "flex-1 min-h-0",
-        !isDashboardPage && "pb-14"
-      )}>
+      <main className="flex-1 min-h-0 pb-14">
         <GoogleAnalyticsClient />
         {children}
       </main>
 
       <AuthDialog />
-      {!isDashboardPage && (
-        <>
-          <Footer />
-          <MobileMenu />
-        </>
-      )}
+      <Footer />
+      <MobileMenu />
       <AssistantLauncher />
     </div>
   );

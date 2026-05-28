@@ -2,9 +2,15 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Facebook, Instagram, Linkedin, Send } from "lucide-react";
 
 export default function Footer() {
+  const pathname = usePathname();
+  const isExcludedRoute = pathname?.startsWith("/dashboard") || pathname?.startsWith("/admin/dashboard");
+
+  if (isExcludedRoute) return null;
+
   return (
     <footer className="flex flex-col md:flex-row min-h-[400px] w-full overflow-hidden">
 

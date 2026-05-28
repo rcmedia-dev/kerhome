@@ -38,7 +38,21 @@ Responde em português (pt-AO), num parágrafo curto e direto.`;
     }
 
     const data = await res.json();
-    return Response.json({ summary: data.answer || '' });
+    const answer = data.answer;
+    let summary = '';
+
+    if (typeof answer === 'string') {
+      try {
+        const parsed = JSON.parse(answer);
+        summary = parsed.summary || parsed.text || answer;
+      } catch {
+        summary = answer;
+      }
+    } else if (typeof answer === 'object' && answer !== null) {
+      summary = answer.summary || answer.text || '';
+    }
+
+    return Response.json({ summary });
   } catch {
     return Response.json({ summary: 'Compara os imóveis na tabela abaixo.' });
   }

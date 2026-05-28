@@ -63,7 +63,7 @@ export function PropertyCardBase({
 
       {/* IMAGEM & BADGES */}
       <div 
-          className="relative h-[250px] w-full overflow-hidden shrink-0"
+          className="relative h-[180px] sm:h-[250px] w-full overflow-hidden shrink-0"
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
         >
@@ -118,14 +118,14 @@ export function PropertyCardBase({
       </div>
 
       {/* INFO CONTENT */}
-      <div className="flex-1 px-5 pt-5 pb-4 flex flex-col relative">
+      <div className="flex-1 px-3 sm:px-5 pt-3 sm:pt-5 pb-3 sm:pb-4 flex flex-col relative">
 
-        <div className="flex items-center gap-1.5 text-gray-500 text-sm mb-1.5">
-          <MapPin className="w-4 h-4 text-gray-400" />
+        <div className="flex items-center gap-1.5 text-gray-500 text-xs sm:text-sm mb-1 sm:mb-1.5">
+          <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
           <span className="line-clamp-1">{property.endereco || "Localização não informada"}</span>
         </div>
 
-        <h3 className="text-xl font-bold text-[#1A1A1A] leading-tight line-clamp-2 mb-3 h-[50px] overflow-hidden" title={property.title}>
+        <h3 className="text-base sm:text-xl font-bold text-[#1A1A1A] leading-tight line-clamp-2 mb-2 sm:mb-3 overflow-hidden" title={property.title}>
           {isClickable ? (
             <Link href={defaultHref}>
               {property.title}
@@ -135,18 +135,18 @@ export function PropertyCardBase({
           )}
         </h3>
 
-        <div className="flex items-center justify-between text-gray-600 text-sm mb-2 border-b border-gray-50 pb-2">
-          <div className="flex items-center gap-2">
-            <BedDouble className="w-5 h-5 text-gray-400" />
+        <div className="flex items-center justify-between text-gray-600 text-xs sm:text-sm mb-1.5 sm:mb-2 border-b border-gray-50 pb-1.5 sm:pb-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <BedDouble className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
             <span className="font-medium">{parseNumber(property.bedrooms)} Quartos</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Ruler className="w-4 h-4 text-gray-400" />
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <Ruler className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
             <span className="font-medium">{property.size}</span>
           </div>
         </div>
 
-        <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+        <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500 mb-2 sm:mb-4">
           <span className="capitalize">{property.tipo || property.status}</span>
           {(parseNumber(property.bathrooms) > 0) ? (
             <span className="text-gray-500">{parseNumber(property.bathrooms)} Banheiros</span>
@@ -155,14 +155,14 @@ export function PropertyCardBase({
           )}
         </div>
 
-        <div className="flex items-center gap-2 mb-4">
-          <Tag className="w-5 h-5 text-[#F97316] -rotate-90" />
-          <span className="text-2xl font-bold text-[#F97316]">
+        <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-4">
+          <Tag className="w-4 h-4 sm:w-5 sm:h-5 text-[#F97316] -rotate-90" />
+          <span className="text-lg sm:text-2xl font-bold text-[#F97316]">
             {priceParsed.toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {property.unidade_preco === 'dolar' ? '$' : property.unidade_preco === 'euro' ? '€' : 'Kz'}
           </span>
         </div>
 
-        <div className="pt-4 mt-auto border-t border-gray-100">
+        <div className="pt-2 sm:pt-4 mt-auto border-t border-gray-100">
           {footerAction ? footerAction : (
             isClickable ? (
               <Link

@@ -81,18 +81,18 @@ export function VisitasAgendadas({ userId }: VisitasProps) {
   const currentList = subTab === 'pending' ? pending : subTab === 'confirmed' ? confirmed : history;
 
   return (
-    <div className="w-full">
+    <div className="w-full min-w-0">
       <SectionHeader
         title="Visitas Agendadas"
         icon={Calendar}
         description="Gerencie seus compromissos com potenciais clientes."
-        className="mb-8 px-2"
+        className="mb-6 px-2"
       >
         <button
           onClick={fetchVisits}
-          className="flex items-center gap-2 px-4 py-2 bg-white border border-border text-gray-600 rounded-button hover:bg-gray-50 transition-all shadow-card text-sm font-medium"
+          className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-white border border-border text-gray-600 rounded-button hover:bg-gray-50 transition-all shadow-card text-xs sm:text-sm font-medium shrink-0"
         >
-          <RefreshCw className="w-4 h-4" />
+          <RefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           Atualizar
         </button>
       </SectionHeader>
@@ -100,29 +100,32 @@ export function VisitasAgendadas({ userId }: VisitasProps) {
       {!visits || visits.length === 0 ? (
         <EmptyState message="Nenhuma visita agendada ainda." icon={Calendar} />
       ) : (
-        <div className="space-y-8">
-          <div className="flex p-1 bg-gray-100 rounded-card w-fit mx-auto lg:mx-0">
-            {[
-              { id: 'pending', label: 'Pendentes', count: pending.length, color: 'text-orange-600' },
-              { id: 'confirmed', label: 'Confirmadas', count: confirmed.length, color: 'text-purple-600' },
-              { id: 'history', label: 'Histórico', count: history.length, color: 'text-gray-600' }
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setSubTab(tab.id as any)}
-                className={cn(
-                    "px-6 py-2.5 rounded-button text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-2",
-                  subTab === tab.id 
-                    ? "bg-white text-gray-900 shadow-card" 
-                    : "text-gray-400 hover:text-gray-600"
-                )}
-              >
-                {tab.label}
-                <span className={cn("px-2 py-0.5 rounded-full bg-gray-50 text-[10px]", subTab === tab.id ? tab.color : "text-gray-300")}>
-                  {tab.count}
-                </span>
-              </button>
-            ))}
+        <div className="space-y-6">
+          {/* Sub-tabs: scroll horizontal em mobile */}
+          <div className="w-full overflow-x-auto">
+            <div className="flex p-1 bg-gray-100 rounded-card w-full sm:w-fit min-w-0">
+              {[
+                { id: 'pending', label: 'Pendentes', count: pending.length, color: 'text-orange-600' },
+                { id: 'confirmed', label: 'Confirmadas', count: confirmed.length, color: 'text-purple-600' },
+                { id: 'history', label: 'Histórico', count: history.length, color: 'text-gray-600' }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setSubTab(tab.id as any)}
+                  className={cn(
+                    "flex-1 sm:flex-none px-3 sm:px-5 py-2 sm:py-2.5 rounded-button text-[10px] sm:text-[11px] font-black uppercase tracking-wider sm:tracking-widest transition-all flex items-center justify-center gap-1.5",
+                    subTab === tab.id
+                      ? "bg-white text-gray-900 shadow-card"
+                      : "text-gray-400 hover:text-gray-600"
+                  )}
+                >
+                  {tab.label}
+                  <span className={cn("px-1.5 py-0.5 rounded-full bg-gray-50 text-[9px] sm:text-[10px] font-bold", subTab === tab.id ? tab.color : "text-gray-300")}>
+                    {tab.count}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
 
           <AnimatePresence mode="wait">
@@ -131,7 +134,7 @@ export function VisitasAgendadas({ userId }: VisitasProps) {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8 min-w-0"
+              className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 min-w-0 w-full"
             >
               {currentList.length === 0 ? (
                 <div className="col-span-full py-20 text-center border-2 border-dashed border-border rounded-card-lg">
@@ -189,7 +192,7 @@ function VisitListItem({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="bg-white p-6 md:p-8 lg:p-10 rounded-card-lg border border-border shadow-card hover:shadow-card-hover hover:border-purple-200 transition-all group space-y-7 relative overflow-hidden"
+      className="bg-white p-4 sm:p-6 md:p-8 rounded-card-lg border border-border shadow-card hover:shadow-card-hover hover:border-purple-200 transition-all group space-y-5 sm:space-y-7 relative overflow-hidden min-w-0"
     >
       <div className={cn("absolute -right-6 -top-6 w-32 h-32 opacity-[0.03] rotate-12 transition-transform group-hover:scale-110", s.cls.split(' ')[0])}>
         <StatusIcon className="w-full h-full" />
@@ -248,7 +251,7 @@ function VisitListItem({
           <Calendar className="w-4 h-4" />
           <span className="text-[11px] font-black uppercase tracking-widest">{dayName}</span>
         </div>
-        <h3 className="text-2xl md:text-3xl font-black text-gray-900 leading-tight">
+        <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 leading-tight">
           {formattedDate}
         </h3>
       </div>

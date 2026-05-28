@@ -25,8 +25,8 @@ interface DashboardContentProps {
 
 const tabContentVariants: Variants = {
     hidden: { opacity: 0, x: 20 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: "easeOut" as Easing } },
-    exit: { opacity: 0, x: -20, transition: { duration: 0.3 } }
+    visible: { opacity: 1, x: 0, transition: { duration: 0.35, ease: 'easeOut' as Easing } },
+    exit: { opacity: 0, x: -20, transition: { duration: 0.25 } }
 };
 
 export function DashboardContent({
@@ -40,13 +40,16 @@ export function DashboardContent({
     isLoading,
     isFullWidth,
 }: DashboardContentProps) {
-    const personalProperties = userProperties?.filter(p => !p.imobiliaria_id) || [];
-    const agencyProperties = userProperties?.filter(p => p.imobiliaria_id === userAgency?.id) || [];
+    const personalProperties = userProperties;
+    const agencyProperties = userProperties ? userProperties.filter(p => p.imobiliaria_id === userAgency?.id) : null;
 
     return (
+        // On mobile: full width, natural height (scrolled by parent).
+        // On lg: col-span-9 or 12, fixed height with inner scroll.
         <div className={cn(
-            isFullWidth ? "md:col-span-12 h-full flex flex-col min-h-0" : "md:col-span-9 h-full flex flex-col min-h-0",
-            "order-2 md:order-1"
+            isFullWidth ? 'lg:col-span-12' : 'lg:col-span-9',
+            activeTab === 'messages' ? 'h-full lg:h-full' : 'flex-1 lg:h-full',
+            'flex flex-col min-h-0'
         )}>
             <AnimatePresence mode="wait">
                 <motion.div
@@ -56,18 +59,20 @@ export function DashboardContent({
                     animate="visible"
                     exit="exit"
                     className={cn(
-                        "w-full h-full flex flex-col min-h-0",
-                        isFullWidth ? "bg-transparent border-none p-0" : "bg-white rounded-card-lg p-4 lg:p-8 shadow-card border border-border overflow-y-auto custom-scrollbar"
+                        'w-full flex flex-col flex-1',
+                        isFullWidth
+                            ? 'bg-transparent border-none p-0 min-h-0'
+                            : 'bg-white rounded-card-lg p-3 sm:p-5 lg:p-6 shadow-card border border-border lg:h-full lg:overflow-y-auto custom-scrollbar'
                     )}
                 >
-                    {activeTab === 'properties' && <MinhasPropriedades userProperties={isLoading ? null : personalProperties} />}
-                    {activeTab === 'favorites' && <Favoritas userFavoriteProperties={isLoading ? null : userFavoriteProperties} />}
-                    {activeTab === 'invoices' && <Faturas invoices={isLoading ? null : userInvoices} />}
-                    { activeTab === 'stats' && <StatsTab user={user} ownerId={user?.id} mostViewedProperties={isLoading ? null : mostViewed} /> }
-                    { activeTab === 'agency' && <AgencyManagement agency={userAgency} agencyProperties={isLoading ? null : agencyProperties} /> }
-                    { activeTab === 'settings' && <ConfiguracoesConta profile={user} /> }
-                    { activeTab === 'messages' && <MessagesTab /> }
-                    { activeTab === 'visits' && <VisitasAgendadas userId={user?.id} /> }
+                    {activeTab === 'properties' && <MinhasPropriedades userProperties={personalProperties} />}
+                    {activeTab === 'favorites' && <Favoritas userFavoriteProperties={userFavoriteProperties} />}
+                    {activeTab === 'invoices' && <Faturas invoices={userInvoices} />}
+                    {activeTab === 'stats' && <StatsTab user={user} ownerId={user?.id} mostViewedProperties={mostViewed} />}
+                    {activeTab === 'agency' && <AgencyManagement agency={userAgency} agencyProperties={agencyProperties} />}
+                    {activeTab === 'settings' && <ConfiguracoesConta profile={user} />}
+                    {activeTab === 'messages' && <MessagesTab />}
+                    {activeTab === 'visits' && <VisitasAgendadas userId={user?.id} />}
                 </motion.div>
             </AnimatePresence>
         </div>

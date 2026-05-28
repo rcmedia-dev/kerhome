@@ -10,6 +10,7 @@ import { PropertyGallery } from "@/components/property-gallery";
 import { PropertyHeader } from "@/components/property-header";
 import { PropertyLocation } from "@/components/property-location";
 import { TechnicalDetails } from "@/components/technical-details";
+import { PropertyMywaiSummary } from "@/components/property-mywai-summary";
 import { MobileContactFAB } from "@/components/mobile-contact-fab";
 import AgentSection from "@/components/agent-section";
 import { checkIfPropertyIsBoosted, trackBoostView } from "@/lib/functions/supabase-actions/boost-functions";
@@ -137,8 +138,9 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
 
             {/* Content Blocks */}
             <div className="space-y-8 md:space-y-12">
-              <TechnicalDetails property={property} />
+              <PropertyMywaiSummary property={property} />
 
+              <TechnicalDetails property={property} />
 
               {/* Características/Features */}
               {property.caracteristicas && property.caracteristicas.length > 0 && (

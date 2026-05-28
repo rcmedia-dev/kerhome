@@ -130,6 +130,24 @@ export async function acceptAgencyInvite(token: string, supabaseClient?: any) {
             throw new Error(`Este convite foi enviado para ${invite.email}, mas tu estás logado como ${user.email}.`);
         }
 
+        // 2.5 Validar se a solicitação de agente está aprovada
+        const { data: requestStatusData, error: requestStatusError } = await supabase
+            .from('agente_requests')
+            .select('status')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+        if (requestStatusError && requestStatusError.code !== 'PGRST116') {
+            throw requestStatusError;
+        }
+
+        const agentStatus = requestStatusData?.status;
+        if (agentStatus !== 'approved') {
+            throw new Error("Sua solicitação para se tornar um agente ainda não foi aprovada.");
+        }
+
         // 3. Atualizar perfil e convite diretamente (KISS)
         const { error: profileError } = await supabase
             .from('profiles')

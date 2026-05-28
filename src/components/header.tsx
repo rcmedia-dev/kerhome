@@ -7,7 +7,6 @@ import {
   Menu,
   UserCircle,
   X,
-  MessageSquare,
   Home,
   Building,
   Newspaper,
@@ -37,6 +36,10 @@ import { motion, AnimatePresence, Transition, Variants } from 'framer-motion';
 
 import { ChatWidget } from './chat/chat-widget';
 import { useChatStore } from '@/lib/store/chat-store';
+
+function MessengerIcon({ className }: { className?: string }) {
+  return <img src="/icons/messenger.svg" alt="Messenger" className={className} />;
+}
 
 // Animations with proper TypeScript types
 const headerAnimations: Variants = {
@@ -172,11 +175,11 @@ function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: bo
             text-sm font-medium 
             rounded-xl shadow-sm 
             transition-all duration-300 
-            gap-2 outline-none 
+            gap-2 outline-none cursor-pointer
             focus:ring-2 focus:ring-purple-400`}
         >
           <UserCircle className="w-5 h-5" />
-          <span className="hidden sm:inline font-semibold">Minha Conta</span>
+          <span className={mobile ? "font-semibold" : "hidden sm:inline font-semibold"}>Minha Conta</span>
         </motion.button>
       </DropdownMenuTrigger>
 
@@ -439,11 +442,11 @@ export default function Header() {
             {user && !isDashboardMessages && (
               <button
                 onClick={toggleChat}
-                className="p-2.5 rounded-xl text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors relative"
+                className="p-2.5 rounded-xl text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors relative cursor-pointer"
                 aria-label="Mensagens"
               >
                 <div className="relative">
-                  <MessageSquare className="w-5 h-5" />
+                  <MessengerIcon className="w-5 h-5" />
                   {totalUnreadCount > 0 && (
                     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full animate-pulse">
                       {totalUnreadCount > 9 ? '9+' : totalUnreadCount}
@@ -466,7 +469,7 @@ export default function Header() {
                 whileTap={{ scale: 0.98 }}
                 onClick={() => openAuthModal()}
                 transition={springTransition}
-                className="group flex items-center gap-2 px-5 py-2.5 bg-orange-600 text-white rounded-xl hover:bg-orange-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                className="group flex items-center gap-2 px-5 py-2.5 bg-orange-600 text-white rounded-xl hover:bg-orange-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 cursor-pointer"
                 aria-label="Acessar minha conta"
               >
                 <UserCircle className="w-5 h-5 text-white group-hover:text-white transition-colors" />
@@ -482,10 +485,10 @@ export default function Header() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleChat}
-                className="p-2 rounded-xl text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                className="p-2 rounded-xl text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors cursor-pointer"
                 aria-label="Mensagens"
               >
-                <MessageSquare className="w-5 h-5" />
+                <MessengerIcon className="w-5 h-5" />
               </motion.button>
             )}
             <motion.button
@@ -493,7 +496,7 @@ export default function Header() {
               whileTap={{ scale: 0.9 }}
               transition={springTransition}
               onClick={() => setMenuOpen(!menuOpen)}
-              className="p-2 rounded-xl text-purple-700 hover:bg-purple-50 transition-colors"
+              className="p-2 rounded-xl text-purple-700 hover:bg-purple-50 transition-colors cursor-pointer"
               aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
               aria-expanded={menuOpen}
             >

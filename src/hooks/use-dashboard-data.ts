@@ -81,7 +81,7 @@ export function useDashboardData(userId: string | undefined) {
         mostViewed,
         userPlan,
         userAgency,
-        isLoading
+        isLoading: userProperties.isLoading || userFavoriteProperties.isLoading || userInvoices.isLoading || mostViewed.isLoading || userPlan.isLoading
     };
 }
 

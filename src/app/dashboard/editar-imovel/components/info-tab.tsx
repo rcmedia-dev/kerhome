@@ -3,13 +3,28 @@
 import React from 'react';
 import { UseFormRegister, useFormContext } from 'react-hook-form';
 import { tiposPropriedade, statusOptions } from './constants';
+import { AiEnhanceButton } from '@/components/ai-enhance-button';
+import { AiDescriptionGenerator } from '@/components/dashboard/ai-description-generator';
 
 interface InfoTabProps {
   register: UseFormRegister<any>;
 }
 
 export const InfoTab = ({ register }: InfoTabProps) => {
-  const { formState: { errors } } = useFormContext();
+  const { formState: { errors }, setValue, watch } = useFormContext();
+
+  const propertyForAI = {
+    tipo: watch('tipo'),
+    cidade: watch('cidade'),
+    bairro: watch('bairro'),
+    bedrooms: watch('bedrooms'),
+    bathrooms: watch('bathrooms'),
+    garagens: watch('garagens'),
+    size: watch('size'),
+    price: watch('price'),
+    status: watch('status'),
+    caracteristicas: watch('caracteristicas'),
+  };
 
   return (
     <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
@@ -17,9 +32,18 @@ export const InfoTab = ({ register }: InfoTabProps) => {
       
       <div className="space-y-4">
         <div>
-          <label className="block mb-1 text-sm font-medium text-gray-700">
-            Título da Propriedade
-          </label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-sm font-medium text-gray-700">
+              Título da Propriedade
+            </label>
+            <AiEnhanceButton
+              fieldName="title"
+              currentValue={watch('title')}
+              formData={propertyForAI}
+              onEnhanced={(val) => setValue('title', val, { shouldDirty: true })}
+              size="xs"
+            />
+          </div>
           <input
             {...register('title')}
             className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-700 focus:border-purple-700 ${
@@ -32,9 +56,15 @@ export const InfoTab = ({ register }: InfoTabProps) => {
         </div>
 
         <div>
-          <label className="block mb-1 text-sm font-medium text-gray-700">
-            Descrição
-          </label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-sm font-medium text-gray-700">
+              Descrição
+            </label>
+            <AiDescriptionGenerator
+              property={propertyForAI}
+              onDescriptionGenerated={(desc) => setValue('description', desc, { shouldDirty: true })}
+            />
+          </div>
           <textarea
             {...register('description')}
             rows={4}

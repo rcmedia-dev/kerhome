@@ -30,7 +30,8 @@ export async function getUserPlan(userId?: string): Promise<UserPlan | null> {
     .single();
 
   if (userError) {
-    throw new Error(`Erro ao buscar perfil: ${userError.message}`);
+    console.error(`Erro ao buscar perfil: ${userError.message}`);
+    return null;
   }
 
   if (!userData?.pacote_agente_id) {
@@ -45,11 +46,13 @@ export async function getUserPlan(userId?: string): Promise<UserPlan | null> {
     .single();
 
   if (planError) {
-    throw new Error(`Erro ao buscar detalhes do plano: ${planError.message}`);
+    console.error(`Erro ao buscar detalhes do plano: ${planError.message}`);
+    return null;
   }
 
   if (!planData) {
-    throw new Error(`Plano não encontrado para o ID: ${userData.pacote_agente_id}`);
+    console.error(`Plano não encontrado para o ID: ${userData.pacote_agente_id}`);
+    return null;
   }
 
   // 3. Contar quantos imóveis ativos o usuário já cadastrou
@@ -60,7 +63,8 @@ export async function getUserPlan(userId?: string): Promise<UserPlan | null> {
     .eq('status', 'active');
 
   if (countError) {
-    throw new Error(`Erro ao contar imóveis do usuário: ${countError.message}`);
+    console.error(`Erro ao contar imóveis do usuário: ${countError.message}`);
+    // Non-fatal error, we can still return the plan details with 0 used
   }
 
   return {

@@ -3,6 +3,7 @@
 import React from 'react';
 import { UseFormRegister, UseFormSetValue, UseFormWatch, useFormContext } from 'react-hook-form';
 import { formatarPreco, unidadesPreco, opcoesPrecoChamada } from './constants';
+import { AiMarketPrice } from '@/components/dashboard/ai-market-price';
 
 interface PriceTabProps {
   register: UseFormRegister<any>;
@@ -13,6 +14,17 @@ interface PriceTabProps {
 export const PriceTab = ({ register, setValue, watch }: PriceTabProps) => {
   const { formState: { errors } } = useFormContext();
   const precoValue = watch('price') || '';
+
+  const propertyForAI = {
+    price: watch('price'),
+    tipo: watch('tipo'),
+    cidade: watch('cidade'),
+    bedrooms: watch('bedrooms'),
+    bathrooms: watch('bathrooms'),
+    garagens: watch('garagens'),
+    size: watch('size'),
+    area_terreno: watch('area_terreno'),
+  };
   
   const handlePrecoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valorFormatado = formatarPreco(e.target.value);
@@ -21,6 +33,7 @@ export const PriceTab = ({ register, setValue, watch }: PriceTabProps) => {
   };
 
   return (
+    <div className="space-y-6">
     <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
       <h2 className="mb-4 text-lg font-semibold">Preço e Dimensões</h2>
       
@@ -118,5 +131,10 @@ export const PriceTab = ({ register, setValue, watch }: PriceTabProps) => {
         </div>
       </div>
     </div>
+
+    {propertyForAI.price && propertyForAI.tipo && (
+      <AiMarketPrice property={propertyForAI} />
+    )}
+  </div>
   );
 };

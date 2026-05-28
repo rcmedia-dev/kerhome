@@ -79,7 +79,7 @@ export function VirtualAssistant({ isOpen, onClose }: Props) {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.95 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed bottom-24 right-6 w-[380px] max-w-[calc(100vw-32px)] h-[560px] max-h-[calc(100vh-160px)] z-[9999] bg-white rounded-card shadow-floating flex flex-col overflow-hidden border border-border"
+          className="fixed md:bottom-24 bottom-32 right-6 w-[380px] max-w-[calc(100vw-32px)] h-[560px] max-h-[calc(100vh-160px)] z-[9999] bg-white rounded-card shadow-floating flex flex-col overflow-hidden border border-border"
         >
           <div className="bg-gradient-to-r from-purple-700 to-indigo-700 p-4 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">

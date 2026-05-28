@@ -46,22 +46,22 @@ export const SectionHeader = ({
     className?: string;
     children?: React.ReactNode;
 }) => (
-    <div className={cn("mb-8 px-2 sm:px-0", className)}>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-4">
-            <div className="flex items-center gap-4">
-                <div className="p-3 bg-gradient-to-r from-purple-100 to-orange-100 rounded-card shrink-0 shadow-card">
-                    <Icon className="w-6 h-6 text-purple-700" />
+    <div className={cn("mb-4 sm:mb-8 px-2 sm:px-0", className)}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6 mb-3 sm:mb-4">
+            <div className="flex items-center gap-3 sm:gap-4">
+                <div className="p-2 sm:p-3 bg-gradient-to-r from-purple-100 to-orange-100 rounded-card shrink-0 shadow-card">
+                    <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-purple-700" />
                 </div>
                 <div>
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-black bg-gradient-to-r from-purple-700 to-orange-500 bg-clip-text text-transparent leading-tight tracking-tight">
+                    <h2 className="text-lg sm:text-xl md:text-3xl font-black bg-gradient-to-r from-purple-700 to-orange-500 bg-clip-text text-transparent leading-tight tracking-tight">
                         {title}
                     </h2>
                     {description && (
-                        <p className="text-gray-500 text-[11px] sm:text-xs font-bold uppercase tracking-widest mt-1 opacity-70">{description}</p>
+                        <p className="text-gray-500 text-[10px] sm:text-[11px] md:text-xs font-bold uppercase tracking-widest mt-0.5 sm:mt-1 opacity-70">{description}</p>
                     )}
                 </div>
             </div>
-            <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-1 scrollbar-none">
+            <div className="flex items-center gap-3 w-full sm:w-auto overflow-x-auto pb-1 scrollbar-none">
                 {children}
             </div>
         </div>
@@ -98,15 +98,15 @@ export const KanbanColumn = ({
     }
 
     return (
-        <div className="flex flex-col gap-5 w-full min-w-0 lg:min-w-[320px] lg:max-w-md flex-1">
-            <div className={cn("flex items-center justify-between p-5 rounded-card border shadow-card transition-all hover:shadow-card-hover", colorStyles[color])}>
+        <div className="flex flex-col gap-3 sm:gap-5 w-full min-w-0">
+            <div className={cn("flex items-center justify-between p-3 sm:p-5 rounded-card border shadow-card transition-all hover:shadow-card-hover", colorStyles[color])}>
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white/50 rounded-badge">
-                        {Icon && <Icon className="w-4 h-4" />}
+                    <div className="p-1.5 sm:p-2 bg-white/50 rounded-badge">
+                        {Icon && <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                     </div>
-                    <h3 className="font-black text-[11px] uppercase tracking-widest">{title}</h3>
+                    <h3 className="font-black text-[9px] sm:text-[11px] uppercase tracking-widest">{title}</h3>
                 </div>
-                <span className={cn("px-3 py-1 rounded-full bg-white text-xs font-black shadow-sm border border-black/5", badgeStyles[color])}>
+                <span className={cn("px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-white text-[10px] sm:text-xs font-black shadow-sm border border-black/5", badgeStyles[color])}>
                     {count}
                 </span>
             </div>
