@@ -162,6 +162,8 @@ export function PropertyAiChat({
                     src={propertyImage}
                     alt={property.title || 'Imóvel'}
                     fill
+                    unoptimized={true}
+                    priority
                     className="object-cover"
                     sizes="340px"
                   />
