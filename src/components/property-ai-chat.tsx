@@ -40,10 +40,10 @@ export function PropertyAiChat({
     if (isOpen && messages.length === 0) {
       setMessages([{
         role: 'assistant',
-        content: `Olá! Posso responder perguntas sobre **${property.title || 'este imóvel'}**. O que gostarias de saber?`
+        content: `Tira as tuas dúvidas sobre este imóvel. Podes usar as perguntas rápidas abaixo ou escrever a tua própria pergunta.`
       }]);
     }
-  }, [isOpen, property.title, messages.length]);
+  }, [isOpen, messages.length]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
