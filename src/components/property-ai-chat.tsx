@@ -90,13 +90,14 @@ export function PropertyAiChat({
         `Características: ${Array.isArray(property.caracteristicas) ? property.caracteristicas.join(', ') : ''}`,
       ].filter(Boolean).join('\n');
 
-      const res = await fetch('/api/mywai/search', {
+      const res = await fetch('/api/mywai/property-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: q,
           propertyContext: context,
           propertyId: property.id,
+          history: messages.map(m => ({ role: m.role, content: m.content })),
         }),
       });
 
