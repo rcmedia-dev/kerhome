@@ -6,7 +6,6 @@ import { Pencil, Trash, Heart, Share2, Zap, AlertCircle, ShieldAlert } from 'luc
 import { toast } from 'sonner';
 
 import { PropertyCardBase } from '@/components/ui/property-card-base';
-import { MarketPriceBadge } from '@/components/market-price-badge';
 import { toggleFavoritoProperty } from '@/lib/functions/toggle-favorite';
 import { getImoveisFavoritos } from '@/lib/functions/get-favorited-imoveis';
 import { useUserStore } from '@/lib/store/user-store';
@@ -179,7 +178,6 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
           {property.status === 'comprar' ? 'À venda' : 'Arrendar'}
         </div>
       )}
-      {property.id !== 'preview-id' && <MarketPriceBadge property={property} />}
       {((property as any).video_url || (property as any).tour_url) && (
         <div className="px-2 py-1 rounded-badge bg-purple-600/90 text-white text-[10px] font-bold flex items-center gap-1 shadow-sm backdrop-blur-sm">
           <span className="text-xs">▶</span>

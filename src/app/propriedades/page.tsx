@@ -821,18 +821,18 @@ function PropertyCardItem({ property, index, onQuickView }: { property: any; ind
         </div>
       )}
       <PropertyCard property={property} isClickable={!selectionMode} onQuickView={onQuickView ? () => onQuickView(property) : undefined} footerAction={
-        <div className="flex gap-2">
-          {property.owner?.id && <div className="flex-1"><ScheduleVisitButton property={property} /></div>}
+        <div className="flex flex-col gap-2">
+          {property.owner?.id && <ScheduleVisitButton property={property} />}
           {!selectionMode ? (
             <Link
               href={property.slug ? `/propriedades/${property.slug}` : `/propriedades/${property.id}`}
-              className="flex-1 bg-[#820AD1] hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-button text-center transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm text-sm"
+              className="w-full bg-[#820AD1] hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-button text-center transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm text-sm"
             >
               <span>Ver Detalhes</span>
               <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
             </Link>
           ) : (
-            <div className="flex-1 bg-gray-100 text-gray-400 font-bold py-3 px-4 rounded-button text-center flex items-center justify-center gap-2 cursor-default">
+            <div className="w-full bg-gray-100 text-gray-400 font-bold py-3 px-4 rounded-button text-center flex items-center justify-center gap-2 cursor-default">
               <span>Ver Detalhes</span>
               <ArrowRight className="w-4 h-4" />
             </div>
