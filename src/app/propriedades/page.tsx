@@ -826,13 +826,13 @@ function PropertyCardItem({ property, index, onQuickView }: { property: any; ind
           {!selectionMode ? (
             <Link
               href={property.slug ? `/propriedades/${property.slug}` : `/propriedades/${property.id}`}
-              className="w-full bg-white border-2 border-[#820AD1] text-[#820AD1] hover:bg-purple-50 font-bold py-3 px-4 rounded-button text-center transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm text-sm"
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-button text-center transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm text-sm"
             >
               <span>Ver Detalhes</span>
               <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
             </Link>
           ) : (
-            <div className="w-full bg-gray-50 border-2 border-gray-200 text-gray-400 font-bold py-3 px-4 rounded-button text-center flex items-center justify-center gap-2 cursor-default">
+            <div className="w-full bg-gray-100 text-gray-400 font-bold py-3 px-4 rounded-button text-center flex items-center justify-center gap-2 cursor-default">
               <span>Ver Detalhes</span>
               <ArrowRight className="w-4 h-4" />
             </div>
