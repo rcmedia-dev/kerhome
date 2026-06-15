@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { notificateN8n } from '@/lib/functions/supabase-actions/n8n-notification-request';
 import { useUserStore } from '@/lib/store/user-store';
+import { reviewAgentAI } from '@/lib/functions/supabase-actions/review-agent-ai';
 
 export function useDashboardActions() {
     const { user, updateUser } = useUserStore();
@@ -76,6 +77,19 @@ export function useDashboardActions() {
             } catch (n8nError) {
                 console.warn('Alerta de notificação falhou, mas registro foi salvo:', n8nError);
             }
+
+            // Revisão automática por IA (não bloqueia)
+            reviewAgentAI(user.id).then((result) => {
+                if (result.decision === 'approved') {
+                    console.log(`IA aprovou agente ${user.id} (score: ${result.score}%)`);
+                } else if (result.decision === 'rejected') {
+                    console.log(`IA rejeitou agente ${user.id}: ${result.reasons.join(', ')}`);
+                } else {
+                    console.log(`IA inconclusiva para agente ${user.id} — mantido como pendente`);
+                }
+            }).catch((err) => {
+                console.warn('Erro na revisão de IA do agente:', err);
+            });
 
         } catch (error) {
             console.error('Erro ao solicitar:', error);

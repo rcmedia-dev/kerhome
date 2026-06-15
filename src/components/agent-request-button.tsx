@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { User, AlertCircle, CheckCircle } from "lucide-react";
 import { useState } from "react";
+import { reviewAgentAI } from '@/lib/functions/supabase-actions/review-agent-ai';
 
 const supabase = createClient();
 
@@ -152,7 +153,20 @@ export function AgentRequestButton({ userId, userName, queryClient }: AgentReque
         // Não mostra alerta de erro para o usuário, apenas log
       });
 
-      // 4. Atualizar cache
+      // 4. Revisão automática por IA (não bloqueia)
+      reviewAgentAI(userId).then((result) => {
+        if (result.decision === 'approved') {
+          console.log(`IA aprovou agente ${userId} (score: ${result.score}%)`);
+        } else if (result.decision === 'rejected') {
+          console.log(`IA rejeitou agente ${userId}: ${result.reasons.join(', ')}`);
+        } else {
+          console.log(`IA inconclusiva para agente ${userId} — mantido como pendente`);
+        }
+      }).catch((err) => {
+        console.warn('Erro na revisão de IA do agente:', err);
+      });
+
+      // 5. Atualizar cache
       await queryClient.invalidateQueries({ 
         queryKey: ["agent-request", userId] 
       });
