@@ -34,7 +34,7 @@ export function RecentlyViewedProperties({ allProperties }: { allProperties: any
       </div>
       <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-200 -mx-4 px-4 snap-x snap-mandatory">
         {recentProperties.map((property: any) => (
-          <div key={property.id} className="min-w-[280px] w-[280px] snap-start shrink-0">
+          <div key={property.id} className="min-w-[310px] sm:min-w-[340px] md:min-w-[360px] lg:min-w-[380px] w-[310px] sm:w-[340px] md:w-[360px] lg:w-[380px] snap-start shrink-0">
             <PropertyCard property={property} isClickable={true} />
           </div>
         ))}
