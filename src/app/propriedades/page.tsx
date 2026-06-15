@@ -822,7 +822,7 @@ function PropertyCardItem({ property, index, onQuickView }: { property: any; ind
       )}
       <PropertyCard property={property} isClickable={!selectionMode} onQuickView={onQuickView ? () => onQuickView(property) : undefined} footerAction={
         <div className="flex flex-col gap-2">
-          <PropertyAiChat property={property} className="w-full h-10 rounded-xl text-xs" />
+          <PropertyAiChat property={property} variant="bubble" className="w-full h-10 rounded-xl text-xs" />
           {!selectionMode ? (
             <Link
               href={property.slug ? `/propriedades/${property.slug}` : `/propriedades/${property.id}`}
