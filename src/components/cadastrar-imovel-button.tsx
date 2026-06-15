@@ -38,12 +38,20 @@ export default function CadastrarImovelButton({
 }: CadastrarImovelButtonProps) {
   const router = useRouter();
   const [openDialog, setOpenDialog] = useState(false);
+  const [openAgentDialog, setOpenAgentDialog] = useState(false);
   const { openAuthModal } = useUIStore();
 
   const handleClick = (e: React.MouseEvent) => {
     if (!user) {
       e.preventDefault();
       openAuthModal();
+      return;
+    }
+
+    // Se não for agente ou admin, redireciona para tornar-se agente
+    if (user.role !== "agent" && user.role !== "admin") {
+      e.preventDefault();
+      setOpenAgentDialog(true);
       return;
     }
 
@@ -83,6 +91,30 @@ export default function CadastrarImovelButton({
             <Link href="/planos">
               <Button className="bg-purple-700 hover:bg-purple-800 rounded-xl">
                 Atualizar Plano
+              </Button>
+            </Link>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para não-agentes: redireciona para tornar-se agente */}
+      <Dialog open={openAgentDialog} onOpenChange={setOpenAgentDialog}>
+        <DialogContent className="rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Tornar-se Agente</DialogTitle>
+            <DialogDescription>
+              Apenas agentes podem cadastrar imóveis na Kercasa. 
+              Solicite tornar-se agente no seu dashboard para começar a anunciar propriedades.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setOpenAgentDialog(false)}>
+              Fechar
+            </Button>
+            <Link href="/dashboard">
+              <Button className="bg-purple-700 hover:bg-purple-800 rounded-xl">
+                Ir para Dashboard
               </Button>
             </Link>
           </DialogFooter>

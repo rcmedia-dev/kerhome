@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PropertyDBData, PropertyFormData } from "@/lib/types/property";
 import { revalidatePath } from "next/cache";
 import { applyWatermark } from "@/lib/utils/image-watermark";
+import { reviewPropertyAI } from "./review-property-ai";
 
 // Upload genérico (documentos, vídeos — sem marca d'água)
 async function uploadFileToSupabase(file: File, bucket: string, path: string): Promise<string> {
@@ -130,6 +131,29 @@ export async function createProperty(formData: PropertyFormData, userId?: string
   const supabase = await createClient();
 
   try {
+    // Verificar se o usuário autenticado é um agente ou admin
+    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+    if (authError || !authUser) {
+      return { success: false, error: "Usuário não autenticado. Por favor, faça login novamente." };
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', authUser.id)
+      .single();
+
+    if (profileError || !profile) {
+      return { success: false, error: "Perfil não encontrado." };
+    }
+
+    if (profile.role !== 'agent' && profile.role !== 'admin') {
+      return {
+        success: false,
+        error: "Apenas agentes podem cadastrar imóveis. Solicite tornar-se agente no seu dashboard."
+      };
+    }
+
     // Validar owner_id
     let ownerIdToUse = formData.owner_id || userId;
 
@@ -250,7 +274,20 @@ export async function createProperty(formData: PropertyFormData, userId?: string
       });
     } catch (notificationError) {
       console.warn('Erro ao enviar notificação:', notificationError);
-      // Não falha o processo principal se a notificação falhar
+    }
+
+    // Revisão automática por IA
+    try {
+      const aiResult = await reviewPropertyAI(data.id);
+      if (aiResult.decision === 'approved') {
+        console.log(`IA aprovou imóvel ${data.id} (score: ${aiResult.score}%)`);
+      } else if (aiResult.decision === 'rejected') {
+        console.log(`IA rejeitou imóvel ${data.id}: ${aiResult.reasons.join(', ')}`);
+      } else {
+        console.log(`IA inconclusiva para imóvel ${data.id} — mantido como pendente`);
+      }
+    } catch (aiError) {
+      console.warn('Erro na revisão de IA:', aiError);
     }
 
     revalidatePath("/properties");

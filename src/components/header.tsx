@@ -34,12 +34,7 @@ import { UserProfile, useUserStore } from '@/lib/store/user-store';
 import { toast } from 'sonner';
 import { motion, AnimatePresence, Transition, Variants } from 'framer-motion';
 
-import { ChatWidget } from './chat/chat-widget';
 import { useChatStore } from '@/lib/store/chat-store';
-
-function MessengerIcon({ className }: { className?: string }) {
-  return <img src="/icons/messenger.svg" alt="Messenger" className={className} />;
-}
 
 // Animations with proper TypeScript types
 const headerAnimations: Variants = {
@@ -295,7 +290,7 @@ export default function Header() {
   const { user, isLoading, setUser, fetchUserProfile } = useUserStore();
 
   // Chat store
-  const { toggleChat, messages, isOpen, initializeChat, totalUnreadCount, isDashboardMessages } = useChatStore();
+  const { initializeChat } = useChatStore();
 
 
 
@@ -438,24 +433,6 @@ export default function Header() {
           {/* Ações do usuário - Desktop */}
           <div className="hidden md:flex items-center gap-2">
 
-            {/* Message Button — hidden on dashboard messages tab */}
-            {user && !isDashboardMessages && (
-              <button
-                onClick={toggleChat}
-                className="p-2.5 rounded-xl text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors relative cursor-pointer"
-                aria-label="Mensagens"
-              >
-                <div className="relative">
-                  <MessengerIcon className="w-5 h-5" />
-                  {totalUnreadCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full animate-pulse">
-                      {totalUnreadCount > 9 ? '9+' : totalUnreadCount}
-                    </span>
-                  )}
-                </div>
-              </button>
-            )}
-
             <CadastrarImovelButton
               user={user}
               userPlan={userPlanData.data || null}
@@ -480,17 +457,6 @@ export default function Header() {
 
           {/* Botão do menu mobile */}
           <div className="md:hidden flex items-center gap-2">
-            {user && !isDashboardMessages && (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={toggleChat}
-                className="p-2 rounded-xl text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors cursor-pointer"
-                aria-label="Mensagens"
-              >
-                <MessengerIcon className="w-5 h-5" />
-              </motion.button>
-            )}
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}

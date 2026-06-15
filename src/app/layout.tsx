@@ -7,7 +7,7 @@ import Footer from "@/components/footer";
 import TopBar from "@/components/top-bar";
 import { AuthDialog } from "@/components/login-modal";
 import { ChatWidget } from "@/components/chat/chat-widget";
-import { AssistantLauncher } from "@/components/assistant-launcher";
+import FloatingActions from "@/components/floating-actions";
 import GoogleAnalyticsClient from "@/components/google-analytics";
 import { MobileMenu } from "@/components/mobile-menu";
 import LoaderProviders from "@/app/providers";
@@ -48,7 +48,7 @@ export default function RootLayout({
               <AuthDialog />
               <Footer />
               <MobileMenu />
-              <AssistantLauncher />
+              <FloatingActions />
             </div>
           </LoaderProviders>
         </AuthProvider>
