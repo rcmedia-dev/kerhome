@@ -13,7 +13,7 @@ const QUICK_QUESTIONS = [
   'Está disponível para visita?',
 ];
 
-export function PropertyAiChat({ property }: { property: any }) {
+export function PropertyAiChat({ property, className }: { property: any; className?: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{ role: 'user' | 'assistant'; content: string }[]>([]);
   const [input, setInput] = useState('');
@@ -85,7 +85,7 @@ export function PropertyAiChat({ property }: { property: any }) {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-5 py-3 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95"
+        className={`flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold shadow-md transition-all active:scale-95 ${className || 'px-5 py-3 rounded-xl text-sm'}`}
       >
         <Sparkles className="w-4 h-4" />
         Perguntar à IA

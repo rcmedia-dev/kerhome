@@ -29,6 +29,7 @@ import LoadingState from './components/loading-state';
 import { RecentlyViewedProperties } from '@/components/recently-viewed-properties';
 import { QuickViewModal } from '@/components/quick-view-modal';
 import { ScheduleVisitButton } from '@/components/schedule-visit-button';
+import { PropertyAiChat } from '@/components/property-ai-chat';
 import { useSavedSearches } from '@/hooks/use-saved-searches';
 
 // Hook personalizado para debounce (sem bibliotecas externas)
@@ -823,6 +824,7 @@ function PropertyCardItem({ property, index, onQuickView }: { property: any; ind
       <PropertyCard property={property} isClickable={!selectionMode} onQuickView={onQuickView ? () => onQuickView(property) : undefined} footerAction={
         <div className="flex flex-col gap-2">
           {property.owner?.id && <ScheduleVisitButton property={property} />}
+          <PropertyAiChat property={property} className="w-full h-10 rounded-xl text-xs" />
           {!selectionMode ? (
             <Link
               href={property.slug ? `/propriedades/${property.slug}` : `/propriedades/${property.id}`}
