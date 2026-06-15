@@ -411,9 +411,24 @@ export default function Header() {
                   }}
                 >
                   <Link href={href} className={linkClass(pathname, href)}>
-                    <span className="relative z-10 flex items-center gap-2">
-                      {label}
-                    </span>
+                    {id === 'propriedades' ? (
+                      <motion.span
+                        className="relative z-10 inline-block"
+                        style={{
+                          background: 'linear-gradient(90deg, currentColor 0%, currentColor 30%, #7C3AED 48%, #EA580C 52%, currentColor 70%, currentColor 100%)',
+                          backgroundSize: '300% 100%',
+                          WebkitBackgroundClip: 'text',
+                          backgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                        }}
+                        animate={{ backgroundPosition: ['0% 0%', '-200% 0%'] }}
+                        transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                      >
+                        {label}
+                      </motion.span>
+                    ) : (
+                      <span className="relative z-10">{label}</span>
+                    )}
                     {pathname === href && (
                       <motion.span
                         layoutId="activeTab"

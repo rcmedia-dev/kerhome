@@ -24,6 +24,8 @@ import { useSearchParams } from 'next/navigation';
 import { getMixedProperties, getProperties } from '@/lib/functions/get-properties';
 import { motion, Variants, Transition, AnimatePresence } from 'framer-motion';
 import LoadingState from './components/loading-state';
+import { RecentlyViewedProperties } from '@/components/recently-viewed-properties';
+import { QuickViewModal } from '@/components/quick-view-modal';
 
 // Hook personalizado para debounce (sem bibliotecas externas)
 const useDebouncedCallback = (fn: (...args: any[]) => void, wait = 350) => {
@@ -273,6 +275,7 @@ const PropertyListing = () => {
 
   const [isSticky, setIsSticky] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
+  const [quickViewProperty, setQuickViewProperty] = useState<any>(null);
 
   // Sincroniza estados locais quando filters muda externamente (ex: clearFilters)
   useEffect(() => {
@@ -588,9 +591,10 @@ const PropertyListing = () => {
             <LoadingState.LoadingGrid viewMode="grid" />
           ) : (
             <PropertyComparison properties={sortedProperties || []}>
-              <div className="flex flex-col items-center md:grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  <RecentlyViewedProperties allProperties={sortedProperties || []} />
+                  <div className="flex flex-col items-center md:grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {sortedProperties?.map((property, index) => (
-                  <PropertyCardItem key={property.id} property={property} index={index} />
+                  <PropertyCardItem key={property.id} property={property} index={index} onQuickView={setQuickViewProperty} />
                 ))}
               </div>
             </PropertyComparison>
@@ -693,11 +697,15 @@ const PropertyListing = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {quickViewProperty && (
+        <QuickViewModal property={quickViewProperty} onClose={() => setQuickViewProperty(null)} />
+      )}
     </div>
   );
 };
 
-function PropertyCardItem({ property, index }: { property: any; index: number }) {
+function PropertyCardItem({ property, index, onQuickView }: { property: any; index: number; onQuickView?: (p: any) => void }) {
   const { selectionMode, selectedIds, toggleSelect } = useCompare();
   const isSelected = selectedIds.includes(property.id);
 
@@ -723,7 +731,7 @@ function PropertyCardItem({ property, index }: { property: any; index: number })
           </div>
         </div>
       )}
-      <PropertyCard property={property} isClickable={!selectionMode} />
+      <PropertyCard property={property} isClickable={!selectionMode} onQuickView={onQuickView ? () => onQuickView(property) : undefined} />
     </motion.div>
   );
 }

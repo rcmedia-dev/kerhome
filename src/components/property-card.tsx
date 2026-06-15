@@ -42,9 +42,10 @@ interface PropertyCardProps {
   canBoost?: boolean;
   onDelete?: () => void;
   isClickable?: boolean;
+  onQuickView?: () => void;
 }
 
-export function PropertyCard({ property, canBoost = true, isClickable = true, onDelete }: PropertyCardProps) {
+export function PropertyCard({ property, canBoost = true, isClickable = true, onDelete, onQuickView }: PropertyCardProps) {
   const { user } = useUserStore();
   const isOwner = user?.id === property.owner_id;
 
@@ -222,6 +223,7 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
       topBadge={topBadge}
       bottomRightActions={bottomRightActions}
       isClickable={isClickable}
+      onQuickView={onQuickView}
     />
   );
 }

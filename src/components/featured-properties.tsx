@@ -35,7 +35,7 @@ export default function FeaturedProperties() {
             >
               <div className="w-full h-32 relative overflow-hidden">
                 <Image
-                  src={imovel.gallery[0]}
+                  src={imovel.gallery?.[0] || imovel.image || '/house.jpg'}
                   alt={imovel.title}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-500"

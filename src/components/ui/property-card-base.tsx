@@ -14,6 +14,7 @@ export type PropertyCardBaseProps = {
   footerAction?: React.ReactNode;
   isClickable?: boolean;
   linkHref?: string;
+  onQuickView?: () => void;
 };
 
 export function PropertyCardBase({
@@ -23,7 +24,8 @@ export function PropertyCardBase({
   bottomRightActions,
   footerAction,
   isClickable = true,
-  linkHref
+  linkHref,
+  onQuickView
 }: PropertyCardBaseProps) {
   const galleryImages = Array.isArray(property.gallery) && property.gallery.filter((img: any): img is string => typeof img === 'string').length > 0 
     ? property.gallery.filter((img: any): img is string => typeof img === 'string')
@@ -67,7 +69,12 @@ export function PropertyCardBase({
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
         >
-        {isClickable ? (
+        {isClickable && onQuickView ? (
+          <div
+            onClick={(e) => { e.preventDefault(); onQuickView(); }}
+            className="absolute inset-0 z-10 cursor-pointer"
+          />
+        ) : isClickable ? (
           <Link href={defaultHref} className="absolute inset-0 z-10" />
         ) : (
           <div className="absolute inset-0 z-10 cursor-default" />

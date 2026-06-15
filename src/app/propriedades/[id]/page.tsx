@@ -14,6 +14,8 @@ import { PropertyMywaiSummary } from "@/components/property-mywai-summary";
 import { MobileContactFAB } from "@/components/mobile-contact-fab";
 import AgentSection from "@/components/agent-section";
 import { checkIfPropertyIsBoosted, trackBoostView } from "@/lib/functions/supabase-actions/boost-functions";
+import { RecentlyViewedTracker } from "@/components/recently-viewed-tracker";
+import { NeighborhoodInsights as NeighborhoodInsightsContainer } from "@/components/neighborhood-insights";
 import { redirect } from "next/navigation";
 import { PageViewTracker } from "@/components/page-view-tracker";
 
@@ -112,6 +114,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
         entityId={property.id}
         ownerId={property.owner_id}
       />
+      <RecentlyViewedTracker propertyId={property.id} />
 
       {/* Immersive Gallery Section - Full Width */}
       <div className="w-full">
@@ -178,6 +181,12 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
                 <h3 className="text-2xl font-bold text-gray-900 mb-6">Localização</h3>
                 <PropertyLocation property={property} />
               </div>
+
+              <NeighborhoodInsightsContainer
+                cidade={property.cidade}
+                bairro={property.bairro}
+                provincia={property.provincia}
+              />
             </div>
 
             {/* Property Suggestions (Below Content) */}

@@ -31,11 +31,32 @@ export function PropertyGallery({ property }: { property: any }) {
   }, []);
 
   useEffect(() => {
-    if (property?.gallery && property.gallery.length > 0) {
-      setMainImage(property.gallery[0]);
-      setThumbnails(property.gallery.slice(1));
-      setAllImages(property.gallery);
+    const images: string[] = [];
+    
+    // Use cover/main image first if available
+    if (property?.image && typeof property.image === 'string') {
+      images.push(property.image);
     }
+    
+    // Add gallery images, avoiding duplicate of the cover image
+    if (Array.isArray(property?.gallery)) {
+      property.gallery.forEach((img: any) => {
+        if (typeof img === 'string' && img && img !== property.image) {
+          images.push(img);
+        }
+      });
+    }
+
+    if (images.length > 0) {
+      setMainImage(images[0]);
+      setThumbnails(images.slice(1));
+      setAllImages(images);
+    } else {
+      setMainImage(null);
+      setThumbnails([]);
+      setAllImages([]);
+    }
+    setCurrentIndex(0);
   }, [property]);
 
   const handleSwap = (clickedImg: string, idx: number) => {
@@ -52,18 +73,16 @@ export function PropertyGallery({ property }: { property: any }) {
   };
 
   const handleCarouselNavigation = (direction: 'prev' | 'next') => {
-    if (!isMobile) return;
+    if (allImages.length === 0) return;
 
+    let nextIndex = currentIndex;
     if (direction === 'prev') {
-      setCurrentIndex((prevIndex) =>
-        prevIndex === 0 ? allImages.length - 1 : prevIndex - 1
-      );
+      nextIndex = currentIndex === 0 ? allImages.length - 1 : currentIndex - 1;
     } else {
-      setCurrentIndex((prevIndex) =>
-        prevIndex === allImages.length - 1 ? 0 : prevIndex + 1
-      );
+      nextIndex = currentIndex === allImages.length - 1 ? 0 : currentIndex + 1;
     }
-    setMainImage(allImages[currentIndex]);
+    setCurrentIndex(nextIndex);
+    setMainImage(allImages[nextIndex]);
   };
 
   const openFullscreen = (index: number) => {
@@ -78,15 +97,7 @@ export function PropertyGallery({ property }: { property: any }) {
   }, []);
 
   const navigateImage = (direction: 'prev' | 'next') => {
-    if (direction === 'prev') {
-      setCurrentIndex((prevIndex) =>
-        prevIndex === 0 ? allImages.length - 1 : prevIndex - 1
-      );
-    } else {
-      setCurrentIndex((prevIndex) =>
-        prevIndex === allImages.length - 1 ? 0 : prevIndex + 1
-      );
-    }
+    handleCarouselNavigation(direction);
   };
 
   // Renderização para desktop
