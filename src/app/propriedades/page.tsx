@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import React, { useState, useEffect, ReactNode, useCallback, useRef, Suspense } from 'react';
+import Link from 'next/link';
 import {
   Bed,
   Bath,
@@ -15,7 +16,8 @@ import {
   Sparkles,
   LucideIcon,
   Search,
-  Check
+  Check,
+  ArrowRight
 } from 'lucide-react';
 import { PropertyCard } from '@/components/property-card';
 import { PropertyComparison, useCompare } from '@/components/property-comparison';
@@ -26,6 +28,8 @@ import { motion, Variants, Transition, AnimatePresence } from 'framer-motion';
 import LoadingState from './components/loading-state';
 import { RecentlyViewedProperties } from '@/components/recently-viewed-properties';
 import { QuickViewModal } from '@/components/quick-view-modal';
+import { ScheduleVisitButton } from '@/components/schedule-visit-button';
+import { useSavedSearches } from '@/hooks/use-saved-searches';
 
 // Hook personalizado para debounce (sem bibliotecas externas)
 const useDebouncedCallback = (fn: (...args: any[]) => void, wait = 350) => {
@@ -276,6 +280,10 @@ const PropertyListing = () => {
   const [isSticky, setIsSticky] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [quickViewProperty, setQuickViewProperty] = useState<any>(null);
+  const [visibleCount, setVisibleCount] = useState(9);
+  const ITEMS_PER_PAGE = 6;
+  const [saveSearchName, setSaveSearchName] = useState('');
+  const { searches: savedSearches, save: saveSearch, remove: removeSearch } = useSavedSearches();
 
   // Sincroniza estados locais quando filters muda externamente (ex: clearFilters)
   useEffect(() => {
@@ -356,6 +364,7 @@ const PropertyListing = () => {
       sortBy: 'recent',
       q: '',
     });
+    setVisibleCount(9);
   };
 
   const hasActiveFilters = Object.values(filters).some(value => value !== '' && value !== 'recent');
@@ -374,14 +383,17 @@ const PropertyListing = () => {
   // Ã°Å¸â€Â Funções de debounce para localização e preços
   const updateFilterLocation = useDebouncedCallback((value: string) => {
     setFilters(prev => ({ ...prev, location: value }));
+    setVisibleCount(9);
   }, 350);
 
   const updateFilterMinPrice = useDebouncedCallback((value: string) => {
     setFilters(prev => ({ ...prev, minPrice: value }));
+    setVisibleCount(9);
   }, 350);
 
   const updateFilterMaxPrice = useDebouncedCallback((value: string) => {
     setFilters(prev => ({ ...prev, maxPrice: value }));
+    setVisibleCount(9);
   }, 350);
 
   // Ã°Å¸Å½Â¯ Handlers para inputs com debounce - useCallback para manter referência estável
@@ -422,26 +434,32 @@ const PropertyListing = () => {
   // Handlers para selects sem debounce - useCallback para manter referência estável
   const handleStatusChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setFilters(prev => ({ ...prev, status: e.target.value }));
+    setVisibleCount(9);
   }, []);
 
   const handleTipoChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setFilters(prev => ({ ...prev, tipo: e.target.value }));
+    setVisibleCount(9);
   }, []);
 
   const handleBedroomsChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setFilters(prev => ({ ...prev, bedrooms: e.target.value }));
+    setVisibleCount(9);
   }, []);
 
   const handleBathroomsChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setFilters(prev => ({ ...prev, bathrooms: e.target.value }));
+    setVisibleCount(9);
   }, []);
 
   const handleGaragensChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setFilters(prev => ({ ...prev, garagens: e.target.value }));
+    setVisibleCount(9);
   }, []);
 
   const handleSortByChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setFilters(prev => ({ ...prev, sortBy: e.target.value }));
+    setVisibleCount(9);
   }, []);
 
   // Ã°Å¸â€Â FILTRAGEM NO FRONTEND
@@ -507,6 +525,12 @@ const PropertyListing = () => {
         return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
   }, [filteredProperties, filters.sortBy]);
+
+  const displayedProperties = React.useMemo(
+    () => sortedProperties.slice(0, visibleCount),
+    [sortedProperties, visibleCount]
+  );
+  const hasMore = sortedProperties.length > visibleCount;
 
   const FilterGrid = ({ isModal = false }) => (
     <div className={`grid grid-cols-1 ${isModal ? 'gap-4' : 'md:grid-cols-2 lg:grid-cols-4 gap-4'}`}>
@@ -593,10 +617,20 @@ const PropertyListing = () => {
             <PropertyComparison properties={sortedProperties || []}>
                   <RecentlyViewedProperties allProperties={sortedProperties || []} />
                   <div className="flex flex-col items-center md:grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {sortedProperties?.map((property, index) => (
+                {displayedProperties?.map((property, index) => (
                   <PropertyCardItem key={property.id} property={property} index={index} onQuickView={setQuickViewProperty} />
                 ))}
               </div>
+              {hasMore && (
+                <div className="flex justify-center mt-10">
+                  <button
+                    onClick={() => setVisibleCount(prev => prev + ITEMS_PER_PAGE)}
+                    className="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold shadow-md transition-all active:scale-95"
+                  >
+                    Carregar Mais ({sortedProperties.length - visibleCount} restantes)
+                  </button>
+                </div>
+              )}
             </PropertyComparison>
           )}
         </div>
@@ -679,19 +713,74 @@ const PropertyListing = () => {
 
             {/* Conteúdo Scrollavel */}
             <div className="p-5 overflow-y-auto flex-1 custom-scrollbar space-y-4">
+              {/* Saved Searches */}
+              {savedSearches.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Pesquisas Salvas</h4>
+                  <div className="space-y-1">
+                    {savedSearches.map(s => (
+                      <div key={s.id} className="flex items-center justify-between bg-purple-50 rounded-lg px-3 py-2">
+                        <button
+                          onClick={() => {
+                            setFilters(prev => ({ ...prev, ...s.filters }));
+                            setShowFilterModal(false);
+                          }}
+                          className="text-xs font-medium text-purple-700 hover:text-purple-900 text-left"
+                        >
+                          {s.name}
+                        </button>
+                        <button
+                          onClick={() => removeSearch(s.id)}
+                          className="text-gray-400 hover:text-red-500 transition-colors"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="border-b border-gray-100 my-3" />
+                </div>
+              )}
               <FilterGrid isModal={true} />
             </div>
 
             {/* Footer Compacto */}
-            <div className="p-4 border-t border-gray-100/50 bg-gray-50/50 flex justify-between items-center gap-4">
-              <button
-                onClick={clearFilters}
-                className="text-xs font-semibold text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors"
-              >
-                Limpar
-              </button>
-              <div className="text-xs font-medium text-gray-500">
-                <strong className="text-gray-900 text-sm">{sortedProperties?.length}</strong> imóveis
+            <div className="p-4 border-t border-gray-100/50 bg-gray-50/50 flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={saveSearchName}
+                  onChange={e => setSaveSearchName(e.target.value)}
+                  placeholder="Nome da pesquisa..."
+                  className="flex-1 text-xs px-3 py-2 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-purple-400"
+                />
+                <button
+                  onClick={() => {
+                    if (saveSearchName.trim()) {
+                      const activeFilters: Record<string, string> = {};
+                      Object.entries(filters).forEach(([k, v]) => {
+                        if (v && v !== 'recent') activeFilters[k] = v;
+                      });
+                      saveSearch(saveSearchName.trim(), activeFilters);
+                      setSaveSearchName('');
+                    }
+                  }}
+                  disabled={!saveSearchName.trim()}
+                  className="text-xs font-semibold bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white px-3 py-2 rounded-lg transition-colors"
+                >
+                  Salvar
+                </button>
+              </div>
+              <div className="flex justify-between items-center">
+                <button
+                  onClick={clearFilters}
+                  className="text-xs font-semibold text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors"
+                >
+                  Limpar
+                </button>
+                <div className="text-xs font-medium text-gray-500">
+                  <strong className="text-gray-900 text-sm">{sortedProperties?.length}</strong> imóveis
+                </div>
               </div>
             </div>
           </motion.div>
@@ -731,7 +820,25 @@ function PropertyCardItem({ property, index, onQuickView }: { property: any; ind
           </div>
         </div>
       )}
-      <PropertyCard property={property} isClickable={!selectionMode} onQuickView={onQuickView ? () => onQuickView(property) : undefined} />
+      <PropertyCard property={property} isClickable={!selectionMode} onQuickView={onQuickView ? () => onQuickView(property) : undefined} footerAction={
+        <div className="flex gap-2">
+          {property.owner?.id && <div className="flex-1"><ScheduleVisitButton property={property} /></div>}
+          {!selectionMode ? (
+            <Link
+              href={property.slug ? `/propriedades/${property.slug}` : `/propriedades/${property.id}`}
+              className="flex-1 bg-[#820AD1] hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-button text-center transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm text-sm"
+            >
+              <span>Ver Detalhes</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+            </Link>
+          ) : (
+            <div className="flex-1 bg-gray-100 text-gray-400 font-bold py-3 px-4 rounded-button text-center flex items-center justify-center gap-2 cursor-default">
+              <span>Ver Detalhes</span>
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          )}
+        </div>
+      } />
     </motion.div>
   );
 }

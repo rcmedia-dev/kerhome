@@ -16,6 +16,8 @@ import AgentSection from "@/components/agent-section";
 import { checkIfPropertyIsBoosted, trackBoostView } from "@/lib/functions/supabase-actions/boost-functions";
 import { RecentlyViewedTracker } from "@/components/recently-viewed-tracker";
 import { NeighborhoodInsights as NeighborhoodInsightsContainer } from "@/components/neighborhood-insights";
+import { VisitSchedulerInline } from "@/components/visit-scheduler-inline";
+import { PropertyAiChat } from "@/components/property-ai-chat";
 import { redirect } from "next/navigation";
 import { PageViewTracker } from "@/components/page-view-tracker";
 
@@ -180,6 +182,24 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
               <div className="border-t border-gray-200 pt-10">
                 <h3 className="text-2xl font-bold text-gray-900 mb-6">Localização</h3>
                 <PropertyLocation property={property} />
+              </div>
+
+              {/* Agendar Visita CTA */}
+              <div className="border-t border-gray-200 pt-10">
+                <VisitSchedulerInline property={property} ownerDetails={ownerDetails} />
+              </div>
+
+              {/* AI Chat */}
+              <div className="border-t border-gray-200 pt-10">
+                <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-6 border border-purple-100 shadow-sm">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900 mb-1">Tens dúvidas sobre este imóvel?</h3>
+                      <p className="text-sm text-gray-600">Pergunta à IA qualquer coisa sobre esta propriedade.</p>
+                    </div>
+                    <PropertyAiChat property={property} />
+                  </div>
+                </div>
               </div>
 
               <NeighborhoodInsightsContainer

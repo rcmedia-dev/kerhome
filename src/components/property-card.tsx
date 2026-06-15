@@ -6,6 +6,7 @@ import { Pencil, Trash, Heart, Share2, Zap, AlertCircle, ShieldAlert } from 'luc
 import { toast } from 'sonner';
 
 import { PropertyCardBase } from '@/components/ui/property-card-base';
+import { MarketPriceBadge } from '@/components/market-price-badge';
 import { toggleFavoritoProperty } from '@/lib/functions/toggle-favorite';
 import { getImoveisFavoritos } from '@/lib/functions/get-favorited-imoveis';
 import { useUserStore } from '@/lib/store/user-store';
@@ -43,9 +44,10 @@ interface PropertyCardProps {
   onDelete?: () => void;
   isClickable?: boolean;
   onQuickView?: () => void;
+  footerAction?: React.ReactNode;
 }
 
-export function PropertyCard({ property, canBoost = true, isClickable = true, onDelete, onQuickView }: PropertyCardProps) {
+export function PropertyCard({ property, canBoost = true, isClickable = true, onDelete, onQuickView, footerAction }: PropertyCardProps) {
   const { user } = useUserStore();
   const isOwner = user?.id === property.owner_id;
 
@@ -169,13 +171,22 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
   }, [shareUrl, property.title]);
 
   const topBadge = (
-    (boostInfo.isBoosted || boostInfo.isSuspended || boostInfo.isExpired) ? (
-      <BoostedBadge isExpired={boostInfo.isExpired} isSuspended={boostInfo.isSuspended} />
-    ) : (
-      <div className={`px-2 sm:px-4 py-1 sm:py-1.5 rounded-badge text-white text-[11px] sm:text-sm font-semibold shadow-card ${property.status === 'comprar' ? 'bg-[#10B981]' : 'bg-blue-500'}`}>
-        {property.status === 'comprar' ? 'À venda' : 'Arrendar'}
-      </div>
-    )
+    <div className="flex flex-col gap-1.5">
+      {(boostInfo.isBoosted || boostInfo.isSuspended || boostInfo.isExpired) ? (
+        <BoostedBadge isExpired={boostInfo.isExpired} isSuspended={boostInfo.isSuspended} />
+      ) : (
+        <div className={`px-2 sm:px-4 py-1 sm:py-1.5 rounded-badge text-white text-[11px] sm:text-sm font-semibold shadow-card ${property.status === 'comprar' ? 'bg-[#10B981]' : 'bg-blue-500'}`}>
+          {property.status === 'comprar' ? 'À venda' : 'Arrendar'}
+        </div>
+      )}
+      {property.id !== 'preview-id' && <MarketPriceBadge property={property} />}
+      {((property as any).video_url || (property as any).tour_url) && (
+        <div className="px-2 py-1 rounded-badge bg-purple-600/90 text-white text-[10px] font-bold flex items-center gap-1 shadow-sm backdrop-blur-sm">
+          <span className="text-xs">▶</span>
+          <span>{(property as any).tour_url ? 'Tour 360°' : 'Vídeo'}</span>
+        </div>
+      )}
+    </div>
   );
 
   const bottomRightActions = (
@@ -224,6 +235,7 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
       bottomRightActions={bottomRightActions}
       isClickable={isClickable}
       onQuickView={onQuickView}
+      footerAction={footerAction}
     />
   );
 }

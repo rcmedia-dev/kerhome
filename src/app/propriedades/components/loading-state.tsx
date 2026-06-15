@@ -17,27 +17,57 @@ export const LoadingGrid = ({ viewMode }: { viewMode: 'grid' | 'list' }) => (
   <div className={cn(
     "grid gap-8",
     viewMode === 'grid' 
-      ? 'grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3' 
+      ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
       : 'grid-cols-1'
   )}>
     {[...Array(6)].map((_, i) => (
       <div
         key={i}
-        className="bg-white rounded-card shadow-card p-6 relative overflow-hidden group border border-border"
+        className="bg-white rounded-card shadow-card relative overflow-hidden group border border-border flex flex-col"
+        style={{ animationDelay: `${i * 0.05}s` }}
       >
         {/* Shimmer Effect */}
-        <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer z-10" />
+        <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shimmer z-10" />
         
-        <div className="bg-gray-100 h-64 rounded-card mb-4 relative overflow-hidden">
-           <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+        {/* Image skeleton */}
+        <div className="bg-gray-100 h-[180px] sm:h-[250px] w-full shrink-0 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+          {/* Badge skeletons */}
+          <div className="absolute top-4 left-4 flex flex-col gap-1.5">
+            <div className="h-6 w-20 bg-gray-300/60 rounded-badge animate-pulse" />
+            <div className="h-5 w-24 bg-gray-300/40 rounded-md animate-pulse" />
+          </div>
+          {/* Heart button skeleton */}
+          <div className="absolute bottom-4 right-4 w-10 h-10 bg-gray-200 rounded-badge animate-pulse" />
         </div>
-        <div className="space-y-4">
-          <div className="h-7 bg-gray-200 rounded-button w-3/4 animate-pulse"></div>
-          <div className="h-4 bg-gray-100 rounded-button w-1/2 animate-pulse"></div>
-          <div className="h-4 bg-gray-100 rounded-button w-2/3 animate-pulse"></div>
-          <div className="flex gap-3 pt-2">
-            <div className="h-9 bg-gray-100 rounded-button w-24 animate-pulse"></div>
-            <div className="h-9 bg-gray-100 rounded-button w-24 animate-pulse"></div>
+        
+        {/* Content skeleton */}
+        <div className="flex-1 px-3 sm:px-5 pt-3 sm:pt-5 pb-3 sm:pb-4 flex flex-col">
+          {/* Location */}
+          <div className="h-3 sm:h-4 bg-gray-100 rounded-button w-3/4 mb-1 sm:mb-1.5 animate-pulse" />
+          
+          {/* Title */}
+          <div className="h-5 sm:h-7 bg-gray-200 rounded-button w-full mb-1 animate-pulse" />
+          <div className="h-5 sm:h-7 bg-gray-200 rounded-button w-2/3 mb-2 sm:mb-3 animate-pulse" />
+          
+          {/* Bedrooms & Size */}
+          <div className="flex items-center gap-2 mb-1.5 sm:mb-2 border-b border-gray-50 pb-1.5 sm:pb-2">
+            <div className="h-4 sm:h-5 w-16 bg-gray-100 rounded-button animate-pulse" />
+            <div className="h-4 sm:h-5 w-20 bg-gray-100 rounded-button animate-pulse" />
+          </div>
+          
+          {/* Type & Bathrooms */}
+          <div className="flex items-center justify-between mb-2 sm:mb-4">
+            <div className="h-3 sm:h-4 w-24 bg-gray-100 rounded-button animate-pulse" />
+            <div className="h-3 sm:h-4 w-20 bg-gray-100 rounded-button animate-pulse" />
+          </div>
+          
+          {/* Price */}
+          <div className="h-6 sm:h-8 w-40 bg-gray-200 rounded-button mb-2 sm:mb-4 animate-pulse" />
+          
+          {/* Footer button */}
+          <div className="pt-2 sm:pt-4 mt-auto border-t border-gray-100">
+            <div className="h-10 sm:h-12 bg-gray-100 rounded-button animate-pulse" />
           </div>
         </div>
       </div>
