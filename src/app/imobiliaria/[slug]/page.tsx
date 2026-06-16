@@ -22,6 +22,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ImobiliariaSidebarClient } from '@/components/imobiliarias/imobiliaria-sidebar-client';
 import { PageViewTracker } from '@/components/page-view-tracker';
+import { Breadcrumbs } from '@/components/breadcrumbs';
+import { OrganizationJsonLd } from '@/components/json-ld';
 
 interface PageProps {
   params: { slug: string };
@@ -30,13 +32,28 @@ interface PageProps {
 // SEO Dinâmico
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
   const imobiliaria = await fetchImobiliariaBySlug(slug);
 
   if (!imobiliaria) return { title: 'Imobiliária não encontrada' };
 
+  const url = `${siteUrl}/imobiliaria/${slug}`;
+
   return {
-    title: `${imobiliaria.nome} - Imóveis em ${imobiliaria.cidade} | Kercasa`,
-    description: imobiliaria.descricao || `Confira os imóveis da ${imobiliaria.nome} no Kercasa.`,
+    title: `${imobiliaria.nome} - Imóveis em ${imobiliaria.cidade || 'Angola'} | Kercasa`,
+    description: imobiliaria.descricao || `Confira os imóveis da ${imobiliaria.nome} no Kercasa. ${imobiliaria.cidade ? `Agência em ${imobiliaria.cidade}.` : ''}`,
+    alternates: { canonical: url },
+    openGraph: {
+      title: `${imobiliaria.nome} | Kercasa`,
+      description: imobiliaria.descricao?.substring(0, 200) || `Imóveis da ${imobiliaria.nome} no Kercasa.`,
+      url,
+      siteName: 'Kercasa',
+      locale: 'pt_AO',
+      type: 'website',
+      images: imobiliaria.logo ? [{ url: imobiliaria.logo, width: 400, height: 400, alt: imobiliaria.nome }] : [],
+    },
+    twitter: { card: 'summary_large_image', title: `${imobiliaria.nome} | Kercasa`, description: imobiliaria.descricao?.substring(0, 200) || `Imóveis da ${imobiliaria.nome}` },
+    robots: { index: true, follow: true },
   };
 }
 
@@ -60,6 +77,8 @@ export default async function ImobiliariaPerfilPage({ params }: { params: Promis
         entityId={imobiliaria.id}
       />
 
+      <OrganizationJsonLd />
+
       {/* Hero Section — Consistente com a Hero da página Notícias */}
       <div className="relative bg-gradient-to-r from-[#130f25] to-purple-900 text-white overflow-hidden pt-28 pb-20">
         {/* Decorações de fundo */}
@@ -72,13 +91,7 @@ export default async function ImobiliariaPerfilPage({ params }: { params: Promis
 
         <div className="max-w-7xl mx-auto px-4 relative z-10">
           {/* Breadcrumb */}
-          <nav className="text-sm text-purple-300 mb-8 flex items-center gap-2">
-            <Link href="/" className="hover:text-white transition-colors">Início</Link>
-            <ChevronRight className="w-4 h-4 opacity-50" />
-            <Link href="/imobiliarias" className="hover:text-white transition-colors">Agências</Link>
-            <ChevronRight className="w-4 h-4 opacity-50" />
-            <span className="text-white/70 font-medium truncate max-w-[300px]">{imobiliaria.nome}</span>
-          </nav>
+          <Breadcrumbs items={[{ label: 'Agências', href: '/imobiliarias' }, { label: imobiliaria.nome }]} />
 
           {/* Hero Content */}
           <div className="flex flex-col md:flex-row items-center md:items-end gap-8">

@@ -18,6 +18,8 @@ import { RecentlyViewedTracker } from "@/components/recently-viewed-tracker";
 import { NeighborhoodInsights as NeighborhoodInsightsContainer } from "@/components/neighborhood-insights";
 import { VisitSchedulerInline } from "@/components/visit-scheduler-inline";
 import { PropertyAiChat } from "@/components/property-ai-chat";
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { RealEstateListingJsonLd } from "@/components/json-ld";
 import { redirect } from "next/navigation";
 import { PageViewTracker } from "@/components/page-view-tracker";
 
@@ -46,11 +48,14 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return {
     title: property.title || "Imóvel Incrível",
     description: property.description || "Veja mais detalhes deste imóvel.",
+    alternates: { canonical: propertyUrl },
     openGraph: {
       title: property.title,
-      description: property.description,
+      description: property.description?.substring(0, 200),
       url: propertyUrl,
       type: "article",
+      locale: "pt_AO",
+      siteName: "Kercasa",
       images: [
         {
           url: property.image,
@@ -63,9 +68,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     twitter: {
       card: "summary_large_image",
       title: property.title,
-      description: property.description,
+      description: property.description?.substring(0, 200),
       images: [`${propertyUrl}/opengraph-image`],
     },
+    robots: { index: true, follow: true },
   };
 }
 
@@ -117,17 +123,15 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
         ownerId={property.owner_id}
       />
       <RecentlyViewedTracker propertyId={property.id} />
+      <RealEstateListingJsonLd
+        property={property}
+        url={property.slug ? `${process.env.NEXT_PUBLIC_SITE_URL || ''}/propriedades/${property.slug}` : `${process.env.NEXT_PUBLIC_SITE_URL || ''}/propriedades/${property.id}`}
+      />
 
       {/* Immersive Gallery Section - Full Width */}
       <div className="w-full">
         <div className="px-0">
-          <nav className="text-[10px] md:text-sm text-gray-500 mb-6 flex flex-wrap items-center gap-1.5 md:gap-2 px-1">
-            <a href="/" className="hover:text-purple-600 transition-colors shrink-0">Início</a>
-            <span className="text-gray-300">/</span>
-            <a href="/propriedades" className="hover:text-purple-600 transition-colors shrink-0">Imóveis</a>
-            <span className="text-gray-300">/</span>
-            <span className="text-gray-800 font-medium truncate max-w-[150px] md:max-w-[300px]">{property.title}</span>
-          </nav>
+          <Breadcrumbs items={[{ label: 'Imóveis', href: '/propriedades' }, { label: property.title }]} />
           <PropertyGallery property={property} />
         </div>
       </div>

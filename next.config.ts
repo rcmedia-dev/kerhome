@@ -11,19 +11,31 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'cqudsxxvpgkzsnwyuorq.supabase.co',
         port: '',
-        pathname: '/storage/v1/object/**', // cobre public/**, signed e uploads diretos
+        pathname: '/storage/v1/object/**',
       },
       {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'media.graphassets.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.graphassets.com',
+      },
     ],
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
   },
   experimental: {
     serverActions: {
-      bodySizeLimit: '128mb', // 🚀 aumenta o limite (podes usar '5mb', '20mb', etc.)
+      bodySizeLimit: '128mb',
     },
   },
+  poweredByHeader: false,
+  compress: true,
 };
 
 export default nextConfig;

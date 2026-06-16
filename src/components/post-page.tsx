@@ -20,6 +20,8 @@ import readingTime from 'reading-time';
 import { toast } from 'sonner';
 import { Noticias } from '@/lib/types/noticia';
 import { TPropertyResponseSchema } from '@/lib/types/property';
+import { ArticleJsonLd } from '@/components/json-ld';
+import { Breadcrumbs } from '@/components/breadcrumbs';
 import {
   motion,
   useScroll,
@@ -136,21 +138,6 @@ const injectAdAtParagraph = (html: string, ad: React.ReactNode, paragraphIndex: 
   );
 };
 
-// Breadcrumbs
-const Breadcrumbs: React.FC<{ title: string }> = ({ title }) => (
-  <nav className="flex items-center gap-2 text-[10px] md:text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 overflow-hidden whitespace-nowrap">
-    <Link href="/" className="hover:text-purple-700 transition-colors">
-      <Home size={14} />
-    </Link>
-    <ChevronRight size={10} className="shrink-0 text-gray-300" />
-    <Link href="/noticias" className="hover:text-purple-700 transition-colors">
-      INSIGHTS
-    </Link>
-    <ChevronRight size={10} className="shrink-0 text-gray-300" />
-    <span className="text-gray-900 truncate">{title}</span>
-  </nav>
-);
-
 // Sidebar Component (Author, Share, Newsletter)
 const Sidebar: React.FC<{ post: Noticias; ads: TPropertyResponseSchema[] }> = ({ post, ads }) => {
   const handleShare = (platform?: string) => {
@@ -241,6 +228,14 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts, properties }) =
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans antialiased selection:bg-purple-200 selection:text-purple-900">
       <ReadingProgress />
+      <ArticleJsonLd
+        title={post.title}
+        description={post.excerpt?.html?.replace(/<[^>]*>/g, '')?.substring(0, 200) || ''}
+        image={post.coverImage?.url}
+        url={typeof window !== 'undefined' ? window.location.href : ''}
+        datePublished={post.createdAt}
+        author="Redator KerCasa"
+      />
 
       {/* Main Layout */}
       <div className="py-8 md:py-16">
@@ -255,7 +250,7 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts, properties }) =
               className="text-left"
             >
               <div className="flex justify-start mb-6">
-                <Breadcrumbs title={post.title} />
+                <Breadcrumbs items={[{ label: 'Insights', href: '/noticias' }, { label: post.title }]} />
               </div>
 
               <h1

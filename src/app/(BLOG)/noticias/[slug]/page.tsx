@@ -43,22 +43,30 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
 
   const excerptText = post.excerpt?.html?.replace(/<[^>]*>/g, "") || "";
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
+  const postUrl = `${siteUrl}/noticias/${slug}`;
+
   return {
     title: `${post.title} | Kercasa Blog`,
-    description: excerptText,
+    description: excerptText.substring(0, 200),
+    alternates: { canonical: postUrl },
     openGraph: {
       title: post.title,
-      description: excerptText,
-      images: [post.coverImage?.url || '/house.jpg'],
+      description: excerptText.substring(0, 200),
+      url: postUrl,
+      images: [{ url: post.coverImage?.url || '/house.jpg', width: 1200, height: 630, alt: post.title }],
       type: "article",
+      locale: "pt_AO",
+      siteName: "Kercasa",
       publishedTime: post.createdAt,
       authors: ['Redator KerCasa'],
     },
     twitter: {
       card: 'summary_large_image',
       title: post.title,
-      description: excerptText,
+      description: excerptText.substring(0, 200),
       images: [post.coverImage?.url || '/house.jpg'],
     },
+    robots: { index: true, follow: true },
   };
 }
