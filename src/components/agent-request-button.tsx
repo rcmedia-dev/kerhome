@@ -17,14 +17,15 @@ type AgentRequestButtonProps = {
 export function AgentRequestButton({ userId, userName, queryClient }: AgentRequestButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
 
-  const { data: pendingRequest, isLoading: isChecking } = useQuery<{ id: string; status: string } | null>({
+  const { data: latestRequest, isLoading: isChecking } = useQuery<{ id: string; status: string } | null>({
     queryKey: ["agent-request", userId],
     queryFn: async (): Promise<{ id: string; status: string } | null> => {
       const { data, error } = await supabase
         .from("agente_requests")
         .select("id, status")
         .eq("user_id", userId)
-        .eq("status", "pending")
+        .order("created_at", { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (error) throw error;
@@ -32,11 +33,14 @@ export function AgentRequestButton({ userId, userName, queryClient }: AgentReque
     },
   });
 
+  const hasPendingRequest = latestRequest?.status === 'pending';
+  const isApproved = latestRequest?.status === 'approved';
+  const isRejected = latestRequest?.status === 'rejected';
+
   const handleBecomeAgent = async () => {
     setIsLoading(true);
     
     try {
-      // 1. Criar requisição no Supabase
       const { error } = await supabase
         .from("agente_requests")
         .insert([{ 
@@ -49,8 +53,9 @@ export function AgentRequestButton({ userId, userName, queryClient }: AgentReque
 
       if (error) throw error;
 
-      // 2. Revisão automática por IA (não bloqueia)
+      // Revisão automática por IA (não bloqueia)
       reviewAgentAI(userId).then((result) => {
+        queryClient.invalidateQueries({ queryKey: ["agent-request", userId] });
         if (result.decision === 'approved') {
           console.log(`IA aprovou agente ${userId} (score: ${result.score}%)`);
         } else if (result.decision === 'rejected') {
@@ -62,10 +67,7 @@ export function AgentRequestButton({ userId, userName, queryClient }: AgentReque
         console.warn('Erro na revisão de IA do agente:', err);
       });
 
-      // 3. Atualizar cache
-      await queryClient.invalidateQueries({ 
-        queryKey: ["agent-request", userId] 
-      });
+      await queryClient.invalidateQueries({ queryKey: ["agent-request", userId] });
 
       alert("✅ Solicitação para se tornar agente enviada com sucesso!\n\nA equipa entrará em contacto em breve.");
 
@@ -76,8 +78,6 @@ export function AgentRequestButton({ userId, userName, queryClient }: AgentReque
       setIsLoading(false);
     }
   };
-
-  const hasPendingRequest = Boolean(pendingRequest);
 
   return (
     <div className="relative">
@@ -103,6 +103,8 @@ export function AgentRequestButton({ userId, userName, queryClient }: AgentReque
           ? "Enviando..."
           : isChecking
           ? "Verificando..."
+          : isApproved
+          ? "Agente Aprovado ✅"
           : hasPendingRequest
           ? "Aguardando Aprovação"
           : "Tornar-se Agente"}

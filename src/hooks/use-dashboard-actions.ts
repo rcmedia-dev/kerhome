@@ -70,10 +70,12 @@ export function useDashboardActions() {
             toast.success('Solicitação registrada com sucesso!');
 
             // Revisão automática por IA (não bloqueia)
-            reviewAgentAI(user.id).then((result) => {
+            reviewAgentAI(user.id).then(async (result) => {
                 if (result.decision === 'approved') {
+                    await updateUser({ current_agent_request_status: 'approved', role: 'agent' });
                     console.log(`IA aprovou agente ${user.id} (score: ${result.score}%)`);
                 } else if (result.decision === 'rejected') {
+                    await updateUser({ current_agent_request_status: 'rejected' });
                     console.log(`IA rejeitou agente ${user.id}: ${result.reasons.join(', ')}`);
                 } else {
                     console.log(`IA inconclusiva para agente ${user.id} — mantido como pendente`);
