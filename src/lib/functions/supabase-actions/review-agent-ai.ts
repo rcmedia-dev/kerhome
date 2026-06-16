@@ -79,31 +79,15 @@ export async function reviewAgentAI(userId: string): Promise<AIAgentReviewResult
       .eq('user_id', userId)
       .eq('status', 'pending');
 
-    // Notificar agente sobre rejeição com os motivos
-    const { data: userProfile } = await supabase
-      .from('profiles')
-      .select('primeiro_nome, ultimo_nome, email, telefone')
-      .eq('id', userId)
-      .single();
-
-    if (userProfile) {
-      const webhookUrl = 'https://n8n.srv1157846.hstgr.cloud/webhook/notificate';
-      fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          evento: 'agente_rejeitado',
-          dados: {
-            nome: `${userProfile.primeiro_nome || ''} ${userProfile.ultimo_nome || ''}`.trim(),
-            email: userProfile.email,
-            telefone: userProfile.telefone || '',
-            user_id: userId,
-            motivos: result.reasons,
-            score: result.score,
-          },
-        }),
-      }).catch((err) => console.error('Erro ao notificar rejeição de agente:', err));
-    }
+    // Notificação in-app
+    const { insertNotification } = await import('@/lib/functions/supabase-actions/notifications-actions');
+    await insertNotification({
+      userId,
+      type: 'agent_rejected',
+      title: 'Pedido de agente rejeitado',
+      message: `O teu pedido para ser agente foi rejeitado. Motivos: ${result.reasons.join(', ')}. Melhora os pontos indicados e tenta novamente.`,
+      data: { score: result.score, reasons: result.reasons },
+    });
   }
 
   return result;

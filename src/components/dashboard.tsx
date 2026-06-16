@@ -21,6 +21,7 @@ import { DashboardPlanCard } from './dashboard/plan-card';
 import { DashboardStats } from './dashboard/stats';
 import { DashboardContent } from './dashboard/content';
 import { DashboardTipsModal } from './dashboard-tips-modal';
+import { NotificationsPanel } from './dashboard/notifications-panel';
 
 function DashboardInner() {
   const { user, isLoading: userLoading } = useUserStore();
@@ -162,7 +163,7 @@ function DashboardInner() {
 
         {/* ── Mobile Compact Header Strip — hidden when viewing a chat conversation ── */}
         <div className={cn(
-          "lg:hidden sticky top-0 z-30 bg-white/95 backdrop-blur-xl border-b border-gray-100 shadow-sm px-4 py-2.5 flex items-center justify-between shrink-0",
+          "sticky top-0 z-30 bg-white/95 backdrop-blur-xl border-b border-gray-100 shadow-sm px-4 py-2.5 flex items-center justify-between shrink-0",
           isInChatView && "hidden"
         )}>
           <div className="flex items-center gap-2.5 min-w-0">
@@ -184,12 +185,15 @@ function DashboardInner() {
             </div>
           </div>
 
-          {/* Plan pill */}
-          <div className="flex items-center gap-1.5 bg-orange-50 border border-orange-100 rounded-full px-3 py-1 shrink-0">
-            <Star className="w-3 h-3 text-orange-500 fill-orange-500" />
-            <span className="text-[11px] font-bold text-orange-700">
-              {userPlan.data?.nome || 'FREE'}
-            </span>
+          {/* Plan pill + Notifications */}
+          <div className="flex items-center gap-1.5">
+            <NotificationsPanel userId={user.id} />
+            <div className="bg-orange-50 border border-orange-100 rounded-full px-3 py-1 shrink-0 flex items-center gap-1.5">
+              <Star className="w-3 h-3 text-orange-500 fill-orange-500" />
+              <span className="text-[11px] font-bold text-orange-700">
+                {userPlan.data?.nome || 'FREE'}
+              </span>
+            </div>
           </div>
         </div>
 

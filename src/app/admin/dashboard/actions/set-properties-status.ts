@@ -106,31 +106,14 @@ export async function rejectProperty({ propertyId }: RejectPropertyParams) {
 
     // 5. Notificar proprietário sobre rejeição
     if (propertyData?.owner_id) {
-      const { data: owner } = await supabase
-        .from('profiles')
-        .select('primeiro_nome, ultimo_nome, email, telefone')
-        .eq('id', propertyData.owner_id)
-        .single();
-
-      if (owner) {
-        const webhookUrl = 'https://n8n.srv1157846.hstgr.cloud/webhook/notificate';
-        fetch(webhookUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            evento: 'imovel_rejeitado',
-            dados: {
-              nome: `${owner.primeiro_nome || ''} ${owner.ultimo_nome || ''}`.trim(),
-              email: owner.email,
-              telefone: owner.telefone || '',
-              imovel_titulo: propertyData.title,
-              imovel_id: propertyId,
-              motivos: ['Rejeitado manualmente pela administração'],
-              score: 0,
-            },
-          }),
-        }).catch(() => {});
-      }
+      const { insertNotification } = await import('@/lib/functions/supabase-actions/notifications-actions');
+      await insertNotification({
+        userId: propertyData.owner_id,
+        type: 'property_rejected',
+        title: `Imóvel rejeitado: ${propertyData.title || ''}`,
+        message: 'O teu imóvel foi rejeitado pela administração. Edita as informações e submete novamente.',
+        data: { property_id: propertyId, rejected_by: 'admin' },
+      });
     }
 
     // 6. Atualizar o cache

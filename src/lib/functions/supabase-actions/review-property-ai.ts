@@ -73,39 +73,16 @@ export async function reviewPropertyAI(propertyId: string): Promise<AIReviewResu
       })
       .eq('id', propertyId);
 
-    // Notificar proprietário sobre rejeição com os motivos
-    const { data: property } = await supabase
-      .from('properties')
-      .select('title, owner_id')
-      .eq('id', propertyId)
-      .single();
-
-    if (property) {
-      const { data: owner } = await supabase
-        .from('profiles')
-        .select('primeiro_nome, ultimo_nome, email, telefone')
-        .eq('id', property.owner_id)
-        .single();
-
-      if (owner) {
-        const webhookUrl = 'https://n8n.srv1157846.hstgr.cloud/webhook/notificate';
-        fetch(webhookUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            evento: 'imovel_rejeitado',
-            dados: {
-              nome: `${owner.primeiro_nome || ''} ${owner.ultimo_nome || ''}`.trim(),
-              email: owner.email,
-              telefone: owner.telefone || '',
-              imovel_titulo: property.title,
-              imovel_id: propertyId,
-              motivos: result.reasons,
-              score: result.score,
-            },
-          }),
-        }).catch((err) => console.error('Erro ao notificar rejeição de imóvel:', err));
-      }
+    // Notificação in-app ao proprietário
+    const { insertNotification } = await import('@/lib/functions/supabase-actions/notifications-actions');
+    if (property.owner_id) {
+      await insertNotification({
+        userId: property.owner_id,
+        type: 'property_rejected',
+        title: `Imóvel rejeitado: ${property.title || ''}`,
+        message: `O teu imóvel foi rejeitado. Motivos: ${result.reasons.join(', ')}. Edita as informações e submete novamente.`,
+        data: { property_id: propertyId, score: result.score, reasons: result.reasons },
+      });
     }
   }
 

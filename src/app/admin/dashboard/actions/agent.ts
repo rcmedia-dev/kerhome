@@ -44,32 +44,16 @@ export async function rejectAgent(requestId: string): Promise<{success: boolean,
         
         if (error) throw error;
 
-        // Notificar agente sobre rejeição
+        // Notificação in-app
         if (request) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('primeiro_nome, ultimo_nome, email, telefone')
-            .eq('id', request.user_id)
-            .single();
-
-          if (profile) {
-            const webhookUrl = 'https://n8n.srv1157846.hstgr.cloud/webhook/notificate';
-            fetch(webhookUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                evento: 'agente_rejeitado',
-                dados: {
-                  nome: `${profile.primeiro_nome || ''} ${profile.ultimo_nome || ''}`.trim(),
-                  email: profile.email,
-                  telefone: profile.telefone || '',
-                  user_id: request.user_id,
-                  motivos: ['Rejeitado manualmente pela administração'],
-                  score: 0,
-                },
-              }),
-            }).catch(() => {});
-          }
+          const { insertNotification } = await import('@/lib/functions/supabase-actions/notifications-actions');
+          await insertNotification({
+            userId: request.user_id,
+            type: 'agent_rejected',
+            title: 'Pedido de agente rejeitado',
+            message: 'O teu pedido para ser agente foi rejeitado pela administração. Contacta o suporte para mais informações.',
+            data: { rejected_by: 'admin' },
+          });
         }
         
         return { success: true, message: "Solicitação rejeitada!" };
