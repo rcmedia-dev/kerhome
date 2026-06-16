@@ -34,18 +34,18 @@ const SoftMenuItem = ({
         isActive
           ? "bg-white text-purple-700 shadow-sm border border-gray-100"
           : "text-gray-500 hover:bg-gray-50/80 hover:text-gray-900 border border-transparent",
-        isCollapsed && "justify-center px-2"
+        isCollapsed && "justify-center px-0 py-2"
       )}
       title={isCollapsed ? item.label : undefined}
     >
-      <div className="flex items-center space-x-3">
+      <div className={cn("flex items-center", !isCollapsed && "space-x-3")}>
         <div
           className={cn(
-            "p-2 rounded-md transition-all duration-300",
+            "p-2.5 rounded-lg transition-all duration-200",
             isActive
-              ? "bg-purple-50 text-purple-600"
+              ? "bg-purple-50 text-purple-600 shadow-sm"
               : isCollapsed
-                ? "bg-gray-200 text-gray-600 hover:bg-purple-100 hover:text-purple-600"
+                ? "bg-white text-gray-600 shadow-sm border border-gray-100 hover:bg-purple-50 hover:text-purple-600 hover:border-purple-100"
                 : "bg-gray-100 text-gray-400 group-hover:bg-purple-50 group-hover:text-purple-600"
           )}
         >
