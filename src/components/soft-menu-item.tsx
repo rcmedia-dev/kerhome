@@ -33,8 +33,10 @@ const SoftMenuItem = ({
         "relative flex items-center justify-between p-3 mb-1.5 rounded-md cursor-pointer select-none transition-all duration-300",
         isActive
           ? "bg-white text-purple-700 shadow-sm border border-gray-100"
-          : "text-gray-500 hover:bg-gray-50/80 hover:text-gray-900 border border-transparent"
+          : "text-gray-500 hover:bg-gray-50/80 hover:text-gray-900 border border-transparent",
+        isCollapsed && "justify-center px-2"
       )}
+      title={isCollapsed ? item.label : undefined}
     >
       <div className="flex items-center space-x-3">
         <div
@@ -42,7 +44,9 @@ const SoftMenuItem = ({
             "p-2 rounded-md transition-all duration-300",
             isActive
               ? "bg-purple-50 text-purple-600"
-              : "bg-gray-100 text-gray-400 group-hover:bg-purple-50 group-hover:text-purple-600"
+              : isCollapsed
+                ? "bg-gray-200 text-gray-600 hover:bg-purple-100 hover:text-purple-600"
+                : "bg-gray-100 text-gray-400 group-hover:bg-purple-50 group-hover:text-purple-600"
           )}
         >
           <item.icon className="w-4 h-4" />
