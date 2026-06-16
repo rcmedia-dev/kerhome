@@ -84,6 +84,11 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
     return <NotFoundState />;
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || '';
+  const propertyUrl = property.slug 
+    ? `${siteUrl}/propriedades/${property.slug}`
+    : `${siteUrl}/propriedades/${property.id}`;
+
   // Redirect to slug URL if accessing by ID
   if (property.slug && isUUID(id)) {
     redirect(`/propriedades/${property.slug}`);
@@ -131,7 +136,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
       {/* Immersive Gallery Section - Full Width */}
       <div className="w-full">
         <div className="px-0">
-          <Breadcrumbs items={[{ label: 'Imóveis', href: '/propriedades' }, { label: property.title }]} />
+          <Breadcrumbs items={[{ label: 'Imóveis', href: '/propriedades' }, { label: property.title }]} currentUrl={propertyUrl} />
           <PropertyGallery property={property} />
         </div>
       </div>

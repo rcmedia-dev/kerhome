@@ -16,6 +16,7 @@ import {
   Bookmark
 } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import readingTime from 'reading-time';
 import { toast } from 'sonner';
 import { Noticias } from '@/lib/types/noticia';
@@ -206,6 +207,8 @@ const Sidebar: React.FC<{ post: Noticias; ads: TPropertyResponseSchema[] }> = ({
 
 
 const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts, properties }) => {
+  const pathname = usePathname();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
   const [selectedAds, setSelectedAds] = useState<TPropertyResponseSchema[]>([]);
   const estimatedTime = readingTime(post.content?.html || '');
 
@@ -232,7 +235,7 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts, properties }) =
         title={post.title}
         description={post.excerpt?.html?.replace(/<[^>]*>/g, '')?.substring(0, 200) || ''}
         image={post.coverImage?.url}
-        url={typeof window !== 'undefined' ? window.location.href : ''}
+        url={`${siteUrl}${pathname}`}
         datePublished={post.createdAt}
         author="Redator KerCasa"
       />
@@ -250,7 +253,7 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts, properties }) =
               className="text-left"
             >
               <div className="flex justify-start mb-6">
-                <Breadcrumbs items={[{ label: 'Insights', href: '/noticias' }, { label: post.title }]} />
+                <Breadcrumbs items={[{ label: 'Insights', href: '/noticias' }, { label: post.title }]} currentUrl={`${siteUrl}${pathname}`} />
               </div>
 
               <h1

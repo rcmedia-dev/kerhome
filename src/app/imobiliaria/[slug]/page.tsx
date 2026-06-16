@@ -65,6 +65,9 @@ export default async function ImobiliariaPerfilPage({ params }: { params: Promis
     notFound();
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
+  const currentUrl = `${siteUrl}/imobiliaria/${slug}`;
+
   const imoveis = await fetchPropertiesByAgency(imobiliaria.id);
   const agentes = await fetchAgentsByAgency(imobiliaria.id);
   const semelhantes = await fetchSimilarAgencies(imobiliaria.cidade || '', imobiliaria.id);
@@ -91,7 +94,7 @@ export default async function ImobiliariaPerfilPage({ params }: { params: Promis
 
         <div className="max-w-7xl mx-auto px-4 relative z-10">
           {/* Breadcrumb */}
-          <Breadcrumbs items={[{ label: 'Agências', href: '/imobiliarias' }, { label: imobiliaria.nome }]} />
+          <Breadcrumbs items={[{ label: 'Agências', href: '/imobiliarias' }, { label: imobiliaria.nome }]} currentUrl={currentUrl} />
 
           {/* Hero Content */}
           <div className="flex flex-col md:flex-row items-center md:items-end gap-8">

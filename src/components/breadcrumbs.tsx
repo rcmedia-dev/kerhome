@@ -1,5 +1,8 @@
+'use client'
+
 import { ChevronRight, Home } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { BreadcrumbListJsonLd } from '@/components/json-ld';
 
 interface BreadcrumbItem {
@@ -7,14 +10,16 @@ interface BreadcrumbItem {
   href?: string;
 }
 
-export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
+export function Breadcrumbs({ items, currentUrl }: { items: BreadcrumbItem[]; currentUrl?: string }) {
+  const pathname = usePathname();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
   const allItems = [{ label: 'Início', href: '/' }, ...items];
 
   const jsonLdItems = allItems.map((item) => ({
     name: item.label,
     url: item.href
-      ? `${process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com'}${item.href}`
-      : `${process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com'}${window?.location?.pathname || '/'}`,
+      ? `${siteUrl}${item.href}`
+      : currentUrl || `${siteUrl}${pathname}`,
   }));
 
   return (

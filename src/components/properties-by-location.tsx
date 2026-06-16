@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { MapPin, ArrowLeft, Home } from 'lucide-react';
 import { PropertyCard } from '@/components/property-card';
 import { Breadcrumbs } from '@/components/breadcrumbs';
@@ -9,6 +10,8 @@ import { createClient } from '@/lib/supabase/client';
 import { TPropertyResponseSchema } from '@/lib/types/property';
 
 export function PropertiesByLocation({ cidade, bairro }: { cidade: string; bairro?: string }) {
+  const pathname = usePathname();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
   const [properties, setProperties] = useState<TPropertyResponseSchema[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -41,7 +44,7 @@ export function PropertiesByLocation({ cidade, bairro }: { cidade: string; bairr
           { label: 'Imóveis', href: '/propriedades' },
           { label: bairro ? cidade : cidade },
           ...(bairro ? [{ label: bairro }] : []),
-        ]} />
+        ]} currentUrl={`${siteUrl}${pathname}`} />
 
         <div className="flex items-center gap-3 mb-8">
           <div className="p-3 bg-purple-100 rounded-xl">
