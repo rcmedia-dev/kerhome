@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 
 const WORKER_URL = process.env.CF_WORKER_URL;
 
@@ -41,7 +41,7 @@ function fallbackReview(property: any): AIReviewResult {
 }
 
 export async function reviewPropertyAI(propertyId: string): Promise<AIReviewResult> {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
 
   const { data: property } = await supabase
     .from('properties')

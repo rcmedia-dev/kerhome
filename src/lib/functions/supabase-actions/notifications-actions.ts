@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createServiceClient } from '@/lib/supabase/server';
 
 export interface Notification {
   id: string;
@@ -21,7 +21,7 @@ export async function insertNotification(params: {
   data?: Record<string, any>;
 }) {
   try {
-    const supabase = await createClient();
+    const supabase = createServiceClient();
     const { error } = await supabase.from('notifications').insert({
       user_id: params.userId,
       type: params.type,

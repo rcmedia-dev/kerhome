@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 
 const WORKER_URL = process.env.CF_WORKER_URL;
 
@@ -47,7 +47,7 @@ function fallbackReview(profile: any): AIAgentReviewResult {
 
 export async function reviewAgentAI(userId: string): Promise<AIAgentReviewResult> {
   try {
-    const supabase = await createClient();
+    const supabase = createServiceClient();
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
