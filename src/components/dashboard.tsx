@@ -2,12 +2,14 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import { Home, Heart, BarChart3, Eye, User, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUserStore } from '@/lib/store/user-store';
 import { useChatStore } from '@/lib/store/chat-store';
 import { useDashboardData } from '@/hooks/use-dashboard-data';
 import { useDashboardActions } from '@/hooks/use-dashboard-actions';
+import { createClient } from '@/lib/supabase/client';
 
 import SoftLoading from '@/components/soft-loading';
 import SoftCard from '@/components/soft-card';
@@ -90,6 +92,26 @@ function DashboardInner() {
     handleAvatarUpload,
     handleRequestAgent
   } = useDashboardActions();
+
+  // Fetch latest agent request status directly from DB (overrides stale store value)
+  const supabaseDashboard = createClient();
+  const { data: dbAgentStatus } = useQuery<string | null>({
+    queryKey: ['agent-request-status', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data } = await supabaseDashboard
+        .from('agente_requests')
+        .select('status')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data?.status || null;
+    },
+    enabled: !!user?.id,
+    staleTime: 1000 * 30, // 30s sem refetch
+  });
+  const effectiveAgentStatus = dbAgentStatus ?? user?.current_agent_request_status;
 
   if (!mounted) {
     return <SoftLoading />;
@@ -228,7 +250,7 @@ function DashboardInner() {
                   displayName={displayName}
                   avatarUrl={user.avatar_url}
                   role={user.role}
-                  agentRequestStatus={user.current_agent_request_status}
+                  agentRequestStatus={effectiveAgentStatus}
                   isUploading={isUploading}
                   isRequestingAgent={isRequestingAgent}
                   onAvatarUpload={handleAvatarUpload}
