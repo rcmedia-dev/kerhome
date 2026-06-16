@@ -62,7 +62,7 @@ export function DashboardSidebar({
             >
                 {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             </button>
-            <nav className="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto custom-scrollbar">
+            <nav className="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto custom-scrollbar bg-white shadow-sm rounded-xl m-2">
                 {menuItems.map((item, index) => {
                     const isProtected = item.id === 'invoices' || item.id === 'views';
                     const menuItem = (
