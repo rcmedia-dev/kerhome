@@ -4,6 +4,13 @@ import { toast } from 'sonner';
 import { useUserStore } from '@/lib/store/user-store';
 import { reviewAgentAI } from '@/lib/functions/supabase-actions/review-agent-ai';
 
+function setAgentRequestStatus(status: string | null) {
+  useUserStore.setState((state) => {
+    if (!state.user) return state;
+    return { user: { ...state.user, current_agent_request_status: status } };
+  });
+}
+
 export function useDashboardActions() {
     const { user, updateUser } = useUserStore();
     const [isUploading, setIsUploading] = useState(false);
@@ -60,22 +67,23 @@ export function useDashboardActions() {
             if (dbError) {
                 if (dbError.code === '23505') {
                     toast.info("Você já possui uma solicitação pendente.");
-                    await updateUser({ current_agent_request_status: 'pending' });
+                    setAgentRequestStatus('pending');
                     return;
                 }
                 throw new Error(`Erro ao salvar solicitação: ${dbError.message}`);
             }
 
-            await updateUser({ current_agent_request_status: 'pending' });
+            setAgentRequestStatus('pending');
             toast.success('Solicitação registrada com sucesso!');
 
             // Revisão automática por IA (não bloqueia)
             reviewAgentAI(user.id).then(async (result) => {
                 if (result.decision === 'approved') {
-                    await updateUser({ current_agent_request_status: 'approved', role: 'agent' });
+                    setAgentRequestStatus('approved');
+                    await updateUser({ role: 'agent' });
                     console.log(`IA aprovou agente ${user.id} (score: ${result.score}%)`);
                 } else if (result.decision === 'rejected') {
-                    await updateUser({ current_agent_request_status: 'rejected' });
+                    setAgentRequestStatus('rejected');
                     console.log(`IA rejeitou agente ${user.id}: ${result.reasons.join(', ')}`);
                 } else {
                     console.log(`IA inconclusiva para agente ${user.id} — mantido como pendente`);
