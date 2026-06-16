@@ -821,22 +821,26 @@ function PropertyCardItem({ property, index, onQuickView }: { property: any; ind
         </div>
       )}
       <PropertyCard property={property} isClickable={!selectionMode} onQuickView={onQuickView ? () => onQuickView(property) : undefined} footerAction={
-        <div className="flex flex-col gap-2">
-          <PropertyAiChat property={property} variant="bubble" className="w-full h-10 rounded-xl text-xs" />
-          {!selectionMode ? (
-            <Link
-              href={property.slug ? `/propriedades/${property.slug}` : `/propriedades/${property.id}`}
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-button text-center transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm text-sm"
-            >
-              <span>Ver Detalhes</span>
-              <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-            </Link>
-          ) : (
-            <div className="w-full bg-gray-100 text-gray-400 font-bold py-3 px-4 rounded-button text-center flex items-center justify-center gap-2 cursor-default">
-              <span>Ver Detalhes</span>
-              <ArrowRight className="w-4 h-4" />
-            </div>
-          )}
+        <div className="flex gap-2">
+          <div className="w-[80%]">
+            {!selectionMode ? (
+              <Link
+                href={property.slug ? `/propriedades/${property.slug}` : `/propriedades/${property.id}`}
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-button text-center transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm text-sm"
+              >
+                <span>Ver Detalhes</span>
+                <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+              </Link>
+            ) : (
+              <div className="w-full bg-gray-100 text-gray-400 font-bold py-3 px-4 rounded-button text-center flex items-center justify-center gap-2 cursor-default">
+                <span>Ver Detalhes</span>
+                <ArrowRight className="w-4 h-4" />
+              </div>
+            )}
+          </div>
+          <div className="w-[20%]">
+            <PropertyAiChat property={property} variant="bubble" className="w-full h-full rounded-xl text-xs px-0" />
+          </div>
         </div>
       } />
     </motion.div>
