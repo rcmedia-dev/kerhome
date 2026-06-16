@@ -342,12 +342,10 @@ export function PropertyAiChat({
     <>
       <button
         onClick={handleOpen}
-        className={`flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold shadow-md transition-all active:scale-95 ${className || 'px-5 py-3 rounded-xl text-sm'}`}
+        className={`flex items-center justify-center bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold shadow-md transition-all active:scale-95 ${className || 'px-5 py-3 rounded-xl text-sm'}`}
       >
-        <Sparkles className="w-4 h-4" />
-        Perguntar à IA
+        <Sparkles className="w-5 h-5" />
       </button>
-
       {mounted && createPortal(modal, document.body)}
     </>
   );
