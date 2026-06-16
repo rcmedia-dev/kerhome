@@ -20,6 +20,7 @@ import { DashboardWelcomeCard } from './dashboard/welcome-card';
 import { DashboardPlanCard } from './dashboard/plan-card';
 import { DashboardStats } from './dashboard/stats';
 import { DashboardContent } from './dashboard/content';
+import { DashboardTipsModal } from './dashboard-tips-modal';
 
 function DashboardInner() {
   const { user, isLoading: userLoading } = useUserStore();
@@ -125,6 +126,12 @@ function DashboardInner() {
 
       {/* 📡 Listener de Notificações de Lead */}
       <AgencyNotificationsListener imobiliariaId={userAgency.data?.id || null} />
+
+      {/* 💡 Tips Modal — mostra dicas em steps ao entrar no dashboard */}
+      <DashboardTipsModal
+        userId={user.id}
+        userProperties={userProperties.data || []}
+      />
 
       {/* ── Mobile: Bottom Tab Bar — hidden when viewing a chat conversation ── */}
       {!isInChatView && (
