@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
-import { notificateN8n } from '@/lib/functions/supabase-actions/n8n-notification-request';
 import { useUserStore } from '@/lib/store/user-store';
 import { reviewAgentAI } from '@/lib/functions/supabase-actions/review-agent-ai';
 
@@ -69,14 +68,6 @@ export function useDashboardActions() {
 
             await updateUser({ current_agent_request_status: 'pending' });
             toast.success('Solicitação registrada com sucesso!');
-
-            try {
-                await notificateN8n('agente_solicitation', {
-                    agentName: displayName,
-                });
-            } catch (n8nError) {
-                console.warn('Alerta de notificação falhou, mas registro foi salvo:', n8nError);
-            }
 
             // Revisão automática por IA (não bloqueia)
             reviewAgentAI(user.id).then((result) => {
