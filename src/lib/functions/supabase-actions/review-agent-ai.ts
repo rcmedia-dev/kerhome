@@ -11,6 +11,42 @@ export interface AIAgentReviewResult {
   reasons: string[];
 }
 
+function fallbackReview(profile: any): AIAgentReviewResult {
+  const nome = `${profile.primeiro_nome || ''} ${profile.ultimo_nome || ''}`.trim();
+  const hasNome = nome.length > 0;
+  const hasEmail = !!profile.email;
+  const hasPhoto = !!profile.avatar_url;
+
+  if (!hasNome || !hasEmail) {
+    return {
+      decision: 'rejected',
+      confidence: 0.9,
+      score: 20,
+      reasons: [
+        !hasNome ? 'Nome não preenchido' : null,
+        !hasEmail ? 'Email não preenchido' : null,
+        !hasPhoto ? 'Foto de perfil não carregada' : null,
+      ].filter(Boolean) as string[],
+    };
+  }
+
+  if (!hasPhoto) {
+    return {
+      decision: 'rejected',
+      confidence: 0.85,
+      score: 40,
+      reasons: ['Foto de perfil é obrigatória para ser agente'],
+    };
+  }
+
+  return {
+    decision: 'approved',
+    confidence: 0.8,
+    score: 75,
+    reasons: ['Perfil com campos obrigatórios preenchidos'],
+  };
+}
+
 export async function reviewAgentAI(userId: string): Promise<AIAgentReviewResult> {
   const supabase = await createClient();
 
@@ -25,19 +61,33 @@ export async function reviewAgentAI(userId: string): Promise<AIAgentReviewResult
   }
 
   if (!WORKER_URL) {
-    return { decision: 'needs_review', confidence: 0, score: 50, reasons: ['Revisor de IA indisponível'] };
+    // Fallback local quando não há worker configurado
+    const result = fallbackReview(profile);
+    await applyAgentDecision(supabase, userId, result);
+    return result;
   }
 
   const prompt = buildAgentReviewPrompt(profile);
 
-  const res = await fetch(`${WORKER_URL}/query`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ question: prompt, history: [], stream: false, topK: 1 }),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${WORKER_URL}/query`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: prompt, history: [], stream: false, topK: 1 }),
+    });
+  } catch {
+    // Worker inacessível — fallback local
+    const result = fallbackReview(profile);
+    await applyAgentDecision(supabase, userId, result);
+    return result;
+  }
 
   if (!res.ok) {
-    return { decision: 'needs_review', confidence: 0, score: 50, reasons: ['Erro ao contactar o revisor de IA'] };
+    // Worker com erro — fallback local
+    const result = fallbackReview(profile);
+    await applyAgentDecision(supabase, userId, result);
+    return result;
   }
 
   const data = await res.json();
@@ -61,6 +111,11 @@ export async function reviewAgentAI(userId: string): Promise<AIAgentReviewResult
     reasons: Array.isArray(parsed.reasons) ? parsed.reasons : [],
   };
 
+  await applyAgentDecision(supabase, userId, result);
+  return result;
+}
+
+async function applyAgentDecision(supabase: any, userId: string, result: AIAgentReviewResult) {
   if (result.decision === 'approved' && result.confidence >= 0.7) {
     await supabase
       .from('agente_requests')
@@ -80,17 +135,17 @@ export async function reviewAgentAI(userId: string): Promise<AIAgentReviewResult
       .eq('status', 'pending');
 
     // Notificação in-app
-    const { insertNotification } = await import('@/lib/functions/supabase-actions/notifications-actions');
-    await insertNotification({
-      userId,
-      type: 'agent_rejected',
-      title: 'Pedido de agente rejeitado',
-      message: `O teu pedido para ser agente foi rejeitado. Motivos: ${result.reasons.join(', ')}. Melhora os pontos indicados e tenta novamente.`,
-      data: { score: result.score, reasons: result.reasons },
-    });
+    try {
+      const { insertNotification } = await import('@/lib/functions/supabase-actions/notifications-actions');
+      await insertNotification({
+        userId,
+        type: 'agent_rejected',
+        title: 'Pedido de agente rejeitado',
+        message: `O teu pedido para ser agente foi rejeitado. Motivos: ${result.reasons.join(', ')}. Melhora os pontos indicados e tenta novamente.`,
+        data: { score: result.score, reasons: result.reasons },
+      });
+    } catch {}
   }
-
-  return result;
 }
 
 function buildAgentReviewPrompt(profile: any): string {

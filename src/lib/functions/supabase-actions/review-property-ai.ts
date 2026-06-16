@@ -9,6 +9,37 @@ export interface AIReviewResult {
   reasons: string[];
 }
 
+function fallbackReview(property: any): AIReviewResult {
+  const hasTitle = !!property.title;
+  const hasDescription = !!property.description;
+  const hasPrice = !!property.price && property.price > 0;
+  const hasAddress = !!(property.cidade || property.bairro || property.provincia);
+  const hasCoverImage = !!property.image;
+
+  const missing: string[] = [];
+  if (!hasTitle) missing.push('Título não preenchido');
+  if (!hasDescription) missing.push('Descrição não preenchida');
+  if (!hasPrice) missing.push('Preço não preenchido ou inválido');
+  if (!hasAddress) missing.push('Endereço (cidade/bairro) não preenchido');
+  if (!hasCoverImage) missing.push('Imagem de capa não carregada');
+
+  if (missing.length > 0) {
+    return {
+      decision: 'rejected',
+      confidence: 0.9,
+      score: Math.max(10, 100 - missing.length * 20),
+      reasons: missing,
+    };
+  }
+
+  return {
+    decision: 'approved',
+    confidence: 0.8,
+    score: 70,
+    reasons: ['Anúncio com campos obrigatórios preenchidos'],
+  };
+}
+
 export async function reviewPropertyAI(propertyId: string): Promise<AIReviewResult> {
   const supabase = await createClient();
 
@@ -23,19 +54,30 @@ export async function reviewPropertyAI(propertyId: string): Promise<AIReviewResu
   }
 
   if (!WORKER_URL) {
-    return { decision: 'needs_review', confidence: 0, score: 50, reasons: ['Revisor de IA indisponível'] };
+    const result = fallbackReview(property);
+    await applyPropertyDecision(supabase, propertyId, property, result);
+    return result;
   }
 
   const prompt = buildReviewPrompt(property);
 
-  const res = await fetch(`${WORKER_URL}/query`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ question: prompt, history: [], stream: false, topK: 1 }),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${WORKER_URL}/query`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: prompt, history: [], stream: false, topK: 1 }),
+    });
+  } catch {
+    const result = fallbackReview(property);
+    await applyPropertyDecision(supabase, propertyId, property, result);
+    return result;
+  }
 
   if (!res.ok) {
-    return { decision: 'needs_review', confidence: 0, score: 50, reasons: ['Erro ao contactar o revisor de IA'] };
+    const result = fallbackReview(property);
+    await applyPropertyDecision(supabase, propertyId, property, result);
+    return result;
   }
 
   const data = await res.json();
@@ -59,6 +101,11 @@ export async function reviewPropertyAI(propertyId: string): Promise<AIReviewResu
     reasons: Array.isArray(parsed.reasons) ? parsed.reasons : [],
   };
 
+  await applyPropertyDecision(supabase, propertyId, property, result);
+  return result;
+}
+
+async function applyPropertyDecision(supabase: any, propertyId: string, property: any, result: AIReviewResult) {
   if (result.decision === 'approved' && result.confidence >= 0.7) {
     await supabase
       .from('properties')
@@ -73,20 +120,20 @@ export async function reviewPropertyAI(propertyId: string): Promise<AIReviewResu
       })
       .eq('id', propertyId);
 
-    // Notificação in-app ao proprietário
-    const { insertNotification } = await import('@/lib/functions/supabase-actions/notifications-actions');
+    // Notificação in-app
     if (property.owner_id) {
-      await insertNotification({
-        userId: property.owner_id,
-        type: 'property_rejected',
-        title: `Imóvel rejeitado: ${property.title || ''}`,
-        message: `O teu imóvel foi rejeitado. Motivos: ${result.reasons.join(', ')}. Edita as informações e submete novamente.`,
-        data: { property_id: propertyId, score: result.score, reasons: result.reasons },
-      });
+      try {
+        const { insertNotification } = await import('@/lib/functions/supabase-actions/notifications-actions');
+        await insertNotification({
+          userId: property.owner_id,
+          type: 'property_rejected',
+          title: `Imóvel rejeitado: ${property.title || ''}`,
+          message: `O teu imóvel foi rejeitado. Motivos: ${result.reasons.join(', ')}. Edita as informações e submete novamente.`,
+          data: { property_id: propertyId, score: result.score, reasons: result.reasons },
+        });
+      } catch {}
     }
   }
-
-  return result;
 }
 
 function buildReviewPrompt(property: any): string {
