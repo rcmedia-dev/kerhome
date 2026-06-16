@@ -10,12 +10,12 @@ CREATE TABLE IF NOT EXISTS notifications (
   title       TEXT NOT NULL,
   message     TEXT NOT NULL,
   data        JSONB NOT NULL DEFAULT '{}',
-  read        BOOLEAN NOT NULL DEFAULT FALSE,
+  is_read     BOOLEAN NOT NULL DEFAULT FALSE,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_notifications_user_id     ON notifications (user_id);
-CREATE INDEX IF NOT EXISTS idx_notifications_user_read   ON notifications (user_id, read);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_read   ON notifications (user_id, is_read);
 CREATE INDEX IF NOT EXISTS idx_notifications_created_at  ON notifications (created_at DESC);
 
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;

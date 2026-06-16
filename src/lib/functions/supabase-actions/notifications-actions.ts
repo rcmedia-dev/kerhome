@@ -9,7 +9,7 @@ export interface Notification {
   title: string;
   message: string;
   data: any;
-  read: boolean;
+  is_read: boolean;
   created_at: string;
 }
 
@@ -59,7 +59,7 @@ export async function fetchUnreadCount(userId: string): Promise<number> {
       .from('notifications')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId)
-      .eq('read', false);
+      .eq('is_read', false);
     if (error) throw error;
     return count || 0;
   } catch (err) {
@@ -73,7 +73,7 @@ export async function markNotificationRead(notificationId: string) {
     const supabase = await createClient();
     await supabase
       .from('notifications')
-      .update({ read: true })
+      .update({ is_read: true })
       .eq('id', notificationId);
   } catch (err) {
     console.error('Erro ao marcar notificação como lida:', err);
@@ -85,9 +85,9 @@ export async function markAllNotificationsRead(userId: string) {
     const supabase = await createClient();
     await supabase
       .from('notifications')
-      .update({ read: true })
+      .update({ is_read: true })
       .eq('user_id', userId)
-      .eq('read', false);
+      .eq('is_read', false);
   } catch (err) {
     console.error('Erro ao marcar todas notificações como lidas:', err);
   }

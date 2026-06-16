@@ -63,14 +63,14 @@ export function NotificationsPanel({ userId }: { userId: string }) {
   const handleMarkRead = async (id: string) => {
     await markNotificationRead(id);
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+      prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
     );
     setUnreadCount((prev) => Math.max(0, prev - 1));
   };
 
   const handleMarkAllRead = async () => {
     await markAllNotificationsRead(userId);
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
     setUnreadCount(0);
   };
 
@@ -146,7 +146,7 @@ export function NotificationsPanel({ userId }: { userId: string }) {
                     key={notif.id}
                     onClick={() => handleMarkRead(notif.id)}
                     className={`w-full text-left px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors ${
-                      !notif.read ? 'bg-purple-50/30' : ''
+                      !notif.is_read ? 'bg-purple-50/30' : ''
                     }`}
                   >
                     <div className="flex items-start gap-3">
@@ -154,7 +154,7 @@ export function NotificationsPanel({ userId }: { userId: string }) {
                         {typeIcons[notif.type] || <Clock className="w-4 h-4 text-gray-400" />}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className={`text-xs ${!notif.read ? 'font-bold text-gray-900' : 'font-medium text-gray-700'}`}>
+                        <p className={`text-xs ${!notif.is_read ? 'font-bold text-gray-900' : 'font-medium text-gray-700'}`}>
                           {notif.title}
                         </p>
                         <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-2">{notif.message}</p>
@@ -162,7 +162,7 @@ export function NotificationsPanel({ userId }: { userId: string }) {
                           {formatTime(notif.created_at)}
                         </span>
                       </div>
-                      {!notif.read && (
+                      {!notif.is_read && (
                         <span className="w-2 h-2 bg-purple-500 rounded-full shrink-0 mt-1.5" />
                       )}
                     </div>
