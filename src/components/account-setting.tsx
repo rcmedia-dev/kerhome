@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Settings, Save, User, Mail, Phone, Building, Award, Globe, Facebook, Linkedin, Instagram, Youtube, Edit3, Briefcase, Users, Share2 } from 'lucide-react';
+import { Settings, Save, User, Mail, Phone, Building, Award, Globe, Facebook, Linkedin, Instagram, Youtube, Edit3, Briefcase, Users, Share2, Sparkles } from 'lucide-react';
 import { updateUserProfile } from '@/lib/functions/supabase-actions/update-user-profile';
 import { toast } from 'sonner';
 import { UserProfile } from '@/lib/store/user-store';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { AgentProfileTips } from '@/components/agent-profile-tips';
 
 type SettingsProps = {
   profile: UserProfile;
@@ -444,6 +445,9 @@ export function ConfiguracoesConta({ profile }: SettingsProps) {
         </CardHeader>
 
         <CardContent>
+          <div className="mb-6">
+            <AgentProfileTips userId={profile.id as string} />
+          </div>
           <motion.form 
             onSubmit={handleSubmit} 
             className="space-y-8"

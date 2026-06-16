@@ -38,6 +38,7 @@ import { Calendar as CalendarUI } from '@/components/ui/calendar';
 import { toast } from 'sonner';
 import { getSupabaseUserProperties } from '@/lib/functions/get-properties';
 import { AiReplySuggestions } from './ai-reply-suggestions';
+import { AiLeadCoach } from '@/components/ai-lead-coach';
 
 type LeadTemperature = 'hot' | 'warm' | 'cold' | 'none';
 
@@ -833,6 +834,11 @@ export function MessagesTab() {
               </div>
               <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Painel Estratégico</h3>
               <p className="text-[9px] text-gray-300 font-bold uppercase tracking-tighter">Selecione uma conversa</p>
+              {user?.id && (
+                <div className="mt-6 w-full max-w-xs">
+                  <AiLeadCoach messages={messages} currentUserId={user.id} totalUnread={conversations.filter(c => (c as any).unread_count > 0).length} />
+                </div>
+              )}
             </div>
           )}
         </div>

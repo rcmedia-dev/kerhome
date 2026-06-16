@@ -1,5 +1,5 @@
 import React, { useState, useTransition, useCallback, useEffect, useMemo } from 'react';
-import { AlertTriangle, CheckCircle2, ShieldAlert, TrendingUp, RefreshCw } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, ShieldAlert, TrendingUp, RefreshCw, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -8,6 +8,7 @@ import { PropertyCard } from '@/components/property-card';
 import { PendingPropertyCard } from '@/components/pending-property-card';
 import { RejectedPropertyCard } from '@/components/rejected-property-card';
 import LoadingState from '@/app/propriedades/components/loading-state';
+import { PropertyHealthScore } from '@/components/property-health-score';
 
 import { TPropertyResponseSchema } from '@/lib/types/property';
 import { cn } from '@/lib/utils';
@@ -149,11 +150,16 @@ export function MinhasPropriedades({ userProperties }: MinePropertiesProps) {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                       >
-                        <PropertyCard
-                          property={property}
-                          canBoost={suspended.length <= 1}
-                          onDelete={() => handleOptimisticDelete(property.id)}
-                        />
+                        <div className="relative">
+                          <PropertyCard
+                            property={property}
+                            canBoost={suspended.length <= 1}
+                            onDelete={() => handleOptimisticDelete(property.id)}
+                          />
+                          <div className="absolute top-3 right-3">
+                            <PropertyHealthScore propertyId={property.id} />
+                          </div>
+                        </div>
                       </motion.div>
                     );
                   })}
