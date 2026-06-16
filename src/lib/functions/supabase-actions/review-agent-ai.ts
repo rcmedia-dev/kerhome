@@ -1,5 +1,3 @@
-'use server';
-
 import { createClient } from '@/lib/supabase/server';
 
 const WORKER_URL = process.env.CF_WORKER_URL;
@@ -48,71 +46,80 @@ function fallbackReview(profile: any): AIAgentReviewResult {
 }
 
 export async function reviewAgentAI(userId: string): Promise<AIAgentReviewResult> {
-  const supabase = await createClient();
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single();
-
-  if (!profile) {
-    return { decision: 'needs_review', confidence: 0, score: 0, reasons: ['Perfil não encontrado'] };
-  }
-
-  if (!WORKER_URL) {
-    // Fallback local quando não há worker configurado
-    const result = fallbackReview(profile);
-    await applyAgentDecision(supabase, userId, result);
-    return result;
-  }
-
-  const prompt = buildAgentReviewPrompt(profile);
-
-  let res: Response;
   try {
-    res = await fetch(`${WORKER_URL}/query`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question: prompt, history: [], stream: false, topK: 1 }),
-    });
-  } catch {
-    // Worker inacessível — fallback local
-    const result = fallbackReview(profile);
+    const supabase = await createClient();
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (profileError || !profile) {
+      console.error('reviewAgentAI: profile not found', profileError);
+      return { decision: 'needs_review', confidence: 0, score: 0, reasons: ['Perfil não encontrado'] };
+    }
+
+    if (!WORKER_URL) {
+      console.log('reviewAgentAI: no WORKER_URL, using fallback');
+      const result = fallbackReview(profile);
+      await applyAgentDecision(supabase, userId, result);
+      return result;
+    }
+
+    const prompt = buildAgentReviewPrompt(profile);
+
+    let res: Response;
+    try {
+      res = await fetch(`${WORKER_URL}/query`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: prompt, history: [], stream: false, topK: 1 }),
+      });
+    } catch (fetchErr) {
+      console.warn('reviewAgentAI: worker fetch failed, using fallback', fetchErr);
+      const result = fallbackReview(profile);
+      await applyAgentDecision(supabase, userId, result);
+      return result;
+    }
+
+    if (!res.ok) {
+      console.warn(`reviewAgentAI: worker returned ${res.status}, using fallback`);
+      const result = fallbackReview(profile);
+      await applyAgentDecision(supabase, userId, result);
+      return result;
+    }
+
+    const data = await res.json();
+    const answer = data.answer;
+
+    let parsed: any;
+    if (typeof answer === 'string') {
+      try { parsed = JSON.parse(answer); } catch {}
+    } else if (typeof answer === 'object' && answer !== null) {
+      parsed = answer;
+    }
+
+    if (!parsed || !parsed.decision) {
+      console.warn('reviewAgentAI: invalid worker response, using fallback', parsed);
+      const result = fallbackReview(profile);
+      await applyAgentDecision(supabase, userId, result);
+      return result;
+    }
+
+    const result: AIAgentReviewResult = {
+      decision: ['approved', 'rejected', 'needs_review'].includes(parsed.decision) ? parsed.decision : 'needs_review',
+      confidence: typeof parsed.confidence === 'number' ? parsed.confidence : 0,
+      score: typeof parsed.score === 'number' ? parsed.score : 50,
+      reasons: Array.isArray(parsed.reasons) ? parsed.reasons : [],
+    };
+
     await applyAgentDecision(supabase, userId, result);
     return result;
+  } catch (err) {
+    console.error('reviewAgentAI: unexpected error', err);
+    return { decision: 'needs_review', confidence: 0, score: 50, reasons: ['Erro interno ao analisar perfil'] };
   }
-
-  if (!res.ok) {
-    // Worker com erro — fallback local
-    const result = fallbackReview(profile);
-    await applyAgentDecision(supabase, userId, result);
-    return result;
-  }
-
-  const data = await res.json();
-  const answer = data.answer;
-
-  let parsed: any;
-  if (typeof answer === 'string') {
-    try { parsed = JSON.parse(answer); } catch {}
-  } else if (typeof answer === 'object' && answer !== null) {
-    parsed = answer;
-  }
-
-  if (!parsed || !parsed.decision) {
-    return { decision: 'needs_review', confidence: 0, score: 50, reasons: ['Resposta inválida do revisor de IA'] };
-  }
-
-  const result: AIAgentReviewResult = {
-    decision: ['approved', 'rejected', 'needs_review'].includes(parsed.decision) ? parsed.decision : 'needs_review',
-    confidence: typeof parsed.confidence === 'number' ? parsed.confidence : 0,
-    score: typeof parsed.score === 'number' ? parsed.score : 50,
-    reasons: Array.isArray(parsed.reasons) ? parsed.reasons : [],
-  };
-
-  await applyAgentDecision(supabase, userId, result);
-  return result;
 }
 
 async function applyAgentDecision(supabase: any, userId: string, result: AIAgentReviewResult) {

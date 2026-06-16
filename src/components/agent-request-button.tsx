@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { User } from "lucide-react";
 import { useState } from "react";
-import { reviewAgentAI } from '@/lib/functions/supabase-actions/review-agent-ai';
 
 const supabase = createClient();
 
@@ -54,7 +53,11 @@ export function AgentRequestButton({ userId, userName, queryClient }: AgentReque
       if (error) throw error;
 
       // Revisão automática por IA (não bloqueia)
-      reviewAgentAI(userId).then((result) => {
+      fetch('/api/mywai/review-agent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      }).then((r) => r.json()).then((result) => {
         queryClient.invalidateQueries({ queryKey: ["agent-request", userId] });
         if (result.decision === 'approved') {
           console.log(`IA aprovou agente ${userId} (score: ${result.score}%)`);

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { useUserStore } from '@/lib/store/user-store';
-import { reviewAgentAI } from '@/lib/functions/supabase-actions/review-agent-ai';
 
 function setAgentRequestStatus(status: string | null) {
   useUserStore.setState((state) => {
@@ -77,7 +76,11 @@ export function useDashboardActions() {
             toast.success('Solicitação registrada com sucesso!');
 
             // Revisão automática por IA (não bloqueia)
-            reviewAgentAI(user.id).then(async (result) => {
+            fetch('/api/mywai/review-agent', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: user.id }),
+            }).then((r) => r.json()).then(async (result) => {
                 if (result.decision === 'approved') {
                     setAgentRequestStatus('approved');
                     await updateUser({ role: 'agent' });
