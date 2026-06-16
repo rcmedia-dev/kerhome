@@ -1,11 +1,41 @@
 'use client'
 
+import { useMemo } from "react";
 import { TPropertyResponseSchema } from "@/lib/types/property";
 import { MapPin, BedDouble, Ruler, Tag, Bath, CarFront, Share2 } from "lucide-react";
 import { ShareButton } from "@/components/share-button";
 
-// ===== COMPONENTE PROPERTY HEADER =====
+function calculateMonthlyPayment(
+  principal: number,
+  annualRate: number,
+  years: number,
+  downPaymentPercent: number
+): number {
+  if (principal <= 0 || years <= 0) return 0;
+  const downPayment = principal * (downPaymentPercent / 100);
+  const loanAmount = principal - downPayment;
+  if (loanAmount <= 0) return 0;
+  const monthlyRate = annualRate / 100 / 12;
+  const numPayments = years * 12;
+  if (monthlyRate === 0) return loanAmount / numPayments;
+  return (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) /
+    (Math.pow(1 + monthlyRate, numPayments) - 1);
+}
+
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat('pt-AO', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value) + ' Kz';
+}
+
 export function PropertyHeader({ property }: { property: TPropertyResponseSchema }) {
+  const estimatedPayment = useMemo(() => {
+    if (!property.price || property.price <= 0 || property.status === 'arrendar') return null;
+    const payment = calculateMonthlyPayment(property.price, 7, 20, 20);
+    return payment > 0 ? formatCurrency(Math.round(payment)) : null;
+  }, [property.price, property.status]);
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -49,8 +79,8 @@ export function PropertyHeader({ property }: { property: TPropertyResponseSchema
         </div>
       </div>
 
-      {/* Price */}
-      <div className="pt-4 flex items-center gap-4">
+      {/* Price + Estimated Monthly Payment */}
+      <div className="pt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
         <div className="text-3xl sm:text-4xl font-bold text-orange-500">
           {property.price && (
             <>
@@ -74,6 +104,12 @@ export function PropertyHeader({ property }: { property: TPropertyResponseSchema
 
         {property.status === "arrendar" && (
           <span className="text-gray-400 text-lg">/mês</span>
+        )}
+
+        {estimatedPayment && (
+          <div className="px-3 py-1.5 bg-purple-50 border border-purple-200 rounded-full text-xs font-bold text-purple-700 shadow-sm">
+            Desde {estimatedPayment}/mês*
+          </div>
         )}
       </div>
 
