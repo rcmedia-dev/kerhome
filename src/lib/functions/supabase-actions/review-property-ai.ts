@@ -91,15 +91,26 @@ export async function reviewPropertyAI(propertyId: string): Promise<AIReviewResu
   }
 
   if (!parsed || !parsed.decision) {
-    return { decision: 'needs_review', confidence: 0, score: 50, reasons: ['Resposta inválida do revisor de IA'] };
+    console.warn('reviewPropertyAI: invalid worker response, using fallback', parsed);
+    const fb = fallbackReview(property);
+    await applyPropertyDecision(supabase, propertyId, property, fb);
+    return fb;
   }
 
   const result: AIReviewResult = {
-    decision: ['approved', 'rejected', 'needs_review'].includes(parsed.decision) ? parsed.decision : 'needs_review',
+    decision: ['approved', 'rejected'].includes(parsed.decision) ? parsed.decision : 'needs_review',
     confidence: typeof parsed.confidence === 'number' ? parsed.confidence : 0,
     score: typeof parsed.score === 'number' ? parsed.score : 50,
     reasons: Array.isArray(parsed.reasons) ? parsed.reasons : [],
   };
+
+  // Se o worker não conseguiu decidir (needs_review ou baixa confiança), usa fallback local
+  if (result.decision === 'needs_review' || result.confidence < 0.7) {
+    console.log('reviewPropertyAI: worker needs_review, using fallback', result);
+    const fb = fallbackReview(property);
+    await applyPropertyDecision(supabase, propertyId, property, fb);
+    return fb;
+  }
 
   await applyPropertyDecision(supabase, propertyId, property, result);
   return result;

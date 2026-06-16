@@ -108,16 +108,40 @@ export async function reviewAgentAI(userId: string): Promise<AIAgentReviewResult
     }
 
     const result: AIAgentReviewResult = {
-      decision: ['approved', 'rejected', 'needs_review'].includes(parsed.decision) ? parsed.decision : 'needs_review',
+      decision: ['approved', 'rejected'].includes(parsed.decision) ? parsed.decision : 'needs_review',
       confidence: typeof parsed.confidence === 'number' ? parsed.confidence : 0,
       score: typeof parsed.score === 'number' ? parsed.score : 50,
       reasons: Array.isArray(parsed.reasons) ? parsed.reasons : [],
     };
 
+    // Se o worker não conseguiu decidir (needs_review ou baixa confiança), usa fallback local
+    if (result.decision === 'needs_review' || result.confidence < 0.7) {
+      console.log('reviewAgentAI: worker needs_review, using fallback', result);
+      const fb = fallbackReview(profile);
+      await applyAgentDecision(supabase, userId, fb);
+      return fb;
+    }
+
     await applyAgentDecision(supabase, userId, result);
     return result;
   } catch (err) {
-    console.error('reviewAgentAI: unexpected error', err);
+    console.error('reviewAgentAI: UNEXPECTED ERROR — trying fallback', err instanceof Error ? err.message : err);
+    // Fallback: tenta revisão local mesmo após erro inesperado
+    try {
+      const supabase = createServiceClient();
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      if (profile) {
+        const result = fallbackReview(profile);
+        await applyAgentDecision(supabase, userId, result);
+        return result;
+      }
+    } catch (fallbackErr) {
+      console.error('reviewAgentAI: fallback also failed', fallbackErr);
+    }
     return { decision: 'needs_review', confidence: 0, score: 50, reasons: ['Erro interno ao analisar perfil'] };
   }
 }
