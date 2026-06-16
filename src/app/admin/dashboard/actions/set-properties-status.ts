@@ -85,7 +85,14 @@ export async function rejectProperty({ propertyId }: RejectPropertyParams) {
       };
     }
 
-    // 3. Atualizar o status no banco de dados
+    // 3. Buscar dados do imóvel para notificação
+    const { data: propertyData } = await supabase
+      .from('properties')
+      .select('title, owner_id')
+      .eq('id', propertyId)
+      .single();
+
+    // 4. Atualizar o status no banco de dados
     const { error: updateError } = await supabase
       .from('properties')
       .update({
@@ -97,7 +104,36 @@ export async function rejectProperty({ propertyId }: RejectPropertyParams) {
       throw new Error(updateError.message);
     }
 
-    // 4. Atualizar o cache
+    // 5. Notificar proprietário sobre rejeição
+    if (propertyData?.owner_id) {
+      const { data: owner } = await supabase
+        .from('profiles')
+        .select('primeiro_nome, ultimo_nome, email, telefone')
+        .eq('id', propertyData.owner_id)
+        .single();
+
+      if (owner) {
+        const webhookUrl = 'https://n8n.srv1157846.hstgr.cloud/webhook/notificate';
+        fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            evento: 'imovel_rejeitado',
+            dados: {
+              nome: `${owner.primeiro_nome || ''} ${owner.ultimo_nome || ''}`.trim(),
+              email: owner.email,
+              telefone: owner.telefone || '',
+              imovel_titulo: propertyData.title,
+              imovel_id: propertyId,
+              motivos: ['Rejeitado manualmente pela administração'],
+              score: 0,
+            },
+          }),
+        }).catch(() => {});
+      }
+    }
+
+    // 6. Atualizar o cache
     revalidatePath('/properties');
     
     return {

@@ -72,6 +72,41 @@ export async function reviewPropertyAI(propertyId: string): Promise<AIReviewResu
         rejection_reason: result.reasons.join('; '),
       })
       .eq('id', propertyId);
+
+    // Notificar proprietário sobre rejeição com os motivos
+    const { data: property } = await supabase
+      .from('properties')
+      .select('title, owner_id')
+      .eq('id', propertyId)
+      .single();
+
+    if (property) {
+      const { data: owner } = await supabase
+        .from('profiles')
+        .select('primeiro_nome, ultimo_nome, email, telefone')
+        .eq('id', property.owner_id)
+        .single();
+
+      if (owner) {
+        const webhookUrl = 'https://n8n.srv1157846.hstgr.cloud/webhook/notificate';
+        fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            evento: 'imovel_rejeitado',
+            dados: {
+              nome: `${owner.primeiro_nome || ''} ${owner.ultimo_nome || ''}`.trim(),
+              email: owner.email,
+              telefone: owner.telefone || '',
+              imovel_titulo: property.title,
+              imovel_id: propertyId,
+              motivos: result.reasons,
+              score: result.score,
+            },
+          }),
+        }).catch((err) => console.error('Erro ao notificar rejeição de imóvel:', err));
+      }
+    }
   }
 
   return result;
@@ -98,10 +133,15 @@ Tem imagem de capa: ${property.image ? 'Sim' : 'Não'}
 Quantidade de fotos: ${Array.isArray(property.gallery) ? property.gallery.length : 0}
 
 Critérios de avaliação:
-1. COMPLETUDE: Título, descrição, preço e endereço estão preenchidos corretamente?
+1. COMPLETUDE: Título, descrição, preço, endereço e imagem de capa estão preenchidos corretamente? (obrigatório)
 2. CONSISTÊNCIA: O preço é realista para o tipo/tamanho/localização?
 3. QUALIDADE: A descrição é detalhada e bem escrita? (não genérica ou spam)
-4. LEGITIMIDADE: O anúncio parece genuíno?
+4. LEGITIMIDADE: O anúncio parece genuíno e não é spam?
+
+Regras de decisão:
+- Aprovar automaticamente se: campos obrigatórios preenchidos + descrição coerente + anúncio genuíno
+- Rejeitar automaticamente se: faltar título, descrição, preço, endereço ou imagem de capa, OU se for spam
+- needs_review se: campos obrigatórios preenchidos mas preço ou descrição geram dúvida
 
 Responde APENAS com um objeto JSON válido, sem markdown:
 {

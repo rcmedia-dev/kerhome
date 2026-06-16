@@ -78,6 +78,32 @@ export async function reviewAgentAI(userId: string): Promise<AIAgentReviewResult
       .update({ status: 'rejected' })
       .eq('user_id', userId)
       .eq('status', 'pending');
+
+    // Notificar agente sobre rejeição com os motivos
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('primeiro_nome, ultimo_nome, email, telefone')
+      .eq('id', userId)
+      .single();
+
+    if (userProfile) {
+      const webhookUrl = 'https://n8n.srv1157846.hstgr.cloud/webhook/notificate';
+      fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          evento: 'agente_rejeitado',
+          dados: {
+            nome: `${userProfile.primeiro_nome || ''} ${userProfile.ultimo_nome || ''}`.trim(),
+            email: userProfile.email,
+            telefone: userProfile.telefone || '',
+            user_id: userId,
+            motivos: result.reasons,
+            score: result.score,
+          },
+        }),
+      }).catch((err) => console.error('Erro ao notificar rejeição de agente:', err));
+    }
   }
 
   return result;
@@ -98,10 +124,15 @@ Tem foto de perfil: ${profile.avatar_url ? 'Sim' : 'Não'}
 Tem redes sociais: ${[profile.facebook, profile.linkedin, profile.instagram, profile.youtube].filter(Boolean).length > 0 ? 'Sim' : 'Não'}
 
 Critérios de avaliação:
-1. COMPLETUDE: Nome, email e telefone estão preenchidos corretamente?
-2. PROFISSIONALISMO: O candidato tem bio, empresa ou licença imobiliária?
-3. PRESENÇA ONLINE: Tem website ou redes sociais profissionais?
-4. LEGITIMIDADE: O perfil parece genuíno e completo?
+1. COMPLETUDE: Nome, email, telefone e foto de perfil estão preenchidos corretamente? (obrigatório)
+2. PROFISSIONALISMO: Tem bio, empresa ou licença imobiliária? (opcional — valoriza o perfil, mas não bloqueia)
+3. PRESENÇA ONLINE: Tem website ou redes sociais profissionais? (opcional — valoriza o perfil, mas não bloqueia)
+4. LEGITIMIDADE: O perfil parece genuíno e não é spam ou bot?
+
+Regras de decisão:
+- Aprovar automaticamente se: campos obrigatórios preenchidos + perfil parece genuíno
+- Rejeitar automaticamente se: faltar nome, email, telefone ou foto de perfil, OU se o perfil for claramente spam/bot
+- needs_review se: campos obrigatórios preenchidos mas faltam detalhes que gerem dúvida
 
 Responde APENAS com um objeto JSON válido, sem markdown:
 {
