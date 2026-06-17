@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { useUserStore } from '@/lib/store/user-store';
+import { X } from 'lucide-react';
 
 function setAgentRequestStatus(status: string | null) {
   useUserStore.setState((state) => {
@@ -106,11 +107,22 @@ export function useDashboardActions() {
             toast.success('Solicitação registrada com sucesso!');
 
             // Revisão automática por IA (não bloqueia)
+            const startReview = Date.now();
             fetch('/api/mywai/review-agent', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId: user.id }),
-            }).then((r) => r.json()).then(async (result) => {
+            })
+            .then(async (r) => {
+                const result = await r.json();
+
+                // Garantir que a análise dura pelo menos 1.5 segundos (1500ms)
+                const elapsed = Date.now() - startReview;
+                const delay = Math.max(0, 1500 - elapsed);
+                if (delay > 0) {
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+
                 // Atualizar painel de notificações
                 window.dispatchEvent(new CustomEvent('new-notification'));
 
@@ -121,14 +133,34 @@ export function useDashboardActions() {
                     console.log(`IA aprovou agente ${user.id} (score: ${result.score}%)`);
                 } else if (result.decision === 'rejected') {
                     setAgentRequestStatus('rejected');
-                    toast.error(`O teu pedido para ser agente foi rejeitado pela IA. Motivos: ${result.reasons.join(', ')}`, {
-                        duration: 10000,
-                    });
                     console.log(`IA rejeitou agente ${user.id}: ${result.reasons.join(', ')}`);
+                    
+                    // Caixa persistente de rejeição que só fecha ao clicar no X
+                    toast.custom((t) => (
+                        <div className="bg-red-50 border border-red-200 p-4 rounded-xl shadow-lg max-w-sm flex items-start gap-3 relative">
+                            <div className="flex-1">
+                                <h4 className="font-bold text-red-800 text-sm">Pedido de Agente Rejeitado pela IA</h4>
+                                <p className="text-xs text-red-700 mt-1 leading-relaxed">
+                                    Motivos: {result.reasons.join(', ')}.
+                                </p>
+                                <p className="text-[10.5px] text-red-600 mt-2 font-medium">
+                                    Dica: Atualiza o teu perfil com uma foto profissional, telefone e descrição antes de tentar novamente.
+                                </p>
+                            </div>
+                            <button 
+                                onClick={() => toast.dismiss(t)} 
+                                className="text-red-400 hover:text-red-600 p-1 hover:bg-red-100/50 rounded-lg transition-colors cursor-pointer shrink-0"
+                                aria-label="Fechar"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                    ), { duration: Infinity });
                 } else {
                     console.log(`IA inconclusiva para agente ${user.id} — mantido como pendente`);
                 }
-            }).catch((err) => {
+            })
+            .catch((err) => {
                 console.warn('Erro na revisão de IA do agente:', err);
             });
 
