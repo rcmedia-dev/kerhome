@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 import { cn } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { User, X } from "lucide-react";
 import { useState } from "react";
@@ -11,10 +11,10 @@ const supabase = createClient();
 type AgentRequestButtonProps = {
   userId: string;
   userName: string;
-  queryClient: any;
 }
 
-export function AgentRequestButton({ userId, userName, queryClient }: AgentRequestButtonProps) {
+export function AgentRequestButton({ userId, userName }: AgentRequestButtonProps) {
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
 
   const { data: latestRequest, isLoading: isChecking } = useQuery<{ id: string; status: string } | null>({
@@ -84,6 +84,7 @@ export function AgentRequestButton({ userId, userName, queryClient }: AgentReque
       }
       // Atualizar queries e notificações
       await queryClient.invalidateQueries({ queryKey: ["agent-request", userId] });
+      await queryClient.invalidateQueries({ queryKey: ["agent-request-status", userId] });
       window.dispatchEvent(new CustomEvent('new-notification'));
 
       toast.info('Solicitação enviada. A IA está a analisar o teu perfil...');
@@ -124,6 +125,7 @@ export function AgentRequestButton({ userId, userName, queryClient }: AgentReque
 
       // Atualizar queries e notificações finais
       await queryClient.invalidateQueries({ queryKey: ["agent-request", userId] });
+      await queryClient.invalidateQueries({ queryKey: ["agent-request-status", userId] });
       window.dispatchEvent(new CustomEvent('new-notification'));
 
       if (result.decision === 'approved') {

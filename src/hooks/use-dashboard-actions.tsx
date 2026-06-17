@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { useUserStore } from '@/lib/store/user-store';
 import { X } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 
 function setAgentRequestStatus(status: string | null) {
   useUserStore.setState((state) => {
@@ -16,6 +17,7 @@ export function useDashboardActions() {
     const [isUploading, setIsUploading] = useState(false);
     const [isRequestingAgent, setIsRequestingAgent] = useState(false);
     const supabase = createClient();
+    const queryClient = useQueryClient();
 
     const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -104,6 +106,8 @@ export function useDashboardActions() {
             }
 
             setAgentRequestStatus('pending');
+            await queryClient.invalidateQueries({ queryKey: ['agent-request-status', user.id] });
+            await queryClient.invalidateQueries({ queryKey: ['agent-request', user.id] });
             toast.info('Solicitação enviada. A IA está a analisar o teu perfil...');
 
             // Executar e aguardar revisão da IA (com delay mínimo de 1.5s para UX)
@@ -141,6 +145,8 @@ export function useDashboardActions() {
             }
 
             // Atualizar painel de notificações
+            await queryClient.invalidateQueries({ queryKey: ['agent-request-status', user.id] });
+            await queryClient.invalidateQueries({ queryKey: ['agent-request', user.id] });
             window.dispatchEvent(new CustomEvent('new-notification'));
 
             if (result.decision === 'approved') {
