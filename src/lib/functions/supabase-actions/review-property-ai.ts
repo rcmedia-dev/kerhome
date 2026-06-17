@@ -61,14 +61,20 @@ export async function reviewPropertyAI(propertyId: string): Promise<AIReviewResu
 
   const prompt = buildReviewPrompt(property);
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
   let res: Response;
   try {
     res = await fetch(`${WORKER_URL}/query`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question: prompt, history: [], stream: false, topK: 1 }),
+      signal: controller.signal,
     });
-  } catch {
+    clearTimeout(timeoutId);
+  } catch (fetchErr) {
+    clearTimeout(timeoutId);
+    console.warn('reviewPropertyAI: worker fetch failed or timed out, using fallback', fetchErr);
     const result = fallbackReview(property);
     await applyPropertyDecision(supabase, propertyId, property, result);
     return result;

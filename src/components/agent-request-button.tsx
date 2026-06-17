@@ -90,12 +90,31 @@ export function AgentRequestButton({ userId, userName, queryClient }: AgentReque
 
       // Executar e aguardar revisão automática por IA (com delay mínimo de 1.5 segundos)
       const startReview = Date.now();
-      const res = await fetch('/api/mywai/review-agent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
-      });
-      const result = await res.json();
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+      
+      let result;
+      try {
+        const res = await fetch('/api/mywai/review-agent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId }),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        
+        if (!res.ok) {
+          throw new Error(`Servidor respondeu com status ${res.status}`);
+        }
+        result = await res.json();
+      } catch (fetchErr: any) {
+        clearTimeout(timeoutId);
+        if (fetchErr.name === 'AbortError') {
+          throw new Error('A verificação da IA demorou demasiado tempo. O pedido foi registado mas será revisto manualmente.');
+        }
+        throw fetchErr;
+      }
 
       const elapsed = Date.now() - startReview;
       const delay = Math.max(0, 1500 - elapsed);

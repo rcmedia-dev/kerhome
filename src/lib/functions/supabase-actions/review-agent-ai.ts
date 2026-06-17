@@ -69,15 +69,20 @@ export async function reviewAgentAI(userId: string): Promise<AIAgentReviewResult
 
     const prompt = buildAgentReviewPrompt(profile);
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
     let res: Response;
     try {
       res = await fetch(`${WORKER_URL}/query`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: prompt, history: [], stream: false, topK: 1 }),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
     } catch (fetchErr) {
-      console.warn('reviewAgentAI: worker fetch failed, using fallback', fetchErr);
+      clearTimeout(timeoutId);
+      console.warn('reviewAgentAI: worker fetch failed or timed out, using fallback', fetchErr);
       const result = fallbackReview(profile);
       await applyAgentDecision(supabase, userId, result);
       return result;
