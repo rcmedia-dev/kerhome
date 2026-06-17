@@ -5,6 +5,16 @@ import { createClient } from "@/lib/supabase/server";
 export async function aproveAgent(requestId: string, userId: string): Promise<{success: boolean, message: string}>{
     const supabase = await createClient();
     try {
+        // Verificar role de administrador
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Não autenticado');
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+        if (profile?.role !== 'Administrador') throw new Error('Apenas administradores podem aprovar agentes');
+
         const { error } = await supabase
           .from('agente_requests')
           .update({ status: 'approved' })
@@ -23,13 +33,23 @@ export async function aproveAgent(requestId: string, userId: string): Promise<{s
         return { success: true, message: "Agente aprovado com sucesso!" };
       } catch (error) {
         console.error('Erro ao aprovar agente:', error);
-        return { success: false, message: "Erro ao aprovar agente" };
+        return { success: false, message: error instanceof Error ? error.message : "Erro ao aprovar agente" };
       }
 }
 
 export async function rejectAgent(requestId: string): Promise<{success: boolean, message: string, rejection_reason?: string}>{
     const supabase = await createClient();
     try {
+        // Verificar role de administrador
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Não autenticado');
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+        if (profile?.role !== 'Administrador') throw new Error('Apenas administradores podem rejeitar agentes');
+
         // Buscar dados da solicitação antes de rejeitar
         const { data: request } = await supabase
           .from('agente_requests')

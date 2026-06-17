@@ -19,11 +19,12 @@ export interface Property {
   caracteristicas?: string[];
   endereco: string;
   created_at: Date | string;
-  image: string | null;   // imagem de capa
+  image: string | null;
   gallery: string[];
   video_url?: string;
   documents?: string[];
   aprovement_status: 'approved' | 'pending' | 'rejected';
+  is_featured: boolean;
   owner_id: PropertyOwner | null;
 }
 
@@ -47,6 +48,7 @@ export async function getProperties(): Promise<Property[]> {
         video_url,
         documents,
         aprovement_status,
+        is_featured,
         owner_id:profiles!properties_owner_id_fkey (
           id,
           primeiro_nome,
@@ -60,9 +62,9 @@ export async function getProperties(): Promise<Property[]> {
       throw new Error('Error fetching properties');
     }
 
-    // Aqui não precisamos de verificar length, já vem como objeto ou null
     const formattedData: Property[] = (propertiesData || []).map((p: any) => ({
       ...p,
+      is_featured: p.is_featured ?? false,
       owner_id: p.owner_id ?? null
     }));
 

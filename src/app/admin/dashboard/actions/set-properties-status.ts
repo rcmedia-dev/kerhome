@@ -10,6 +10,17 @@ interface ApprovePropertyParams {
 export async function approveProperty({ propertyId }: ApprovePropertyParams) {
   try {
     const supabase = await createClient();
+
+    // Verificar role de administrador
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Não autenticado');
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+    if (profile?.role !== 'Administrador') throw new Error('Apenas administradores podem aprovar imóveis');
+
     // 1. Verificar se o imóvel existe
     const { data: existingProperty, error: fetchError } = await supabase
       .from('properties')
@@ -66,6 +77,17 @@ interface RejectPropertyParams {
 export async function rejectProperty({ propertyId }: RejectPropertyParams) {
   try {
     const supabase = await createClient();
+
+    // Verificar role de administrador
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Não autenticado');
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+    if (profile?.role !== 'Administrador') throw new Error('Apenas administradores podem rejeitar imóveis');
+
     // 1. Verificar se o imóvel existe
     const { data: existingProperty, error: fetchError } = await supabase
       .from('properties')

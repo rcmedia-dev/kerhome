@@ -21,6 +21,7 @@ export async function getPropertyById(id: string): Promise<Property | null> {
         gallery,
         caracteristicas,
         aprovement_status,
+        is_featured,
         video_url,
         documents,
         owner_id:profiles!properties_owner_id_fkey (
@@ -62,6 +63,7 @@ export async function getPropertyById(id: string): Promise<Property | null> {
       gallery: propertyData.gallery || [],
       caracteristicas: propertyData.caracteristicas || [],
       aprovement_status: propertyData.aprovement_status,
+      is_featured: propertyData.is_featured ?? false,
       video_url: propertyData.video_url || '',
       documents: propertyData.documents || [],
       owner_id: ownerProfile ? {

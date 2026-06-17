@@ -273,6 +273,23 @@ export async function getLimitedProperties(limit: number): Promise<TPropertyResp
   }
 }
 
+export async function getFeaturedProperties(): Promise<TPropertyResponseSchema[]> {
+  const supabase = await createClient();
+  try {
+    const { data } = await supabase
+      .from('properties')
+      .select('*')
+      .eq('aprovement_status', 'approved')
+      .eq('is_featured', true)
+      .order('updated_at', { ascending: false });
+
+    return (data || []) as TPropertyResponseSchema[];
+  } catch (e) {
+    console.error('Erro ao buscar propriedades destacadas:', e);
+    return [];
+  }
+}
+
 // Imóveis similares por título E preço (ambos os critérios)
 export async function getSimilarProperties(
   propertyId: string,

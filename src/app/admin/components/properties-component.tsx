@@ -1,12 +1,13 @@
 'use client';
 
-import { CheckCircle, Eye, MapPin, Plus, UserCircle2, XCircle, Clock, Check, X, Building, Settings, Trash2, Edit, Loader2 } from "lucide-react";
+import { CheckCircle, Eye, MapPin, Plus, UserCircle2, XCircle, Clock, Check, X, Building, Settings, Trash2, Edit, Loader2, Star } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getProperties, Property } from "@/app/admin/dashboard/actions/get-properties";
 import Image from "next/image";
 import { toast } from "sonner";
 import { approveProperty, rejectProperty } from "@/app/admin/dashboard/actions/set-properties-status";
+import { toggleFeaturedProperty } from "@/app/admin/dashboard/actions/toggle-featured";
 import { deleteProperty } from "@/lib/functions/supabase-actions/delete-propertie";
 import { useUserStore } from "@/lib/store/user-store";
 
@@ -477,6 +478,25 @@ function ManagementPropertyCard({ property, darkMode, onUpdate, onDelete }: Mana
   const { user } = useUserStore();
   const mainImage = property.image || property.gallery?.[0] || '';
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isTogglingFeatured, setIsTogglingFeatured] = useState(false);
+
+  const handleToggleFeatured = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isTogglingFeatured) return;
+    setIsTogglingFeatured(true);
+    try {
+      const result = await toggleFeaturedProperty(property.id, !property.is_featured);
+      if (result.success) {
+        onUpdate({ ...property, is_featured: result.featured });
+        toast.success(result.featured ? 'Imóvel destacado' : 'Destaque removido');
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao alternar destaque');
+    } finally {
+      setIsTogglingFeatured(false);
+    }
+  };
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -584,7 +604,24 @@ function ManagementPropertyCard({ property, darkMode, onUpdate, onDelete }: Mana
             <Eye className="w-4 h-4" />
             Ver
           </Link>
-          
+
+          <button
+            onClick={handleToggleFeatured}
+            disabled={isTogglingFeatured}
+            className={`px-3 py-2 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors ${
+              property.is_featured
+                ? 'bg-amber-100 hover:bg-amber-200 text-amber-700'
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-500'
+            }`}
+            title={property.is_featured ? 'Remover destaque' : 'Destacar imóvel'}
+          >
+            {isTogglingFeatured ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Star className={`w-4 h-4 ${property.is_featured ? 'fill-amber-500 text-amber-500' : ''}`} />
+            )}
+          </button>
+
           <button
             onClick={handleEdit}
             className="px-3 py-2 text-sm font-medium rounded-lg bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2 transition-colors"

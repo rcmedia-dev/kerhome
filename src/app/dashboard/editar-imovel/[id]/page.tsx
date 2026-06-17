@@ -220,7 +220,7 @@ export default function PropertyEditForm() {
                   />
                 )}
                 {activeTab === 'midia' && <MediaTab property={loadedProperty} />}
-                {activeTab === 'notas' && <NotesTab register={register} control={control} />}
+                {activeTab === 'notas' && <NotesTab register={register} />}
               </form>
             </FormProvider>
           </div>
