@@ -41,17 +41,47 @@ export function AgentRequestButton({ userId, userName, queryClient }: AgentReque
     setIsLoading(true);
     
     try {
-      const { error } = await supabase
-        .from("agente_requests")
-        .insert([{ 
-          user_id: userId, 
-          status: "pending",
-          created_at: new Date().toISOString()
-        }])
-        .select()
-        .single();
+      // Verificar se já existe uma solicitação para o utilizador
+      const { data: existingRequest } = await supabase
+        .from('agente_requests')
+        .select('id, status')
+        .eq('user_id', userId)
+        .maybeSingle();
 
-      if (error) throw error;
+      if (existingRequest) {
+        if (existingRequest.status === 'pending') {
+          toast.info("Você já possui uma solicitação pendente.");
+          setIsLoading(false);
+          return;
+        }
+        if (existingRequest.status === 'approved') {
+          toast.info("Você já é um agente aprovado.");
+          setIsLoading(false);
+          return;
+        }
+        
+        // Se foi rejeitada, atualizamos o estado para pending e a data de criação
+        const { error: updateError } = await supabase
+          .from('agente_requests')
+          .update({
+            status: 'pending',
+            created_at: new Date().toISOString()
+          })
+          .eq('id', existingRequest.id);
+
+        if (updateError) throw updateError;
+      } else {
+        // Se não existir, inserimos uma nova solicitação
+        const { error: insertError } = await supabase
+          .from("agente_requests")
+          .insert([{ 
+            user_id: userId, 
+            status: "pending",
+            created_at: new Date().toISOString()
+          }]);
+
+        if (insertError) throw insertError;
+      }
 
       // Revisão automática por IA (não bloqueia)
       fetch('/api/mywai/review-agent', {
