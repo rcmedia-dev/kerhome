@@ -147,6 +147,23 @@ export async function reviewAgentAI(userId: string): Promise<AIAgentReviewResult
 }
 
 async function applyAgentDecision(supabase: any, userId: string, result: AIAgentReviewResult) {
+  const { insertNotification } = await import('@/lib/functions/supabase-actions/notifications-actions');
+
+  // Obter nome do candidato para as notificações
+  let nome = 'Novo Candidato';
+  try {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('primeiro_nome, ultimo_nome')
+      .eq('id', userId)
+      .single();
+    if (profile) {
+      nome = `${profile.primeiro_nome || ''} ${profile.ultimo_nome || ''}`.trim() || 'Novo Candidato';
+    }
+  } catch (profileErr) {
+    console.error('Erro ao buscar dados do perfil do agente:', profileErr);
+  }
+
   if (result.decision === 'approved' && result.confidence >= 0.7) {
     await supabase
       .from('agente_requests')
@@ -158,6 +175,42 @@ async function applyAgentDecision(supabase: any, userId: string, result: AIAgent
       .from('profiles')
       .update({ role: 'agent' })
       .eq('id', userId);
+
+    // Notificar o candidato (usuário) sobre aprovação
+    try {
+      await insertNotification({
+        userId,
+        type: 'agent_approved',
+        title: `Pedido de agente aprovado! 🎉`,
+        message: `Parabéns! O teu pedido para te tornares agente foi analisado e aprovado automaticamente pela nossa IA. Já podes gerir os teus imóveis.`,
+        data: { score: result.score },
+      });
+    } catch (err) {
+      console.error('Erro ao notificar agente sobre aprovação:', err);
+    }
+
+    // Notificar todos os administradores da plataforma
+    try {
+      const { data: admins } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('role', 'admin');
+      
+      if (admins && admins.length > 0) {
+        for (const admin of admins) {
+          await insertNotification({
+            userId: admin.id,
+            type: 'ai_agent_approved',
+            title: `IA: Agente Aprovado`,
+            message: `O candidato a agente "${nome}" foi aprovado automaticamente pela IA (Score: ${result.score}%). Motivos: ${result.reasons.join(', ')}`,
+            data: { candidate_id: userId, score: result.score, reasons: result.reasons },
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Erro ao notificar administradores sobre aprovação de agente:', err);
+    }
+
   } else if (result.decision === 'rejected' && result.confidence >= 0.7) {
     await supabase
       .from('agente_requests')
@@ -165,17 +218,41 @@ async function applyAgentDecision(supabase: any, userId: string, result: AIAgent
       .eq('user_id', userId)
       .eq('status', 'pending');
 
-    // Notificação in-app
+    // Notificar o candidato (usuário) sobre rejeição com motivos e dicas de melhoria
     try {
-      const { insertNotification } = await import('@/lib/functions/supabase-actions/notifications-actions');
+      const tips = '\n\nDicas para melhorar:\n- Certifica-te de carregar uma foto de perfil profissional e nítida.\n- Preenche o teu nome completo, e-mail e telefone válidos.\n- Adiciona uma breve descrição sobre o teu percurso profissional no campo "Sobre Mim".';
       await insertNotification({
         userId,
         type: 'agent_rejected',
         title: 'Pedido de agente rejeitado',
-        message: `O teu pedido para ser agente foi rejeitado. Motivos: ${result.reasons.join(', ')}. Melhora os pontos indicados e tenta novamente.`,
+        message: `O teu pedido para ser agente foi rejeitado. Motivos: ${result.reasons.join(', ')}.${tips}`,
         data: { score: result.score, reasons: result.reasons },
       });
-    } catch {}
+    } catch (err) {
+      console.error('Erro ao notificar agente sobre rejeição:', err);
+    }
+
+    // Notificar todos os administradores da plataforma
+    try {
+      const { data: admins } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('role', 'admin');
+      
+      if (admins && admins.length > 0) {
+        for (const admin of admins) {
+          await insertNotification({
+            userId: admin.id,
+            type: 'ai_agent_rejected',
+            title: `IA: Agente Rejeitado`,
+            message: `O candidato a agente "${nome}" foi rejeitado automaticamente pela IA (Score: ${result.score}%). Motivos: ${result.reasons.join(', ')}`,
+            data: { candidate_id: userId, score: result.score, reasons: result.reasons },
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Erro ao notificar administradores sobre rejeição de agente:', err);
+    }
   }
 }
 

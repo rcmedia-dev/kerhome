@@ -12,6 +12,7 @@ import { PropertyCard } from "@/components/property-card";
 import { getFormSteps } from "./multi-step/form-steps-config";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { propertySchema } from "@/app/dashboard/editar-imovel/components/schema";
+import { toast } from 'sonner';
 
 interface MultiStepFormProps {
   userId?: string;
@@ -166,6 +167,27 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
       const result = await createProperty(formData, userId);
 
       if (result.success) {
+        // Disparar revisão de IA em segundo plano (não-bloqueante)
+        fetch('/api/mywai/review-property', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ propertyId: result.propertyId }),
+        }).then(r => r.json()).then(res => {
+          console.log('Revisão de IA concluída para o imóvel:', res);
+          // Atualizar painel de notificações
+          window.dispatchEvent(new CustomEvent('new-notification'));
+          
+          if (res.decision === 'approved') {
+            toast.success('Parabéns! O teu imóvel foi aprovado automaticamente pela nossa IA e já está publicado! 🎉');
+          } else if (res.decision === 'rejected') {
+            toast.error(`O teu imóvel foi rejeitado pela IA. Motivos: ${res.reasons.join(', ')}`, {
+              duration: 10000,
+            });
+          }
+        }).catch(err => {
+          console.warn('Erro ao disparar revisão de IA do imóvel:', err);
+        });
+
         setSuccessMessage("Propriedade cadastrada com sucesso! Em breve será revisada pela nossa equipe.");
         setShowSuccess(true);
       } else {

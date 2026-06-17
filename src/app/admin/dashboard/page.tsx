@@ -33,6 +33,7 @@ import BoostManagement from '@/app/admin/components/properties-to-boost';
 import ImobiliariasManagement from '@/app/admin/components/imobiliarias-component';
 import { MessagesSection } from '@/app/admin/components/messages-section';
 import { SettingsSection } from '@/app/admin/components/settings-section';
+import { NotificationsPanel } from '@/components/dashboard/notifications-panel';
 
 const supabase = createClient();
 
@@ -46,7 +47,16 @@ const KerHomeDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [darkMode, setDarkMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [chartData, setChartData] = useState<ChartItem[]>([])
+  const [chartData, setChartData] = useState<ChartItem[]>([]);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setCurrentUser(user);
+      }
+    });
+  }, []);
 
   //Dados reais para os gráficos - Com tratamento de erros apropriado
 const activeProperties = useQuery({
@@ -256,12 +266,15 @@ const agentUsers = useQuery({
               </button>
 
               {/* Notifications */}
-              <div className="relative">
-                <button className={`p-2 rounded-lg transition-colors ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'}`}>
-                  <Bell className="w-5 h-5" />
-                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-                </button>
-              </div>
+              {currentUser ? (
+                <NotificationsPanel userId={currentUser.id} />
+              ) : (
+                <div className="relative">
+                  <button className={`p-2 rounded-lg transition-colors ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'}`}>
+                    <Bell className="w-5 h-5 animate-pulse" />
+                  </button>
+                </div>
+              )}
 
               {/* User Profile */}
               <div className="flex items-center space-x-3">

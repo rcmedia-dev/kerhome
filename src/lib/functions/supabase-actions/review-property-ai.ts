@@ -117,11 +117,51 @@ export async function reviewPropertyAI(propertyId: string): Promise<AIReviewResu
 }
 
 async function applyPropertyDecision(supabase: any, propertyId: string, property: any, result: AIReviewResult) {
+  const { insertNotification } = await import('@/lib/functions/supabase-actions/notifications-actions');
+
   if (result.decision === 'approved' && result.confidence >= 0.7) {
     await supabase
       .from('properties')
       .update({ aprovement_status: 'approved' })
       .eq('id', propertyId);
+
+    // Notificar proprietário do imóvel (usuário)
+    if (property.owner_id) {
+      try {
+        await insertNotification({
+          userId: property.owner_id,
+          type: 'property_approved',
+          title: `Imóvel aprovado! 🎉`,
+          message: `O teu imóvel "${property.title || ''}" foi analisado e aprovado automaticamente pela nossa IA e já está publicado!`,
+          data: { property_id: propertyId, score: result.score },
+        });
+      } catch (err) {
+        console.error('Erro ao notificar proprietário sobre aprovação:', err);
+      }
+    }
+
+    // Notificar todos os administradores da plataforma
+    try {
+      const { data: admins } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('role', 'admin');
+      
+      if (admins && admins.length > 0) {
+        for (const admin of admins) {
+          await insertNotification({
+            userId: admin.id,
+            type: 'ai_property_approved',
+            title: `IA: Imóvel Aprovado`,
+            message: `O imóvel "${property.title || ''}" foi aprovado automaticamente pela IA (Score: ${result.score}%). Motivos: ${result.reasons.join(', ')}`,
+            data: { property_id: propertyId, score: result.score, reasons: result.reasons },
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Erro ao notificar administradores sobre aprovação:', err);
+    }
+
   } else if (result.decision === 'rejected' && result.confidence >= 0.7) {
     await supabase
       .from('properties')
@@ -131,18 +171,42 @@ async function applyPropertyDecision(supabase: any, propertyId: string, property
       })
       .eq('id', propertyId);
 
-    // Notificação in-app
+    // Notificar proprietário do imóvel (usuário) com motivos e dicas de melhoria
     if (property.owner_id) {
       try {
-        const { insertNotification } = await import('@/lib/functions/supabase-actions/notifications-actions');
+        const tips = '\n\nDicas para melhorar:\n- Certifica-te de preencher todos os campos obrigatórios (título, descrição, preço, localização).\n- Envia pelo menos uma foto de capa e adiciona mais imagens de boa qualidade à galeria.\n- Fornece uma descrição realista, detalhada e coerente com as características do imóvel.';
         await insertNotification({
           userId: property.owner_id,
           type: 'property_rejected',
           title: `Imóvel rejeitado: ${property.title || ''}`,
-          message: `O teu imóvel foi rejeitado. Motivos: ${result.reasons.join(', ')}. Edita as informações e submete novamente.`,
+          message: `O teu imóvel foi rejeitado. Motivos: ${result.reasons.join(', ')}.${tips}`,
           data: { property_id: propertyId, score: result.score, reasons: result.reasons },
         });
-      } catch {}
+      } catch (err) {
+        console.error('Erro ao notificar proprietário sobre rejeição:', err);
+      }
+    }
+
+    // Notificar todos os administradores
+    try {
+      const { data: admins } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('role', 'admin');
+      
+      if (admins && admins.length > 0) {
+        for (const admin of admins) {
+          await insertNotification({
+            userId: admin.id,
+            type: 'ai_property_rejected',
+            title: `IA: Imóvel Rejeitado`,
+            message: `O imóvel "${property.title || ''}" foi rejeitado automaticamente pela IA (Score: ${result.score}%). Motivos: ${result.reasons.join(', ')}`,
+            data: { property_id: propertyId, score: result.score, reasons: result.reasons },
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Erro ao notificar administradores sobre rejeição:', err);
     }
   }
 }

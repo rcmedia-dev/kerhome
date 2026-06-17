@@ -92,3 +92,29 @@ export async function markAllNotificationsRead(userId: string) {
     console.error('Erro ao marcar todas notificações como lidas:', err);
   }
 }
+
+export async function deleteNotification(notificationId: string) {
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase
+      .from('notifications')
+      .delete()
+      .eq('id', notificationId);
+    if (error) throw error;
+  } catch (err) {
+    console.error('Erro ao eliminar notificação:', err);
+  }
+}
+
+export async function deleteAllNotifications(userId: string) {
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase
+      .from('notifications')
+      .delete()
+      .eq('user_id', userId);
+    if (error) throw error;
+  } catch (err) {
+    console.error('Erro ao eliminar todas as notificações:', err);
+  }
+}

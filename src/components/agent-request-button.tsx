@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { User } from "lucide-react";
 import { useState } from "react";
+import { toast } from 'sonner';
 
 const supabase = createClient();
 
@@ -59,10 +60,17 @@ export function AgentRequestButton({ userId, userName, queryClient }: AgentReque
         body: JSON.stringify({ userId }),
       }).then((r) => r.json()).then((result) => {
         queryClient.invalidateQueries({ queryKey: ["agent-request", userId] });
+        // Atualizar painel de notificações
+        window.dispatchEvent(new CustomEvent('new-notification'));
+
         if (result.decision === 'approved') {
           console.log(`IA aprovou agente ${userId} (score: ${result.score}%)`);
+          toast.success('Parabéns! O teu pedido para te tornares agente foi aprovado pela nossa IA! 🎉');
         } else if (result.decision === 'rejected') {
           console.log(`IA rejeitou agente ${userId}: ${result.reasons.join(', ')}`);
+          toast.error(`Pedido de agente rejeitado pela IA. Motivos: ${result.reasons.join(', ')}`, {
+            duration: 10000,
+          });
         } else {
           console.log(`IA inconclusiva para agente ${userId} — mantido como pendente`);
         }

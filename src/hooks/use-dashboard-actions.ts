@@ -81,12 +81,19 @@ export function useDashboardActions() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId: user.id }),
             }).then((r) => r.json()).then(async (result) => {
+                // Atualizar painel de notificações
+                window.dispatchEvent(new CustomEvent('new-notification'));
+
                 if (result.decision === 'approved') {
                     setAgentRequestStatus('approved');
                     await updateUser({ role: 'agent' });
+                    toast.success('Parabéns! O teu pedido para te tornares agente foi aprovado automaticamente pela nossa IA! 🎉');
                     console.log(`IA aprovou agente ${user.id} (score: ${result.score}%)`);
                 } else if (result.decision === 'rejected') {
                     setAgentRequestStatus('rejected');
+                    toast.error(`O teu pedido para ser agente foi rejeitado pela IA. Motivos: ${result.reasons.join(', ')}`, {
+                        duration: 10000,
+                    });
                     console.log(`IA rejeitou agente ${user.id}: ${result.reasons.join(', ')}`);
                 } else {
                     console.log(`IA inconclusiva para agente ${user.id} — mantido como pendente`);

@@ -276,20 +276,6 @@ export async function createProperty(formData: PropertyFormData, userId?: string
       console.warn('Erro ao enviar notificação:', notificationError);
     }
 
-    // Revisão automática por IA
-    try {
-      const aiResult = await reviewPropertyAI(data.id);
-      if (aiResult.decision === 'approved') {
-        console.log(`IA aprovou imóvel ${data.id} (score: ${aiResult.score}%)`);
-      } else if (aiResult.decision === 'rejected') {
-        console.log(`IA rejeitou imóvel ${data.id}: ${aiResult.reasons.join(', ')}`);
-      } else {
-        console.log(`IA inconclusiva para imóvel ${data.id} — mantido como pendente`);
-      }
-    } catch (aiError) {
-      console.warn('Erro na revisão de IA:', aiError);
-    }
-
     revalidatePath("/properties");
     revalidatePath("/imobiliarias");
     if (imobiliariaId) {
