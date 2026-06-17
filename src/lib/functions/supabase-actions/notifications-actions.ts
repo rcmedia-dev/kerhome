@@ -96,10 +96,16 @@ export async function markAllNotificationsRead(userId: string) {
 export async function deleteNotification(notificationId: string) {
   try {
     const supabase = await createClient();
-    const { error } = await supabase
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Utilizador não autenticado');
+
+    const serviceClient = createServiceClient();
+    const { error } = await serviceClient
       .from('notifications')
       .delete()
-      .eq('id', notificationId);
+      .eq('id', notificationId)
+      .eq('user_id', user.id);
+      
     if (error) throw error;
   } catch (err) {
     console.error('Erro ao eliminar notificação:', err);
@@ -109,10 +115,15 @@ export async function deleteNotification(notificationId: string) {
 export async function deleteAllNotifications(userId: string) {
   try {
     const supabase = await createClient();
-    const { error } = await supabase
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || user.id !== userId) throw new Error('Não autorizado');
+
+    const serviceClient = createServiceClient();
+    const { error } = await serviceClient
       .from('notifications')
       .delete()
       .eq('user_id', userId);
+      
     if (error) throw error;
   } catch (err) {
     console.error('Erro ao eliminar todas as notificações:', err);

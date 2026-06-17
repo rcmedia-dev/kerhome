@@ -12,6 +12,7 @@ import GoogleAnalyticsClient from "@/components/google-analytics";
 import { MobileMenu } from "@/components/mobile-menu";
 import LoaderProviders from "@/app/providers";
 import { OrganizationJsonLd } from "@/components/json-ld";
+import { Toaster } from "@/components/ui/sonner";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
 
@@ -80,6 +81,7 @@ export default function RootLayout({
               <MobileMenu />
               <FloatingActions />
             </div>
+            <Toaster closeButton richColors position="top-right" />
           </LoaderProviders>
         </AuthProvider>
       </body>
