@@ -19,7 +19,7 @@ export async function approveProperty({ propertyId }: ApprovePropertyParams) {
       .select('role')
       .eq('id', user.id)
       .single();
-    if (profile?.role !== 'Administrador') throw new Error('Apenas administradores podem aprovar imóveis');
+    if (profile?.role !== 'admin') throw new Error('Apenas administradores podem aprovar imóveis');
 
     // 1. Verificar se o imóvel existe
     const { data: existingProperty, error: fetchError } = await supabase
@@ -86,7 +86,7 @@ export async function rejectProperty({ propertyId }: RejectPropertyParams) {
       .select('role')
       .eq('id', user.id)
       .single();
-    if (profile?.role !== 'Administrador') throw new Error('Apenas administradores podem rejeitar imóveis');
+    if (profile?.role !== 'admin') throw new Error('Apenas administradores podem rejeitar imóveis');
 
     // 1. Verificar se o imóvel existe
     const { data: existingProperty, error: fetchError } = await supabase

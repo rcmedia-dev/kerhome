@@ -16,7 +16,7 @@ export async function toggleFeaturedProperty(propertyId: string, featured: boole
     .eq('id', user.id)
     .single();
 
-  if (profile?.role !== 'Administrador') {
+  if (profile?.role !== 'admin') {
     throw new Error('Apenas administradores podem destacar propriedades');
   }
 

@@ -13,7 +13,7 @@ export async function aproveAgent(requestId: string, userId: string): Promise<{s
             .select('role')
             .eq('id', user.id)
             .single();
-        if (profile?.role !== 'Administrador') throw new Error('Apenas administradores podem aprovar agentes');
+        if (profile?.role !== 'admin') throw new Error('Apenas administradores podem aprovar agentes');
 
         const { error } = await supabase
           .from('agente_requests')
@@ -48,7 +48,7 @@ export async function rejectAgent(requestId: string): Promise<{success: boolean,
             .select('role')
             .eq('id', user.id)
             .single();
-        if (profile?.role !== 'Administrador') throw new Error('Apenas administradores podem rejeitar agentes');
+        if (profile?.role !== 'admin') throw new Error('Apenas administradores podem rejeitar agentes');
 
         // Buscar dados da solicitação antes de rejeitar
         const { data: request } = await supabase
