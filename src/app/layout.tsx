@@ -13,6 +13,7 @@ import { MobileMenu } from "@/components/mobile-menu";
 import LoaderProviders from "@/app/providers";
 import { OrganizationJsonLd } from "@/components/json-ld";
 import { Toaster } from "@/components/ui/sonner";
+import { PageTransition } from "@/components/page-transition";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
 
@@ -74,7 +75,7 @@ export default function RootLayout({
               </div>
               <main className="flex-1 min-h-0 pb-14">
                 <GoogleAnalyticsClient />
-                {children}
+                <PageTransition>{children}</PageTransition>
               </main>
               <AuthDialog />
               <Footer />

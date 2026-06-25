@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { User, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from 'sonner';
+import { useUserStore } from '@/lib/store/user-store';
 
 const supabase = createClient();
 
@@ -130,6 +131,7 @@ export function AgentRequestButton({ userId, userName }: AgentRequestButtonProps
 
       if (result.decision === 'approved') {
         console.log(`IA aprovou agente ${userId} (score: ${result.score}%)`);
+        await useUserStore.getState().updateUser({ role: 'agent' });
         toast.success('Parabéns! O teu pedido para te tornares agente foi aprovado pela nossa IA! 🎉');
       } else if (result.decision === 'rejected') {
         console.log(`IA rejeitou agente ${userId}: ${result.reasons.join(', ')}`);
