@@ -157,7 +157,7 @@ export async function updateImobiliariaStatusAction(id: string, status: string) 
         // Promover o dono da agência para 'agente' (acesso total ao painel de agência)
         await supabaseAdmin
             .from('profiles')
-            .update({ role: 'agente' })
+            .update({ role: 'agent' })
             .eq('id', currentImob.owner_id);
         // Revalidar o diretório público para que a agência apareça imediatamente
         revalidatePath('/imobiliarias');
