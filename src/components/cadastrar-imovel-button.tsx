@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -13,6 +13,7 @@ import {
 } from "./ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useUIStore } from "@/lib/store/ui-store";
+import { createClient } from "@/lib/supabase/client";
 
 interface AuthDialogRef {
   open: () => void;
@@ -41,16 +42,38 @@ export default function CadastrarImovelButton({
   const [openAgentDialog, setOpenAgentDialog] = useState(false);
   const { openAuthModal } = useUIStore();
 
-  const handleClick = (e: React.MouseEvent) => {
+  const checkingRef = useRef(false);
+
+  const handleClick = async (e: React.MouseEvent) => {
     if (!user) {
       e.preventDefault();
       openAuthModal();
       return;
     }
 
-    // Se não for agente ou admin, redireciona para tornar-se agente
-    if (user.role !== "agent" && user.role !== "admin") {
+    // Se não for agente ou admin localmente, verificar do servidor antes de bloquear
+    if (user.role !== "agent" && user.role !== "admin" && !checkingRef.current) {
       e.preventDefault();
+      checkingRef.current = true;
+      try {
+        const supabase = createClient();
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+        if (profile?.role === "agent" || profile?.role === "admin") {
+          // Store desatualizada — atualiza e permite navegar
+          const { useUserStore } = await import("@/lib/store/user-store");
+          useUserStore.getState().updateUser({ role: profile.role });
+          router.push("/dashboard/cadastrar-imovel");
+          return;
+        }
+      } catch {
+        // erro de rede — mostra o diálogo normal
+      } finally {
+        checkingRef.current = false;
+      }
       setOpenAgentDialog(true);
       return;
     }

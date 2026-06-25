@@ -172,8 +172,8 @@ export function UserAction({
       </div>
 
       <AnimatePresence mode="wait">
-        {/* ===== Usuário comum ===== */}
-        {profile.role === "user" && (
+        {/* ===== Utilizadores não-admin (mostra estado do pedido de agente) ===== */}
+        {profile.role !== "admin" && (
           <motion.div
             key="user-action"
             initial={{ opacity: 0, x: 20 }}
