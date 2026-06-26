@@ -20,7 +20,7 @@ export function DashboardPlanCard({ planName, limit, remaining }: DashboardPlanC
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-card p-5 shadow-card border border-border"
+            className="bg-white rounded-3xl p-5 shadow-card border border-border"
         >
             <div className="flex justify-between items-start mb-4">
                 <div>

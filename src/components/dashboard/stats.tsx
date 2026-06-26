@@ -23,7 +23,7 @@ export function DashboardStats({ stats, isLoading }: DashboardStatsProps) {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.08 * i }}
-                    className="flex items-center gap-3 bg-white p-3 lg:p-4 rounded-card shadow-card border border-border hover:border-purple-200 hover:shadow-card-hover transition-all group"
+                    className="flex items-center gap-3 bg-white p-3 lg:p-4 rounded-3xl shadow-card border border-border hover:border-purple-200 hover:shadow-card-hover transition-all group"
                 >
                     <div className="w-9 h-9 lg:w-11 lg:h-11 rounded-md bg-purple-50 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors shrink-0">
                         <stat.icon className="w-4 h-4 lg:w-5 lg:h-5" />

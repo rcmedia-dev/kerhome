@@ -62,7 +62,7 @@ export function DashboardSidebar({
             >
                 {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             </button>
-            <nav className="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto custom-scrollbar bg-white shadow-sm rounded-xl m-2">
+            <nav className="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto custom-scrollbar bg-white shadow-sm rounded-3xl m-2">
                 {menuItems.map((item, index) => {
                     const isProtected = item.id === 'invoices' || item.id === 'views';
                     const menuItem = (
@@ -79,6 +79,29 @@ export function DashboardSidebar({
                     return menuItem;
                 })}
 
+                {!isCollapsed && (
+                    <>
+                        <div className="pt-4 space-y-3">
+                            <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-3xl p-4 text-white shadow-lg">
+                                <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">Publicidade</p>
+                                <h4 className="text-sm font-bold mt-1">Destaque seu imóvel</h4>
+                                <p className="text-[11px] opacity-90 mt-1">Aumente suas visualizações com o impulsionamento da Kercasa.</p>
+                                <button className="mt-3 px-3 py-1.5 bg-white text-purple-700 rounded-lg text-[11px] font-bold hover:bg-purple-50 transition-all">
+                                    Saber Mais
+                                </button>
+                            </div>
+
+                            <div className="bg-gradient-to-br from-orange-500 to-rose-600 rounded-3xl p-4 text-white shadow-lg">
+                                <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">Publicidade</p>
+                                <h4 className="text-sm font-bold mt-1">Torne-se Agente</h4>
+                                <p className="text-[11px] opacity-90 mt-1">Cadastre imóveis e gerencie suas vendas na Kercasa.</p>
+                                <button className="mt-3 px-3 py-1.5 bg-white text-orange-600 rounded-lg text-[11px] font-bold hover:bg-orange-50 transition-all">
+                                    Ativar Agora
+                                </button>
+                            </div>
+                        </div>
+                    </>
+                )}
 
             </nav>
         </aside>

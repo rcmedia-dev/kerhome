@@ -61,7 +61,7 @@ export function PropertyCardBase({
   const priceParsed = parseNumber(property.price);
 
   return (
-    <div className="group relative w-full bg-white rounded-card shadow-card hover:shadow-card-hover transition-all duration-300 flex flex-col overflow-hidden border border-border pb-2">
+    <div className="group relative w-full bg-white rounded-3xl shadow-card hover:shadow-card-hover transition-all duration-300 flex flex-col overflow-hidden border border-border pb-2">
 
       {/* IMAGEM & BADGES */}
       <div 

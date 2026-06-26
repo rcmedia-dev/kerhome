@@ -41,7 +41,7 @@ export function DashboardWelcomeCard({
     const hasPendingAgency = userAgency && userAgency.status === 'pending';
 
     return (
-        <div className="relative rounded-card bg-gradient-to-br from-purple-900 to-gray-900 overflow-hidden shadow-card p-6 group shrink-0 border border-purple-500/20">
+        <div className="relative rounded-3xl bg-gradient-to-br from-purple-900 to-gray-900 overflow-hidden shadow-card p-6 group shrink-0 border border-purple-500/20">
             <div className="relative z-10 flex flex-col gap-4 text-center items-center">
                 <div className="flex flex-col items-center">
                     <div className="relative mb-4 group/avatar">

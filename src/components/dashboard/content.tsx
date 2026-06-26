@@ -62,7 +62,7 @@ export function DashboardContent({
                         'w-full flex flex-col flex-1',
                         isFullWidth
                             ? 'bg-transparent border-none p-0 min-h-0'
-                            : 'bg-white rounded-card-lg p-3 sm:p-5 lg:p-6 shadow-card border border-border lg:h-full lg:overflow-y-auto custom-scrollbar'
+                            : 'bg-white rounded-3xl p-3 sm:p-5 lg:p-6 shadow-card border border-border lg:h-full lg:overflow-y-auto custom-scrollbar'
                     )}
                 >
                     {activeTab === 'properties' && <MinhasPropriedades userProperties={personalProperties} />}
