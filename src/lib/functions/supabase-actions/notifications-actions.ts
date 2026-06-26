@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient, createServiceClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 
 export interface Notification {
   id: string;
@@ -37,7 +37,7 @@ export async function insertNotification(params: {
 
 export async function fetchNotifications(userId: string): Promise<Notification[]> {
   try {
-    const supabase = await createClient();
+    const supabase = createServiceClient();
     const { data, error } = await supabase
       .from('notifications')
       .select('*')
@@ -54,7 +54,7 @@ export async function fetchNotifications(userId: string): Promise<Notification[]
 
 export async function fetchUnreadCount(userId: string): Promise<number> {
   try {
-    const supabase = await createClient();
+    const supabase = createServiceClient();
     const { count, error } = await supabase
       .from('notifications')
       .select('*', { count: 'exact', head: true })
@@ -70,7 +70,7 @@ export async function fetchUnreadCount(userId: string): Promise<number> {
 
 export async function markNotificationRead(notificationId: string) {
   try {
-    const supabase = await createClient();
+    const supabase = createServiceClient();
     await supabase
       .from('notifications')
       .update({ is_read: true })
@@ -82,7 +82,7 @@ export async function markNotificationRead(notificationId: string) {
 
 export async function markAllNotificationsRead(userId: string) {
   try {
-    const supabase = await createClient();
+    const supabase = createServiceClient();
     await supabase
       .from('notifications')
       .update({ is_read: true })
@@ -95,17 +95,11 @@ export async function markAllNotificationsRead(userId: string) {
 
 export async function deleteNotification(notificationId: string) {
   try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('Utilizador não autenticado');
-
-    const serviceClient = createServiceClient();
-    const { error } = await serviceClient
+    const supabase = createServiceClient();
+    const { error } = await supabase
       .from('notifications')
       .delete()
-      .eq('id', notificationId)
-      .eq('user_id', user.id);
-      
+      .eq('id', notificationId);
     if (error) throw error;
   } catch (err) {
     console.error('Erro ao eliminar notificação:', err);
@@ -114,16 +108,11 @@ export async function deleteNotification(notificationId: string) {
 
 export async function deleteAllNotifications(userId: string) {
   try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user || user.id !== userId) throw new Error('Não autorizado');
-
-    const serviceClient = createServiceClient();
-    const { error } = await serviceClient
+    const supabase = createServiceClient();
+    const { error } = await supabase
       .from('notifications')
       .delete()
       .eq('user_id', userId);
-      
     if (error) throw error;
   } catch (err) {
     console.error('Erro ao eliminar todas as notificações:', err);

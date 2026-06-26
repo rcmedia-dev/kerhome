@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { updateImobiliariaAction } from "./admin-imobiliaria-actions";
 import { Imobiliaria } from "@/lib/types/imobiliaria";
 
@@ -336,6 +336,35 @@ export async function updateUserAgencyAction(id: string, data: any, originalData
     return result;
   } catch (error: any) {
     console.error('Erro ao atualizar agência do usuário:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function removeAgentFromAgency(agentId: string, agencyId: string, userId: string) {
+  try {
+    const supabase = createServiceClient();
+
+    const { data: agency } = await supabase
+      .from('imobiliarias')
+      .select('owner_id')
+      .eq('id', agencyId)
+      .single();
+
+    if (!agency || agency.owner_id !== userId) {
+      return { success: false, error: "Não autorizado: Apenas o proprietário da agência pode remover corretores." };
+    }
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ imobiliaria_id: null })
+      .eq('id', agentId)
+      .eq('imobiliaria_id', agencyId);
+
+    if (error) throw error;
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('Erro ao remover corretor da agência:', error);
     return { success: false, error: error.message };
   }
 }

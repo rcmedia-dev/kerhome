@@ -6,7 +6,7 @@ import { acceptAgencyInvite, rejectAgencyInvite } from '@/lib/functions/supabase
 import { toast } from 'sonner';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
 
-export function ClientInviteActions({ token, userEmail }: { token: string; userEmail: string }) {
+export function ClientInviteActions({ token, userEmail, userId }: { token: string; userEmail: string; userId: string }) {
   const router = useRouter();
   const [processing, setProcessing] = useState(false);
   const [status, setStatus] = useState<'idle' | 'accepted' | 'rejected'>('idle');
@@ -14,7 +14,7 @@ export function ClientInviteActions({ token, userEmail }: { token: string; userE
   const handleAccept = async () => {
     setProcessing(true);
     try {
-      const result = await acceptAgencyInvite(token);
+      const result = await acceptAgencyInvite(token, userId, userEmail);
       if (result.success) {
         setStatus('accepted');
         toast.success(`Bem-vindo à equipa ${result.agencyName}!`);
@@ -32,7 +32,7 @@ export function ClientInviteActions({ token, userEmail }: { token: string; userE
   const handleReject = async () => {
     setProcessing(true);
     try {
-      const result = await rejectAgencyInvite(token);
+      const result = await rejectAgencyInvite(token, userId, userEmail);
       if (result.success) {
         setStatus('rejected');
         toast.info('Convite recusado.');

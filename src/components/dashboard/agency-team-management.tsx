@@ -1,19 +1,22 @@
 'use client';
 
 import React, { useState, useEffect, useTransition } from 'react';
-import { Users, Mail, UserPlus, Clock, CheckCircle2, Copy, ExternalLink, Loader2, Trash2, ShieldCheck, Shield, X } from 'lucide-react';
+import { Users, Mail, UserPlus, Clock, CheckCircle2, Copy, ExternalLink, Loader2, Trash2, ShieldCheck, Shield, X, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { getAgencyInvites, sendAgencyInvite } from '@/lib/functions/supabase-actions/agency-invites';
-import { fetchAgentsByAgency } from '@/lib/functions/supabase-actions/imobiliaria-actions';
+import { fetchAgentsByAgency, removeAgentFromAgency } from '@/lib/functions/supabase-actions/imobiliaria-actions';
+import { useUserStore } from '@/lib/store/user-store';
 import Image from 'next/image';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 interface AgencyTeamManagementProps {
     agencyId: string;
+    isOwner?: boolean;
 }
 
-export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
+export function AgencyTeamManagement({ agencyId, isOwner }: AgencyTeamManagementProps) {
+    const currentUser = useUserStore((state) => state.user);
     const [agents, setAgents] = useState<any[]>([]);
     const [invites, setInvites] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -21,6 +24,27 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [inviteEmail, setInviteEmail] = useState('');
     const [inviteSent, setInviteSent] = useState(false);
+    const [removingAgentId, setRemovingAgentId] = useState<string | null>(null);
+    const [showRemoveConfirm, setShowRemoveConfirm] = useState<string | null>(null);
+
+    const handleRemoveAgent = async (agentId: string) => {
+        if (!currentUser?.id) return;
+        setRemovingAgentId(agentId);
+        try {
+            const result = await removeAgentFromAgency(agentId, agencyId, currentUser.id);
+            if (result.success) {
+                toast.success('Corretor removido da agência.');
+                setAgents(prev => prev.filter(a => a.id !== agentId));
+            } else {
+                toast.error(result.error || 'Erro ao remover corretor.');
+            }
+        } catch (err) {
+            toast.error('Ocorreu um erro inesperado.');
+        } finally {
+            setRemovingAgentId(null);
+            setShowRemoveConfirm(null);
+        }
+    };
 
     const loadData = async () => {
         setLoading(true);
@@ -45,11 +69,11 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
 
     const handleSendInvite = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!inviteEmail) return;
+        if (!inviteEmail || !currentUser?.id) return;
 
         setIsInviting(true);
         try {
-            const result = await sendAgencyInvite(inviteEmail, agencyId);
+            const result = await sendAgencyInvite(inviteEmail, agencyId, currentUser.id);
             if (result.success) {
                 toast.success('Convite enviado com sucesso!');
                 setInviteSent(true);
@@ -96,19 +120,21 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
                     <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
                         <Users className="w-5 h-5 text-purple-600" /> Gestão de Equipa
                     </h3>
-                    <p className="text-sm text-gray-500">Gerencie seus corretores e convide novos membros.</p>
+                    <p className="text-sm text-gray-500">{isOwner ? 'Gerencie seus corretores e convide novos membros.' : 'Visualize os membros da sua equipa.'}</p>
                 </div>
-                <button
-                    onClick={() => {
-                        setShowInviteModal(true);
-                        setInviteSent(false);
-                        setInviteEmail('');
-                    }}
-                    className="bg-[#820AD1] hover:bg-[#6A08AA] text-white px-6 py-3 rounded-button font-bold transition-all shadow-card shadow-purple-200 flex items-center justify-center gap-2 text-sm"
-                >
-                    <UserPlus className="w-4 h-4" />
-                    Convidar Corretor
-                </button>
+                {isOwner && (
+                    <button
+                        onClick={() => {
+                            setShowInviteModal(true);
+                            setInviteSent(false);
+                            setInviteEmail('');
+                        }}
+                        className="bg-[#820AD1] hover:bg-[#6A08AA] text-white px-6 py-3 rounded-button font-bold transition-all shadow-card shadow-purple-200 flex items-center justify-center gap-2 text-sm"
+                    >
+                        <UserPlus className="w-4 h-4" />
+                        Convidar Corretor
+                    </button>
+                )}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -139,7 +165,19 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
                                         <p className="text-xs text-gray-500 truncate">{agent.email}</p>
                                     </div>
                                     <div className="hidden group-hover:flex items-center gap-2">
-                                        {/* Futuras ações: Remover, Alterar Cargo */}
+                                        {isOwner && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setShowRemoveConfirm(agent.id);
+                                                }}
+                                                disabled={removingAgentId === agent.id}
+                                                className="p-2 rounded-md text-red-400 hover:text-red-600 hover:bg-red-50 transition-all disabled:opacity-50"
+                                                title="Remover da agência"
+                                            >
+                                                {removingAgentId === agent.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             ))
@@ -284,6 +322,47 @@ export function AgencyTeamManagement({ agencyId }: AgencyTeamManagementProps) {
                                     </button>
                                 </div>
                             )}
+                        </div>
+                    </motion.div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Modal de Confirmação de Remoção */}
+            <Dialog open={!!showRemoveConfirm} onOpenChange={() => setShowRemoveConfirm(null)}>
+                <DialogContent 
+                    className="!fixed !inset-0 !z-50 !flex !items-center !justify-center !p-4 !bg-black/40 !backdrop-blur-sm !border-none !shadow-none !max-w-none !translate-x-0 !translate-y-0 !top-0 !left-0 !h-full !w-full"
+                    showCloseButton={false}
+                >
+                    <DialogTitle className="sr-only">Remover Corretor</DialogTitle>
+                    <motion.div 
+                        initial={{ scale: 0.95, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="w-full max-w-sm bg-white rounded-2xl p-6 shadow-floating relative"
+                    >
+                        <div className="text-center">
+                            <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <AlertTriangle className="w-7 h-7 text-red-500" />
+                            </div>
+                            <h3 className="text-lg font-bold text-gray-900 mb-2">Remover Corretor</h3>
+                            <p className="text-sm text-gray-500 mb-6">
+                                Tem certeza que deseja remover este corretor da sua agência? Ele não poderá mais publicar imóveis em nome da agência.
+                            </p>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setShowRemoveConfirm(null)}
+                                    className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold transition-all text-sm"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={() => showRemoveConfirm && handleRemoveAgent(showRemoveConfirm)}
+                                    disabled={removingAgentId === showRemoveConfirm}
+                                    className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    {removingAgentId === showRemoveConfirm ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                                    Remover
+                                </button>
+                            </div>
                         </div>
                     </motion.div>
                 </DialogContent>

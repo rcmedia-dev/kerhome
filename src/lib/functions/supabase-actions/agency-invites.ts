@@ -1,13 +1,13 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { randomUUID } from 'crypto';
 
 export async function getAgencyInvites(agencyId: string) {
     try {
-        const supabase = await createClient();
+        const supabase = createServiceClient();
         const { data, error } = await supabase
             .from('agency_invites')
             .select('*')
@@ -22,25 +22,33 @@ export async function getAgencyInvites(agencyId: string) {
     }
 }
 
-export async function sendAgencyInvite(email: string, agencyId: string) {
+export async function sendAgencyInvite(email: string, agencyId: string, userId: string) {
     try {
-        const supabase = await createClient();
-        
-        // 1. Validar se o utilizador é owner
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("Não autenticado");
+        const supabase = createServiceClient();
 
+        // 1. Validar se o utilizador é owner da agência
         const { data: agency } = await supabase
             .from('imobiliarias')
             .select('id, nome, owner_id')
             .eq('id', agencyId)
             .single();
 
-        if (!agency || agency.owner_id !== user.id) {
-            throw new Error("Não autorizado: Apenas o dono da agência pode enviar convites.");
+        if (!agency || agency.owner_id !== userId) {
+            return { success: false, error: "Não autorizado: Apenas o dono da agência pode enviar convites." };
         }
 
-        // 2. Gerar Token e salvar na base de dados (para tracking no dashboard e página de aceitação)
+        // 2. Validar se o e-mail pertence a um utilizador existente
+        const { data: inviteeProfile } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('email', email.toLowerCase())
+            .maybeSingle();
+
+        if (!inviteeProfile) {
+            return { success: false, error: 'Este e-mail não pertence a um usuário do Kercasa. Apenas usuários cadastrados podem ser convidados.' };
+        }
+
+        // 3. Gerar Token e salvar na base de dados
         const token = randomUUID();
         const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
 
@@ -59,7 +67,21 @@ export async function sendAgencyInvite(email: string, agencyId: string) {
             throw inviteError;
         }
 
-        // 3. Enviar o e-mail via Resend
+        // 4. Criar notificação no dashboard do convidado
+        try {
+            const { insertNotification } = await import('./notifications-actions');
+            await insertNotification({
+                userId: inviteeProfile.id,
+                type: 'agency_invite',
+                title: `Convite para ${agency.nome}`,
+                message: `Você foi convidado para fazer parte da agência ${agency.nome} no Kercasa. Aceite ou recuse este convite.`,
+                data: { token, agencyName: agency.nome, imobiliaria_id: agencyId }
+            });
+        } catch (notifError) {
+            console.error('Aviso: Falha ao criar notificação de convite:', notifError);
+        }
+
+        // 5. Enviar o e-mail via Resend
         const origin = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
         
         try {
@@ -85,8 +107,6 @@ export async function sendAgencyInvite(email: string, agencyId: string) {
 
 export async function getInviteByToken(token: string, supabaseClient?: any) {
     try {
-        // Usar o admin client por defeito para fazer bypass de RLS 
-        // (já que utilizadores anónimos precisam de ler o convite na página de aceitar)
         const supabase = supabaseClient || await createAdminClient();
         const { data, error } = await supabase
             .from('agency_invites')
@@ -115,44 +135,24 @@ export async function getInviteByToken(token: string, supabaseClient?: any) {
     }
 }
 
-export async function acceptAgencyInvite(token: string, supabaseClient?: any) {
+export async function acceptAgencyInvite(token: string, userId: string, userEmail: string) {
     try {
-        const supabase = supabaseClient || await createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("Deves estar logado para aceitar um convite.");
+        const supabase = createServiceClient();
 
         // 1. Validar convite
         const { invite, error: inviteError } = await getInviteByToken(token, supabase);
         if (inviteError || !invite) throw new Error(inviteError || "Convite inválido.");
 
         // 2. Validar e-mail
-        if (invite.email.toLowerCase() !== user.email?.toLowerCase()) {
-            throw new Error(`Este convite foi enviado para ${invite.email}, mas tu estás logado como ${user.email}.`);
+        if (invite.email.toLowerCase() !== userEmail.toLowerCase()) {
+            throw new Error(`Este convite foi enviado para ${invite.email}, mas tu és ${userEmail}.`);
         }
 
-        // 2.5 Validar se a solicitação de agente está aprovada
-        const { data: requestStatusData, error: requestStatusError } = await supabase
-            .from('agente_requests')
-            .select('status')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
-
-        if (requestStatusError && requestStatusError.code !== 'PGRST116') {
-            throw requestStatusError;
-        }
-
-        const agentStatus = requestStatusData?.status;
-        if (agentStatus !== 'approved') {
-            throw new Error("Sua solicitação para se tornar um agente ainda não foi aprovada.");
-        }
-
-        // 3. Atualizar perfil e convite diretamente (KISS)
+        // 3. Atualizar perfil e convite diretamente
         const { error: profileError } = await supabase
             .from('profiles')
             .update({ imobiliaria_id: invite.imobiliaria_id })
-            .eq('id', user.id);
+            .eq('id', userId);
 
         if (profileError) throw profileError;
 
@@ -173,16 +173,14 @@ export async function acceptAgencyInvite(token: string, supabaseClient?: any) {
     }
 }
 
-export async function rejectAgencyInvite(token: string) {
+export async function rejectAgencyInvite(token: string, userId: string, userEmail: string) {
     try {
-        const supabase = await createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("Deves estar logado para processar um convite.");
+        const supabase = createServiceClient();
 
         const { invite, error: inviteError } = await getInviteByToken(token, supabase);
         if (inviteError || !invite) throw new Error(inviteError || "Convite inválido.");
 
-        if (invite.email.toLowerCase() !== user.email?.toLowerCase()) {
+        if (invite.email.toLowerCase() !== userEmail.toLowerCase()) {
             throw new Error("E-mail não corresponde ao convite.");
         }
 
@@ -194,8 +192,7 @@ export async function rejectAgencyInvite(token: string) {
         revalidatePath('/dashboard');
         return { success: true };
     } catch (error: any) {
-        console.error('Erro ao aceitar convite:', error);
+        console.error('Erro ao rejeitar convite:', error);
         return { success: false, error: error.message };
     }
 }
-

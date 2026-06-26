@@ -170,7 +170,7 @@ export default async function AceitarConvitePage({
           </div>
         ) : (
           // LOGADO E VERIFICADO: Renderizar cliente actions
-          <ClientInviteActions token={token} userEmail={user.email || 'Email Desconhecido'} />
+          <ClientInviteActions token={token} userEmail={user.email || 'Email Desconhecido'} userId={user.id} />
         )}
 
         <div className="mt-8 pt-6 border-t border-gray-50">

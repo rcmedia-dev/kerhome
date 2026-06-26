@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Building2, Phone, Globe, Mail, MapPin, Save, AlertTriangle, Loader2, Camera, Facebook, Instagram, Linkedin, Twitter, Users, Settings2 } from 'lucide-react';
+import { Building2, Phone, Globe, Mail, MapPin, Save, AlertTriangle, Loader2, Camera, Facebook, Instagram, Linkedin, Twitter, Users, Settings2, EyeOff, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { updateUserAgencyAction, getUserAgency } from '@/lib/functions/supabase-actions/imobiliaria-actions';
 import { uploadLogoAction } from '@/lib/functions/supabase-actions/admin-imobiliaria-actions';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
+import { useUserStore } from '@/lib/store/user-store';
 
 import { AgencyProperties } from '../dashboard-tabs-content';
 import { AgencyTeamManagement } from './agency-team-management';
@@ -19,6 +20,8 @@ interface AgencyManagementProps {
 
 export function AgencyManagement({ agency, agencyProperties }: AgencyManagementProps) {
     const queryClient = useQueryClient();
+    const user = useUserStore((state) => state.user);
+    const isOwner = user?.id === agency?.owner_id;
     const [activeSubTab, setActiveSubTab] = useState<'general' | 'team'>('general');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -57,6 +60,7 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!isOwner) return;
         setIsSubmitting(true);
 
         try {
@@ -102,17 +106,24 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
             <div className="flex items-center justify-between border-b pb-4">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-800">Gestão da Agência</h2>
-                    <p className="text-sm text-gray-500">Gerencie as informações da sua imobiliária vinculada.</p>
+                    <p className="text-sm text-gray-500">{isOwner ? 'Gerencie as informações da sua imobiliária vinculada.' : 'Visualize as informações da sua imobiliária.'}</p>
                 </div>
-                {agency.status === 'approved' ? (
-                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold border border-green-200">
-                        Aprovada
-                    </span>
-                ) : (
-                    <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold border border-orange-200 animate-pulse">
-                        Pendente
-                    </span>
-                )}
+                <div className="flex items-center gap-2">
+                    {!isOwner && (
+                        <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-[10px] font-bold border border-blue-100 flex items-center gap-1">
+                            <Shield className="w-3 h-3" /> Membro
+                        </span>
+                    )}
+                    {agency.status === 'approved' ? (
+                        <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold border border-green-200">
+                            Aprovada
+                        </span>
+                    ) : (
+                        <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold border border-orange-200 animate-pulse">
+                            Pendente
+                        </span>
+                    )}
+                </div>
             </div>
 
             {/* Sub-Tabs Selector */}
@@ -148,6 +159,18 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                         exit={{ opacity: 0, y: -10 }}
                         className="space-y-8"
                     >
+                        {!isOwner && (
+                            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 flex items-start gap-3">
+                                <EyeOff className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="text-sm font-bold text-blue-800">Modo de Leitura</p>
+                                    <p className="text-xs text-blue-600/80 mt-0.5">
+                                        Você é um membro da equipa. Apenas o proprietário da agência pode editar as informações.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                                 {/* Imagem e Dados Principais */}
@@ -160,12 +183,14 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                                                 <Building2 className="w-12 h-12 text-gray-300" />
                                             )}
                                         </div>
-                                        <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-card">
-                                            <Camera className="w-8 h-8 text-white" />
-                                            <input type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
-                                        </label>
+                                        {isOwner && (
+                                            <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-card">
+                                                <Camera className="w-8 h-8 text-white" />
+                                                <input type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
+                                            </label>
+                                        )}
                                     </div>
-                                    <p className="text-[10px] text-gray-400 text-center">Recomendado: 512x512px (PNG ou JPG)</p>
+                                    {isOwner && <p className="text-[10px] text-gray-400 text-center">Recomendado: 512x512px (PNG ou JPG)</p>}
                                 </div>
 
                                 {/* Formulário */}
@@ -177,7 +202,11 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                                             name="nome"
                                             value={formData.nome}
                                             onChange={handleChange}
-                                            className="w-full p-3 rounded-button border border-border bg-gray-50/50 focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all outline-none"
+                                            readOnly={!isOwner}
+                                            className={cn(
+                                                "w-full p-3 rounded-button border border-border bg-gray-50/50 transition-all outline-none",
+                                                isOwner ? "focus:ring-2 focus:ring-purple-500 focus:bg-white" : "text-gray-500 cursor-default"
+                                            )}
                                             placeholder="Nome oficial da imobiliária"
                                             required
                                         />
@@ -190,7 +219,11 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                                             name="telefone"
                                             value={formData.telefone}
                                             onChange={handleChange}
-                                            className="w-full p-3 rounded-button border border-border bg-gray-50/50 focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all outline-none"
+                                            readOnly={!isOwner}
+                                            className={cn(
+                                                "w-full p-3 rounded-button border border-border bg-gray-50/50 transition-all outline-none",
+                                                isOwner ? "focus:ring-2 focus:ring-purple-500 focus:bg-white" : "text-gray-500 cursor-default"
+                                            )}
                                             placeholder="Ex: +244 9..."
                                         />
                                     </div>
@@ -202,7 +235,11 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                                             name="whatsapp"
                                             value={formData.whatsapp}
                                             onChange={handleChange}
-                                            className="w-full p-3 rounded-button border border-border bg-gray-50/50 focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all outline-none"
+                                            readOnly={!isOwner}
+                                            className={cn(
+                                                "w-full p-3 rounded-button border border-border bg-gray-50/50 transition-all outline-none",
+                                                isOwner ? "focus:ring-2 focus:ring-purple-500 focus:bg-white" : "text-gray-500 cursor-default"
+                                            )}
                                             placeholder="Link ou Número"
                                         />
                                     </div>
@@ -214,7 +251,11 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                                             name="website"
                                             value={formData.website}
                                             onChange={handleChange}
-                                            className="w-full p-3 rounded-button border border-border bg-gray-50/50 focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all outline-none"
+                                            readOnly={!isOwner}
+                                            className={cn(
+                                                "w-full p-3 rounded-button border border-border bg-gray-50/50 transition-all outline-none",
+                                                isOwner ? "focus:ring-2 focus:ring-purple-500 focus:bg-white" : "text-gray-500 cursor-default"
+                                            )}
                                             placeholder="https://..."
                                         />
                                     </div>
@@ -226,7 +267,11 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                                             value={formData.descricao}
                                             onChange={handleChange}
                                             rows={4}
-                                            className="w-full p-3 rounded-button border border-border bg-gray-50/50 focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all outline-none resize-none"
+                                            readOnly={!isOwner}
+                                            className={cn(
+                                                "w-full p-3 rounded-button border border-border bg-gray-50/50 transition-all outline-none resize-none",
+                                                isOwner ? "focus:ring-2 focus:ring-purple-500 focus:bg-white" : "text-gray-500 cursor-default"
+                                            )}
                                             placeholder="Descreva sua imobiliária, anos de mercado, especialidades..."
                                         />
                                     </div>
@@ -241,15 +286,15 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                                     <div className="space-y-3">
                                         <div>
                                             <label className="block text-[10px] font-bold text-gray-400 uppercase">Cidade</label>
-                                            <input name="cidade" value={formData.cidade} onChange={handleChange} className="w-full p-2 text-sm border-b focus:border-purple-500 outline-none" />
+                                            <input name="cidade" value={formData.cidade} onChange={handleChange} readOnly={!isOwner} className={cn("w-full p-2 text-sm border-b outline-none", isOwner ? "focus:border-purple-500" : "text-gray-500 cursor-default")} />
                                         </div>
                                         <div>
                                             <label className="block text-[10px] font-bold text-gray-400 uppercase">Bairro</label>
-                                            <input name="bairro" value={formData.bairro} onChange={handleChange} className="w-full p-2 text-sm border-b focus:border-purple-500 outline-none" />
+                                            <input name="bairro" value={formData.bairro} onChange={handleChange} readOnly={!isOwner} className={cn("w-full p-2 text-sm border-b outline-none", isOwner ? "focus:border-purple-500" : "text-gray-500 cursor-default")} />
                                         </div>
                                         <div>
                                             <label className="block text-[10px] font-bold text-gray-400 uppercase">Endereço Completo</label>
-                                            <input name="endereco" value={formData.endereco} onChange={handleChange} className="w-full p-2 text-sm border-b focus:border-purple-500 outline-none" />
+                                            <input name="endereco" value={formData.endereco} onChange={handleChange} readOnly={!isOwner} className={cn("w-full p-2 text-sm border-b outline-none", isOwner ? "focus:border-purple-500" : "text-gray-500 cursor-default")} />
                                         </div>
                                     </div>
                                 </div>
@@ -261,34 +306,36 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="flex items-center gap-2">
                                             <Facebook className="w-4 h-4 text-blue-600" />
-                                            <input name="facebook" value={formData.facebook} onChange={handleChange} placeholder="Facebook handle" className="flex-1 p-2 text-sm border-b focus:border-purple-500 outline-none" />
+                                            <input name="facebook" value={formData.facebook} onChange={handleChange} readOnly={!isOwner} placeholder="Facebook handle" className={cn("flex-1 p-2 text-sm border-b outline-none", isOwner ? "focus:border-purple-500" : "text-gray-500 cursor-default")} />
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Instagram className="w-4 h-4 text-pink-600" />
-                                            <input name="instagram" value={formData.instagram} onChange={handleChange} placeholder="Instagram handle" className="flex-1 p-2 text-sm border-b focus:border-purple-500 outline-none" />
+                                            <input name="instagram" value={formData.instagram} onChange={handleChange} readOnly={!isOwner} placeholder="Instagram handle" className={cn("flex-1 p-2 text-sm border-b outline-none", isOwner ? "focus:border-purple-500" : "text-gray-500 cursor-default")} />
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Linkedin className="w-4 h-4 text-blue-800" />
-                                            <input name="linkedin" value={formData.linkedin} onChange={handleChange} placeholder="Linkedin handle" className="flex-1 p-2 text-sm border-b focus:border-purple-500 outline-none" />
+                                            <input name="linkedin" value={formData.linkedin} onChange={handleChange} readOnly={!isOwner} placeholder="Linkedin handle" className={cn("flex-1 p-2 text-sm border-b outline-none", isOwner ? "focus:border-purple-500" : "text-gray-500 cursor-default")} />
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Twitter className="w-4 h-4 text-sky-500" />
-                                            <input name="twitter" value={formData.twitter} onChange={handleChange} placeholder="Twitter handle" className="flex-1 p-2 text-sm border-b focus:border-purple-500 outline-none" />
+                                            <input name="twitter" value={formData.twitter} onChange={handleChange} readOnly={!isOwner} placeholder="Twitter handle" className={cn("flex-1 p-2 text-sm border-b outline-none", isOwner ? "focus:border-purple-500" : "text-gray-500 cursor-default")} />
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex justify-end pt-6">
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-button font-bold transition-all shadow-card shadow-purple-200 flex items-center gap-2 disabled:opacity-50"
-                                >
-                                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                                    Salvar Alterações
-                                </button>
-                            </div>
+                            {isOwner && (
+                                <div className="flex justify-end pt-6">
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-button font-bold transition-all shadow-card shadow-purple-200 flex items-center gap-2 disabled:opacity-50"
+                                    >
+                                        {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                                        Salvar Alterações
+                                    </button>
+                                </div>
+                            )}
                         </form>
 
                         {agency.status === 'approved' && (
@@ -305,7 +352,7 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                     >
-                        <AgencyTeamManagement agencyId={agency.id} />
+                        <AgencyTeamManagement agencyId={agency.id} isOwner={isOwner} />
                     </motion.div>
                 )}
             </AnimatePresence>

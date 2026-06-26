@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Bell, X, CheckCheck, ThumbsDown, XCircle, Clock } from 'lucide-react';
+import { Bell, X, CheckCheck, ThumbsDown, XCircle, Clock, Store, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchNotifications, fetchUnreadCount, markNotificationRead, markAllNotificationsRead, deleteNotification, deleteAllNotifications, type Notification } from '@/lib/functions/supabase-actions/notifications-actions';
+import { acceptAgencyInvite, rejectAgencyInvite } from '@/lib/functions/supabase-actions/agency-invites';
 import { toast } from 'sonner';
 import { Trash2 } from 'lucide-react';
+import { useUserStore } from '@/lib/store/user-store';
 
 const typeIcons: Record<string, React.ReactNode> = {
   agent_rejected: <ThumbsDown className="w-4 h-4 text-red-500" />,
@@ -16,14 +18,17 @@ const typeIcons: Record<string, React.ReactNode> = {
   ai_agent_rejected: <ThumbsDown className="w-4 h-4 text-red-500" />,
   ai_property_approved: <CheckCheck className="w-4 h-4 text-green-500" />,
   ai_property_rejected: <XCircle className="w-4 h-4 text-red-500" />,
+  agency_invite: <Store className="w-4 h-4 text-purple-500" />,
 };
 
 export function NotificationsPanel({ userId }: { userId: string }) {
+  const currentUser = useUserStore((state) => state.user);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [processingInvites, setProcessingInvites] = useState<Set<string>>(new Set());
   const ref = useRef<HTMLDivElement>(null);
   
   const seenIdsRef = useRef<Set<string>>(new Set());
@@ -151,6 +156,59 @@ export function NotificationsPanel({ userId }: { userId: string }) {
     }
   };
 
+  const handleAcceptInvite = async (e: React.MouseEvent, notif: Notification) => {
+    e.stopPropagation();
+    const token = notif.data?.token;
+    if (!token || !currentUser?.id || !currentUser?.email) return;
+    setProcessingInvites(prev => new Set(prev).add(notif.id));
+    try {
+      const result = await acceptAgencyInvite(token, currentUser.id, currentUser.email);
+      if (result.success) {
+        toast.success(`Bem-vindo à equipa ${result.agencyName}!`);
+        await deleteNotification(notif.id);
+        setNotifications(prev => prev.filter(n => n.id !== notif.id));
+        setUnreadCount(prev => Math.max(0, prev - 1));
+        setTimeout(() => window.location.reload(), 1500);
+      } else {
+        toast.error(result.error || 'Erro ao aceitar convite.');
+      }
+    } catch (err) {
+      toast.error('Erro inesperado ao aceitar convite.');
+    } finally {
+      setProcessingInvites(prev => {
+        const next = new Set(prev);
+        next.delete(notif.id);
+        return next;
+      });
+    }
+  };
+
+  const handleRejectInvite = async (e: React.MouseEvent, notif: Notification) => {
+    e.stopPropagation();
+    const token = notif.data?.token;
+    if (!token || !currentUser?.id || !currentUser?.email) return;
+    setProcessingInvites(prev => new Set(prev).add(notif.id));
+    try {
+      const result = await rejectAgencyInvite(token, currentUser.id, currentUser.email);
+      if (result.success) {
+        toast.info('Convite recusado.');
+        await deleteNotification(notif.id);
+        setNotifications(prev => prev.filter(n => n.id !== notif.id));
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      } else {
+        toast.error(result.error || 'Erro ao recusar convite.');
+      }
+    } catch (err) {
+      toast.error('Erro inesperado ao recusar convite.');
+    } finally {
+      setProcessingInvites(prev => {
+        const next = new Set(prev);
+        next.delete(notif.id);
+        return next;
+      });
+    }
+  };
+
   const formatTime = (dateStr: string) => {
     const date = new Date(dateStr);
     const now = new Date();
@@ -228,6 +286,8 @@ export function NotificationsPanel({ userId }: { userId: string }) {
               ) : (
                 notifications.map((notif) => {
                   const isExpanded = expandedIds.has(notif.id);
+                  const isAgencyInvite = notif.type === 'agency_invite';
+                  const isProcessing = processingInvites.has(notif.id);
                   return (
                     <div
                       key={notif.id}
@@ -250,6 +310,28 @@ export function NotificationsPanel({ userId }: { userId: string }) {
                           <span className="text-[10px] text-gray-400 mt-1 block">
                             {formatTime(notif.created_at)}
                           </span>
+
+                          {/* Agency Invite Actions */}
+                          {isExpanded && isAgencyInvite && (
+                            <div className="flex items-center gap-2 mt-3" onClick={e => e.stopPropagation()}>
+                              <button
+                                onClick={(e) => handleAcceptInvite(e, notif)}
+                                disabled={isProcessing}
+                                className="flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-[11px] font-bold rounded-lg transition-all disabled:opacity-50"
+                              >
+                                {isProcessing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCheck className="w-3.5 h-3.5" />}
+                                Aceitar
+                              </button>
+                              <button
+                                onClick={(e) => handleRejectInvite(e, notif)}
+                                disabled={isProcessing}
+                                className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 text-[11px] font-bold rounded-lg transition-all disabled:opacity-50"
+                              >
+                                {isProcessing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
+                                Recusar
+                              </button>
+                            </div>
+                          )}
                         </div>
                         {!notif.is_read && (
                           <span className="w-2 h-2 bg-purple-500 rounded-full shrink-0 mt-1.5" />
