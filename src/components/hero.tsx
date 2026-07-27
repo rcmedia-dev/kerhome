@@ -230,6 +230,13 @@ export default function HeroCarousel({ property }: HeroCarouselProps) {
         </div>
       </div>
 
+      {/* SEO H1 — always in DOM */}
+      <div className="absolute top-0 left-0 w-full z-30 pointer-events-none">
+        <h1 className="sr-only">
+          Kercasa — Encontre o lar dos seus sonhos em Angola. Compre, venda ou arrende imóveis.
+        </h1>
+      </div>
+
       {/* Main Hero Content (Headline) - Só aparece DURANTE a intro */}
       <AnimatePresence>
         {showIntro && (

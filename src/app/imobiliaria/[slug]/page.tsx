@@ -102,7 +102,7 @@ export default async function ImobiliariaPerfilPage({ params }: { params: Promis
             <div className="w-36 h-36 bg-white rounded-3xl shadow-2xl p-4 border border-white/20 flex items-center justify-center shrink-0">
               <div className="relative w-full h-full">
                 <Image
-                  src={imobiliaria.logo || '/logo-placeholder.png'}
+                  src={imobiliaria.logo || '/logo-placeholder.svg'}
                   alt={imobiliaria.nome}
                   fill
                   className="object-contain"
@@ -213,7 +213,7 @@ export default async function ImobiliariaPerfilPage({ params }: { params: Promis
                       >
                         <div className="w-full h-32 relative flex items-center justify-center bg-gray-50 border-b border-gray-50">
                           <Image
-                            src={agency.logo || '/logo-placeholder.png'}
+                            src={agency.logo || '/logo-placeholder.svg'}
                             alt={agency.nome}
                             fill
                             className="object-contain p-4 transition-transform duration-500 group-hover:scale-105"

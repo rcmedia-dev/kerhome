@@ -215,7 +215,7 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
                           className="relative w-20 h-20 bg-white rounded-button overflow-hidden border-4 border-white shadow-card p-3"
                         >
                           <Image
-                            src={agency.logo || '/logo-placeholder.png'}
+                            src={agency.logo || '/logo-placeholder.svg'}
                             alt={agency.nome}
                             fill
                             className="object-contain p-2"

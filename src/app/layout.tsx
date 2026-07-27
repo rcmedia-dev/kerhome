@@ -11,7 +11,7 @@ import FloatingActions from "@/components/floating-actions";
 import GoogleAnalyticsClient from "@/components/google-analytics";
 import { MobileMenu } from "@/components/mobile-menu";
 import LoaderProviders from "@/app/providers";
-import { OrganizationJsonLd } from "@/components/json-ld";
+import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/json-ld";
 import { Toaster } from "@/components/ui/sonner";
 import { PageTransition } from "@/components/page-transition";
 import { GlobalErrorFeedback } from "@/components/global-error-feedback";
@@ -20,24 +20,33 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
 
 export const metadata: Metadata = {
   title: {
-    default: "Kercasa - Seu lar, começa aqui",
+    default: "Kercasa — Imóveis em Angola | Comprar, Vender e Arrendar Casas",
     template: "%s | Kercasa",
   },
-  description: "Plataforma imobiliária inteligente em Angola. Anuncie, compre ou arrende imóveis com o poder da IA. Kercasa — o seu lar começa aqui.",
-  keywords: ["imóveis Angola", "comprar casa Angola", "arrendar imóvel", "agentes imobiliários", "Kercasa", "imobiliária online", "casa Luanda", "apartamento Benguela"],
+  description: "Plataforma imobiliária inteligente em Angola. Encontre casas, apartamentos e vivendas para comprar ou arrendar em Luanda, Benguela, Huíla e mais. Milhares de imóveis verificados.",
+  keywords: ["imóveis Angola", "comprar casa Angola", "arrendar imóvel", "agentes imobiliários", "Kercasa", "imobiliária online", "casa Luanda", "apartamento Benguela", "vivenda Talatona", "imóveis Kilamba"],
   metadataBase: new URL(SITE_URL),
   openGraph: {
-    title: "Kercasa - Seu lar, começa aqui",
-    description: "Plataforma imobiliária inteligente em Angola. Anuncie, compre ou arrende imóveis com o poder da IA.",
+    title: "Kercasa — Imóveis em Angola | Comprar, Vender e Arrendar Casas",
+    description: "Plataforma imobiliária inteligente em Angola. Encontre casas, apartamentos e vivendas para comprar ou arrendar em Luanda, Benguela, Huíla e mais.",
     url: SITE_URL,
     siteName: "Kercasa",
     locale: "pt_AO",
     type: "website",
+    images: [
+      {
+        url: `${SITE_URL}/kercasa_logo.png`,
+        width: 1200,
+        height: 630,
+        alt: "Kercasa — Plataforma Imobiliária em Angola",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kercasa - Seu lar, começa aqui",
-    description: "Plataforma imobiliária inteligente em Angola. Anuncie, compre ou arrende imóveis com o poder da IA.",
+    title: "Kercasa — Imóveis em Angola | Comprar, Vender e Arrendar Casas",
+    description: "Plataforma imobiliária inteligente em Angola. Encontre casas, apartamentos e vivendas para comprar ou arrendar.",
+    images: [`${SITE_URL}/kercasa_logo.png`],
   },
   robots: {
     index: true,
@@ -61,6 +70,7 @@ export default function RootLayout({
     <html lang="pt" suppressHydrationWarning>
       <body className="antialiased font-sans" suppressHydrationWarning>
         <OrganizationJsonLd />
+        <WebsiteJsonLd />
         <AuthProvider>
           <LoaderProviders>
             <div id="global-layout-root" className="flex flex-col min-h-screen">

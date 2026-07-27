@@ -17,21 +17,30 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "Kercasa - Seu lar, começa aqui",
-    description: "Plataforma imobiliária inteligente em Angola. Anuncie, compre ou arrende imóveis com o poder da IA. Encontre a casa dos seus sonhos em Luanda, Benguela, Huíla e mais.",
+    title: "Kercasa — Imóveis em Angola | Comprar, Vender e Arrendar Casas",
+    description: "Encontre casas, apartamentos e vivendas para comprar ou arrendar em Angola. Imóveis verificados em Luanda, Benguela, Talatona e mais.",
     alternates: { canonical: SITE_URL },
     openGraph: {
-      title: "Kercasa - Seu lar, começa aqui",
-      description: "Plataforma imobiliária inteligente em Angola. Anuncie, compre ou arrende imóveis com o poder da IA.",
+      title: "Kercasa — Imóveis em Angola | Comprar, Vender e Arrendar Casas",
+      description: "Encontre a casa dos seus sonhos em Angola. Milhares de imóveis verificados para comprar ou arrendar.",
       url: SITE_URL,
       siteName: "Kercasa",
       locale: "pt_AO",
       type: "website",
+      images: [
+        {
+          url: `${SITE_URL}/kercasa_logo.png`,
+          width: 1200,
+          height: 630,
+          alt: "Kercasa — Plataforma Imobiliária em Angola",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
-      title: "Kercasa - Seu lar, começa aqui",
-      description: "Plataforma imobiliária inteligente em Angola. Anuncie, compre ou arrende imóveis com o poder da IA.",
+      title: "Kercasa — Imóveis em Angola | Comprar, Vender e Arrendar Casas",
+      description: "Encontre a casa dos seus sonhos em Angola. Milhares de imóveis verificados.",
+      images: [`${SITE_URL}/kercasa_logo.png`],
     },
   };
 }
