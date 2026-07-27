@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 
 const supabase = createClient();
 
@@ -15,7 +16,7 @@ function AgentContactCard({ userIdLogado, adminId }: { userIdLogado?: string; ad
     e.preventDefault();
     
     if (!userIdLogado) {
-      toast.error('Você precisa estar logado para enviar mensagens');
+      toast.warning('Você precisa estar logado para enviar mensagens');
       return;
     }
 
@@ -72,7 +73,7 @@ function AgentContactCard({ userIdLogado, adminId }: { userIdLogado?: string; ad
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
       setStatus('erro');
-      toast.error('Erro ao enviar a mensagem');
+      toastErrorWithFeedback('Erro ao enviar a mensagem', error instanceof Error ? error : undefined);
     }
   };
 

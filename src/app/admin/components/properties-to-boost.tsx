@@ -18,6 +18,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { createClient } from '@/lib/supabase/client';
 import { useUserStore } from '@/lib/store/user-store';
 
@@ -159,7 +160,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       setBoostedProperties(formattedProperties);
     } catch (error) {
       console.error("Failed to fetch boosted properties:", error);
-      toast.error('Erro ao carregar imóveis impulsionados');
+      toastErrorWithFeedback('Erro ao carregar imóveis impulsionados');
     } finally {
       setLoading(false);
     }
@@ -185,7 +186,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       await fetchBoostedProperties();
     } catch (error) {
       console.error('Erro ao suspender imóvel:', error);
-      toast.error('Erro ao suspender imóvel');
+      toastErrorWithFeedback('Erro ao suspender imóvel');
     } finally {
       setDeboostingId(null);
     }
@@ -216,7 +217,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       await fetchBoostedProperties();
     } catch (error) {
       console.error('Erro ao reativar impulso:', error);
-      toast.error('Erro ao reativar impulso');
+      toastErrorWithFeedback('Erro ao reativar impulso');
     } finally {
       setReactivatingId(null);
     }
@@ -239,7 +240,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       await fetchBoostedProperties();
     } catch (error) {
       console.error('Erro ao aprovar boost:', error);
-      toast.error('Erro ao aprovar boost');
+      toastErrorWithFeedback('Erro ao aprovar boost');
     } finally {
       setApprovingId(null);
     }
@@ -262,7 +263,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       await fetchBoostedProperties();
     } catch (error) {
       console.error('Erro ao suspender boost:', error);
-      toast.error('Erro ao suspender boost');
+      toastErrorWithFeedback('Erro ao suspender boost');
     } finally {
       setRejectingId(null);
     }
@@ -322,7 +323,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       await fetchBoostedProperties();
     } catch (error) {
       console.error('Erro ao renovar impulso:', error);
-      toast.error('Erro ao renovar impulso');
+      toastErrorWithFeedback('Erro ao renovar impulso');
     } finally {
       setRenewingId(null);
     }
@@ -345,7 +346,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       await fetchBoostedProperties();
     } catch (error) {
       console.error('Erro ao remover impulso:', error);
-      toast.error('Erro ao remover impulso');
+      toastErrorWithFeedback('Erro ao remover impulso');
     } finally {
       setRemovingId(null);
     }
@@ -382,7 +383,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       await fetchBoostedProperties();
     } catch (error) {
       console.error('Erro ao eliminar imóvel:', error);
-      toast.error('Erro ao eliminar imóvel');
+      toastErrorWithFeedback('Erro ao eliminar imóvel');
     } finally {
       setDeletingPropertyId(null);
     }

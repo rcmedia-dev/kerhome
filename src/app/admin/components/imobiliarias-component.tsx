@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Building2, CheckCircle2, XCircle, Trash2, ShieldCheck, ShieldAlert, Loader2, Plus, X } from 'lucide-react';
 import { getImobiliariasWithOwnersAction } from '@/lib/functions/supabase-actions/admin-imobiliaria-actions';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { useState } from 'react';
 import { 
   createImobiliariaAction, 
@@ -82,7 +83,7 @@ export default function ImobiliariasManagement({ darkMode }: Props) {
     },
     onError: (err: any) => {
       if (err.message === 'Action cancelled') return;
-      toast.error('Erro ao atualizar verificação: ' + err.message);
+      toastErrorWithFeedback('Erro ao atualizar verificação: ' + err.message);
     }
   });
 
@@ -97,7 +98,7 @@ export default function ImobiliariasManagement({ darkMode }: Props) {
       toast.success('Status da imobiliária atualizado com sucesso.');
     },
     onError: (err: any) => {
-      toast.error('Erro ao atualizar status: ' + err.message);
+      toastErrorWithFeedback('Erro ao atualizar status: ' + err.message);
     }
   });
 
@@ -112,7 +113,7 @@ export default function ImobiliariasManagement({ darkMode }: Props) {
       toast.success('Imobiliária eliminada com sucesso.');
     },
     onError: () => {
-      toast.error('Ocorreu um erro ao excluir a imobiliária.');
+      toastErrorWithFeedback('Ocorreu um erro ao excluir a imobiliária.');
     }
   });
 
@@ -142,7 +143,7 @@ export default function ImobiliariasManagement({ darkMode }: Props) {
     },
     onError: (err: any) => {
       setUploadingLogo(false);
-      toast.error('Erro ao criar imobiliária: ' + err.message);
+      toastErrorWithFeedback('Erro ao criar imobiliária: ' + err.message);
     }
   });
 
@@ -173,7 +174,7 @@ export default function ImobiliariasManagement({ darkMode }: Props) {
     },
     onError: (err: any) => {
       setUploadingLogo(false);
-      toast.error('Erro ao atualizar imobiliária: ' + err.message);
+      toastErrorWithFeedback('Erro ao atualizar imobiliária: ' + err.message);
     }
   });
 

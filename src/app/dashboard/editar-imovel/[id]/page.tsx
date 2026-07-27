@@ -6,6 +6,7 @@ import { ArrowLeft, Save, Plus, Trash, Loader2, MapPin, Home, DollarSign, Image,
 import { getPropertyById } from '@/lib/functions/get-properties';
 import { updateProperty, deleteGalleryImage } from '@/lib/functions/supabase-actions/update-propertie';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -131,7 +132,7 @@ export default function PropertyEditForm() {
         }
       } catch (error) {
         console.error('Erro ao carregar propriedade:', error);
-        toast.error('Erro ao carregar dados da propriedade');
+        toastErrorWithFeedback('Erro ao carregar dados da propriedade');
       } finally {
         setIsLoading(false);
       }
@@ -162,14 +163,11 @@ export default function PropertyEditForm() {
           galleryFiles: [],
         });
       } else {
-        toast.error(result.message || 'Erro ao atualizar propriedade', {
-          position: 'top-right',
-          duration: 5000,
-        });
+        toastErrorWithFeedback(result.message || 'Erro ao atualizar propriedade');
       }
     } catch (error) {
       console.error('Failed to update property:', error);
-      toast.error('Erro ao atualizar propriedade');
+      toastErrorWithFeedback('Erro ao atualizar propriedade');
     } finally {
       setIsSubmitting(false);
     }

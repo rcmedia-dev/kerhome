@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -7,6 +7,7 @@ import {
   uploadLogoAction 
 } from '@/lib/functions/supabase-actions/admin-imobiliaria-actions';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { Building2, MapPin, Globe, Mail, Phone, MessageSquare, Image as ImageIcon, Loader2, ArrowRight, CheckCircle2, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { useUserStore } from '@/lib/store/user-store';
@@ -82,7 +83,7 @@ export default function RegistarImobiliariaPage() {
       toast.success('Pedido de upgrade enviado com sucesso!');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error: any) {
-      toast.error('Erro ao processar: ' + error.message);
+      toastErrorWithFeedback('Erro ao processar: ' + error.message);
     } finally {
       setLoading(false);
     }

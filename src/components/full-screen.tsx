@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useChatStore } from '@/lib/store/chat-store';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { VisitScheduler } from './visit-scheduler';
 
 
@@ -41,7 +42,7 @@ export function FullscreenView({
 
   const handleStartChat = async () => {
     if (!userId) {
-      toast.error('Você precisa estar logado para iniciar um chat.');
+      toast.warning('Você precisa estar logado para iniciar um chat.');
       router.push('/login');
       return;
     }
@@ -81,7 +82,7 @@ export function FullscreenView({
       }
     } catch (error) {
       console.error('Error starting chat:', error);
-      toast.error('Erro ao conectar.');
+      toastErrorWithFeedback('Erro ao conectar.', error instanceof Error ? error : undefined);
     } finally {
       setLoading(false);
     }

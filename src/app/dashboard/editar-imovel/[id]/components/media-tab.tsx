@@ -5,6 +5,7 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { Image, Trash } from 'lucide-react';
 import { deleteGalleryImage } from '@/lib/functions/supabase-actions/update-propertie';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { formatPrice } from '@/lib/utils/formatting';
 
 interface MediaTabProps {
@@ -37,7 +38,7 @@ export function MediaTab({ property }: MediaTabProps) {
       setGalleryPreview(newGallery);
       setValue('gallery', newGallery);
     } else {
-      toast.error(result.message);
+      toastErrorWithFeedback(result.message);
     }
   };
 

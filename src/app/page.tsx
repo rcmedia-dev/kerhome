@@ -11,7 +11,7 @@ import { TPropertyResponseSchema } from '@/lib/types/property';
 import { getAgents } from '@/lib/functions/get-agent';
 import { fetchFeaturedAgencies } from '@/lib/functions/supabase-actions/imobiliaria-actions';
 import AgencyCarousel from '@/components/agency-carousel';
-import { SplashScreen } from '@/components/splash-screen';
+import { SplashScreenClient } from '@/components/splash-screen-client';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
 
@@ -44,7 +44,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <SplashScreen />
+      <SplashScreenClient />
       <HeroCarousel property={featuredProperties} />
       <ActionCardsSection />
       <TopAgentsSection agents={agents}/>

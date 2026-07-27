@@ -6,6 +6,7 @@ import { MessageCircle, Phone, Calendar, X, MessageSquare } from 'lucide-react';
 import { useChatStore } from '@/lib/store/chat-store';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { VisitScheduler } from './visit-scheduler';
 import { TPropertyResponseSchema } from '@/lib/types/property';
 import { useUserStore } from '@/lib/store/user-store';
@@ -38,7 +39,7 @@ export function MobileContactFAB({ property, ownerDetails }: MobileContactFABPro
 
   const handleStartChat = async () => {
     if (!user) {
-      toast.error('Você precisa estar logado para iniciar um chat.');
+      toast.warning('Você precisa estar logado para iniciar um chat.');
       router.push('/login');
       return;
     }
@@ -78,7 +79,7 @@ export function MobileContactFAB({ property, ownerDetails }: MobileContactFABPro
       }
     } catch (error) {
       console.error('Error starting chat:', error);
-      toast.error('Erro ao conectar.');
+      toastErrorWithFeedback('Erro ao conectar.', error instanceof Error ? error : undefined);
     } finally {
       setLoading(false);
     }

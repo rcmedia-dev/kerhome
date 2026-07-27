@@ -7,6 +7,7 @@ import { ArrowLeft, Save, Plus, Trash, Loader2, MapPin, Home, DollarSign, Image,
 import { getPropertyById } from '@/lib/functions/get-properties';
 import { updateProperty, deleteGalleryImage } from '@/lib/functions/supabase-actions/update-propertie';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 
@@ -617,7 +618,7 @@ const MediaTab = ({ property }: { property?: any }) => {
       setGalleryPreview(newGallery);
       setValue('gallery', newGallery);
     } else {
-      toast.error(result.message);
+      toastErrorWithFeedback(result.message);
     }
   };
 
@@ -928,12 +929,12 @@ export default function PropertyEditPage() {
             galleryFiles: []
           });
         } else {
-          toast.error('Imóvel não encontrado');
+          toastErrorWithFeedback('Imóvel não encontrado');
           router.push('/admin/dashboard');
         }
       } catch (error) {
         console.error('Erro ao carregar imóvel:', error);
-        toast.error('Erro ao carregar dados do imóvel');
+        toastErrorWithFeedback('Erro ao carregar dados do imóvel');
         router.push('/admin/dashboard');
       } finally {
         setIsLoading(false);
@@ -969,14 +970,11 @@ export default function PropertyEditPage() {
           router.push('/admin/dashboard');
         }, 2000);
       } else {
-        toast.error(result.message || 'Erro ao atualizar imóvel', {
-          position: 'top-right',
-          duration: 5000,
-        });
+        toastErrorWithFeedback(result.message || 'Erro ao atualizar imóvel');
       }
     } catch (error) {
       console.error('Failed to update property:', error);
-      toast.error('Erro ao atualizar imóvel');
+      toastErrorWithFeedback('Erro ao atualizar imóvel');
     } finally {
       setIsSubmitting(false);
     }

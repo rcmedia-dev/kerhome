@@ -1,8 +1,9 @@
-﻿'use client'
+'use client'
 
 import { useActionState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useFormStatus } from 'react-dom';
@@ -29,7 +30,7 @@ export function UserForm() {
 
   useEffect(() => {
     if (state?.error) {
-      toast.error(state.error);
+      toastErrorWithFeedback(state.error);
     } else if (state?.success) {
       toast.success('Utilizador criado com sucesso!');
     }

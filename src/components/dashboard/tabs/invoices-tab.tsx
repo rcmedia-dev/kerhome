@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { DollarSign, Download, AlertTriangle, Calendar, CheckCircle2, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
@@ -78,7 +79,7 @@ export function Faturas({ invoices }: FaturasProps) {
 
       toast.success('Faturas exportadas com sucesso');
     } catch (error) {
-      toast.error('Erro ao exportar faturas');
+      toastErrorWithFeedback('Erro ao exportar faturas', error instanceof Error ? error : undefined);
     }
   }, [localInvoices]);
 

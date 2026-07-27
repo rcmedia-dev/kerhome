@@ -6,6 +6,7 @@ import { useUserStore } from '@/lib/store/user-store';
 
 import { MessageBubble } from './message-bubble';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 
 interface ChatWindowProps {
     onClose: () => void;
@@ -86,7 +87,7 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
             toast.dismiss(toastId);
         } catch (error) {
             console.error('Upload failed:', error);
-            toast.error('Erro ao enviar arquivo', { id: toastId });
+            toastErrorWithFeedback('Erro ao enviar arquivo', error instanceof Error ? error : undefined);
         }
     };
 
@@ -138,7 +139,7 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
             }
         } catch (error) {
             console.error('Failed to send message:', error);
-            toast.error('Erro ao enviar mensagem');
+            toastErrorWithFeedback('Erro ao enviar mensagem', error instanceof Error ? error : undefined);
         }
     };
 

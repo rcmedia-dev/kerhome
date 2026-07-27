@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { getProperties, Property } from "@/app/admin/dashboard/actions/get-properties";
 import Image from "next/image";
 import { toast } from "sonner";
+import { toastErrorWithFeedback } from "@/lib/error-feedback";
 import { approveProperty, rejectProperty } from "@/app/admin/dashboard/actions/set-properties-status";
 import { toggleFeaturedProperty } from "@/app/admin/dashboard/actions/toggle-featured";
 import { deleteProperty } from "@/lib/functions/supabase-actions/delete-propertie";
@@ -29,7 +30,7 @@ export function RenderProperties({ darkMode }: RenderPropertiesProps) {
         setProperties(data);
       } catch (error) {
         console.error("Failed to fetch properties:", error);
-        toast.error('Erro ao carregar imóveis');
+        toastErrorWithFeedback('Erro ao carregar imóveis');
       } finally {
         setLoading(false);
       }
@@ -336,10 +337,10 @@ function ApprovalPropertyCard({ property, darkMode, onUpdate }: PropertyCardProp
         toast.success(result.message);
         onUpdate({ ...property, aprovement_status: 'approved' });
       } else {
-        toast.error(result.message);
+        toastErrorWithFeedback(result.message);
       }
     } catch {
-      toast.error('Erro ao aprovar imóvel');
+      toastErrorWithFeedback('Erro ao aprovar imóvel');
     }
   };
 
@@ -353,10 +354,10 @@ function ApprovalPropertyCard({ property, darkMode, onUpdate }: PropertyCardProp
         toast.success(result.message);
         onUpdate({ ...property, aprovement_status: 'rejected' });
       } else {
-        toast.error(result.message);
+        toastErrorWithFeedback(result.message);
       }
     } catch {
-      toast.error('Erro ao rejeitar imóvel');
+      toastErrorWithFeedback('Erro ao rejeitar imóvel');
     }
   };
 
@@ -492,7 +493,7 @@ function ManagementPropertyCard({ property, darkMode, onUpdate, onDelete }: Mana
         toast.success(result.featured ? 'Imóvel destacado' : 'Destaque removido');
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Erro ao alternar destaque');
+      toastErrorWithFeedback(err instanceof Error ? err.message : 'Erro ao alternar destaque');
     } finally {
       setIsTogglingFeatured(false);
     }
@@ -517,7 +518,7 @@ function ManagementPropertyCard({ property, darkMode, onUpdate, onDelete }: Mana
       
     } catch (error) {
       console.error('Erro ao excluir imóvel:', error);
-      toast.error('Erro ao excluir imóvel');
+      toastErrorWithFeedback('Erro ao excluir imóvel');
     } finally {
       setIsDeleting(false);
     }

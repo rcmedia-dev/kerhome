@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { Pencil, Trash, Heart, Share2, Zap, AlertCircle, ShieldAlert } from 'lucide-react';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 
 import { PropertyCardBase } from '@/components/ui/property-card-base';
 import { toggleFavoritoProperty } from '@/lib/functions/toggle-favorite';
@@ -156,7 +157,7 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
       setFavorito(result.isFavorited);
     } catch (e) {
       setFavorito(previousState);
-      toast.error('Erro ao atualizar favoritos');
+      toastErrorWithFeedback('Erro ao atualizar favoritos', e instanceof Error ? e : undefined);
     } finally { if (mountedRef.current) setIsTogglingFav(false); }
   }, [user, favorito, property.id, isTogglingFav]);
 

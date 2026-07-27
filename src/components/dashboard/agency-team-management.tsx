@@ -4,6 +4,7 @@ import React, { useState, useEffect, useTransition } from 'react';
 import { Users, Mail, UserPlus, Clock, CheckCircle2, Copy, ExternalLink, Loader2, Trash2, ShieldCheck, Shield, X, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { getAgencyInvites, sendAgencyInvite } from '@/lib/functions/supabase-actions/agency-invites';
 import { fetchAgentsByAgency, removeAgentFromAgency } from '@/lib/functions/supabase-actions/imobiliaria-actions';
 import { useUserStore } from '@/lib/store/user-store';
@@ -36,10 +37,10 @@ export function AgencyTeamManagement({ agencyId, isOwner }: AgencyTeamManagement
                 toast.success('Corretor removido da agência.');
                 setAgents(prev => prev.filter(a => a.id !== agentId));
             } else {
-                toast.error(result.error || 'Erro ao remover corretor.');
+                toastErrorWithFeedback(result.error || 'Erro ao remover corretor.');
             }
         } catch (err) {
-            toast.error('Ocorreu um erro inesperado.');
+            toastErrorWithFeedback('Ocorreu um erro inesperado.', err instanceof Error ? err : undefined);
         } finally {
             setRemovingAgentId(null);
             setShowRemoveConfirm(null);
@@ -57,7 +58,7 @@ export function AgencyTeamManagement({ agencyId, isOwner }: AgencyTeamManagement
             setInvites(invitesData);
         } catch (error) {
             console.error('Erro ao carregar dados da equipa:', error);
-            toast.error('Não foi possível carregar os dados da equipa.');
+            toastErrorWithFeedback('Não foi possível carregar os dados da equipa.');
         } finally {
             setLoading(false);
         }
@@ -79,10 +80,10 @@ export function AgencyTeamManagement({ agencyId, isOwner }: AgencyTeamManagement
                 setInviteSent(true);
                 loadData();
             } else {
-                toast.error(result.error || 'Erro ao enviar convite.');
+                toastErrorWithFeedback(result.error || 'Erro ao enviar convite.');
             }
         } catch (error) {
-            toast.error('Ocorreu um erro inesperado.');
+            toastErrorWithFeedback('Ocorreu um erro inesperado.', error instanceof Error ? error : undefined);
         } finally {
             setIsInviting(false);
         }
@@ -95,11 +96,11 @@ export function AgencyTeamManagement({ agencyId, isOwner }: AgencyTeamManagement
                 toast.success('Link copiado para a área de transferência!');
             } catch (err) {
                 console.error('Falha ao copiar:', err);
-                toast.error('Não foi possível copiar o link.');
+                toastErrorWithFeedback('Não foi possível copiar o link.');
             }
         } else {
             // Fallback para navegadores antigos ou ambiente inseguro se necessário
-            toast.error('O seu navegador não suporta cópia automática.');
+            toastErrorWithFeedback('O seu navegador não suporta cópia automática.');
         }
     };
 

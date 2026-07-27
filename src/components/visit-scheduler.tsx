@@ -76,7 +76,7 @@ export function VisitScheduler({ children, property, ownerData, userId }: VisitS
     const effectiveUserId = user?.id || userId;
 
     if (!effectiveUserId) {
-      toast.error('Tem de iniciar sessão para agendar uma visita.');
+      toast.warning('Tem de iniciar sessão para agendar uma visita.');
       setIsOpen(false);
       return;
     }

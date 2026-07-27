@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 
 // Store & Actions
 import { useUserStore } from '@/lib/store/user-store';
@@ -69,15 +70,15 @@ function DestacarContent() {
         if (specificProperty) {
           const userOwnsProperty = userProperties.some(p => p.id === propertyId);
           if (!userOwnsProperty) {
-            toast.error('Este imóvel não pertence ao seu usuário');
+            toastErrorWithFeedback('Este imóvel não pertence ao seu usuário');
           }
         } else {
-          toast.error('Imóvel não encontrado ou não está aprovado');
+          toastErrorWithFeedback('Imóvel não encontrado ou não está aprovado');
         }
       }
     } catch (error) {
       console.error('Erro ao carregar imóveis:', error);
-      toast.error('Erro ao carregar seus imóveis');
+      toastErrorWithFeedback('Erro ao carregar seus imóveis');
     }
   };
 
@@ -93,7 +94,7 @@ function DestacarContent() {
       }
     } catch (error) {
       console.error('Erro ao carregar pacotes:', error);
-      toast.error('Erro ao carregar pacotes de destaque');
+      toastErrorWithFeedback('Erro ao carregar pacotes de destaque');
       setPacotes(getDefaultPacotes());
     } finally {
       setLoading(false);
@@ -131,8 +132,8 @@ function DestacarContent() {
   };
 
   const handleCheckout = async () => {
-    if (!selectedPacote) return toast.error('Selecione um pacote de destaque');
-    if (selectedProperties.length === 0) return toast.error('Selecione pelo menos um imóvel');
+    if (!selectedPacote) return toast.warning('Selecione um pacote de destaque');
+    if (selectedProperties.length === 0) return toast.warning('Selecione pelo menos um imóvel');
 
     setProcessing(true);
 
@@ -140,7 +141,7 @@ function DestacarContent() {
       const planoValido = pacotes.some(pacote => pacote.id === selectedPacote.id);
 
       if (!planoValido) {
-        toast.error('Plano selecionado não é válido');
+        toastErrorWithFeedback('Plano selecionado não é válido');
         return;
       }
 
@@ -170,7 +171,7 @@ function DestacarContent() {
 
     } catch (error) {
       console.error('Erro ao processar destaque:', error);
-      toast.error('Erro ao ativar destaque. Tente novamente.');
+      toastErrorWithFeedback('Erro ao ativar destaque. Tente novamente.');
     } finally {
       setProcessing(false);
     }

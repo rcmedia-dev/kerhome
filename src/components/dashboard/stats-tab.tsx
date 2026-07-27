@@ -43,6 +43,7 @@ import { type EventStatsResult } from '@/lib/functions/supabase-actions/track-ev
 import { ErrorBoundary } from './shared-ui';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { PerformanceTipsModal } from './performance-tips-modal';
 import { AiPerformanceSummary } from './ai-performance-summary';
 
@@ -92,7 +93,7 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
         setBoostedProperties(boostedData);
       } catch (error) {
         console.error('Erro ao buscar estatísticas:', error);
-        toast.error('Erro ao atualizar métricas.');
+        toastErrorWithFeedback('Erro ao atualizar métricas.', error instanceof Error ? error : undefined);
       }
     });
   }, [ownerId, period]);

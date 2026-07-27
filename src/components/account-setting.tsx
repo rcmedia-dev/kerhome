@@ -1,10 +1,11 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Settings, Save, User, Mail, Phone, Building, Award, Globe, Facebook, Linkedin, Instagram, Youtube, Edit3, Briefcase, Users, Share2, Sparkles } from 'lucide-react';
 import { updateUserProfile } from '@/lib/functions/supabase-actions/update-user-profile';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { UserProfile } from '@/lib/store/user-store';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -381,15 +382,9 @@ export function ConfiguracoesConta({ profile }: SettingsProps) {
       }
     } catch (error) {
       console.error('Erro ao atualizar perfil:', error);
-      toast.error(
+      toastErrorWithFeedback(
         error instanceof Error ? error.message : 'Erro ao atualizar perfil',
-        {
-          style: {
-            background: '#EF4444',
-            color: 'white',
-            border: 'none',
-          },
-        }
+        error instanceof Error ? error : undefined
       );
     } finally {
       setIsSubmitting(false);

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Building2, Phone, Globe, Mail, MapPin, Save, AlertTriangle, Loader2, Camera, Facebook, Instagram, Linkedin, Twitter, Users, Settings2, EyeOff, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { updateUserAgencyAction, getUserAgency } from '@/lib/functions/supabase-actions/imobiliaria-actions';
 import { uploadLogoAction } from '@/lib/functions/supabase-actions/admin-imobiliaria-actions';
 import { useQueryClient } from '@tanstack/react-query';
@@ -72,7 +73,7 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                 if (uploadRes.success) {
                     logoUrl = uploadRes.url;
                 } else {
-                    toast.error('Erro ao enviar logo: ' + uploadRes.error);
+                    toastErrorWithFeedback('Erro ao enviar logo: ' + uploadRes.error);
                     setIsSubmitting(false);
                     return;
                 }
@@ -91,11 +92,11 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                 }
                 queryClient.invalidateQueries({ queryKey: ['user-agency'] });
             } else {
-                toast.error('Erro ao atualizar agência: ' + (result as any).error);
+                toastErrorWithFeedback('Erro ao atualizar agência: ' + (result as any).error);
             }
         } catch (error) {
             console.error('Erro ao salvar agência:', error);
-            toast.error('Ocorreu um erro inesperado.');
+            toastErrorWithFeedback('Ocorreu um erro inesperado.', error instanceof Error ? error : undefined);
         } finally {
             setIsSubmitting(false);
         }

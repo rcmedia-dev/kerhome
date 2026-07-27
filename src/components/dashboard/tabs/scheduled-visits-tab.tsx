@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Calendar, Clock, CheckCircle, XCircle, CheckCircle2, RefreshCw, Building2, User, Trash2, Trash } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -30,7 +31,7 @@ export function VisitasAgendadas({ userId }: VisitasProps) {
         setVisits(data.visits || []);
       }
     } catch (e) {
-      toast.error('Erro ao carregar visitas');
+      toastErrorWithFeedback('Erro ao carregar visitas', e instanceof Error ? e : undefined);
     } finally {
       setIsLoading(false);
     }
@@ -54,7 +55,7 @@ export function VisitasAgendadas({ userId }: VisitasProps) {
         toast.success('Status atualizado');
       }
     } catch (e) {
-      toast.error('Erro ao atualizar');
+      toastErrorWithFeedback('Erro ao atualizar', e instanceof Error ? e : undefined);
     }
   };
 
@@ -66,7 +67,7 @@ export function VisitasAgendadas({ userId }: VisitasProps) {
         toast.success('Visita removida');
       }
     } catch (e) {
-      toast.error('Erro ao remover');
+      toastErrorWithFeedback('Erro ao remover', e instanceof Error ? e : undefined);
     } finally {
       setDeletingVisitId(null);
     }

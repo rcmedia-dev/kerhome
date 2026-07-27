@@ -36,6 +36,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Calendar as CalendarUI } from '@/components/ui/calendar';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { getSupabaseUserProperties } from '@/lib/functions/get-properties';
 import { AiReplySuggestions } from './ai-reply-suggestions';
 import { AiLeadCoach } from '@/components/ai-lead-coach';
@@ -248,11 +249,11 @@ export function MessagesTab() {
         setVisitForm(v => ({ ...v, date: undefined, time: '', notes: '' }));
       } else {
         const errData = await res.json();
-        toast.error(`Erro ao agendar: ${errData.error || 'Erro desconhecido'}`);
+        toastErrorWithFeedback(`Erro ao agendar: ${errData.error || 'Erro desconhecido'}`);
       }
     } catch (e: any) {
       console.error('Error scheduling visit:', e);
-      toast.error('Erro de conexão ao agendar visita.');
+      toastErrorWithFeedback('Erro de conexão ao agendar visita.', e instanceof Error ? e : undefined);
     } finally {
       setIsSubmittingVisit(false);
     }
@@ -291,7 +292,7 @@ export function MessagesTab() {
       }
     } catch (e) {
       console.error('Error deleting visit:', e);
-      toast.error('Erro ao remover visita.');
+      toastErrorWithFeedback('Erro ao remover visita.', e instanceof Error ? e : undefined);
     } finally {
       setDeletingVisitId(null);
     }

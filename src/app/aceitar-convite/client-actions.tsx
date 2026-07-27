@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { acceptAgencyInvite, rejectAgencyInvite } from '@/lib/functions/supabase-actions/agency-invites';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
 
 export function ClientInviteActions({ token, userEmail, userId }: { token: string; userEmail: string; userId: string }) {
@@ -20,11 +21,11 @@ export function ClientInviteActions({ token, userEmail, userId }: { token: strin
         toast.success(`Bem-vindo à equipa ${result.agencyName}!`);
         setTimeout(() => router.push('/dashboard'), 2000);
       } else {
-        toast.error(result.error || 'Erro ao aceitar convite.');
+        toastErrorWithFeedback(result.error || 'Erro ao aceitar convite.');
         setProcessing(false);
       }
     } catch (err) {
-      toast.error('Erro inesperado ao aceitar convite.');
+      toastErrorWithFeedback('Erro inesperado ao aceitar convite.');
       setProcessing(false);
     }
   };
@@ -38,11 +39,11 @@ export function ClientInviteActions({ token, userEmail, userId }: { token: strin
         toast.info('Convite recusado.');
         setTimeout(() => router.push('/'), 2000);
       } else {
-        toast.error(result.error || 'Erro ao recursar convite.');
+        toastErrorWithFeedback(result.error || 'Erro ao recursar convite.');
         setProcessing(false);
       }
     } catch (err) {
-      toast.error('Erro inesperado ao recusar convite.');
+      toastErrorWithFeedback('Erro inesperado ao recusar convite.');
       setProcessing(false);
     }
   };

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { User, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { useUserStore } from '@/lib/store/user-store';
 
 const supabase = createClient();
@@ -164,7 +165,7 @@ export function AgentRequestButton({ userId, userName }: AgentRequestButtonProps
 
     } catch (err: any) {
       console.error('Erro no processo:', err);
-      toast.error(`Erro ao enviar solicitação: ${err.message || 'Tente novamente'}`);
+      toastErrorWithFeedback(`Erro ao enviar solicitação: ${err.message || 'Tente novamente'}`, err instanceof Error ? err : undefined);
     } finally {
       setIsLoading(false);
     }

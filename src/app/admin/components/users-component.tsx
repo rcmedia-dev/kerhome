@@ -6,6 +6,7 @@ import { getUsers } from '@/app/admin/dashboard/actions/get-users';
 import Link from 'next/link';
 import { deleteUser } from '@/app/admin/dashboard/actions/create-user';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import Image from 'next/image';
 
 type User = {
@@ -52,7 +53,7 @@ export function UserManagement({ darkMode, initialUsers = [] }: UsersManagementP
         toast.success('Usuário deletado com sucesso');
         setUsers((prev) => prev.filter((u) => u.id.toString() !== userId));
       } else {
-        toast.error('Erro ao deletar: ' + res.error);
+        toastErrorWithFeedback('Erro ao deletar: ' + res.error);
       }
     });
   };
@@ -87,7 +88,7 @@ export function UserManagement({ darkMode, initialUsers = [] }: UsersManagementP
         toast.success('Usuário banido com sucesso');
         setBanDialog({ isOpen: false, userId: null, reason: '' });
       } else {
-        toast.error('Erro ao banir usuário');
+        toastErrorWithFeedback('Erro ao banir usuário');
       }
     });
   };
@@ -111,13 +112,13 @@ export function UserManagement({ darkMode, initialUsers = [] }: UsersManagementP
         );
         toast.success('Usuário desbanido com sucesso');
       } else {
-        toast.error('Erro ao desbanir usuário');
+        toastErrorWithFeedback('Erro ao desbanir usuário');
       }
     });
   };
 
   const handlePlanoAction = (userId: number, action: 'approve' | 'reject') => {
-    toast.error('Ação não implementada nesta vista. Por favor use a página de Subscrições.');
+    toastErrorWithFeedback('Ação não implementada nesta vista. Por favor use a página de Subscrições.');
   };
 
   useEffect(() => {
@@ -137,7 +138,7 @@ export function UserManagement({ darkMode, initialUsers = [] }: UsersManagementP
       }));
       setUsers(transformedUsers);
     } catch (err) {
-      toast.error('Erro ao carregar usuários');
+      toastErrorWithFeedback('Erro ao carregar usuários');
     } finally {
       setLoading(false);
     }

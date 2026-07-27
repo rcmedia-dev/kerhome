@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { useUserStore } from '@/lib/store/user-store';
 import { X } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -24,7 +25,7 @@ export function useDashboardActions() {
         if (!file || !user) return;
 
         if (file.size > 5 * 1024 * 1024) {
-            toast.error('A imagem deve ter no máximo 5MB.');
+            toast.warning('A imagem deve ter no máximo 5MB.');
             return;
         }
 
@@ -48,7 +49,7 @@ export function useDashboardActions() {
             toast.success('Foto de perfil atualizada!');
         } catch (error) {
             console.error('Erro ao atualizar avatar:', error);
-            toast.error('Erro ao atualizar a foto.');
+            toastErrorWithFeedback('Erro ao atualizar a foto.', error instanceof Error ? error : undefined);
         } finally {
             setIsUploading(false);
         }
@@ -186,7 +187,7 @@ export function useDashboardActions() {
 
         } catch (error) {
             console.error('Erro ao solicitar:', error);
-            toast.error('Erro ao enviar solicitação.');
+            toastErrorWithFeedback('Erro ao enviar solicitação.', error instanceof Error ? error : undefined);
         } finally {
             setIsRequestingAgent(false);
         }

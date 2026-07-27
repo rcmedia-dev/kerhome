@@ -14,6 +14,7 @@ import LoaderProviders from "@/app/providers";
 import { OrganizationJsonLd } from "@/components/json-ld";
 import { Toaster } from "@/components/ui/sonner";
 import { PageTransition } from "@/components/page-transition";
+import { GlobalErrorFeedback } from "@/components/global-error-feedback";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
 
@@ -83,6 +84,7 @@ export default function RootLayout({
               <FloatingActions />
             </div>
             <Toaster closeButton richColors position="top-right" />
+            <GlobalErrorFeedback />
           </LoaderProviders>
         </AuthProvider>
       </body>

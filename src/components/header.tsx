@@ -32,6 +32,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getUserPlan } from '@/lib/functions/supabase-actions/get-user-package-action';
 import { UserProfile, useUserStore } from '@/lib/store/user-store';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { motion, AnimatePresence, Transition, Variants } from 'framer-motion';
 
 import { useChatStore } from '@/lib/store/chat-store';
@@ -147,7 +148,7 @@ function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: bo
       router.refresh();
     } catch (error) {
       console.error('Error during logout:', error);
-      toast.error('Erro ao encerrar a sessão');
+      toastErrorWithFeedback('Erro ao encerrar a sessão', error instanceof Error ? error : undefined);
     } finally {
       setIsLoggingOut(false);
     }
@@ -308,7 +309,10 @@ export default function Header() {
 
   const userPlanData = useQuery({
     queryKey: ['imoveis-limite', user?.id],
-    queryFn: () => getUserPlan(user?.id),
+    queryFn: async () => {
+      const result = await getUserPlan(user?.id);
+      return result ?? null;
+    },
     enabled: !!user?.id
   });
 

@@ -2,6 +2,7 @@ import { Share2, MessageCircle, Facebook, Copy, Check } from "lucide-react";
 import { useState, useCallback } from "react";
 import { useTrackEvent } from "@/hooks/use-track-event";
 import { toast } from "sonner";
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 
 interface ShareButtonProps {
   property: {
@@ -47,7 +48,7 @@ export function ShareButton({ property }: ShareButtonProps) {
       track({ ...shareBase, event_type: 'share_copy_link' });
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Não foi possível copiar o link.");
+      toastErrorWithFeedback("Não foi possível copiar o link.");
     }
     setIsOpen(false);
   }, [shareBase, track]);

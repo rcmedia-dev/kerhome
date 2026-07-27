@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Bell, X, CheckCheck, ThumbsDown, XCircle, Clock, Store, Loader2 } from 'lucide-react';
+import { Bell, X, CheckCheck, ThumbsDown, XCircle, Clock, Store, Loader2, Bug } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchNotifications, fetchUnreadCount, markNotificationRead, markAllNotificationsRead, deleteNotification, deleteAllNotifications, type Notification } from '@/lib/functions/supabase-actions/notifications-actions';
 import { acceptAgencyInvite, rejectAgencyInvite } from '@/lib/functions/supabase-actions/agency-invites';
 import { toast } from 'sonner';
+import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { Trash2 } from 'lucide-react';
 import { useUserStore } from '@/lib/store/user-store';
 
@@ -19,6 +20,7 @@ const typeIcons: Record<string, React.ReactNode> = {
   ai_property_approved: <CheckCheck className="w-4 h-4 text-green-500" />,
   ai_property_rejected: <XCircle className="w-4 h-4 text-red-500" />,
   agency_invite: <Store className="w-4 h-4 text-purple-500" />,
+  error_feedback: <Bug className="w-4 h-4 text-orange-500" />,
 };
 
 export function NotificationsPanel({ userId }: { userId: string }) {
@@ -170,10 +172,10 @@ export function NotificationsPanel({ userId }: { userId: string }) {
         setUnreadCount(prev => Math.max(0, prev - 1));
         setTimeout(() => window.location.reload(), 1500);
       } else {
-        toast.error(result.error || 'Erro ao aceitar convite.');
+        toastErrorWithFeedback(result.error || 'Erro ao aceitar convite.');
       }
     } catch (err) {
-      toast.error('Erro inesperado ao aceitar convite.');
+      toastErrorWithFeedback('Erro inesperado ao aceitar convite.', err instanceof Error ? err : undefined);
     } finally {
       setProcessingInvites(prev => {
         const next = new Set(prev);
@@ -196,10 +198,10 @@ export function NotificationsPanel({ userId }: { userId: string }) {
         setNotifications(prev => prev.filter(n => n.id !== notif.id));
         setUnreadCount(prev => Math.max(0, prev - 1));
       } else {
-        toast.error(result.error || 'Erro ao recusar convite.');
+        toastErrorWithFeedback(result.error || 'Erro ao recusar convite.');
       }
     } catch (err) {
-      toast.error('Erro inesperado ao recusar convite.');
+      toastErrorWithFeedback('Erro inesperado ao recusar convite.', err instanceof Error ? err : undefined);
     } finally {
       setProcessingInvites(prev => {
         const next = new Set(prev);
