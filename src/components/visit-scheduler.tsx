@@ -99,7 +99,7 @@ export function VisitScheduler({ children, property, ownerData, userId }: VisitS
         : '';
 
       const messageContent = [
-        '📅 Solicitação de Visita',
+        'Solicitação de Visita',
         '─────────────────────',
         `Imóvel: ${property.title}`,
         `Data: ${formattedDate} às ${formData.horario}`,

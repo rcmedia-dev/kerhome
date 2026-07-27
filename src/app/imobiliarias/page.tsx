@@ -203,7 +203,7 @@ export default function ImobiliariasPage() {
         )}
       </AnimatePresence>
 
-      {/* 🛑 PAINEL LATERAL DE FILTROS (SEM OVERLAY - Reusando padrão Imóveis) 🛑 */}
+      {/* PAINEL LATERAL DE FILTROS (SEM OVERLAY - Reusando padrao Imoveis) */}
       <AnimatePresence>
         {showFilterModal && (
           <motion.div

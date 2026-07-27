@@ -91,10 +91,10 @@ export async function sendAgencyInvite(email: string, agencyId: string, userId: 
             if (!emailResult.success) {
                 console.error("Aviso: Falha ao enviar e-mail via Resend, mas o convite foi criado na base de dados.", emailResult.error);
             }
-            console.log(`\n✅ CONVITE ENVIADO VIA RESEND: ${origin}/aceitar-convite?token=${token}\n`);
+            console.log(`\nCONVITE ENVIADO VIA RESEND: ${origin}/aceitar-convite?token=${token}\n`);
         } catch (inviteAuthError) {
-            console.error('\n⚠️ AVISO: Erro ao disparar o e-mail via Resend.', inviteAuthError);
-            console.log(`🔗 Link Direto (Copie e cole no browser): ${origin}/aceitar-convite?token=${token}\n`);
+            console.error('\nAVISO: Erro ao disparar o e-mail via Resend.', inviteAuthError);
+            console.log(`Link Direto (Copie e cole no browser): ${origin}/aceitar-convite?token=${token}\n`);
         }
 
         revalidatePath('/dashboard');

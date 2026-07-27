@@ -178,7 +178,7 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
           window.dispatchEvent(new CustomEvent('new-notification'));
           
           if (res.decision === 'approved') {
-            toast.success('Parabéns! O teu imóvel foi aprovado automaticamente pela nossa IA e já está publicado! 🎉');
+            toast.success('Parabéns! O teu imóvel foi aprovado automaticamente pela nossa IA e já está publicado!');
           } else if (res.decision === 'rejected') {
             toast.error(`O teu imóvel foi rejeitado pela IA. Motivos: ${res.reasons.join(', ')}`, {
               duration: 10000,
@@ -601,7 +601,7 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
                 </div>
 
                 <h2 className="text-3xl font-black text-gray-900 mb-3 tracking-tight">
-                  Parabéns! 🎉
+                  Parabéns!
                 </h2>
                 <p className="text-gray-600 font-medium mb-8 leading-relaxed">
                   O seu imóvel foi cadastrado com sucesso e já está em fase de revisão pela nossa equipa.

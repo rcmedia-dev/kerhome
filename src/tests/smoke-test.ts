@@ -20,7 +20,7 @@ const EVENT_LABEL_MAP: Record<string, string> = {
 };
 
 function testEventMapping() {
-  console.log('🧪 Testing EVENT_LABEL_MAP...');
+  console.log('Testing EVENT_LABEL_MAP...');
   const keys = Object.keys(EVENT_LABEL_MAP);
   const expectedKeys = ['share_whatsapp', 'view_property', 'chat', 'whatsapp', 'view_profile'];
 
@@ -29,23 +29,23 @@ function testEventMapping() {
       throw new Error(`Missing expected key in EVENT_LABEL_MAP: ${key}`);
     }
   });
-  console.log('✅ EVENT_LABEL_MAP is valid.');
+  console.log('EVENT_LABEL_MAP is valid.');
 }
 
 function testRadiusStandardization() {
-  console.log('🧪 Testing Radius Standardization Logic...');
+  console.log('Testing Radius Standardization Logic...');
   // This is a placeholder for checking if rounded-md is the dominant class
   // In a real unit test we would parse the files, but here we just simulate the check
-  console.log('✅ Radius standardization (rounded-md) verified conceptually.');
+  console.log('Radius standardization (rounded-md) verified conceptually.');
 }
 
 async function runTests() {
   try {
     testEventMapping();
     testRadiusStandardization();
-    console.log('\n✨ All unit tests passed!');
+    console.log('\nAll unit tests passed!');
   } catch (error) {
-    console.error('\n❌ Test failed:');
+    console.error('\nTest failed:');
     console.error(error);
     process.exit(1);
   }

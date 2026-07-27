@@ -815,7 +815,7 @@ export function MessagesTab() {
                                   </div>
                                 )}
                                 {visit.status === 'confirmed' && (
-                                  <button onClick={(e) => { e.stopPropagation(); handleUpdateVisitStatus(visit.id, 'done'); }} className="w-full mt-4 py-2 text-[9px] font-black uppercase bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors shadow-sm">✓ Concluir Visita</button>
+                                  <button onClick={(e) => { e.stopPropagation(); handleUpdateVisitStatus(visit.id, 'done'); }} className="w-full mt-4 py-2 text-[9px] font-black uppercase bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors shadow-sm"><Check className="w-3 h-3 inline mr-1" /> Concluir Visita</button>
                                 )}
                               </>
                             )}

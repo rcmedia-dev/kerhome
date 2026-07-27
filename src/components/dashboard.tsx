@@ -147,10 +147,10 @@ function DashboardInner() {
   return (
     <div className="h-[100dvh] lg:h-[calc(100vh-104px)] bg-gray-50 flex flex-col lg:flex-row relative overflow-hidden">
 
-      {/* 📡 Listener de Notificações de Lead */}
+      {/* Listener de Notificações de Lead */}
       <AgencyNotificationsListener imobiliariaId={userAgency.data?.id || null} />
 
-      {/* 💡 Tips Modal — mostra dicas em steps ao entrar no dashboard */}
+      {/* Tips Modal — mostra dicas em steps ao entrar no dashboard */}
       <DashboardTipsModal
         userId={user.id}
         userProperties={userProperties.data || []}

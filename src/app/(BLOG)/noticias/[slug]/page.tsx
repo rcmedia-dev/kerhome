@@ -38,23 +38,36 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
   const post = await fetchPostBySlug(slug);
 
   if (!post) {
-    return { title: "Post não encontrado | Kercasa Blog" };
+    return { title: "Post não encontrado | Kercasa" };
   }
 
-  const excerptText = post.excerpt?.html?.replace(/<[^>]*>/g, "") || "";
+  const rawExcerpt = post.excerpt?.html?.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim() || "";
+  const description = rawExcerpt.length > 155
+    ? rawExcerpt.substring(0, 152).replace(/\s\S*$/, '') + '...'
+    : rawExcerpt || `Leia este artigo no blog da Kercasa sobre imóveis em Angola.`;
+
+  const rawTitle = post.title || "Artigo";
+  const title = rawTitle.length > 50
+    ? `${rawTitle.substring(0, 47).replace(/\s\S*$/, '')}... | Kercasa`
+    : `${rawTitle} | Kercasa`;
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
   const postUrl = `${siteUrl}/noticias/${slug}`;
+  const image = post.coverImage?.url || `${siteUrl}/kercasa_logo.png`;
 
   return {
-    title: `${post.title} | Kercasa Blog`,
-    description: excerptText.substring(0, 200),
+    title,
+    description,
+    keywords: 'blog imobiliário Angola, dicas imóveis, mercado imobiliário, Kercasa, comprar casa Angola',
     alternates: { canonical: postUrl },
+    other: {
+      'X-Robots-Tag': 'index, follow',
+    },
     openGraph: {
-      title: post.title,
-      description: excerptText.substring(0, 200),
+      title,
+      description,
       url: postUrl,
-      images: [{ url: post.coverImage?.url || '/house.jpg', width: 1200, height: 630, alt: post.title }],
+      images: [{ url: image, width: 1200, height: 630, alt: rawTitle }],
       type: "article",
       locale: "pt_AO",
       siteName: "Kercasa",
@@ -63,9 +76,9 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
     },
     twitter: {
       card: 'summary_large_image',
-      title: post.title,
-      description: excerptText.substring(0, 200),
-      images: [post.coverImage?.url || '/house.jpg'],
+      title,
+      description,
+      images: [image],
     },
     robots: { index: true, follow: true },
   };

@@ -18,8 +18,11 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "Kercasa — Imóveis em Angola | Comprar, Vender e Arrendar Casas",
-    description: "Encontre casas, apartamentos e vivendas para comprar ou arrendar em Angola. Imóveis verificados em Luanda, Benguela, Talatona e mais.",
+    description: "Encontre casas, apartamentos e vivendas para comprar ou arrendar em Angola. Imóveis verificados em Luanda, Benguela, Huíla, Talatona e Kilamba.",
     alternates: { canonical: SITE_URL },
+    other: {
+      'X-Robots-Tag': 'index, follow',
+    },
     openGraph: {
       title: "Kercasa — Imóveis em Angola | Comprar, Vender e Arrendar Casas",
       description: "Encontre a casa dos seus sonhos em Angola. Milhares de imóveis verificados para comprar ou arrendar.",

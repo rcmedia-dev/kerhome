@@ -39,9 +39,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const url = `${siteUrl}/imobiliaria/${slug}`;
 
+  const rawDesc = imobiliaria.descricao || `Confira os imóveis da ${imobiliaria.nome} no Kercasa. ${imobiliaria.cidade ? `Agência em ${imobiliaria.cidade}.` : ''}`;
+  const description = rawDesc.length > 155
+    ? rawDesc.substring(0, 152).replace(/\s\S*$/, '') + '...'
+    : rawDesc;
+
   return {
     title: `${imobiliaria.nome} - Imóveis em ${imobiliaria.cidade || 'Angola'} | Kercasa`,
-    description: imobiliaria.descricao || `Confira os imóveis da ${imobiliaria.nome} no Kercasa. ${imobiliaria.cidade ? `Agência em ${imobiliaria.cidade}.` : ''}`,
+    description,
     alternates: { canonical: url },
     openGraph: {
       title: `${imobiliaria.nome} | Kercasa`,
@@ -54,6 +59,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     },
     twitter: { card: 'summary_large_image', title: `${imobiliaria.nome} | Kercasa`, description: imobiliaria.descricao?.substring(0, 200) || `Imóveis da ${imobiliaria.nome}` },
     robots: { index: true, follow: true },
+    other: {
+      'X-Robots-Tag': 'index, follow',
+    },
   };
 }
 

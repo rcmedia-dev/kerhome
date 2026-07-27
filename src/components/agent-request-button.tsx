@@ -133,7 +133,7 @@ export function AgentRequestButton({ userId, userName }: AgentRequestButtonProps
       if (result.decision === 'approved') {
         console.log(`IA aprovou agente ${userId} (score: ${result.score}%)`);
         await useUserStore.getState().updateUser({ role: 'agent' });
-        toast.success('Parabéns! O teu pedido para te tornares agente foi aprovado pela nossa IA! 🎉');
+        toast.success('Parabéns! O teu pedido para te tornares agente foi aprovado pela nossa IA!');
       } else if (result.decision === 'rejected') {
         console.log(`IA rejeitou agente ${userId}: ${result.reasons.join(', ')}`);
         
@@ -196,7 +196,7 @@ export function AgentRequestButton({ userId, userName }: AgentRequestButtonProps
           : isChecking
           ? "Verificando..."
           : isApproved
-          ? "Agente Aprovado ✅"
+          ? "Agente Aprovado"
           : hasPendingRequest
           ? "Aguardando Aprovação"
           : "Tornar-se Agente"}

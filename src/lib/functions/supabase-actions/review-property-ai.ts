@@ -137,7 +137,7 @@ async function applyPropertyDecision(supabase: any, propertyId: string, property
         await insertNotification({
           userId: property.owner_id,
           type: 'property_approved',
-          title: `Imóvel aprovado! 🎉`,
+          title: `Imóvel aprovado!`,
           message: `O teu imóvel "${property.title || ''}" foi analisado e aprovado automaticamente pela nossa IA e já está publicado!`,
           data: { property_id: propertyId, score: result.score },
         });

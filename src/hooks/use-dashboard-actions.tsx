@@ -153,7 +153,7 @@ export function useDashboardActions() {
             if (result.decision === 'approved') {
                 setAgentRequestStatus('approved');
                 await updateUser({ role: 'agent' });
-                toast.success('Parabéns! O teu pedido para te tornares agente foi aprovado automaticamente pela nossa IA! 🎉');
+                toast.success('Parabéns! O teu pedido para te tornares agente foi aprovado automaticamente pela nossa IA!');
                 console.log(`IA aprovou agente ${user.id} (score: ${result.score}%)`);
             } else if (result.decision === 'rejected') {
                 setAgentRequestStatus('rejected');

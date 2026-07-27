@@ -61,7 +61,7 @@ export async function fetchImobiliarias(params: ImobiliariaSearchParams = {}) {
   const { data, error, count } = await query;
 
   if (error) {
-    console.error("❌ Erro detalhado Supabase fetchImobiliarias:", error.message, "| Code:", error.code, "| Details:", error.details);
+    console.error("Erro detalhado Supabase fetchImobiliarias:", error.message, "| Code:", error.code, "| Details:", error.details);
     return { data: [], count: 0 };
   }
 

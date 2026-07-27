@@ -154,7 +154,7 @@ function DestacarContent() {
 
       toast.success(
         <div className="flex flex-col gap-1">
-          <span className="font-semibold">✅ Destaque ativado com sucesso!</span>
+          <span className="font-semibold">Destaque ativado com sucesso!</span>
           <span>{selectedProperties.length} imóvel(es) destacado(s)</span>
           <span>Plano: {selectedPacote.nome} - {selectedPacote.dias} dias</span>
           <span>Total: {total.toLocaleString('pt-AO')} Kz</span>

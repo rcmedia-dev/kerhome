@@ -27,7 +27,7 @@ export interface UserProfile {
 
 export async function getUserProfile(id?: string): Promise<UserProfile> {
   if (!id || typeof id !== 'string') {
-    console.error("❌ ID inválido:", id);
+    console.error("ID inválido:", id);
     throw new Error('ID do usuário inválido');
   }
 
@@ -61,19 +61,19 @@ export async function getUserProfile(id?: string): Promise<UserProfile> {
       .single();
 
     if (error) {
-      console.error('❌ Erro ao buscar perfil:', error);
+      console.error('Erro ao buscar perfil:', error);
       throw error;
     }
 
     if (!data) {
-      console.error('⚠️ Nenhum perfil encontrado para ID:', id);
+      console.error('Nenhum perfil encontrado para ID:', id);
       throw new Error('Perfil não encontrado');
     }
 
     return data as UserProfile;
 
   } catch (error) {
-    console.error('💥 Falha ao buscar perfil:', error);
+    console.error('Falha ao buscar perfil:', error);
     throw new Error(
       error instanceof Error 
         ? error.message 

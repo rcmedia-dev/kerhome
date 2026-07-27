@@ -53,13 +53,13 @@ export async function POST(req: Request) {
       agency: Array.isArray(rawData.agency) ? rawData.agency[0] : rawData.agency
     };
 
-    console.log("✅ Mensagem salva no Supabase:", message);
+    console.log("Mensagem salva no Supabase:", message);
 
     // Supabase Realtime broadcast is now handled on the client-side.
 
     return NextResponse.json({ success: true, message });
   } catch (error) {
-    console.error("❌ Erro ao processar mensagem:", error);
+    console.error("Erro ao processar mensagem:", error);
     return NextResponse.json({
       error: error instanceof Error ? error.message : "Erro desconhecido",
       details: "Falha ao processar mensagem (provavelmente Pusher/Realtime)"
@@ -113,7 +113,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ messages: formattedMessages });
   } catch (error) {
-    console.error("❌ Erro ao buscar mensagens:", error);
+    console.error("Erro ao buscar mensagens:", error);
     return NextResponse.json({ error: "Erro ao buscar mensagens" }, { status: 500 });
   }
 }

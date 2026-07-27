@@ -1,6 +1,6 @@
 'use client'
 
-import { Heart, Share2, Maximize2, ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
+import { Heart, Share2, Maximize2, ChevronLeft, ChevronRight, MessageCircle, Play } from "lucide-react";
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { FullscreenView } from "@/components/full-screen";
@@ -164,7 +164,7 @@ export function PropertyGallery({ property }: { property: any }) {
     <div className="absolute top-4 right-4 flex gap-2 z-10">
       {hasVideo || hasTour360 ? (
         <div className="px-3 py-1.5 rounded-full bg-purple-600/90 backdrop-blur-sm border border-purple-400/30 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg">
-          <span className="text-sm">▶</span>
+          <Play className="w-3.5 h-3.5 fill-current" />
           <span>{hasTour360 ? 'Tour 360°' : 'Vídeo'}</span>
         </div>
       ) : null}

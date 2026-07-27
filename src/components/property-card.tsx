@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { Pencil, Trash, Heart, Share2, Zap, AlertCircle, ShieldAlert } from 'lucide-react';
+import { Pencil, Trash, Heart, Share2, Zap, AlertCircle, ShieldAlert, Play } from 'lucide-react';
 import { toast } from 'sonner';
 import { toastErrorWithFeedback } from '@/lib/error-feedback';
 
@@ -181,7 +181,7 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
       )}
       {((property as any).video_url || (property as any).tour_url) && (
         <div className="px-2 py-1 rounded-badge bg-purple-600/90 text-white text-[10px] font-bold flex items-center gap-1 shadow-sm backdrop-blur-sm">
-          <span className="text-xs">▶</span>
+          <Play className="w-2.5 h-2.5 fill-current" />
           <span>{(property as any).tour_url ? 'Tour 360°' : 'Vídeo'}</span>
         </div>
       )}
