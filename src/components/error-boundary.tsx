@@ -1,8 +1,7 @@
 'use client';
 
 import React, { ReactNode, ReactElement } from 'react';
-import { AlertTriangle, Flag } from 'lucide-react';
-import { getErrorContext } from '@/lib/error-feedback';
+import { AlertTriangle } from 'lucide-react';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -28,17 +27,6 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     console.error('ErrorBoundary:', error);
   }
 
-  handleOpenFeedback = () => {
-    if (this.state.error) {
-      const errorContext = getErrorContext(this.state.error);
-      window.dispatchEvent(
-        new CustomEvent('kerhome:error-feedback:open', {
-          detail: { errorContext },
-        })
-      );
-    }
-  };
-
   render() {
     if (this.state.hasError && this.state.error) {
       if (this.props.fallback) {
@@ -46,7 +34,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
       }
 
       return (
-        <div className="min-h-[200px] bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4 rounded-2xl">
+        <div className="min-h-50 bg-linear-to from-red-50 to-orange-50 flex items-center justify-center p-4 rounded-2xl">
           <div className="max-w-sm w-full bg-white rounded-2xl shadow-xl p-6">
             <div className="flex justify-center mb-4">
               <div className="bg-red-100 p-3 rounded-full">
@@ -59,7 +47,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
             </h2>
 
             <p className="text-gray-600 text-center text-sm mb-4">
-              Encontrámos um erro. Podes recarregar a página ou reportar o problema.
+              Encontrámos um erro. Podes recarregar a página.
             </p>
 
             <details className="mb-4">
@@ -71,22 +59,12 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
               </pre>
             </details>
 
-            <div className="flex flex-col gap-2">
-              <button
-                onClick={() => window.location.reload()}
-                className="w-full bg-gradient-to-r from-purple-600 to-orange-600 hover:from-purple-700 hover:to-orange-700 text-white font-semibold py-2.5 rounded-lg transition-all text-sm"
-              >
-                Recarregar Página
-              </button>
-
-              <button
-                onClick={this.handleOpenFeedback}
-                className="w-full flex items-center justify-center gap-2 text-gray-600 hover:text-purple-700 font-medium py-2.5 rounded-lg transition-all border border-gray-200 hover:border-purple-300 text-sm"
-              >
-                <Flag className="h-4 w-4" />
-                Reportar Este Erro
-              </button>
-            </div>
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full bg-linear-to from-purple-600 to-orange-600 hover:from-purple-700 hover:to-orange-700 text-white font-semibold py-2.5 rounded-lg transition-all text-sm"
+            >
+              Recarregar Página
+            </button>
           </div>
         </div>
       );

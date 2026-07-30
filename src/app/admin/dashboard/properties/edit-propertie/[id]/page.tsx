@@ -7,7 +7,6 @@ import { ArrowLeft, Save, Plus, Trash, Loader2, MapPin, Home, DollarSign, Image,
 import { getPropertyById } from '@/lib/functions/get-properties';
 import { updateProperty, deleteGalleryImage } from '@/lib/functions/supabase-actions/update-propertie';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 
@@ -618,7 +617,7 @@ const MediaTab = ({ property }: { property?: any }) => {
       setGalleryPreview(newGallery);
       setValue('gallery', newGallery);
     } else {
-      toastErrorWithFeedback(result.message);
+      toast.error(result.message);
     }
   };
 
@@ -632,7 +631,7 @@ const MediaTab = ({ property }: { property?: any }) => {
           control={control}
           render={({ field }) => (
             <div className="flex flex-col md:flex-row gap-6 items-start">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 {coverPreview ? (
                   <div className="relative w-64 h-48 rounded-lg overflow-hidden border-2 border-blue-200">
                     <img 
@@ -929,12 +928,12 @@ export default function PropertyEditPage() {
             galleryFiles: []
           });
         } else {
-          toastErrorWithFeedback('Imóvel não encontrado');
+          toast.error('Imóvel não encontrado');
           router.push('/admin/dashboard');
         }
       } catch (error) {
         console.error('Erro ao carregar imóvel:', error);
-        toastErrorWithFeedback('Erro ao carregar dados do imóvel');
+        toast.error('Erro ao carregar dados do imóvel');
         router.push('/admin/dashboard');
       } finally {
         setIsLoading(false);
@@ -970,11 +969,11 @@ export default function PropertyEditPage() {
           router.push('/admin/dashboard');
         }, 2000);
       } else {
-        toastErrorWithFeedback(result.message || 'Erro ao atualizar imóvel');
+        toast.error(result.message || 'Erro ao atualizar imóvel');
       }
     } catch (error) {
       console.error('Failed to update property:', error);
-      toastErrorWithFeedback('Erro ao atualizar imóvel');
+      toast.error('Erro ao atualizar imóvel');
     } finally {
       setIsSubmitting(false);
     }
@@ -1002,7 +1001,7 @@ export default function PropertyEditPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col gap-8 lg:flex-row">
           {/* Navegação lateral */}
-          <div className="lg:w-80 flex-shrink-0">
+          <div className="lg:w-80 shrink-0">
             <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
           </div>
 

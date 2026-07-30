@@ -1,18 +1,8 @@
 'use client';
 
-import { AlertTriangle, Flag, ArrowLeft } from 'lucide-react';
-import { getErrorContext } from '@/lib/error-feedback';
+import { AlertTriangle, ArrowLeft } from 'lucide-react';
 
 export default function ErrorPage() {
-  const handleReport = () => {
-    const errorContext = getErrorContext(new Error('Página de erro'));
-    window.dispatchEvent(
-      new CustomEvent('kerhome:error-feedback:open', {
-        detail: { errorContext },
-      })
-    );
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
@@ -44,14 +34,6 @@ export default function ErrorPage() {
         >
           <ArrowLeft className="h-4 w-4" />
           Voltar ao Início
-        </button>
-
-        <button
-          onClick={handleReport}
-          className="w-full mt-3 flex items-center justify-center gap-2 text-gray-600 hover:text-purple-700 font-medium py-3 rounded-lg transition-all duration-300 border border-gray-200 hover:border-purple-300"
-        >
-          <Flag className="h-4 w-4" />
-          Reportar Este Erro
         </button>
       </div>
     </div>

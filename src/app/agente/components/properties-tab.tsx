@@ -9,7 +9,7 @@ export function PropertiesTab({ agentProperties, onOpenMessageBox }: PropertiesT
   return (
     <div className="space-y-6">
       {!agentProperties || agentProperties.length === 0 ? (
-        <Card className="p-12 text-center shadow-lg border-0 rounded-2xl bg-gradient-to-br from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm">
+        <Card className="p-12 text-center shadow-lg border-0 rounded-2xl bg-linear-to from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm">
           <Home className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 mb-2">Portfólio em Actualização</h3>
           <p className="text-gray-600 mb-6">
@@ -17,7 +17,7 @@ export function PropertiesTab({ agentProperties, onOpenMessageBox }: PropertiesT
           </p>
           <Button 
             onClick={onOpenMessageBox}
-            className="bg-gradient-to-r from-purple-600 to-orange-600 hover:from-purple-700 hover:to-orange-700 text-white"
+            className="bg-linear-to from-purple-600 to-orange-600 hover:from-purple-700 hover:to-orange-700 text-white"
           >
             <MessageCircle className="w-4 h-4 mr-2" />
             Saber Oportunidades
@@ -36,7 +36,7 @@ export function PropertiesTab({ agentProperties, onOpenMessageBox }: PropertiesT
 
 function PropertyCard({ property }: { property: AgentProperty }) {
   return (
-    <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-all duration-500 border-0 rounded-2xl bg-gradient-to-br from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm group">
+    <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-all duration-500 border-0 rounded-2xl bg-linear-to from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm group">
       <div className="rounded-md px-4 flex flex-col md:flex-row">
         <div className="md:w-2/5 relative h-64 md:h-auto">
           <Image 
@@ -45,11 +45,11 @@ function PropertyCard({ property }: { property: AgentProperty }) {
             fill
             className="object-cover rounded-md w-full h-full transition-transform duration-500 group-hover:scale-105" 
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to from-black/20 to-transparent" />
           <div className={`absolute top-4 left-4 text-xs font-bold py-2 px-3 rounded-full ${
             property.status === 'para comprar' 
-              ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white' 
-              : 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'
+              ? 'bg-linear-to from-blue-500 to-purple-500 text-white' 
+              : 'bg-linear-to from-green-500 to-emerald-500 text-white'
           }`}>
             {property.status}
           </div>

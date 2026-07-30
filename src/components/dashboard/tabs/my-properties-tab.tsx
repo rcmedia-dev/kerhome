@@ -3,7 +3,6 @@ import { AlertTriangle, CheckCircle2, ShieldAlert, TrendingUp, RefreshCw, Sparkl
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 
 import { PropertyCard } from '@/components/property-card';
 import { PendingPropertyCard } from '@/components/pending-property-card';
@@ -57,7 +56,7 @@ export function MinhasPropriedades({ userProperties }: MinePropertiesProps) {
         await queryClient.invalidateQueries({ queryKey: ['user-properties'] });
         toast.success('Lista de propriedades atualizada!');
       } catch (error) {
-        toastErrorWithFeedback('Erro ao atualizar a lista', error instanceof Error ? error : undefined);
+        toast.error('Erro ao atualizar a lista');
       }
     });
   }, [queryClient]);

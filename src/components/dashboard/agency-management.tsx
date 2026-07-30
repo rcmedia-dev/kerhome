@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { Building2, Phone, Globe, Mail, MapPin, Save, AlertTriangle, Loader2, Camera, Facebook, Instagram, Linkedin, Twitter, Users, Settings2, EyeOff, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { updateUserAgencyAction, getUserAgency } from '@/lib/functions/supabase-actions/imobiliaria-actions';
 import { uploadLogoAction } from '@/lib/functions/supabase-actions/admin-imobiliaria-actions';
 import { useQueryClient } from '@tanstack/react-query';
@@ -73,7 +72,7 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                 if (uploadRes.success) {
                     logoUrl = uploadRes.url;
                 } else {
-                    toastErrorWithFeedback('Erro ao enviar logo: ' + uploadRes.error);
+                    toast.error('Erro ao enviar logo: ' + uploadRes.error);
                     setIsSubmitting(false);
                     return;
                 }
@@ -92,11 +91,11 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                 }
                 queryClient.invalidateQueries({ queryKey: ['user-agency'] });
             } else {
-                toastErrorWithFeedback('Erro ao atualizar agência: ' + (result as any).error);
+                toast.error('Erro ao atualizar agência: ' + (result as any).error);
             }
         } catch (error) {
             console.error('Erro ao salvar agência:', error);
-            toastErrorWithFeedback('Ocorreu um erro inesperado.', error instanceof Error ? error : undefined);
+            toast.error('Ocorreu um erro inesperado.');
         } finally {
             setIsSubmitting(false);
         }
@@ -330,7 +329,7 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                                     <button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-button font-bold transition-all shadow-card shadow-purple-200 flex items-center gap-2 disabled:opacity-50"
+                                        className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-button font-bold transition-all shadow-purple-200 flex items-center gap-2 disabled:opacity-50"
                                     >
                                         {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                                         Salvar Alterações

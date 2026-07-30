@@ -3,7 +3,6 @@ import { AlertTriangle, CheckCircle2, Building2, RefreshCw } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 
 import { PropertyCard } from '@/components/property-card';
 import { PendingPropertyCard } from '@/components/pending-property-card';
@@ -47,7 +46,7 @@ export function AgencyProperties({ properties, agencyName }: AgencyPropertiesPro
         await queryClient.invalidateQueries({ queryKey: ['user-properties'] });
         toast.success('Lista da agência atualizada!');
       } catch (error) {
-        toastErrorWithFeedback('Erro ao atualizar', error instanceof Error ? error : undefined);
+        toast.error('Erro ao atualizar');
       }
     });
   }, [queryClient]);

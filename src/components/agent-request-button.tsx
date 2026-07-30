@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { User, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { useUserStore } from '@/lib/store/user-store';
 
 const supabase = createClient();
@@ -165,7 +164,7 @@ export function AgentRequestButton({ userId, userName }: AgentRequestButtonProps
 
     } catch (err: any) {
       console.error('Erro no processo:', err);
-      toastErrorWithFeedback(`Erro ao enviar solicitação: ${err.message || 'Tente novamente'}`, err instanceof Error ? err : undefined);
+      toast.error(`Erro ao enviar solicitação: ${err.message || 'Tente novamente'}`);
     } finally {
       setIsLoading(false);
     }
@@ -181,8 +180,8 @@ export function AgentRequestButton({ userId, userName }: AgentRequestButtonProps
         className={cn(
           "flex justify-center items-center px-4 sm:px-6 py-3 rounded-xl transition-all duration-200 text-sm md:text-base w-full md:w-auto font-medium relative",
           isLoading || isChecking || hasPendingRequest
-            ? "bg-gradient-to-r from-purple-400 to-orange-400 cursor-not-allowed shadow-sm text-white"
-            : "bg-gradient-to-r from-purple-600 to-orange-600 hover:shadow-md shadow-sm text-white hover:from-purple-700 hover:to-orange-700"
+            ? "bg-linear-to from-purple-400 to-orange-400 cursor-not-allowed shadow-sm text-white"
+            : "bg-linear-to from-purple-600 to-orange-600 hover:shadow-md shadow-sm text-white hover:from-purple-700 hover:to-orange-700"
         )}
       >
         <motion.div

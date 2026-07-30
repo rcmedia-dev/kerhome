@@ -11,7 +11,6 @@ import { MessageSystem } from '@/app/agente/components/message-system';
 import { MainContent } from '@/app/agente/components/main-content';
 import { Sidebar } from '@/app/agente/components/sidebar';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { createDirectConversation, sendMessage } from '@/lib/functions/message-action';
 import { useUserStore } from '@/lib/store/user-store';
 import { useTrackEvent } from '@/hooks/use-track-event';
@@ -85,7 +84,7 @@ export default function AgentProfilePage(
     if (isSending) return;
     if (!message.trim() || !profile || !user?.id) {
       console.log({message, profile, userId: user?.id});
-      toastErrorWithFeedback("Não foi possível enviar a mensagem.");
+      toast.error("Não foi possível enviar a mensagem.");
       return;
     }
 
@@ -121,7 +120,7 @@ export default function AgentProfilePage(
       const errorMessage = error instanceof Error 
         ? 'Erro ao enviar mensagem. Tente novamente.'
         : 'Erro desconhecido ao enviar mensagem';
-      toastErrorWithFeedback(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsSending(false);
     }
@@ -140,7 +139,7 @@ export default function AgentProfilePage(
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-purple-50/30 to-orange-50/30">
+    <div className="min-h-screen bg-linear-to from-white via-purple-50/30 to-orange-50/30">
       {/* Header Hero */}
       <HeroSection 
         profile={profile}

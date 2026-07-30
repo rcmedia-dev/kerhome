@@ -8,7 +8,6 @@ import { useUserStore } from "@/lib/store/user-store";
 import { toggleFavoritoProperty } from '@/lib/functions/toggle-favorite';
 import { getImoveisFavoritos } from '@/lib/functions/get-favorited-imoveis';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 
 export function PropertyGallery({ property }: { property: any }) {
   const [mainImage, setMainImage] = useState<string | null>(null);
@@ -96,7 +95,7 @@ export function PropertyGallery({ property }: { property: any }) {
       setFavorito(result.isFavorited);
     } catch (e) {
       setFavorito(previousState);
-      toastErrorWithFeedback('Erro ao atualizar favoritos', e instanceof Error ? e : undefined);
+      toast.error('Erro ao atualizar favoritos');
     } finally { if (mountedRef.current) setIsTogglingFav(false); }
   }, [user, favorito, property.id, isTogglingFav]);
 

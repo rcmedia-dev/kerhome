@@ -15,7 +15,7 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
     : "";
 
   return (
-    <div className="relative bg-gradient-to-br from-purple-900 via-purple-800 to-orange-700 text-white overflow-hidden">
+    <div className="relative bg-linear-to from-purple-900 via-purple-800 to-orange-700 text-white overflow-hidden">
       {/* Decorative elements */}
       <div 
         className="absolute inset-0 opacity-10"
@@ -36,7 +36,7 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
           >
             {hasProfile && profile.avatar_url ? (
               <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 to-orange-400 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition duration-300"></div>
+                <div className="absolute -inset-1 bg-linear-to from-purple-400 to-orange-400 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition duration-300"></div>
                 <Image
                   src={profile.avatar_url}
                   alt="agent profile picture"
@@ -45,14 +45,14 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
                   className="relative rounded-full object-cover border-4 border-white shadow-2xl"
                 />
 
-                <div className="absolute -bottom-3 -right-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full p-3 shadow-xl">
+                <div className="absolute -bottom-3 -right-3 bg-linear-to from-purple-500 to-pink-500 rounded-full p-3 shadow-xl">
                   <Award className="w-7 h-7 text-white" />
                 </div>
               </div>
             ) : (
               <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 to-orange-400 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition duration-300"></div>
-                <div className="relative w-[220px] h-[220px] flex items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-orange-500 text-white text-6xl font-bold border-4 border-white shadow-2xl">
+                <div className="absolute -inset-1 bg-linear-to from-purple-400 to-orange-400 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition duration-300"></div>
+                <div className="relative w-55 h-55 flex items-center justify-center rounded-full bg-linear-to from-purple-500 to-orange-500 text-white text-6xl font-bold border-4 border-white shadow-2xl">
                   {initials}
                 </div>
               </div>
@@ -96,7 +96,7 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
                 </div>
 
                 {/* NOME COMPLETO */}
-                <h1 className="text-5xl lg:text-6xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-purple-100">
+                <h1 className="text-5xl lg:text-6xl font-extrabold mb-4 bg-clip-text text-transparent bg-linear-to from-white to-purple-100">
                   {profile.primeiro_nome} {profile.ultimo_nome}
                 </h1>
 

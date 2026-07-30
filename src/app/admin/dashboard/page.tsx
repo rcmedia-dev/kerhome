@@ -19,6 +19,7 @@ import {
   Medal,
   Rocket,
   Store,
+  MessageSquare,
 } from 'lucide-react';
 import Link from 'next/link';
 import { RenderProperties } from '@/app/admin/components/properties-component';
@@ -34,6 +35,7 @@ import ImobiliariasManagement from '@/app/admin/components/imobiliarias-componen
 import { MessagesSection } from '@/app/admin/components/messages-section';
 import { SettingsSection } from '@/app/admin/components/settings-section';
 import { NotificationsPanel } from '@/components/dashboard/notifications-panel';
+import FeedbacksManagement from '@/app/admin/components/feedbacks-component';
 
 const supabase = createClient();
 
@@ -167,6 +169,7 @@ const agentUsers = useQuery({
     { id: 'subscriptions2', label: 'Subscrições de Agentes', icon: Medal, href: '#' },
     { id: 'subscriptions3', label: 'Propriedades Destacadas', icon: Rocket, href: '#' },
     { id: 'messages', label: 'Mensagens', icon: MessageCircle, href: '#' },
+    { id: 'feedbacks', label: 'Feedbacks', icon: MessageSquare, href: '#' },
     { id: 'settings', label: 'Configurações', icon: Settings, href: '#' }
   ];
 
@@ -187,6 +190,7 @@ const agentUsers = useQuery({
       case 'subscriptions2': return <AgentSubscriptionsPage />
       case 'subscriptions3': return <BoostManagement darkMode={darkMode} />
       case 'messages': return <MessagesSection darkMode={darkMode} />;
+      case 'feedbacks': return <FeedbacksManagement darkMode={darkMode} />;
       case 'settings': return <SettingsSection darkMode={darkMode} setDarkMode={setDarkMode} />;
       default: return <RenderDashboard darkMode={darkMode}/>;
     }

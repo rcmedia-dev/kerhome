@@ -186,7 +186,7 @@ export default function HeroCarousel({ property }: HeroCarouselProps) {
                   priority={i === 0}
                   unoptimized={true}
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/80" />
+                <div className="absolute inset-0 bg-linear-to from-black/70 via-black/40 to-black/80" />
               </motion.div>
 
               {/* Property Info (Center) - Só aparece APÓS a intro */}
@@ -253,7 +253,7 @@ export default function HeroCarousel({ property }: HeroCarouselProps) {
                 </span>
                 <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight tracking-tight drop-shadow-lg">
                   Encontre o Lar <br className="hidden md:block" />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-200">
+                  <span className="text-transparent bg-clip-text bg-linear-to from-orange-400 to-amber-200">
                     Dos Seus Sonhos
                   </span>
                 </h1>

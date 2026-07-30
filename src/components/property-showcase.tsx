@@ -152,7 +152,7 @@ const backgroundVariants: Variants = {
 
 export default function PropertiesShowcase({ property, inline }: PropertiesShowCaseProps) {
   // limitar a exibição para no máximo 8 imóveis (2 linhas de 4 colunas)
-  const limitedProperties = property.slice(0, 8);
+  const limitedProperties = (property || []).slice(0, 8);
 
   return (
     <motion.section 

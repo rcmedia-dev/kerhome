@@ -304,10 +304,10 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
   return (
     <ClientOnly>
       <FormProvider {...methods}>
-        <div className="max-w-[1400px] w-full mx-auto grid grid-cols-1 lg:grid-cols-5 gap-6 min-h-[500px]">
+        <div className="max-w-350 w-full mx-auto grid grid-cols-1 lg:grid-cols-5 gap-6 min-h-125">
 
         {/* LADO ESQUERDO: FORMULÁRIO (60% => col-span-3) */}
-        <div className="lg:col-span-3 flex flex-col bg-white rounded-3xl shadow-2xl border border-gray-100 relative h-auto lg:h-[85dvh] min-h-[500px] overflow-hidden">
+        <div className="lg:col-span-3 flex flex-col bg-white rounded-3xl shadow-2xl border border-gray-100 relative h-auto lg:h-[85dvh] min-h-125 overflow-hidden">
           
           {/* HEADER - muda conforme o modo */}
           <div className="p-6 lg:p-8 border-b border-gray-100 bg-gray-50/80 shrink-0">
@@ -350,7 +350,7 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
                   <motion.div 
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mt-5 p-1 bg-gray-100/50 backdrop-blur-sm rounded-[2rem] border border-gray-200/50 shadow-inner"
+                    className="mt-5 p-1 bg-gray-100/50 backdrop-blur-sm rounded-4xl border border-gray-200/50 shadow-inner"
                   >
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <button
@@ -481,7 +481,7 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
                                 {isCompleted && (
                                   <div className="flex flex-wrap gap-2 mt-2">
                                     {index === 0 && formValues.title && (
-                                      <span className="text-[10px] bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full font-medium border border-purple-100 italic line-clamp-1 max-w-[150px]">
+                                      <span className="text-[10px] bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full font-medium border border-purple-100 italic line-clamp-1 max-w-37.5">
                                         {formValues.title}
                                       </span>
                                     )}
@@ -531,7 +531,7 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full px-6 py-5 rounded-2xl bg-gradient-to-r from-purple-600 via-purple-700 to-orange-500 bg-[length:200%_auto] hover:bg-right transition-all duration-700 text-white font-bold shadow-xl shadow-purple-500/20 hover:shadow-orange-500/30 hover:-translate-y-1 flex items-center justify-center gap-2 text-lg active:scale-95"
+                        className="w-full px-6 py-5 rounded-2xl bg-linear-to-r from-purple-600 via-purple-700 to-orange-500 bg-size-[200%_auto] hover:bg-right transition-all duration-700 text-white font-bold shadow-xl shadow-purple-500/20 hover:shadow-orange-500/30 hover:-translate-y-1 flex items-center justify-center gap-2 text-lg active:scale-95"
                       >
                         {isSubmitting ? (
                           <>
@@ -560,9 +560,9 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-200 blur-3xl opacity-20 rounded-full -translate-x-1/2 translate-y-1/2 pointer-events-none"></div>
 
           {/* Componente Fake PropertyCard Desktop */}
-          <div className="w-full max-w-[420px] relative z-10 rounded-3xl">
+          <div className="w-full max-w-105 relative z-10 rounded-3xl">
             {/* Badge de Preview estilo "À Venda" */}
-            <div className="absolute top-4 right-4 z-50 bg-gradient-to-r from-purple-600 to-indigo-500 px-4 py-1.5 rounded-[2rem] text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-purple-500/30 border border-white/20 backdrop-blur-sm">
+            <div className="absolute top-4 right-4 z-50 bg-linear-to-r from-purple-600 to-indigo-500 px-4 py-1.5 rounded-4xl text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-purple-500/30 border border-white/20 backdrop-blur-sm">
               Preview do Imóvel
             </div>
             <PropertyCard property={livePreviewProperty} canBoost={false} isClickable={false} />
@@ -576,7 +576,7 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 z-[100] flex items-center justify-center bg-white/95 backdrop-blur-md p-6"
+              className="absolute inset-0 z-100 flex items-center justify-center bg-white/95 backdrop-blur-md p-6"
             >
               <motion.div
                 initial={{ scale: 0.8, opacity: 0, y: 20 }}

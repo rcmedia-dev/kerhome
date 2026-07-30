@@ -3,7 +3,6 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 
 // Store & Actions
 import { useUserStore } from '@/lib/store/user-store';
@@ -70,15 +69,15 @@ function DestacarContent() {
         if (specificProperty) {
           const userOwnsProperty = userProperties.some(p => p.id === propertyId);
           if (!userOwnsProperty) {
-            toastErrorWithFeedback('Este imóvel não pertence ao seu usuário');
+            toast.error('Este imóvel não pertence ao seu usuário');
           }
         } else {
-          toastErrorWithFeedback('Imóvel não encontrado ou não está aprovado');
+          toast.error('Imóvel não encontrado ou não está aprovado');
         }
       }
     } catch (error) {
       console.error('Erro ao carregar imóveis:', error);
-      toastErrorWithFeedback('Erro ao carregar seus imóveis');
+      toast.error('Erro ao carregar seus imóveis');
     }
   };
 
@@ -94,7 +93,7 @@ function DestacarContent() {
       }
     } catch (error) {
       console.error('Erro ao carregar pacotes:', error);
-      toastErrorWithFeedback('Erro ao carregar pacotes de destaque');
+      toast.error('Erro ao carregar pacotes de destaque');
       setPacotes(getDefaultPacotes());
     } finally {
       setLoading(false);
@@ -141,7 +140,7 @@ function DestacarContent() {
       const planoValido = pacotes.some(pacote => pacote.id === selectedPacote.id);
 
       if (!planoValido) {
-        toastErrorWithFeedback('Plano selecionado não é válido');
+        toast.error('Plano selecionado não é válido');
         return;
       }
 
@@ -171,7 +170,7 @@ function DestacarContent() {
 
     } catch (error) {
       console.error('Erro ao processar destaque:', error);
-      toastErrorWithFeedback('Erro ao ativar destaque. Tente novamente.');
+      toast.error('Erro ao ativar destaque. Tente novamente.');
     } finally {
       setProcessing(false);
     }
@@ -181,14 +180,14 @@ function DestacarContent() {
   const specificProperty = propertyId ? properties.find(p => p.id === propertyId) : null;
 
   if (loading) return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 flex items-center justify-center">
+    <div className="min-h-screen bg-linear-to from-gray-50 to-purple-50 flex items-center justify-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700"></div>
     </div>
   );
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 py-6">
+      <div className="min-h-screen bg-linear-to from-gray-50 to-purple-50 py-6">
         <div className="container mx-auto px-4 max-w-7xl">
           {/* Header */}
           <PageHeader specificProperty={specificProperty ?? null} />
@@ -259,7 +258,7 @@ function DestacarContent() {
 export default function CompactPacotesDestaquePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to from-gray-50 to-purple-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700"></div>
       </div>
     }>

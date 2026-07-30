@@ -3,7 +3,6 @@ import { Fatura } from '@/lib/types/property';
 import { useUserStore } from '@/lib/store/user-store';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 
 export function useInvoiceManagement(initialInvoices: Fatura[] | null) {
   const { user } = useUserStore();
@@ -31,7 +30,7 @@ export function useInvoiceManagement(initialInvoices: Fatura[] | null) {
       setLocalInvoices(prev => prev?.filter(fatura => fatura.id !== faturaId) || null);
       toast.success('Fatura eliminada com sucesso');
     } catch (error) {
-      toastErrorWithFeedback(error instanceof Error ? error.message : 'Erro ao eliminar fatura', error instanceof Error ? error : undefined);
+      toast.error(error instanceof Error ? error.message : 'Erro ao eliminar fatura');
     } finally {
       setIsDeleting(null);
     }
@@ -52,7 +51,7 @@ export function useInvoiceManagement(initialInvoices: Fatura[] | null) {
       setLocalInvoices([]);
       toast.success(`Todas as faturas foram eliminadas`);
     } catch (error) {
-      toastErrorWithFeedback(error instanceof Error ? error.message : 'Erro ao eliminar faturas', error instanceof Error ? error : undefined);
+      toast.error(error instanceof Error ? error.message : 'Erro ao eliminar faturas');
     } finally {
       setIsDeletingAll(false);
     }

@@ -266,10 +266,10 @@ export async function getLimitedProperties(limit: number): Promise<TPropertyResp
       .order('created_at', { ascending: false })
       .limit(limit);
 
-    return properties.data as TPropertyResponseSchema[];
+    return (properties.data || []) as TPropertyResponseSchema[];
   } catch (e) {
     console.error(`Erro na propriedade:`, e);
-    throw e;
+    return [];
   }
 }
 

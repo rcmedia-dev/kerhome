@@ -18,7 +18,6 @@ import {
   Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { createClient } from '@/lib/supabase/client';
 import { useUserStore } from '@/lib/store/user-store';
 
@@ -160,7 +159,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       setBoostedProperties(formattedProperties);
     } catch (error) {
       console.error("Failed to fetch boosted properties:", error);
-      toastErrorWithFeedback('Erro ao carregar imóveis impulsionados');
+      toast.error('Erro ao carregar imóveis impulsionados');
     } finally {
       setLoading(false);
     }
@@ -186,7 +185,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       await fetchBoostedProperties();
     } catch (error) {
       console.error('Erro ao suspender imóvel:', error);
-      toastErrorWithFeedback('Erro ao suspender imóvel');
+      toast.error('Erro ao suspender imóvel');
     } finally {
       setDeboostingId(null);
     }
@@ -217,7 +216,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       await fetchBoostedProperties();
     } catch (error) {
       console.error('Erro ao reativar impulso:', error);
-      toastErrorWithFeedback('Erro ao reativar impulso');
+      toast.error('Erro ao reativar impulso');
     } finally {
       setReactivatingId(null);
     }
@@ -240,7 +239,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       await fetchBoostedProperties();
     } catch (error) {
       console.error('Erro ao aprovar boost:', error);
-      toastErrorWithFeedback('Erro ao aprovar boost');
+      toast.error('Erro ao aprovar boost');
     } finally {
       setApprovingId(null);
     }
@@ -263,7 +262,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       await fetchBoostedProperties();
     } catch (error) {
       console.error('Erro ao suspender boost:', error);
-      toastErrorWithFeedback('Erro ao suspender boost');
+      toast.error('Erro ao suspender boost');
     } finally {
       setRejectingId(null);
     }
@@ -323,7 +322,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       await fetchBoostedProperties();
     } catch (error) {
       console.error('Erro ao renovar impulso:', error);
-      toastErrorWithFeedback('Erro ao renovar impulso');
+      toast.error('Erro ao renovar impulso');
     } finally {
       setRenewingId(null);
     }
@@ -346,7 +345,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       await fetchBoostedProperties();
     } catch (error) {
       console.error('Erro ao remover impulso:', error);
-      toastErrorWithFeedback('Erro ao remover impulso');
+      toast.error('Erro ao remover impulso');
     } finally {
       setRemovingId(null);
     }
@@ -383,7 +382,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
       await fetchBoostedProperties();
     } catch (error) {
       console.error('Erro ao eliminar imóvel:', error);
-      toastErrorWithFeedback('Erro ao eliminar imóvel');
+      toast.error('Erro ao eliminar imóvel');
     } finally {
       setDeletingPropertyId(null);
     }
@@ -529,7 +528,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/20 p-6">
+      <div className="min-h-screen bg-linear-to from-slate-50 via-blue-50/20 to-purple-50/20 p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex justify-between items-center">
             <div className="h-8 w-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
@@ -567,7 +566,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/20 p-6">
+    <div className="min-h-screen bg-linear-to from-slate-50 via-blue-50/20 to-purple-50/20 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -783,7 +782,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
                     </h3>
 
                     <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                      <MapPin className="w-4 h-4 flex-shrink-0" />
+                      <MapPin className="w-4 h-4 shrink-0" />
                       <span className="line-clamp-1">{property.location}</span>
                     </div>
 

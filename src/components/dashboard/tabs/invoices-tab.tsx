@@ -2,7 +2,6 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { DollarSign, Download, AlertTriangle, Calendar, CheckCircle2, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
@@ -79,7 +78,7 @@ export function Faturas({ invoices }: FaturasProps) {
 
       toast.success('Faturas exportadas com sucesso');
     } catch (error) {
-      toastErrorWithFeedback('Erro ao exportar faturas', error instanceof Error ? error : undefined);
+      toast.error('Erro ao exportar faturas');
     }
   }, [localInvoices]);
 
@@ -215,7 +214,7 @@ export function Faturas({ invoices }: FaturasProps) {
                     setFaturaToDelete(null);
                   }
                 }}
-                className="px-6 py-2 text-sm bg-red-600 text-white rounded-button hover:bg-red-700 transition-all font-semibold shadow-card shadow-red-600/20"
+                className="px-6 py-2 text-sm bg-red-600 text-white rounded-button hover:bg-red-700 transition-all font-semibold shadow-red-600/20"
               >
                 Eliminar
               </button>

@@ -6,7 +6,6 @@ import { MessageCircle, Phone, ArrowRight, Calendar } from 'lucide-react';
 import { useChatStore } from '@/lib/store/chat-store';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { VisitScheduler } from './visit-scheduler';
 
 interface AgentCardProps {
@@ -123,11 +122,11 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
                 }
 
             } else {
-                toastErrorWithFeedback('Erro ao iniciar conversa.');
+                toast.error('Erro ao iniciar conversa.');
             }
         } catch (error) {
             console.error('Error starting chat:', error);
-            toastErrorWithFeedback('Erro ao conectar.', error instanceof Error ? error : undefined);
+            toast.error('Erro ao conectar.');
         } finally {
             setLoading(false);
         }
@@ -168,7 +167,7 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
                 <button
                     onClick={handleStartChat}
                     disabled={loading}
-                    className="w-full h-12 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-xl text-sm md:text-base font-bold shadow-md transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed group px-4"
+                    className="w-full h-12 flex items-center justify-center gap-2 bg-linear-to from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-xl text-sm md:text-base font-bold shadow-md transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed group px-4"
                 >
                     <MessageCircle size={18} className="group-hover:animate-pulse shrink-0" />
                     <span>

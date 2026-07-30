@@ -2,7 +2,7 @@ export const revalidate = 0;
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from 'next';
-import HeroCarousel from '@/components/hero';
+import HeroCarouselWrapper from '@/components/hero-carousel-wrapper';
 import PropertiesShowcase from '@/components/property-showcase';
 import ActionCardsSection from '@/components/actions-card';
 import TopAgentsSection, { Agent } from '@/components/top-agents';
@@ -57,7 +57,7 @@ export default async function HomePage() {
   return (
     <>
       <SplashScreenClient />
-      <HeroCarousel property={featuredProperties} />
+      <HeroCarouselWrapper property={featuredProperties} />
       <ActionCardsSection />
       <TopAgentsSection agents={agents}/>
       <PropertiesShowcase property={recentProperties}/>

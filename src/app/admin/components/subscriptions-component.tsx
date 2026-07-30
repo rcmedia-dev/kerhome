@@ -173,7 +173,7 @@ export default function SubscricoesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/20 p-6">
+    <div className="min-h-screen bg-linear-to from-slate-50 via-blue-50/20 to-purple-50/20 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -242,7 +242,7 @@ export default function SubscricoesPage() {
                     className={`bg-white rounded-2xl shadow-lg border ${plan.border} overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}
                   >
                     {/* Header with gradient */}
-                    <div className={`bg-gradient-to-r ${plan.gradient} p-6 relative`}>
+                    <div className={`bg-linear-to ${plan.gradient} p-6 relative`}>
                       <div className="absolute top-4 right-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${plan.badgeBg}`}>
                           {plan.badge}
@@ -302,7 +302,7 @@ export default function SubscricoesPage() {
                         <div className="space-y-2">
                           {plan.benefits.slice(0, 3).map((benefit, index) => (
                             <div key={index} className="flex items-center gap-2 text-sm text-gray-700">
-                              <Check size={14} className="text-green-500 flex-shrink-0" />
+                              <Check size={14} className="text-green-500 shrink-0" />
                               <span>{benefit}</span>
                             </div>
                           ))}
@@ -333,7 +333,7 @@ export default function SubscricoesPage() {
                             <button 
                               onClick={() => handleReject(user.id)}
                               disabled={processing === user.id}
-                              className="px-4 py-2 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-xl font-medium text-sm hover:from-gray-200 hover:to-gray-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="px-4 py-2 bg-linear-to from-gray-100 to-gray-200 text-gray-700 rounded-xl font-medium text-sm hover:from-gray-200 hover:to-gray-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               {processing === user.id ? (
                                 <Loader2 size={16} className="animate-spin" />

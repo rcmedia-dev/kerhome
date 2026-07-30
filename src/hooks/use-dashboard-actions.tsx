@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { useUserStore } from '@/lib/store/user-store';
 import { X } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -49,7 +48,7 @@ export function useDashboardActions() {
             toast.success('Foto de perfil atualizada!');
         } catch (error) {
             console.error('Erro ao atualizar avatar:', error);
-            toastErrorWithFeedback('Erro ao atualizar a foto.', error instanceof Error ? error : undefined);
+            toast.error('Erro ao atualizar a foto.');
         } finally {
             setIsUploading(false);
         }
@@ -187,7 +186,7 @@ export function useDashboardActions() {
 
         } catch (error) {
             console.error('Erro ao solicitar:', error);
-            toastErrorWithFeedback('Erro ao enviar solicitação.', error instanceof Error ? error : undefined);
+            toast.error('Erro ao enviar solicitação.');
         } finally {
             setIsRequestingAgent(false);
         }

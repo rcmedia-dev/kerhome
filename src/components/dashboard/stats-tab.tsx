@@ -8,17 +8,8 @@ import {
   Share2,
   Phone,
   Eye,
-  Building2,
-  Users,
-  Calendar,
   Zap,
-  ArrowRight,
-  Plus,
-  ArrowUpRight,
-  ArrowDownRight,
-  MoreHorizontal,
   PieChart as PieChartIcon,
-  Search,
   Trophy,
   Activity,
   Target,
@@ -27,7 +18,6 @@ import {
   Clock,
   Rocket,
   LayoutDashboard,
-  Settings2
 } from 'lucide-react';
 import { PropertyCard } from '@/components/property-card';
 import { TMyPropertiesWithViews } from '@/lib/functions/supabase-actions/property-views-actions';
@@ -43,7 +33,6 @@ import { type EventStatsResult } from '@/lib/functions/supabase-actions/track-ev
 import { ErrorBoundary } from './shared-ui';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { PerformanceTipsModal } from './performance-tips-modal';
 import { AiPerformanceSummary } from './ai-performance-summary';
 
@@ -93,7 +82,7 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
         setBoostedProperties(boostedData);
       } catch (error) {
         console.error('Erro ao buscar estatísticas:', error);
-        toastErrorWithFeedback('Erro ao atualizar métricas.', error instanceof Error ? error : undefined);
+        toast.error('Erro ao atualizar métricas.');
       }
     });
   }, [ownerId, period]);
@@ -210,7 +199,7 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
         </div>
 
         {/* Conteúdo das Tabs */}
-        <div className="min-h-[500px]">
+        <div className="min-h-500">
           <AnimatePresence mode="wait">
             
             {/* TAB: PERFORMANCE */}
@@ -316,7 +305,7 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
                     <Rocket className="w-16 h-16 text-gray-100 mx-auto mb-4" />
                     <h3 className="text-lg font-bold text-gray-900 mb-2">Sem imóveis impulsionados</h3>
                     <p className="text-gray-500 text-xs max-w-sm mx-auto mb-8">Destaque os seus anúncios para aparecerem no topo das pesquisas.</p>
-                    <button className="px-8 py-3 bg-purple-600 text-white rounded-button font-bold text-xs shadow-card shadow-purple-200 hover:bg-purple-700 transition-all">
+                    <button className="px-8 py-3 bg-purple-600 text-white rounded-button font-bold text-xs shadow-purple-200 hover:bg-purple-700 transition-all">
                        Impulsionar Agora
                     </button>
                   </div>
@@ -370,7 +359,7 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
         </div>
 
         {/* Insight Card */}
-        <div className="bg-purple-600 rounded-card p-4 sm:p-6 text-white flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 overflow-hidden relative shadow-card shadow-purple-900/10">
+        <div className="bg-purple-600 rounded-card p-4 sm:p-6 text-white flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 overflow-hidden relative shadow-purple-900/10">
            <div className="absolute top-0 right-0 -translate-y-4 translate-x-4 opacity-10">
               <Zap className="w-24 h-24 sm:w-32 sm:h-32" />
            </div>

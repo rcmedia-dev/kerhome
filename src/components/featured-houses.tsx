@@ -53,7 +53,7 @@ export default function FeaturedCarousel({ property }: FeaturedCarouselProps) {
   }, [scrollNext]);
 
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
+    <section className="py-20 bg-linear-to from-gray-50 to-white relative overflow-hidden">
       {/* Elementos decorativos de fundo */}
       <div className="absolute top-10 right-10 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
       <div className="absolute bottom-10 left-10 w-96 h-96 bg-green-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000"></div>
@@ -65,7 +65,7 @@ export default function FeaturedCarousel({ property }: FeaturedCarouselProps) {
             <Star className="w-4 h-4 text-orange-500 fill-current" />
             <span className="text-sm font-medium text-gray-700">Destaques exclusivos</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold bg-linear-to from-gray-800 to-gray-600 bg-clip-text text-transparent mb-4">
             Imóveis <span className="text-orange-500">Selecionados</span>
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -122,12 +122,12 @@ export default function FeaturedCarousel({ property }: FeaturedCarouselProps) {
               return (
                 <div
                   key={index}
-                  className={`embla__slide flex-shrink-0 w-[85%] md:w-[45%] lg:w-[30%] transition-all duration-500 ${
+                  className={`embla__slide shrink-0 w-[85%] md:w-[45%] lg:w-[30%] transition-all duration-500 ${
                     isFeatured ? 'transform scale-105' : 'transform scale-95 opacity-80'
                   }`}
                 >
                   <Link href={linkHref}>
-                    <div className="group relative h-[450px] rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500">
+                    <div className="group relative h-112.5 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500">
                       {/* Imagem com overlay gradiente */}
                       <Image
                         src={property.gallery?.[0] || property.image || '/house.jpg'}  
@@ -138,7 +138,7 @@ export default function FeaturedCarousel({ property }: FeaturedCarouselProps) {
                       />
                       
                       {/* Overlay gradiente moderno */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      <div className="absolute inset-0 bg-linear-to from-black/80 via-black/20 to-transparent" />
                       
                       {/* Badge de status */}
                       <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm ${
@@ -158,7 +158,7 @@ export default function FeaturedCarousel({ property }: FeaturedCarouselProps) {
                       <div className="absolute bottom-0 w-full p-6 text-white">
                         {/* Preço em destaque */}
                         <div className="flex items-center justify-between mb-3">
-                          <span className="text-2xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
+                          <span className="text-2xl font-bold bg-linear-to from-white to-gray-200 bg-clip-text text-transparent">
                             {property.price?.toLocaleString('pt-AO')} Kz
                           </span>
                         </div>
@@ -195,7 +195,7 @@ export default function FeaturedCarousel({ property }: FeaturedCarouselProps) {
                       </div>
 
                       {/* Efeito de brilho no hover */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-indigo-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
+                      <div className="absolute inset-0 bg-linear-to from-purple-500/20 to-indigo-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
                     </div>
                   </Link>
                 </div>
@@ -208,7 +208,7 @@ export default function FeaturedCarousel({ property }: FeaturedCarouselProps) {
         <div className="text-center mt-8">
           <Link 
             href={`/comprar`}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-300 hover:gap-3"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-linear-to from-orange-500 to-orange-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-300 hover:gap-3"
           >
             Ver todos os imóveis
             <MoveRight className="w-4 h-4" />

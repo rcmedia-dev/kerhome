@@ -5,7 +5,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Building2, CheckCircle2, XCircle, Trash2, ShieldCheck, ShieldAlert, Loader2, Plus, X } from 'lucide-react';
 import { getImobiliariasWithOwnersAction } from '@/lib/functions/supabase-actions/admin-imobiliaria-actions';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { useState } from 'react';
 import { 
   createImobiliariaAction, 
@@ -83,7 +82,7 @@ export default function ImobiliariasManagement({ darkMode }: Props) {
     },
     onError: (err: any) => {
       if (err.message === 'Action cancelled') return;
-      toastErrorWithFeedback('Erro ao atualizar verificação: ' + err.message);
+      toast.error('Erro ao atualizar verificação: ' + err.message);
     }
   });
 
@@ -98,7 +97,7 @@ export default function ImobiliariasManagement({ darkMode }: Props) {
       toast.success('Status da imobiliária atualizado com sucesso.');
     },
     onError: (err: any) => {
-      toastErrorWithFeedback('Erro ao atualizar status: ' + err.message);
+      toast.error('Erro ao atualizar status: ' + err.message);
     }
   });
 
@@ -113,7 +112,7 @@ export default function ImobiliariasManagement({ darkMode }: Props) {
       toast.success('Imobiliária eliminada com sucesso.');
     },
     onError: () => {
-      toastErrorWithFeedback('Ocorreu um erro ao excluir a imobiliária.');
+      toast.error('Ocorreu um erro ao excluir a imobiliária.');
     }
   });
 
@@ -143,7 +142,7 @@ export default function ImobiliariasManagement({ darkMode }: Props) {
     },
     onError: (err: any) => {
       setUploadingLogo(false);
-      toastErrorWithFeedback('Erro ao criar imobiliária: ' + err.message);
+      toast.error('Erro ao criar imobiliária: ' + err.message);
     }
   });
 
@@ -174,7 +173,7 @@ export default function ImobiliariasManagement({ darkMode }: Props) {
     },
     onError: (err: any) => {
       setUploadingLogo(false);
-      toastErrorWithFeedback('Erro ao atualizar imobiliária: ' + err.message);
+      toast.error('Erro ao atualizar imobiliária: ' + err.message);
     }
   });
 
@@ -292,7 +291,7 @@ export default function ImobiliariasManagement({ darkMode }: Props) {
               }
             }}
             disabled={createImobiliaria.isPending || uploadingLogo || updateImobiliaria.isPending}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold transition-colors disabled:opacity-50 flex items-center justify-center min-w-[180px]"
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold transition-colors disabled:opacity-50 flex items-center justify-center min-w-45"
           >
             {(createImobiliaria.isPending || updateImobiliaria.isPending || uploadingLogo) ? (
               <Loader2 className="w-5 h-5 animate-spin" />

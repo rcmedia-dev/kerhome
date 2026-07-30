@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { fetchNotifications, fetchUnreadCount, markNotificationRead, markAllNotificationsRead, deleteNotification, deleteAllNotifications, type Notification } from '@/lib/functions/supabase-actions/notifications-actions';
 import { acceptAgencyInvite, rejectAgencyInvite } from '@/lib/functions/supabase-actions/agency-invites';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { Trash2 } from 'lucide-react';
 import { useUserStore } from '@/lib/store/user-store';
 
@@ -172,10 +171,10 @@ export function NotificationsPanel({ userId }: { userId: string }) {
         setUnreadCount(prev => Math.max(0, prev - 1));
         setTimeout(() => window.location.reload(), 1500);
       } else {
-        toastErrorWithFeedback(result.error || 'Erro ao aceitar convite.');
+        toast.error(result.error || 'Erro ao aceitar convite.');
       }
     } catch (err) {
-      toastErrorWithFeedback('Erro inesperado ao aceitar convite.', err instanceof Error ? err : undefined);
+      toast.error('Erro inesperado ao aceitar convite.');
     } finally {
       setProcessingInvites(prev => {
         const next = new Set(prev);
@@ -198,10 +197,10 @@ export function NotificationsPanel({ userId }: { userId: string }) {
         setNotifications(prev => prev.filter(n => n.id !== notif.id));
         setUnreadCount(prev => Math.max(0, prev - 1));
       } else {
-        toastErrorWithFeedback(result.error || 'Erro ao recusar convite.');
+        toast.error(result.error || 'Erro ao recusar convite.');
       }
     } catch (err) {
-      toastErrorWithFeedback('Erro inesperado ao recusar convite.', err instanceof Error ? err : undefined);
+      toast.error('Erro inesperado ao recusar convite.');
     } finally {
       setProcessingInvites(prev => {
         const next = new Set(prev);
@@ -277,7 +276,7 @@ export function NotificationsPanel({ userId }: { userId: string }) {
             </div>
 
             {/* List */}
-            <div className="overflow-y-auto flex-1">
+            <div className="flex-1">
               {loading ? (
                 <div className="p-6 text-center text-gray-400 text-sm">A carregar...</div>
               ) : notifications.length === 0 ? (

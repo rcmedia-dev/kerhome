@@ -6,7 +6,6 @@ import { MessageCircle, Phone, Calendar, X, MessageSquare } from 'lucide-react';
 import { useChatStore } from '@/lib/store/chat-store';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { VisitScheduler } from './visit-scheduler';
 import { TPropertyResponseSchema } from '@/lib/types/property';
 import { useUserStore } from '@/lib/store/user-store';
@@ -79,7 +78,7 @@ export function MobileContactFAB({ property, ownerDetails }: MobileContactFABPro
       }
     } catch (error) {
       console.error('Error starting chat:', error);
-      toastErrorWithFeedback('Erro ao conectar.', error instanceof Error ? error : undefined);
+      toast.error('Erro ao conectar.');
     } finally {
       setLoading(false);
     }
@@ -122,7 +121,7 @@ export function MobileContactFAB({ property, ownerDetails }: MobileContactFABPro
   ];
 
   return (
-    <div className="md:hidden fixed bottom-32 right-4 z-[9999] flex flex-col items-end">
+    <div className="md:hidden fixed bottom-32 right-4 z-9999 flex flex-col items-end">
       <AnimatePresence>
         {isOpen && (
           <>

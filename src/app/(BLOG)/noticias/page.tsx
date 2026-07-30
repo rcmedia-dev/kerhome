@@ -202,7 +202,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             </div>
 
             {/* Title: sanitized to remove &nbsp; so CSS word-break works correctly */}
-            <div className="min-h-[52px] h-[52px] overflow-hidden w-full">
+            <div className="min-h-13 h-13 overflow-hidden w-full">
               <h3
                 className="text-base font-bold text-gray-900 leading-tight group-hover:text-purple-700 transition-colors"
                 style={{
@@ -260,7 +260,7 @@ const FeaturedPost: React.FC<FeaturedPostProps> = ({ post }) => {
         <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 to-transparent"></div>
       </div>
 
-      <div className="relative p-6 sm:p-8 md:p-16 flex flex-col justify-end h-full min-h-[320px] sm:min-h-[420px] md:min-h-[500px]">
+      <div className="relative p-6 sm:p-8 md:p-16 flex flex-col justify-end h-full min-h-80 sm:min-h md:min-h">
         <div className="max-w-3xl">
           <span className="inline-block bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-md mb-6 uppercase tracking-wider">
             Destaque da Semana

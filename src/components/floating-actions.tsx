@@ -1,15 +1,57 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircleMore, MessageSquareText, X, Bot } from 'lucide-react';
+import { MessageCircleMore, MessageSquareText, X, Bot, MessageSquare } from 'lucide-react';
 import { VirtualAssistant } from './virtual-assistant';
 import { useChatStore } from '@/lib/store/chat-store';
+import { FeedbackDialog } from './feedback-dialog';
+
+const FEEDBACK_INTERVAL = 30 * 60 * 1000 // 30 minutes
+
+function getFeedbackTimer(): number {
+  if (typeof window === 'undefined') return 0
+  return Number(localStorage.getItem('feedback_last_shown') || '0')
+}
+
+function setFeedbackTimer() {
+  localStorage.setItem('feedback_last_shown', String(Date.now()))
+}
 
 export default function FloatingActions() {
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isAssistantOpen, setAssistantOpen] = useState(false);
+  const [isFeedbackOpen, setFeedbackOpen] = useState(false);
   const { toggleChat, totalUnreadCount, isDashboardMessages } = useChatStore();
+  const feedbackTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Auto-open feedback on first visit + every 30 min
+  useEffect(() => {
+    if (isDashboardMessages) return
+
+    const lastShown = getFeedbackTimer()
+    const now = Date.now()
+
+    if (!lastShown || now - lastShown >= FEEDBACK_INTERVAL) {
+      const t = setTimeout(() => setFeedbackOpen(true), 2000)
+      setFeedbackTimer()
+      return () => clearTimeout(t)
+    }
+
+    const remaining = FEEDBACK_INTERVAL - (now - lastShown)
+    const t = setTimeout(() => {
+      setFeedbackOpen(true)
+      setFeedbackTimer()
+    }, remaining)
+
+    return () => clearTimeout(t)
+  }, [isDashboardMessages])
+
+  // Close feedback resets the timer
+  const handleCloseFeedback = () => {
+    setFeedbackOpen(false)
+    setFeedbackTimer()
+  }
 
   if (isDashboardMessages) return null;
 
@@ -23,9 +65,15 @@ export default function FloatingActions() {
     setMenuOpen(false);
   };
 
+  const handleOpenFeedback = () => {
+    setFeedbackOpen(true);
+    setMenuOpen(false);
+  };
+
   return (
     <>
       <VirtualAssistant isOpen={isAssistantOpen} onClose={() => setAssistantOpen(false)} />
+      <FeedbackDialog isOpen={isFeedbackOpen} onClose={handleCloseFeedback} />
 
       <div className="fixed md:bottom-6 bottom-24 right-6 z-[9999] flex flex-col items-center">
         <AnimatePresence>
@@ -77,6 +125,25 @@ export default function FloatingActions() {
                   aria-label="Chatbot de Suporte"
                 >
                   <Bot className="w-5 h-5" />
+                </button>
+              </motion.div>
+
+              <motion.div
+                key="feedback"
+                initial={{ opacity: 0, y: 15, scale: 0.8 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25, delay: 0.1 }}
+                className="flex items-center gap-3 justify-end w-full"
+              >
+                <span className="text-sm font-medium text-gray-700 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm whitespace-nowrap select-none">
+                  Central de Feedback
+                </span>
+                <button
+                  onClick={handleOpenFeedback}
+                  className="w-12 h-12 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-700 text-white shadow-lg border-2 border-white flex items-center justify-center shrink-0"
+                  aria-label="Central de Feedback"
+                >
+                  <MessageSquare className="w-5 h-5" />
                 </button>
               </motion.div>
             </motion.div>

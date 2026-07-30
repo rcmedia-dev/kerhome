@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 
 const supabase = createClient();
 
@@ -73,7 +72,7 @@ function AgentContactCard({ userIdLogado, adminId }: { userIdLogado?: string; ad
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
       setStatus('erro');
-      toastErrorWithFeedback('Erro ao enviar a mensagem', error instanceof Error ? error : undefined);
+      toast.error('Erro ao enviar a mensagem');
     }
   };
 

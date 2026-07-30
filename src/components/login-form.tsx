@@ -4,7 +4,9 @@ import React from 'react'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { login } from '@/lib/functions/supabase-actions/login-action'
-import { useUserStore } from '@/lib/store/user-store' // <-- importa zustand
+import { useUserStore } from '@/lib/store/user-store'
+import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { X, Eye, EyeOff } from 'lucide-react'
 
 interface Props {
   onSuccess?: () => void
@@ -14,6 +16,7 @@ interface Props {
 export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
   const [error, setError] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(false)
+  const [showPassword, setShowPassword] = React.useState(false)
   const setUser = useUserStore((state) => state.setUser) // <-- pega do zustand
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -91,7 +94,11 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
   }
 
   return (
-    <div className="p-6 bg-white rounded-lg w-full max-w-md">
+    <div className="relative p-6 bg-white rounded-lg w-full max-w-md">
+      <DialogPrimitive.Close className="absolute top-3 right-3 z-10 rounded-full p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+        <X className="w-4 h-4" />
+      </DialogPrimitive.Close>
+
       <div className="flex justify-center mb-4">
         <Image 
           src="/kercasa_logo.png" 
@@ -118,14 +125,30 @@ export function CustomSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
           label="Email"
         />
         
-        <FormInput 
-          id="password"
-          name="password"
-          type="password"
-          required
-          minLength={6}
-          label="Senha"
-        />
+        <div className="relative">
+          <input
+            id="password"
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            required
+            minLength={6}
+            placeholder=" "
+            className="peer w-full px-4 py-4 border border-gray-300 bg-gray-50 rounded-lg focus:outline-none focus:border-purple-700 focus:ring-1 focus:ring-purple-700"
+          />
+          <label
+            htmlFor="password"
+            className="absolute left-4 -top-3 bg-white px-1 text-gray-500 text-sm transition-all duration-150 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-3 peer-focus:text-sm peer-focus:text-purple-700"
+          >
+            Senha
+          </label>
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+          </button>
+        </div>
 
         {error && (
           <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg text-center">

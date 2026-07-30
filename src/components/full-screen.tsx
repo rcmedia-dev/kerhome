@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useChatStore } from '@/lib/store/chat-store';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { VisitScheduler } from './visit-scheduler';
 
 
@@ -82,7 +81,7 @@ export function FullscreenView({
       }
     } catch (error) {
       console.error('Error starting chat:', error);
-      toastErrorWithFeedback('Erro ao conectar.', error instanceof Error ? error : undefined);
+      toast.error('Erro ao conectar.');
     } finally {
       setLoading(false);
     }
@@ -129,7 +128,7 @@ export function FullscreenView({
             <X size={24} />
           </button>
           <div className="hidden md:block min-w-0">
-            <h2 className="text-gray-900 font-bold text-lg truncate max-w-[300px]">
+            <h2 className="text-gray-900 font-bold text-lg truncate max-w-75">
               {property.title}
             </h2>
             <p className="text-gray-500 text-xs uppercase tracking-widest font-semibold">

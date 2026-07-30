@@ -12,7 +12,9 @@ import {
   Newspaper,
   Phone,
   Calculator,
-  Search
+  Search,
+  Loader2,
+  MessageSquare
 } from 'lucide-react';
 import Link from 'next/link';
 import { AuthDialog } from '@/components/login-modal';
@@ -32,7 +34,6 @@ import { useQuery } from '@tanstack/react-query';
 import { getUserPlan } from '@/lib/functions/supabase-actions/get-user-package-action';
 import { UserProfile, useUserStore } from '@/lib/store/user-store';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { motion, AnimatePresence, Transition, Variants } from 'framer-motion';
 
 import { useChatStore } from '@/lib/store/chat-store';
@@ -139,17 +140,12 @@ function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: bo
         await supabase.auth.signOut();
       }
 
-      if (typeof setUser === 'function') {
-        setUser(null as any);
-      }
-
-      toast.success('Sessão encerrada');
-      router.push('/');
-      router.refresh();
+      toast.success('Sessão encerrada com sucesso');
+      await new Promise(resolve => setTimeout(resolve, 600));
+      window.location.replace('/');
     } catch (error) {
       console.error('Error during logout:', error);
-      toastErrorWithFeedback('Erro ao encerrar a sessão', error instanceof Error ? error : undefined);
-    } finally {
+      toast.error('Erro ao encerrar a sessão');
       setIsLoggingOut(false);
     }
   };
@@ -197,7 +193,7 @@ function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: bo
             transition={{ delay: 0.1 }}
           >
             <motion.div
-              className="flex items-center justify-center w-11 h-11 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 shadow-md"
+              className="flex items-center justify-center w-11 h-11 rounded-full bg-linear-to from-purple-500 to-purple-700 shadow-md"
               whileHover={{ scale: 1.05 }}
               transition={springTransition}
             >
@@ -257,18 +253,22 @@ function UserDropdown({ user, mobile = false }: { user: UserProfile, mobile?: bo
           >
             <DropdownMenuItem
               onClick={handleLogout}
-              aria-busy={isLoggingOut}
+              disabled={isLoggingOut}
               className={`rounded-lg px-3 py-2.5 
                 text-red-600 font-medium text-sm 
                 flex items-center gap-2 
                 transition-colors cursor-pointer
                 hover:bg-red-50 ${isLoggingOut ? 'opacity-60 pointer-events-none' : ''}`}
             >
-              <motion.span
-                className="w-2 h-2 rounded-full bg-red-500"
-                whileHover={{ scale: 1.5 }}
-                transition={springTransition}
-              />
+              {isLoggingOut ? (
+                <Loader2 className="w-2 h-2 animate-spin" />
+              ) : (
+                <motion.span
+                  className="w-2 h-2 rounded-full bg-red-500"
+                  whileHover={{ scale: 1.5 }}
+                  transition={springTransition}
+                />
+              )}
               {isLoggingOut ? 'Saindo...' : 'Sair'}
             </DropdownMenuItem>
           </motion.div>
@@ -344,7 +344,7 @@ export default function Header() {
         className="sticky top-0 z-40 bg-white shadow-sm"
       >
         <div className="max-w-7xl mx-auto flex justify-between items-center py-3 px-4 md:px-6">
-          <Link href="/" aria-label="Página inicial" className="flex-shrink-0">
+          <Link href="/" aria-label="Página inicial" className="shrink-0">
             <motion.div
               whileHover={{ scale: 1.05 }}
               transition={springTransition}
@@ -382,7 +382,7 @@ export default function Header() {
         {/* Navegação principal */}
         <div className="max-w-7xl mx-auto flex justify-between items-center py-3 px-4 md:px-6">
           {/* Logo */}
-          <Link href="/" aria-label="Página inicial" className="flex-shrink-0">
+          <Link href="/" aria-label="Página inicial" className="shrink-0">
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

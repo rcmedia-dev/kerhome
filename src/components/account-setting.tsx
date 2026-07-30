@@ -5,7 +5,6 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Settings, Save, User, Mail, Phone, Building, Award, Globe, Facebook, Linkedin, Instagram, Youtube, Edit3, Briefcase, Users, Share2, Sparkles } from 'lucide-react';
 import { updateUserProfile } from '@/lib/functions/supabase-actions/update-user-profile';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import { UserProfile } from '@/lib/store/user-store';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -117,7 +116,7 @@ const SubmitButton = ({ isSubmitting }: { isSubmitting: boolean }) => (
       "w-full px-8 py-3 rounded-xl font-semibold text-white transition-all duration-200 flex items-center justify-center gap-2 shadow-lg",
       isSubmitting 
         ? "bg-purple-400 cursor-not-allowed" 
-        : "bg-gradient-to-r from-purple-700 to-orange-500 hover:from-purple-800 hover:to-orange-600 hover:shadow-xl"
+        : "bg-linear-to from-purple-700 to-orange-500 hover:from-purple-800 hover:to-orange-600 hover:shadow-xl"
     )}
   >
     <AnimatePresence mode="wait">
@@ -174,7 +173,7 @@ const TabButton = ({
     className={cn(
       "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-medium text-sm",
       currentTab === tab
-        ? "bg-gradient-to-r from-purple-700 to-orange-500 text-white shadow-lg"
+        ? "bg-linear-to from-purple-700 to-orange-500 text-white shadow-lg"
         : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
     )}
   >
@@ -382,10 +381,8 @@ export function ConfiguracoesConta({ profile }: SettingsProps) {
       }
     } catch (error) {
       console.error('Erro ao atualizar perfil:', error);
-      toastErrorWithFeedback(
-        error instanceof Error ? error.message : 'Erro ao atualizar perfil',
-        error instanceof Error ? error : undefined
-      );
+      toast.error(
+        error instanceof Error ? error.message : 'Erro ao atualizar perfil');
     } finally {
       setIsSubmitting(false);
     }
@@ -419,17 +416,17 @@ export function ConfiguracoesConta({ profile }: SettingsProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      <Card className="shadow-xl border-0 bg-gradient-to-br from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm overflow-hidden">
+      <Card className="shadow-xl border-0 bg-linear-to from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm overflow-hidden">
         {/* Efeito de gradiente no topo */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-700 via-purple-500 to-orange-500" />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to from-purple-700 via-purple-500 to-orange-500" />
         
         <CardHeader className="pb-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-gradient-to-r from-purple-100 to-orange-100 rounded-2xl">
+            <div className="p-3 bg-linear-to from-purple-100 to-orange-100 rounded-2xl">
               <Settings className="w-8 h-8 text-purple-700" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-purple-700 to-orange-500 bg-clip-text text-transparent">
+              <CardTitle className="text-2xl font-bold bg-linear-to from-purple-700 to-orange-500 bg-clip-text text-transparent">
                 Configurações da Conta
               </CardTitle>
               <CardDescription className="text-gray-600 mt-1">
@@ -477,7 +474,7 @@ export function ConfiguracoesConta({ profile }: SettingsProps) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="min-h-[300px]"
+                className="min-h-75"
               >
                 {renderTabContent()}
               </motion.div>

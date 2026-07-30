@@ -6,7 +6,6 @@ import { getUsers } from '@/app/admin/dashboard/actions/get-users';
 import Link from 'next/link';
 import { deleteUser } from '@/app/admin/dashboard/actions/create-user';
 import { toast } from 'sonner';
-import { toastErrorWithFeedback } from '@/lib/error-feedback';
 import Image from 'next/image';
 
 type User = {
@@ -53,7 +52,7 @@ export function UserManagement({ darkMode, initialUsers = [] }: UsersManagementP
         toast.success('Usuário deletado com sucesso');
         setUsers((prev) => prev.filter((u) => u.id.toString() !== userId));
       } else {
-        toastErrorWithFeedback('Erro ao deletar: ' + res.error);
+        toast.error('Erro ao deletar: ' + res.error);
       }
     });
   };
@@ -88,7 +87,7 @@ export function UserManagement({ darkMode, initialUsers = [] }: UsersManagementP
         toast.success('Usuário banido com sucesso');
         setBanDialog({ isOpen: false, userId: null, reason: '' });
       } else {
-        toastErrorWithFeedback('Erro ao banir usuário');
+        toast.error('Erro ao banir usuário');
       }
     });
   };
@@ -112,13 +111,13 @@ export function UserManagement({ darkMode, initialUsers = [] }: UsersManagementP
         );
         toast.success('Usuário desbanido com sucesso');
       } else {
-        toastErrorWithFeedback('Erro ao desbanir usuário');
+        toast.error('Erro ao desbanir usuário');
       }
     });
   };
 
   const handlePlanoAction = (userId: number, action: 'approve' | 'reject') => {
-    toastErrorWithFeedback('Ação não implementada nesta vista. Por favor use a página de Subscrições.');
+    toast.error('Ação não implementada nesta vista. Por favor use a página de Subscrições.');
   };
 
   useEffect(() => {
@@ -138,7 +137,7 @@ export function UserManagement({ darkMode, initialUsers = [] }: UsersManagementP
       }));
       setUsers(transformedUsers);
     } catch (err) {
-      toastErrorWithFeedback('Erro ao carregar usuários');
+      toast.error('Erro ao carregar usuários');
     } finally {
       setLoading(false);
     }
@@ -184,7 +183,7 @@ export function UserManagement({ darkMode, initialUsers = [] }: UsersManagementP
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/20 p-6">
+      <div className="min-h-screen bg-linear-to from-slate-50 via-blue-50/20 to-purple-50/20 p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex justify-between items-center">
             <div className="h-8 w-48 bg-gray-200 rounded-lg animate-pulse"></div>
@@ -201,7 +200,7 @@ export function UserManagement({ darkMode, initialUsers = [] }: UsersManagementP
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/20 p-6">
+    <div className="min-h-screen bg-linear-to from-slate-50 via-blue-50/20 to-purple-50/20 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -324,7 +323,7 @@ export function UserManagement({ darkMode, initialUsers = [] }: UsersManagementP
         <div className="fixed bottom-6 right-6">
           <Link
             href="/admin/dashboard/users/create"
-            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-4 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-1 flex items-center gap-2 group"
+            className="bg-linear-to from-purple-600 to-blue-600 text-white p-4 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-1 flex items-center gap-2 group"
           >
             <UserPlus size={20} />
             <span className="font-semibold">Adicionar</span>
@@ -432,7 +431,7 @@ function ListView({ users, onDelete, onBan, onUnban, onPlanoAction }: {
               <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white">
+                    <div className="w-10 h-10 bg-linear-to from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white">
                       {user.avatar ? (
                         <Image src={user.avatar} alt="" width={40} height={40} className="rounded-xl" unoptimized={true} />
                       ) : (
@@ -544,8 +543,8 @@ function UserCard({ user, onDelete, onBan, onUnban, onPlanoAction }: {
     }`}>
       <div className={`p-6 relative ${
         user.status === 'banned' 
-          ? 'bg-gradient-to-r from-red-50 to-red-100' 
-          : 'bg-gradient-to-r from-gray-50 to-gray-100'
+          ? 'bg-linear-to from-red-50 to-red-100' 
+          : 'bg-linear-to from-gray-50 to-gray-100'
       }`}>
         {user.status === 'banned' && (
           <div className="absolute top-4 left-4">
@@ -558,8 +557,8 @@ function UserCard({ user, onDelete, onBan, onUnban, onPlanoAction }: {
         <div className="flex items-center gap-4">
           <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-white ${
             user.status === 'banned' 
-              ? 'bg-gradient-to-br from-red-500 to-red-600' 
-              : 'bg-gradient-to-br from-blue-500 to-purple-600'
+              ? 'bg-linear-to from-red-500 to-red-600' 
+              : 'bg-linear-to from-blue-500 to-purple-600'
           }`}>
             {user.avatar ? (
               <Image src={user.avatar} alt="" width={64} height={64} className="rounded-2xl" unoptimized={true} />
@@ -600,7 +599,7 @@ function UserCard({ user, onDelete, onBan, onUnban, onPlanoAction }: {
           )}
           {user.status === 'banned' && user.ban_reason && (
             <div className="flex items-start gap-3 text-sm text-red-600 bg-red-50 p-3 rounded-lg">
-              <Ban size={16} className="mt-0.5 flex-shrink-0" />
+              <Ban size={16} className="mt-0.5 shrink-0" />
               <span className="font-medium">Motivo: {user.ban_reason}</span>
             </div>
           )}
