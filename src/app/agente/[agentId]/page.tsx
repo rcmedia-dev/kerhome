@@ -139,7 +139,7 @@ export default function AgentProfilePage(
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-purple-50/30 to-orange-50/30">
+    <div className="min-h-screen bg-linear-to from-white via-purple-50/30 to-orange-50/30">
       {/* Header Hero */}
       <HeroSection 
         profile={profile}

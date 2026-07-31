@@ -631,7 +631,7 @@ const MediaTab = ({ property }: { property?: any }) => {
           control={control}
           render={({ field }) => (
             <div className="flex flex-col md:flex-row gap-6 items-start">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 {coverPreview ? (
                   <div className="relative w-64 h-48 rounded-lg overflow-hidden border-2 border-blue-200">
                     <img 
@@ -969,10 +969,7 @@ export default function PropertyEditPage() {
           router.push('/admin/dashboard');
         }, 2000);
       } else {
-        toast.error(result.message || 'Erro ao atualizar imóvel', {
-          position: 'top-right',
-          duration: 5000,
-        });
+        toast.error(result.message || 'Erro ao atualizar imóvel');
       }
     } catch (error) {
       console.error('Failed to update property:', error);
@@ -1004,7 +1001,7 @@ export default function PropertyEditPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col gap-8 lg:flex-row">
           {/* Navegação lateral */}
-          <div className="lg:w-80 flex-shrink-0">
+          <div className="lg:w-80 shrink-0">
             <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
           </div>
 

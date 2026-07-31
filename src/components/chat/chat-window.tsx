@@ -86,7 +86,7 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
             toast.dismiss(toastId);
         } catch (error) {
             console.error('Upload failed:', error);
-            toast.error('Erro ao enviar arquivo', { id: toastId });
+            toast.error('Erro ao enviar arquivo');
         }
     };
 

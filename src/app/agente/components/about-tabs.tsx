@@ -5,7 +5,7 @@ import type { AboutTabProps, AgentProfile } from "@/types/agent";
 export function AboutTab({ profile, agentStats }: AboutTabProps) {
   return (
     <div className="space-y-8">
-      <Card className="p-8 shadow-lg border-0 rounded-2xl bg-gradient-to-br from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm">
+      <Card className="p-8 shadow-lg border-0 rounded-2xl bg-linear-to from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm">
         <h3 className="text-2xl font-bold text-gray-900 mb-6">Minha Paixão por Imóveis</h3>
         <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
           {profile?.sobre_mim ? (
@@ -32,7 +32,7 @@ export function AboutTab({ profile, agentStats }: AboutTabProps) {
       </Card>
 
       {/* Especialidades */}
-      <Card className="p-8 shadow-lg border-0 rounded-2xl bg-gradient-to-br from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm">
+      <Card className="p-8 shadow-lg border-0 rounded-2xl bg-linear-to from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm">
         <h3 className="text-2xl font-bold text-gray-900 mb-6">Áreas de Especialização</h3>
         <div className="grid md:grid-cols-2 gap-6">
           <SpecialtyCard

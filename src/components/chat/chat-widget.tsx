@@ -32,7 +32,7 @@ export function ChatWidget() {
                     drag
                     dragMomentum={false}
                     dragElastic={0.1}
-                    className="fixed bottom-4 right-4 w-[calc(100vw-32px)] sm:w-96 h-[500px] max-h-[calc(100vh-100px)] bg-white rounded-card shadow-floating flex flex-col overflow-hidden border border-border z-[9999] font-sans cursor-move"
+                    className="fixed bottom-4 right-4 w-[calc(100vw-32px)] sm:w-96 h-[560px] max-h-[calc(100vh-100px)] bg-white rounded-card shadow-floating flex flex-col overflow-hidden border border-border z-[9999] font-sans cursor-move"
                 >
                     {view === 'list' && <ChatList />}
                     {view === 'search' && <UserSearch />}

@@ -186,7 +186,7 @@ async function applyAgentDecision(supabase: any, userId: string, result: AIAgent
       await insertNotification({
         userId,
         type: 'agent_approved',
-        title: `Pedido de agente aprovado! 🎉`,
+        title: `Pedido de agente aprovado!`,
         message: `Parabéns! O teu pedido para te tornares agente foi analisado e aprovado automaticamente pela nossa IA. Já podes gerir os teus imóveis.`,
         data: { score: result.score },
       });

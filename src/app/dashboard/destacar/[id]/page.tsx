@@ -131,8 +131,8 @@ function DestacarContent() {
   };
 
   const handleCheckout = async () => {
-    if (!selectedPacote) return toast.error('Selecione um pacote de destaque');
-    if (selectedProperties.length === 0) return toast.error('Selecione pelo menos um imóvel');
+    if (!selectedPacote) return toast.warning('Selecione um pacote de destaque');
+    if (selectedProperties.length === 0) return toast.warning('Selecione pelo menos um imóvel');
 
     setProcessing(true);
 
@@ -153,7 +153,7 @@ function DestacarContent() {
 
       toast.success(
         <div className="flex flex-col gap-1">
-          <span className="font-semibold">✅ Destaque ativado com sucesso!</span>
+          <span className="font-semibold">Destaque ativado com sucesso!</span>
           <span>{selectedProperties.length} imóvel(es) destacado(s)</span>
           <span>Plano: {selectedPacote.nome} - {selectedPacote.dias} dias</span>
           <span>Total: {total.toLocaleString('pt-AO')} Kz</span>
@@ -180,14 +180,14 @@ function DestacarContent() {
   const specificProperty = propertyId ? properties.find(p => p.id === propertyId) : null;
 
   if (loading) return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 flex items-center justify-center">
+    <div className="min-h-screen bg-linear-to from-gray-50 to-purple-50 flex items-center justify-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700"></div>
     </div>
   );
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 py-6">
+      <div className="min-h-screen bg-linear-to from-gray-50 to-purple-50 py-6">
         <div className="container mx-auto px-4 max-w-7xl">
           {/* Header */}
           <PageHeader specificProperty={specificProperty ?? null} />
@@ -258,7 +258,7 @@ function DestacarContent() {
 export default function CompactPacotesDestaquePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to from-gray-50 to-purple-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700"></div>
       </div>
     }>

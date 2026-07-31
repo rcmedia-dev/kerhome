@@ -212,7 +212,7 @@ export default function SimularPage() {
                         <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-125 transition-transform duration-500">
                             <Sparkles size={60} />
                         </div>
-                        <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center shrink-0">
                             <Smartphone className="text-orange-400" size={24} />
                         </div>
                         <div>
@@ -237,7 +237,7 @@ export default function SimularPage() {
                                 key={bank.id}
                                 onClick={() => handleBankSelect(bank.id, bank.taxa)}
                                 className={`
-                                    relative flex items-center justify-center p-4 rounded-xl border-2 transition-all duration-300 min-w-[130px] h-20 md:h-24 cursor-pointer group hover:scale-105 active:scale-95 bg-white
+                                    relative flex items-center justify-center p-4 rounded-xl border-2 transition-all duration-300 min-w-32.5 h-20 md:h-24 cursor-pointer group hover:scale-105 active:scale-95 bg-white
                                     ${selectedBank === bank.id
                                         ? 'border-purple-600 shadow-2xl shadow-purple-900/20 -translate-y-1'
                                         : 'border-transparent shadow-sm hover:shadow-xl hover:-translate-y-1'}

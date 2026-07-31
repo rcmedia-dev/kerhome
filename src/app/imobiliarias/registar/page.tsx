@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -99,10 +99,10 @@ export default function RegistarImobiliariaPage() {
   // Estado: Não Logado
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-orange-50 pt-32 pb-20 px-4">
+      <div className="min-h-screen bg-linear-to from-purple-50 via-white to-orange-50 pt-32 pb-20 px-4">
         <AuthDialog ref={authDialogRef} />
         <div className="max-w-xl mx-auto bg-white/40 backdrop-blur-3xl rounded-[3rem] p-12 text-center shadow-2xl border border-white relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-600 to-orange-500"></div>
+          <div className="absolute top-0 left-0 w-full h-2 bg-linear-to from-purple-600 to-orange-500"></div>
           <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-8">
             <Lock className="w-10 h-10 text-purple-600" />
           </div>
@@ -126,7 +126,7 @@ export default function RegistarImobiliariaPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-orange-50 pt-32 pb-20 px-4">
+      <div className="min-h-screen bg-linear-to from-purple-50 to-orange-50 pt-32 pb-20 px-4">
         <div className="max-w-2xl mx-auto bg-white/70 backdrop-blur-2xl rounded-[3rem] p-12 text-center shadow-2xl border border-white">
           <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce">
             <CheckCircle2 className="w-12 h-12 text-green-600" />
@@ -149,7 +149,7 @@ export default function RegistarImobiliariaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-orange-50 pt-32 pb-20">
+    <div className="min-h-screen bg-linear-to from-purple-50 via-white to-orange-50 pt-32 pb-20">
       <main className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16">
@@ -157,7 +157,7 @@ export default function RegistarImobiliariaPage() {
             Seja um Parceiro Kercasa
           </span>
           <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight">
-            Torne a sua <span className="bg-gradient-to-r from-purple-700 to-orange-500 bg-clip-text text-transparent">Agência Parceira</span>
+            Torne a sua <span className="bg-linear-to from-purple-700 to-orange-500 bg-clip-text text-transparent">Agência Parceira</span>
           </h1>
           <p className="text-lg text-gray-500 font-medium max-w-2xl mx-auto">
             Upgrade de conta para imobiliária: publique em nome da sua marca, tenha um diretório exclusivo e destaque a sua presença em Angola.
@@ -166,7 +166,7 @@ export default function RegistarImobiliariaPage() {
 
         {/* Form Container */}
         <div className="bg-white/40 backdrop-blur-3xl rounded-[3rem] p-8 md:p-12 shadow-2xl border border-white/60 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-600 to-orange-500 opacity-50"></div>
+          <div className="absolute top-0 left-0 w-full h-2 bg-linear-to from-purple-600 to-orange-500 opacity-50"></div>
           
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -269,7 +269,7 @@ export default function RegistarImobiliariaPage() {
                     onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                   />
-                  <div className="w-full px-6 py-8 bg-orange-50/30 border-2 border-dashed border-orange-200 rounded-[2rem] flex flex-col items-center justify-center gap-3 group-hover:bg-orange-50 group-hover:border-orange-400 transition-all">
+                  <div className="w-full px-6 py-8 bg-orange-50/30 border-2 border-dashed border-orange-200 rounded-4xl flex flex-col items-center justify-center gap-3 group-hover:bg-orange-50 group-hover:border-orange-400 transition-all">
                     <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md text-orange-500">
                       <ImageIcon className="w-6 h-6" />
                     </div>
@@ -302,7 +302,7 @@ export default function RegistarImobiliariaPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-orange-500 text-white py-6 rounded-[2rem] font-black text-xl hover:bg-purple-800 transition-all duration-500 shadow-2xl shadow-orange-500/20 disabled:opacity-50 flex items-center justify-center gap-4 group"
+              className="w-full bg-orange-500 text-white py-6 rounded-4xl font-black text-xl hover:bg-purple-800 transition-all duration-500 shadow-2xl shadow-orange-500/20 disabled:opacity-50 flex items-center justify-center gap-4 group"
             >
               {loading ? (
                 <>

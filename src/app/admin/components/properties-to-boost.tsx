@@ -528,7 +528,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/20 p-6">
+      <div className="min-h-screen bg-linear-to from-slate-50 via-blue-50/20 to-purple-50/20 p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex justify-between items-center">
             <div className="h-8 w-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
@@ -566,7 +566,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/20 p-6">
+    <div className="min-h-screen bg-linear-to from-slate-50 via-blue-50/20 to-purple-50/20 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -782,7 +782,7 @@ export default function BoostManagement({ darkMode }: BoostManagementProps) {
                     </h3>
 
                     <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                      <MapPin className="w-4 h-4 flex-shrink-0" />
+                      <MapPin className="w-4 h-4 shrink-0" />
                       <span className="line-clamp-1">{property.location}</span>
                     </div>
 

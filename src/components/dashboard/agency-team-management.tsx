@@ -129,7 +129,7 @@ export function AgencyTeamManagement({ agencyId, isOwner }: AgencyTeamManagement
                             setInviteSent(false);
                             setInviteEmail('');
                         }}
-                        className="bg-[#820AD1] hover:bg-[#6A08AA] text-white px-6 py-3 rounded-button font-bold transition-all shadow-card shadow-purple-200 flex items-center justify-center gap-2 text-sm"
+                        className="bg-[#820AD1] hover:bg-[#6A08AA] text-white px-6 py-3 rounded-button font-bold transition-all shadow-purple-200 flex items-center justify-center gap-2 text-sm"
                     >
                         <UserPlus className="w-4 h-4" />
                         Convidar Corretor
@@ -248,7 +248,7 @@ export function AgencyTeamManagement({ agencyId, isOwner }: AgencyTeamManagement
             {/* Modal de Convite */}
             <Dialog open={showInviteModal} onOpenChange={setShowInviteModal}>
                 <DialogContent 
-                    className="!fixed !inset-0 !z-50 !flex !items-center !justify-center !p-4 !bg-black/40 !backdrop-blur-sm !border-none !shadow-none !max-w-none !translate-x-0 !translate-y-0 !top-0 !left-0 !h-full !w-full"
+                    className="fixed! inset-0! z-50! flex! items-center! justify-center! p-4! bg-black/40! backdrop-blur-sm! border-none! shadow-none! max-w-none! translate-x-0! translate-y-0! top-0! left-0! h-full! w-full!"
                     showCloseButton={false}
                 >
                     <motion.div 
@@ -297,7 +297,7 @@ export function AgencyTeamManagement({ agencyId, isOwner }: AgencyTeamManagement
                                     <button
                                         type="submit"
                                         disabled={isInviting}
-                                        className="w-full bg-[#820AD1] hover:bg-[#6A08AA] text-white py-4 rounded-button font-bold transition-all shadow-card shadow-purple-500/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full bg-[#820AD1] hover:bg-[#6A08AA] text-white py-4 rounded-button font-bold transition-all shadow-purple-500/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isInviting ? <Loader2 className="w-5 h-5 animate-spin" /> : <UserPlus className="w-5 h-5" />}
                                         {isInviting ? 'Gerando...' : 'Enviar Convite'}
@@ -306,7 +306,7 @@ export function AgencyTeamManagement({ agencyId, isOwner }: AgencyTeamManagement
                             ) : (
                                 <div className="space-y-6 animate-in fade-in duration-500">
                                     <div className="bg-green-50 p-6 rounded-card border border-green-100 text-center">
-                                        <div className="w-12 h-12 bg-green-500 rounded-badge flex items-center justify-center mx-auto mb-3 shadow-card shadow-green-500/20">
+                                        <div className="w-12 h-12 bg-green-500 rounded-badge flex items-center justify-center mx-auto mb-3 shadow-green-500/20">
                                             <CheckCircle2 className="w-6 h-6 text-white" />
                                         </div>
                                         <p className="text-gray-600 text-sm font-medium mt-4">
@@ -316,7 +316,7 @@ export function AgencyTeamManagement({ agencyId, isOwner }: AgencyTeamManagement
 
                                     <button
                                         onClick={() => setShowInviteModal(false)}
-                                        className="w-full py-3 bg-[#820AD1] hover:bg-[#6A08AA] text-white rounded-button transition-all text-sm font-bold shadow-card shadow-purple-500/20"
+                                        className="w-full py-3 bg-[#820AD1] hover:bg-[#6A08AA] text-white rounded-button transition-all text-sm font-bold shadow-purple-500/20"
                                     >
                                         Fechar Janela
                                     </button>
@@ -330,7 +330,7 @@ export function AgencyTeamManagement({ agencyId, isOwner }: AgencyTeamManagement
             {/* Modal de Confirmação de Remoção */}
             <Dialog open={!!showRemoveConfirm} onOpenChange={() => setShowRemoveConfirm(null)}>
                 <DialogContent 
-                    className="!fixed !inset-0 !z-50 !flex !items-center !justify-center !p-4 !bg-black/40 !backdrop-blur-sm !border-none !shadow-none !max-w-none !translate-x-0 !translate-y-0 !top-0 !left-0 !h-full !w-full"
+                    className="fixed! inset-0! z-50! flex! items-center! justify-center! p-4! bg-black/40! backdrop-blur-sm! border-none! shadow-none! max-w-none! translate-x-0! translate-y-0! top-0! left-0! h-full! w-full"
                     showCloseButton={false}
                 >
                     <DialogTitle className="sr-only">Remover Corretor</DialogTitle>

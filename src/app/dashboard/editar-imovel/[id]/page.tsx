@@ -162,10 +162,7 @@ export default function PropertyEditForm() {
           galleryFiles: [],
         });
       } else {
-        toast.error(result.message || 'Erro ao atualizar propriedade', {
-          position: 'top-right',
-          duration: 5000,
-        });
+        toast.error(result.message || 'Erro ao atualizar propriedade');
       }
     } catch (error) {
       console.error('Failed to update property:', error);

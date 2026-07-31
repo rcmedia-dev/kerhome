@@ -162,7 +162,7 @@ export function RenderDashboard({ darkMode, activeProperties, registeredUsers, a
             const Icon = activity.icon;
             return (
               <div key={activity.id} className={`flex items-center p-3 rounded-lg ${darkMode ? 'bg-gray-750' : 'bg-gray-50'}`}>
-                <div className={`p-2 rounded-lg mr-4 ${activity.color === 'purple' ? 'bg-purple-100 text-purple-600' : activity.color === 'green' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'} ${darkMode ? 'bg-opacity-20' : ''}`}>
+                <div className={`p-2 rounded-lg mr-4 ${activity.color === 'purple' ? 'bg-purple-100 text-purple-600' : activity.color === 'green' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}${darkMode ? ' bg-opacity-20' : ''}`}>
                   <Icon className="w-5 h-5" />
                 </div>
                 <div className="flex-1">
@@ -207,7 +207,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, change, icon: Icon, c
           <span className={`ml-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>vs mês anterior</span>
         </div>
       </div>
-      <div className={`p-3 rounded-lg ${color === 'purple' ? 'bg-purple-100 text-purple-600' : color === 'orange' ? 'bg-orange-100 text-orange-600' : color === 'green' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'} ${darkMode ? 'bg-opacity-20' : ''}`}>
+      <div className={`p-3 rounded-lg ${color === 'purple' ? 'bg-purple-100 text-purple-600' : color === 'orange' ? 'bg-orange-100 text-orange-600' : color === 'green' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}${darkMode ? ' bg-opacity-20' : ''}`}>
         <Icon className="w-6 h-6" />
       </div>
     </div>

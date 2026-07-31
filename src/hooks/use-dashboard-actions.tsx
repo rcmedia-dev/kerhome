@@ -24,7 +24,7 @@ export function useDashboardActions() {
         if (!file || !user) return;
 
         if (file.size > 5 * 1024 * 1024) {
-            toast.error('A imagem deve ter no máximo 5MB.');
+            toast.warning('A imagem deve ter no máximo 5MB.');
             return;
         }
 
@@ -152,7 +152,7 @@ export function useDashboardActions() {
             if (result.decision === 'approved') {
                 setAgentRequestStatus('approved');
                 await updateUser({ role: 'agent' });
-                toast.success('Parabéns! O teu pedido para te tornares agente foi aprovado automaticamente pela nossa IA! 🎉');
+                toast.success('Parabéns! O teu pedido para te tornares agente foi aprovado automaticamente pela nossa IA!');
                 console.log(`IA aprovou agente ${user.id} (score: ${result.score}%)`);
             } else if (result.decision === 'rejected') {
                 setAgentRequestStatus('rejected');

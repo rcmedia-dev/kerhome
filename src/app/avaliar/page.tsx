@@ -339,7 +339,7 @@ export default function AvaliarPage() {
                                     initial={{ height: 0 }}
                                     animate={{ height: '100%' }}
                                     transition={{ duration: 3, repeat: Infinity }}
-                                    className="absolute left-1/2 top-0 w-px bg-gradient-to-b from-purple-500 to-transparent opacity-50"
+                                    className="absolute left-1/2 top-0 w-px bg-linear-to from-purple-500 to-transparent opacity-50"
                                 />
                             </div>
                             <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tighter uppercase">Cruzando Dados de Mercado</h2>
@@ -633,7 +633,7 @@ export default function AvaliarPage() {
                                     </div>
 
                                     <div className="space-y-4 px-2">
-                                        <div className="text-4xl sm:text-5xl md:text-6xl font-black text-orange-500 leading-none glow-orange py-2 tabular-nums break-words mx-auto max-w-full">
+                                        <div className="text-4xl sm:text-5xl md:text-6xl font-black text-orange-500 leading-none glow-orange py-2 tabular-nums wrap-break-word mx-auto max-w-full">
                                             {predictionResult ? (
                                                 <AnimatedNumber value={predictionResult.preco_akz} />
                                             ) : (

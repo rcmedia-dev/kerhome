@@ -40,16 +40,16 @@ export function PaymentModal({
 
   return (
     <Dialog open={showPaymentModal} onOpenChange={(open) => !open && cancelPayment()}>
-      <DialogContent className="sm:max-w-[850px] p-0 rounded-[2.5rem] border-0 shadow-2xl bg-white overflow-hidden">
+      <DialogContent className="sm:max-w-212.5 p-0 rounded-[2.5rem] border-0 shadow-2xl bg-white overflow-hidden">
         <DialogTitle className="sr-only">Confirmar Pagamento do Plano</DialogTitle>
         <DialogDescription className="sr-only">Confirmar a subscrição do plano selecionado e visualizar dados de pagamento.</DialogDescription>
 
-        <div className="flex flex-col md:flex-row min-h-[600px]">
+        <div className="flex flex-col md:flex-row min-h-150">
           {/* COLUNA ESQUERDA: Resumo do Plano (Estilo Premium) */}
-          <div className="md:w-[380px] bg-gradient-to-br from-purple-800 to-indigo-900 p-10 text-white flex flex-col relative overflow-hidden">
+          <div className="md:w-95 bg-linear-to-br from-purple-800 to-indigo-900 p-10 text-white flex flex-col relative overflow-hidden">
             {/* Elementos Decorativos */}
-            <div className="absolute top-[-50px] right-[-50px] w-48 h-48 bg-white/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-[-20px] left-[-20px] w-32 h-32 bg-orange-500/20 rounded-full blur-2xl" />
+            <div className="absolute -top-12.5 -right-12.5 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
+            <div className="absolute -bottom-5 -left-5 w-32 h-32 bg-orange-500/20 rounded-full blur-2xl" />
 
             <div className="relative z-10 flex-1">
               <div className="flex justify-between items-start mb-12">
@@ -193,7 +193,7 @@ export function PaymentModal({
                   </div>
 
                   {/* WhatsApp Support Section */}
-                  <div className="bg-green-50 rounded-[2rem] p-6 border border-green-100 mb-10">
+                  <div className="bg-green-50 rounded-4xl p-6 border border-green-100 mb-10">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-green-600 rounded-2xl flex items-center justify-center shadow-lg shadow-green-200">
                         <Smartphone size={24} className="text-white" />

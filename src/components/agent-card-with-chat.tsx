@@ -43,7 +43,7 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
 
     const handleStartChat = async () => {
         if (!userId) {
-            toast.error('Você precisa estar logado para iniciar um chat.');
+            toast.warning('Você precisa estar logado para iniciar um chat.');
             router.push('/login');
             return;
         }
@@ -167,7 +167,7 @@ export default function AgentCardWithChat({ ownerData, propertyId, propertyTitle
                 <button
                     onClick={handleStartChat}
                     disabled={loading}
-                    className="w-full h-12 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-xl text-sm md:text-base font-bold shadow-md transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed group px-4"
+                    className="w-full h-12 flex items-center justify-center gap-2 bg-linear-to from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-xl text-sm md:text-base font-bold shadow-md transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed group px-4"
                 >
                     <MessageCircle size={18} className="group-hover:animate-pulse shrink-0" />
                     <span>

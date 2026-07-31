@@ -12,11 +12,11 @@ export default function Footer() {
   if (isExcludedRoute) return null;
 
   return (
-    <footer className="flex flex-col md:flex-row min-h-[400px] w-full overflow-hidden">
+    <footer className="flex flex-col md:flex-row min-h-100 w-full overflow-hidden">
 
       {/* 1. Sidebar Vertical (Esquerda) - Menu Principal */}
       <div className="w-full md:w-64 bg-purple-700 text-white p-10 flex flex-col justify-center">
-        <h4 className="text-xl font-bold mb-8 border-b border-purple-500 pb-2">Menu</h4>
+        <h3 className="text-xl font-bold mb-8 border-b border-purple-500 pb-2">Menu</h3>
         <nav>
           <ul className="space-y-4 font-medium text-lg">
             <li>
@@ -55,16 +55,15 @@ export default function Footer() {
                 src="/kercasa_logo.png" 
                 alt="Kercasa" 
                 width={150} 
-                height={40} 
-                style={{ width: 'auto', height: 'auto' }}
-                className="object-contain" 
+                height={42} 
+                className="object-contain w-auto"
               />
             </div>
 
-            <h2 className="text-3xl font-bold text-white tracking-tight">
+            <h3 className="text-3xl font-bold text-white tracking-tight">
               Encontre o lar dos <br />
               <span className="text-purple-400">seus sonhos.</span>
-            </h2>
+            </h3>
 
             <p className="max-w-md text-gray-400 leading-relaxed">
               A plataforma líder em Angola para compra, venda e arrendamento de imóveis. Conectamos você às melhores oportunidades do mercado imobiliário.
@@ -112,9 +111,6 @@ export default function Footer() {
         {/* Footer Bottom */}
         <div className="mt-16 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 gap-4">
           <p>© {new Date().getFullYear()} RC Media. Todos os direitos reservados.</p>
-          <div className="flex gap-6">
-            <span>Feito com ❤️ em Angola</span>
-          </div>
         </div>
 
       </div>

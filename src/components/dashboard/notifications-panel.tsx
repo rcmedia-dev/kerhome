@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Bell, X, CheckCheck, ThumbsDown, XCircle, Clock, Store, Loader2 } from 'lucide-react';
+import { Bell, X, CheckCheck, ThumbsDown, XCircle, Clock, Store, Loader2, Bug } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchNotifications, fetchUnreadCount, markNotificationRead, markAllNotificationsRead, deleteNotification, deleteAllNotifications, type Notification } from '@/lib/functions/supabase-actions/notifications-actions';
 import { acceptAgencyInvite, rejectAgencyInvite } from '@/lib/functions/supabase-actions/agency-invites';
@@ -19,6 +19,7 @@ const typeIcons: Record<string, React.ReactNode> = {
   ai_property_approved: <CheckCheck className="w-4 h-4 text-green-500" />,
   ai_property_rejected: <XCircle className="w-4 h-4 text-red-500" />,
   agency_invite: <Store className="w-4 h-4 text-purple-500" />,
+  error_feedback: <Bug className="w-4 h-4 text-orange-500" />,
 };
 
 export function NotificationsPanel({ userId }: { userId: string }) {
@@ -275,7 +276,7 @@ export function NotificationsPanel({ userId }: { userId: string }) {
             </div>
 
             {/* List */}
-            <div className="overflow-y-auto flex-1">
+            <div className="flex-1">
               {loading ? (
                 <div className="p-6 text-center text-gray-400 text-sm">A carregar...</div>
               ) : notifications.length === 0 ? (

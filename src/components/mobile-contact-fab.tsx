@@ -38,7 +38,7 @@ export function MobileContactFAB({ property, ownerDetails }: MobileContactFABPro
 
   const handleStartChat = async () => {
     if (!user) {
-      toast.error('Você precisa estar logado para iniciar um chat.');
+      toast.warning('Você precisa estar logado para iniciar um chat.');
       router.push('/login');
       return;
     }
@@ -121,7 +121,7 @@ export function MobileContactFAB({ property, ownerDetails }: MobileContactFABPro
   ];
 
   return (
-    <div className="md:hidden fixed bottom-32 right-4 z-[9999] flex flex-col items-end">
+    <div className="md:hidden fixed bottom-32 right-4 z-9999 flex flex-col items-end">
       <AnimatePresence>
         {isOpen && (
           <>

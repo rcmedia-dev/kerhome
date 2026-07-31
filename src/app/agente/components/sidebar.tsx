@@ -31,7 +31,7 @@ export function Sidebar({ profile, agentStats, onOpenMessageBox }: SidebarProps)
   return (
     <div className="pt-5 lg:w-1/3 space-y-6">
       {/* Card de Contato */}
-      <Card className="p-6 shadow-lg border-0 bg-gradient-to-br from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm rounded-2xl">
+      <Card className="p-6 shadow-lg border-0 bg-linear-to from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm rounded-2xl">
         <div className="text-center space-y-4">
           <h3 className="text-lg font-semibold text-gray-900">Disponível Para Novos Negócios</h3>
           <p className="text-sm text-gray-600">
@@ -41,7 +41,7 @@ export function Sidebar({ profile, agentStats, onOpenMessageBox }: SidebarProps)
           <div className="space-y-3">
             <Button 
               onClick={handleLetsTalk}
-              className="w-full bg-gradient-to-r from-purple-600 to-orange-600 hover:from-purple-700 hover:to-orange-700 text-white py-3 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105"
+              className="w-full bg-linear-to from-purple-600 to-orange-600 hover:from-purple-700 hover:to-orange-700 text-white py-3 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105"
             >
               <MessageCircle className="w-5 h-5 mr-2" />
               Vamos Conversar?
@@ -94,7 +94,7 @@ export function Sidebar({ profile, agentStats, onOpenMessageBox }: SidebarProps)
       </Card>
 
       {/* Card de Estatísticas */}
-      <Card className="p-6 shadow-lg border-0 bg-gradient-to-br from-purple-600 to-orange-600 text-white rounded-2xl">
+      <Card className="p-6 shadow-lg border-0 bg-linear-to from-purple-600 to-orange-600 text-white rounded-2xl">
         <h3 className="font-semibold text-lg mb-6 text-center">Meu Desempenho</h3>
         
         <div className="grid grid-cols-2 gap-4">

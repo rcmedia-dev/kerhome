@@ -172,7 +172,7 @@ export function PropertyCreditSimulator({
       </div>
 
       {/* Resultado */}
-      <div className="bg-gradient-to-br from-purple-600 to-orange-500 rounded-2xl p-5 md:p-8 text-white shadow-xl flex flex-col justify-between min-h-[300px] w-full max-w-full overflow-hidden box-border">
+      <div className="bg-linear-to-br from-purple-600 to-orange-500 rounded-2xl p-5 md:p-8 text-white shadow-xl flex flex-col justify-between min-h-75 w-full max-w-full overflow-hidden box-border">
         <div className="text-center mb-6 px-2">
           <p className="text-sm opacity-90 mb-2">Prestação Mensal Estipada</p>
           <div className="text-3xl md:text-5xl font-black tracking-tighter">

@@ -58,7 +58,7 @@ export function RenderProperties({ darkMode }: RenderPropertiesProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/20 p-6">
+      <div className="min-h-screen bg-linear-to from-slate-50 via-blue-50/20 to-purple-50/20 p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header Skeleton */}
           <div className="flex justify-between items-center">
@@ -90,7 +90,7 @@ export function RenderProperties({ darkMode }: RenderPropertiesProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/20 p-6">
+    <div className="min-h-screen bg-linear-to from-slate-50 via-blue-50/20 to-purple-50/20 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -377,11 +377,11 @@ function ApprovalPropertyCard({ property, darkMode, onUpdate }: PropertyCardProp
             unoptimized={true}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
+          <div className="w-full h-full bg-linear-to from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
             <Building className="w-12 h-12 text-gray-400" />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+        <div className="absolute inset-0 bg-linear-to from-black/80 via-black/20 to-transparent"></div>
 
         {/* Status */}
         <div className="absolute top-4 right-4">
@@ -411,14 +411,14 @@ function ApprovalPropertyCard({ property, darkMode, onUpdate }: PropertyCardProp
 
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <MapPin className="w-4 h-4 flex-shrink-0" />
+            <MapPin className="w-4 h-4 shrink-0" />
             <span className="line-clamp-1">
               {property.endereco || 'Sem endereço'}
             </span>
           </div>
 
           <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <UserCircle2 className="w-4 h-4 flex-shrink-0" />
+            <UserCircle2 className="w-4 h-4 shrink-0" />
             <span className="line-clamp-1">
               {property.owner_id
                 ? `${property.owner_id.primeiro_nome} ${property.owner_id.ultimo_nome}`
@@ -545,11 +545,11 @@ function ManagementPropertyCard({ property, darkMode, onUpdate, onDelete }: Mana
             unoptimized={true}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
+          <div className="w-full h-full bg-linear-to from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
             <Building className="w-12 h-12 text-gray-400" />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+        <div className="absolute inset-0 bg-linear-to from-black/80 via-black/20 to-transparent"></div>
 
         {/* Status */}
         <div className="absolute top-4 right-4">
@@ -579,14 +579,14 @@ function ManagementPropertyCard({ property, darkMode, onUpdate, onDelete }: Mana
 
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <MapPin className="w-4 h-4 flex-shrink-0" />
+            <MapPin className="w-4 h-4 shrink-0" />
             <span className="line-clamp-1">
               {property.endereco || 'Sem endereço'}
             </span>
           </div>
 
           <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <UserCircle2 className="w-4 h-4 flex-shrink-0" />
+            <UserCircle2 className="w-4 h-4 shrink-0" />
             <span className="line-clamp-1">
               {property.owner_id
                 ? `${property.owner_id.primeiro_nome} ${property.owner_id.ultimo_nome}`

@@ -1,6 +1,6 @@
 'use client'
 
-import { Heart, Share2, Maximize2, ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
+import { Heart, Share2, Maximize2, ChevronLeft, ChevronRight, MessageCircle, Play } from "lucide-react";
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { FullscreenView } from "@/components/full-screen";
@@ -163,7 +163,7 @@ export function PropertyGallery({ property }: { property: any }) {
     <div className="absolute top-4 right-4 flex gap-2 z-10">
       {hasVideo || hasTour360 ? (
         <div className="px-3 py-1.5 rounded-full bg-purple-600/90 backdrop-blur-sm border border-purple-400/30 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg">
-          <span className="text-sm">▶</span>
+          <Play className="w-3.5 h-3.5 fill-current" />
           <span>{hasTour360 ? 'Tour 360°' : 'Vídeo'}</span>
         </div>
       ) : null}
@@ -205,7 +205,7 @@ export function PropertyGallery({ property }: { property: any }) {
       <>
         {mainImage && (
           <div>
-            <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden group">
+            <div className="relative w-full h-75 sm:h-100 md:h-125 lg:h-150 overflow-hidden group">
               <Image
                 src={mainImage}
                 alt={property.title}
@@ -241,7 +241,7 @@ export function PropertyGallery({ property }: { property: any }) {
                       onClick={() => handleSwap(img, idx)}
                       role="button"
                       tabIndex={0}
-                      className="relative flex-shrink-0 w-20 h-16 sm:w-28 sm:h-20 md:w-32 md:h-24 rounded-xl overflow-hidden border border-gray-200 shadow cursor-pointer hover:ring-2 hover:ring-purple-400 transition group"
+                      className="relative shrink-0 w-20 h-16 sm:w-28 sm:h-20 md:w-32 md:h-24 rounded-xl overflow-hidden border border-gray-200 shadow cursor-pointer hover:ring-2 hover:ring-purple-400 transition group"
                     >
                       <Image
                         src={img}
@@ -292,7 +292,7 @@ export function PropertyGallery({ property }: { property: any }) {
     <>
       {mainImage && (
         <div className="mb-6">
-          <div className="relative w-full max-w-full h-[300px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 mb-4 group">
+          <div className="relative w-full max-w-full h-75 rounded-2xl overflow-hidden shadow-lg border border-gray-200 mb-4 group">
             <Image
               src={allImages[currentIndex]}
               alt={property.title}

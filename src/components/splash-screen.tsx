@@ -35,10 +35,9 @@ export function SplashScreen() {
             <Image 
               src="/kercasa_logo.png" 
               alt="Kercasa Logo" 
-              width={250} 
-              height={70} 
-              className="object-contain"
-              style={{ width: 'auto', height: 'auto', maxWidth: '300px' }}
+              width={300} 
+              height={84} 
+              className="object-contain w-auto max-w-[300px]"
               priority
             />
             

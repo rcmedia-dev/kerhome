@@ -15,7 +15,7 @@ function AgentContactCard({ userIdLogado, adminId }: { userIdLogado?: string; ad
     e.preventDefault();
     
     if (!userIdLogado) {
-      toast.error('Você precisa estar logado para enviar mensagens');
+      toast.warning('Você precisa estar logado para enviar mensagens');
       return;
     }
 

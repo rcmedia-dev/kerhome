@@ -46,14 +46,14 @@ export async function sendAgencyInviteEmail(email: string, agencyName: string, t
     });
 
     if (error) {
-      console.error("❌ Erro da API da Resend ao enviar email de convite:", error);
+      console.error("Erro da API da Resend ao enviar email de convite:", error);
       return { success: false, error };
     }
 
-    console.log("📨 Email de convite enviado via Resend:", data);
+    console.log("Email de convite enviado via Resend:", data);
     return { success: true, data };
   } catch (error) {
-    console.error("❌ Erro ao enviar email de convite via Resend:", error);
+    console.error("Erro ao enviar email de convite via Resend:", error);
     return { success: false, error };
   }
 }

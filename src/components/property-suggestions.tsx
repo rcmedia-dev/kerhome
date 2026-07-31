@@ -26,7 +26,7 @@ function PropertyCard({ property, variant = 'default' }: PropertyCardProps) {
   return (
     <Link
       href={property.slug ? `/propriedades/${property.slug}` : `/propriedades/${property.id}`}
-      className="group block bg-gray-50 border border-border rounded-card overflow-hidden hover:shadow-card transition-all duration-300 min-w-[240px] sm:min-w-[280px]"
+      className="group block bg-gray-50 border border-border rounded-card overflow-hidden hover:shadow-card transition-all duration-300 min-w-60 sm:min-w-70"
     >
       <div className={`relative w-full ${imageHeight} overflow-hidden`}>
         <Image

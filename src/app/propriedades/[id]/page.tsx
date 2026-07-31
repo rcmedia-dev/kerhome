@@ -22,54 +22,87 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { RealEstateListingJsonLd } from "@/components/json-ld";
 import { redirect } from "next/navigation";
 import { PageViewTracker } from "@/components/page-view-tracker";
+import { ShieldCheck } from "lucide-react";
 
 function isUUID(value: string): boolean {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   return uuidRegex.test(value);
 }
 
-// 🔑 METADATA DINMICA
+// METADATA DINAMICA
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   let property = isUUID(id) ? await getPropertyById(id) : await getPropertyBySlug(id);
 
   if (!property) {
     return {
-      title: "Imóvel não encontrado",
-      description: "Este imóvel não existe ou foi removido.",
+      title: "Imóvel não encontrado | Kercasa",
+      description: "Este imóvel não existe ou foi removido da Kercasa.",
     };
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  const propertyUrl = property.slug 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
+  const propertyUrl = property.slug
     ? `${siteUrl}/propriedades/${property.slug}`
     : `${siteUrl}/propriedades/${property.id}`;
 
+  const cleanTitle = (property.title || 'Imóvel')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const rawDesc = (property.description || '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/✨|🔑|🛡️|⚡|🏠|📐|🛁|🚗|🏊|🌿|☀️/g, '')
+    .replace(/\n+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const description = rawDesc.length > 155
+    ? rawDesc.substring(0, 152).replace(/\s\S*$/, '') + '...'
+    : rawDesc || `Veja detalhes desta propriedade na Kercasa. Imóvel verificado em ${property.cidade || 'Angola'}.`;
+
+  const title = cleanTitle.length > 50
+    ? `${cleanTitle.substring(0, 47).replace(/\s\S*$/, '')}... | Kercasa`
+    : `${cleanTitle} | Kercasa`;
+
+  const locationParts = [property.bairro, property.cidade, property.provincia].filter(Boolean);
+  const keywords = [
+    property.tipo,
+    ...locationParts,
+    'imóvel Angola',
+    'Kercasa',
+    property.tipo === 'arrendamento' ? 'arrendar' : 'comprar',
+  ].filter(Boolean).join(', ');
+
   return {
-    title: property.title || "Imóvel Incrível",
-    description: property.description || "Veja mais detalhes deste imóvel.",
+    title,
+    description,
+    keywords,
     alternates: { canonical: propertyUrl },
+    other: {
+      'X-Robots-Tag': 'index, follow',
+    },
     openGraph: {
-      title: property.title,
-      description: property.description?.substring(0, 200),
+      title,
+      description,
       url: propertyUrl,
       type: "article",
       locale: "pt_AO",
       siteName: "Kercasa",
       images: [
         {
-          url: property.image,
+          url: property.image || `${siteUrl}/kercasa_logo.png`,
           width: 1200,
           height: 630,
-          alt: property.title,
+          alt: cleanTitle,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: property.title,
-      description: property.description?.substring(0, 200),
-      images: [`${propertyUrl}/opengraph-image`],
+      title,
+      description,
+      images: [property.image || `${siteUrl}/kercasa_logo.png`],
     },
     robots: { index: true, follow: true },
   };
@@ -239,7 +272,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
 
               {/* Additional Info / Safety Tips could go here */}
               <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-100 text-sm text-blue-800">
-                <p className="font-semibold mb-2 flex items-center gap-2">🛡️ Dica de Segurança</p>
+                <p className="font-semibold mb-2 flex items-center gap-2"><ShieldCheck className="w-4 h-4" /> Dica de Segurança</p>
                 Nunca faça pagamentos antecipados sem visitar o imóvel e assinar contrato.
               </div>
 

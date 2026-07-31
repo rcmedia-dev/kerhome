@@ -215,7 +215,7 @@ function VisitListItem({
             <Trash2 className="w-6 h-6 text-rose-500" />
           </div>
           <p className="text-[11px] font-black text-rose-600 uppercase tracking-[0.2em] mb-4">Eliminar este agendamento?</p>
-          <div className="flex gap-3 w-full max-w-[240px]">
+          <div className="flex gap-3 w-full max-w-60">
             <button 
               onClick={(e) => { e.stopPropagation(); onConfirmDelete(); }}
               className="flex-1 py-3 bg-rose-500 text-white text-[10px] font-black uppercase rounded-md shadow-lg shadow-rose-200 hover:bg-rose-600 transition-all cursor-pointer"
@@ -291,7 +291,7 @@ function VisitListItem({
           <>
             <button
               onClick={() => onUpdate(visit.id, 'confirmed')}
-              className="flex-1 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-[20px] text-[11px] font-black uppercase tracking-widest hover:from-purple-700 hover:to-indigo-700 transition-all shadow-xl shadow-purple-200 cursor-pointer flex items-center justify-center gap-2"
+              className="flex-1 py-4 bg-linear-to from-purple-600 to-indigo-600 text-white rounded-[20px] text-[11px] font-black uppercase tracking-widest hover:from-purple-700 hover:to-indigo-700 transition-all shadow-xl shadow-purple-200 cursor-pointer flex items-center justify-center gap-2"
             >
               Confirmar
             </button>
@@ -306,7 +306,7 @@ function VisitListItem({
         {visit.status === 'confirmed' && (
           <button
             onClick={() => onUpdate(visit.id, 'done')}
-            className="w-full py-4 md:py-5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-[20px] text-[10px] md:text-[11px] font-black uppercase tracking-widest hover:from-green-600 hover:to-emerald-700 transition-all shadow-xl shadow-green-200 flex items-center justify-center gap-3 cursor-pointer"
+            className="w-full py-4 md:py-5 bg-linear-to from-green-500 to-emerald-600 text-white rounded-[20px] text-[10px] md:text-[11px] font-black uppercase tracking-widest hover:from-green-600 hover:to-emerald-700 transition-all shadow-xl shadow-green-200 flex items-center justify-center gap-3 cursor-pointer"
           >
             <CheckCircle2 className="w-5 h-5" />
             Finalizar Visita

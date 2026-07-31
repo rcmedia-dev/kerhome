@@ -811,7 +811,7 @@ function PropertyCardItem({ property, index, onQuickView }: { property: any; ind
           toggleSelect(property.id);
         }
       }}
-      className={`w-full flex justify-center relative cursor-pointer transition-all ${selectionMode ? (isSelected ? 'ring-2 ring-purple-500 rounded-[24px] ring-offset-2' : 'ring-1 ring-gray-200 rounded-[24px] ring-offset-1 hover:ring-purple-300') : ''}`}
+      className={`w-full flex justify-center relative cursor-pointer transition-all ${selectionMode ? (isSelected ? 'ring-2 ring-purple-500 rounded-3xl ring-offset-2' : 'ring-1 ring-gray-200 ring-offset-1 hover:ring-purple-300') : ''}`}
     >
       {selectionMode && (
         <div className="absolute top-3 left-3 z-10">

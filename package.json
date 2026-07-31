@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "rm -rf .next",
     "dev": "npx next dev --turbopack",
     "build": "next build",
     "start": "next start",
@@ -74,6 +75,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.16",
+    "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.3.2",
     "@types/aframe": "^1.2.9",
     "@types/bcrypt": "^5.0.2",

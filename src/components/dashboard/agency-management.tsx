@@ -329,7 +329,7 @@ export function AgencyManagement({ agency, agencyProperties }: AgencyManagementP
                                     <button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-button font-bold transition-all shadow-card shadow-purple-200 flex items-center gap-2 disabled:opacity-50"
+                                        className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-button font-bold transition-all shadow-purple-200 flex items-center gap-2 disabled:opacity-50"
                                     >
                                         {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                                         Salvar Alterações

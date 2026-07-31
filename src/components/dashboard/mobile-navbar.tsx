@@ -19,6 +19,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUserStore } from '@/lib/store/user-store';
 import { createClient } from '@/lib/supabase/client';
+import { toast } from 'sonner';
 
 interface MobileNavbarProps {
     activeTab: string;
@@ -38,10 +39,12 @@ export function MobileNavbar({ activeTab, setActiveTab, userAgency }: MobileNavb
             } else {
                 await supabase.auth.signOut();
             }
-            window.location.href = '/login';
+            toast.success('Sessão encerrada com sucesso');
+            window.location.replace('/');
         } catch (error) {
             console.error('Error during logout:', error);
-            window.location.href = '/login';
+            toast.error('Erro ao encerrar a sessão');
+            window.location.replace('/');
         }
     };
 
@@ -86,7 +89,7 @@ export function MobileNavbar({ activeTab, setActiveTab, userAgency }: MobileNavb
                                     isActive ? 'bg-purple-100' : ''
                                 )}>
                                     <tab.icon className={cn(
-                                        'w-[19px] h-[19px] transition-all duration-200',
+                                        'w-4.75 h-4.75 transition-all duration-200',
                                         isActive ? 'text-purple-600' : 'text-gray-400'
                                     )} />
                                 </div>
@@ -113,12 +116,12 @@ export function MobileNavbar({ activeTab, setActiveTab, userAgency }: MobileNavb
                             <AnimatePresence mode="wait" initial={false}>
                                 {showMore ? (
                                     <motion.div key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }}>
-                                        <X className="w-[19px] h-[19px] text-purple-600" />
+                                        <X className="w-4.75 h-4.75 text-purple-600" />
                                     </motion.div>
                                 ) : (
                                     <motion.div key="more" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.15 }}>
                                         <MoreHorizontal className={cn(
-                                            'w-[19px] h-[19px]',
+                                            'w-4.75 h-4.75',
                                             (showMore || isSecondaryActive) ? 'text-purple-600' : 'text-gray-400'
                                         )} />
                                     </motion.div>
@@ -176,7 +179,7 @@ export function MobileNavbar({ activeTab, setActiveTab, userAgency }: MobileNavb
                                         className={cn(
                                             'flex flex-col items-center justify-center gap-2 p-4 rounded-2xl transition-all active:scale-95',
                                             isActive
-                                                ? 'bg-gradient-to-br from-purple-500 to-purple-700 text-white shadow-lg shadow-purple-200'
+                                                ? 'bg-linear-to from-purple-500 to-purple-700 text-white shadow-lg shadow-purple-200'
                                                 : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                                         )}
                                     >

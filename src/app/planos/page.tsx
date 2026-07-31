@@ -7,7 +7,7 @@ import { getUserPlan } from "@/lib/functions/supabase-actions/get-user-package-a
 import { useRouter } from "next/navigation";
 import { handleRequestPlanChange } from "@/app/admin/dashboard/actions/update-user-plan";
 import { motion, AnimatePresence } from "framer-motion";
-import { Star, ShieldCheck, Zap, ArrowLeft, ArrowRight } from "lucide-react";
+import { ShieldCheck, ArrowRight } from "lucide-react";
 import { CheckoutView } from "@/components/checkout-view";
 import { useUserStore } from "@/lib/store/user-store";
 import ClientOnly from "@/components/layout/ClientOnly";
@@ -252,7 +252,7 @@ export default function PlanosPage() {
 
                 return (
                   <div key={planName} className="p-4 xl:w-1/3 md:w-1/2 w-full">
-                    <div className={`h-full p-8 rounded-[2rem] border-2 flex flex-col relative overflow-hidden transition-all duration-500 ${
+                    <div className={`h-full p-8 rounded-4xl border-2 flex flex-col relative overflow-hidden transition-all duration-500 ${
                       isRecommended 
                         ? "border-purple-600 shadow-2xl shadow-purple-500/10 bg-white scale-105 z-10" 
                         : isCurrent 
@@ -283,7 +283,7 @@ export default function PlanosPage() {
                       <div className="space-y-4 mb-10 flex-1">
                         {planConfig.benefits.map((benefit, index) => (
                           <p key={index} className="flex items-center text-gray-600 font-medium text-sm leading-relaxed">
-                            <span className={`w-5 h-5 mr-3 inline-flex items-center justify-center rounded-full flex-shrink-0 ${
+                            <span className={`w-5 h-5 mr-3 inline-flex items-center justify-center rounded-full shrink-0 ${
                               isRecommended ? "bg-purple-600 shadow-lg shadow-purple-200" : "bg-orange-600 shadow-lg shadow-orange-100"
                             } text-white`}>
                               <CheckCircle2 className="w-3.5 h-3.5" />

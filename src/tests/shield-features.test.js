@@ -55,7 +55,7 @@ async function runTests() {
         const { data: stats, error: statsErr } = await supabase.from('v_imobiliaria_stats').select('total_imoveis').eq('id', agency.id).single();
         await supabase.from('properties').delete().eq('id', tempPropId);
         if (prop?.imobiliaria_id === agency.id) {
-            console.log('\x1b[32mPASSOU ✔\x1b[0m');
+            console.log('\x1b[32mPASSOU\x1b[0m');
             console.log(`  imobiliaria_id gravado: ${agency.id}`);
             console.log(`  Metricas (total_imoveis): ${stats?.total_imoveis ?? 'N/A'}`);
             passed++;
@@ -79,13 +79,13 @@ async function runTests() {
     const fkExpected = msgErr.includes('violates') || msgErr.includes('foreign key');
 
     if (colMissing) {
-        console.log('\x1b[36mPASSOU ✔ (coluna pendente na BD)\x1b[0m');
+        console.log('\x1b[36mPASSOU (coluna pendente na BD)\x1b[0m');
         console.log('  Logica validada. SQL a executar no Supabase:');
         console.log('  \x1b[90mALTER TABLE messages ADD COLUMN IF NOT EXISTS sender_type TEXT DEFAULT \'personal\';');
         console.log('  ALTER TABLE messages ADD COLUMN IF NOT EXISTS sender_agency_id UUID REFERENCES imobiliarias(id);\x1b[0m');
         passed++;
     } else if (!t2Err || fkExpected) {
-        console.log('\x1b[32mPASSOU ✔\x1b[0m');
+        console.log('\x1b[32mPASSOU\x1b[0m');
         console.log('  sender_agency_id persistido. Historico vinculado a agencia (imutavel).');
         passed++;
     } else {
@@ -124,7 +124,7 @@ async function runTests() {
             console.error('  Select err:', t3SelErr?.message || 'none');
             console.error('  Status final:', final?.aprovement_status ?? 'null');
         } else {
-            console.log('\x1b[32mPASSOU ✔\x1b[0m');
+            console.log('\x1b[32mPASSOU\x1b[0m');
             console.log(`  pending → ${final.aprovement_status} (Action unificada EN)`);
             passed++;
         }

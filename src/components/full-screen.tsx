@@ -41,7 +41,7 @@ export function FullscreenView({
 
   const handleStartChat = async () => {
     if (!userId) {
-      toast.error('Você precisa estar logado para iniciar um chat.');
+      toast.warning('Você precisa estar logado para iniciar um chat.');
       router.push('/login');
       return;
     }
@@ -128,7 +128,7 @@ export function FullscreenView({
             <X size={24} />
           </button>
           <div className="hidden md:block min-w-0">
-            <h2 className="text-gray-900 font-bold text-lg truncate max-w-[300px]">
+            <h2 className="text-gray-900 font-bold text-lg truncate max-w-75">
               {property.title}
             </h2>
             <p className="text-gray-500 text-xs uppercase tracking-widest font-semibold">

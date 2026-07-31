@@ -43,7 +43,7 @@ export const AuthDialog = forwardRef(function AuthDialog(
     <Dialog open={isAuthModalOpen} onOpenChange={(open) => !open && closeAuthModal()}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 
-      <DialogContent className="max-w-md p-0 border-none bg-transparent shadow-none">
+      <DialogContent className="max-w-md p-0 border-none bg-transparent shadow-none" showCloseButton={false}>
         <DialogTitle className="sr-only">Autenticação</DialogTitle>
         {isSignUp ? (
           <CustomSignUpForm

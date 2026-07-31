@@ -291,7 +291,7 @@ export default function ImobiliariasManagement({ darkMode }: Props) {
               }
             }}
             disabled={createImobiliaria.isPending || uploadingLogo || updateImobiliaria.isPending}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold transition-colors disabled:opacity-50 flex items-center justify-center min-w-[180px]"
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold transition-colors disabled:opacity-50 flex items-center justify-center min-w-45"
           >
             {(createImobiliaria.isPending || updateImobiliaria.isPending || uploadingLogo) ? (
               <Loader2 className="w-5 h-5 animate-spin" />

@@ -132,7 +132,7 @@ export function AgentRequestButton({ userId, userName }: AgentRequestButtonProps
       if (result.decision === 'approved') {
         console.log(`IA aprovou agente ${userId} (score: ${result.score}%)`);
         await useUserStore.getState().updateUser({ role: 'agent' });
-        toast.success('Parabéns! O teu pedido para te tornares agente foi aprovado pela nossa IA! 🎉');
+        toast.success('Parabéns! O teu pedido para te tornares agente foi aprovado pela nossa IA!');
       } else if (result.decision === 'rejected') {
         console.log(`IA rejeitou agente ${userId}: ${result.reasons.join(', ')}`);
         
@@ -180,8 +180,8 @@ export function AgentRequestButton({ userId, userName }: AgentRequestButtonProps
         className={cn(
           "flex justify-center items-center px-4 sm:px-6 py-3 rounded-xl transition-all duration-200 text-sm md:text-base w-full md:w-auto font-medium relative",
           isLoading || isChecking || hasPendingRequest
-            ? "bg-gradient-to-r from-purple-400 to-orange-400 cursor-not-allowed shadow-sm text-white"
-            : "bg-gradient-to-r from-purple-600 to-orange-600 hover:shadow-md shadow-sm text-white hover:from-purple-700 hover:to-orange-700"
+            ? "bg-linear-to from-purple-400 to-orange-400 cursor-not-allowed shadow-sm text-white"
+            : "bg-linear-to from-purple-600 to-orange-600 hover:shadow-md shadow-sm text-white hover:from-purple-700 hover:to-orange-700"
         )}
       >
         <motion.div
@@ -195,7 +195,7 @@ export function AgentRequestButton({ userId, userName }: AgentRequestButtonProps
           : isChecking
           ? "Verificando..."
           : isApproved
-          ? "Agente Aprovado ✅"
+          ? "Agente Aprovado"
           : hasPendingRequest
           ? "Aguardando Aprovação"
           : "Tornar-se Agente"}

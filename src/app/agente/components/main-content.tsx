@@ -14,12 +14,12 @@ export function MainContent({
   return (
     <div className="pt-5 lg:w-2/3">
       {/* Abas */}
-      <Card className="p-2 mb-8 shadow-lg border-0 rounded-2xl bg-gradient-to-br from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm">
+      <Card className="p-2 mb-8 shadow-lg border-0 rounded-2xl bg-linear-to from-white via-purple-50/30 to-orange-50/30 backdrop-blur-sm">
         <div className="flex gap-2">
           <button 
             className={`flex-1 py-3 px-4 rounded-xl text-center transition-all duration-300 ${
               activeTab === 'properties' 
-                ? 'bg-gradient-to-r from-purple-600 to-orange-600 text-white shadow-lg' 
+                ? 'bg-linear-to from-purple-600 to-orange-600 text-white shadow-lg' 
                 : 'text-gray-600 hover:text-purple-700 hover:bg-purple-50'
             }`}
             onClick={() => setActiveTab('properties')}
@@ -30,7 +30,7 @@ export function MainContent({
           <button 
             className={`flex-1 py-3 px-4 rounded-xl text-center transition-all duration-300 ${
               activeTab === 'about' 
-                ? 'bg-gradient-to-r from-purple-600 to-orange-600 text-white shadow-lg' 
+                ? 'bg-linear-to from-purple-600 to-orange-600 text-white shadow-lg' 
                 : 'text-gray-600 hover:text-purple-700 hover:bg-purple-50'
             }`}
             onClick={() => setActiveTab('about')}

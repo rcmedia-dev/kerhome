@@ -1,10 +1,11 @@
 export function OrganizationJsonLd() {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'Kercasa',
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com',
-    logo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com'}/logo.png`,
+    url: siteUrl,
+    logo: `${siteUrl}/kercasa_logo.png`,
     description: 'Plataforma imobiliária em Angola. Compre, arrende ou anuncie imóveis com inteligência artificial.',
     contactPoint: {
       '@type': 'ContactPoint',
@@ -15,6 +16,31 @@ export function OrganizationJsonLd() {
       'https://facebook.com/kercasa',
       'https://instagram.com/kercasa',
     ],
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  );
+}
+
+export function WebsiteJsonLd() {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Kercasa',
+    url: siteUrl,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${siteUrl}/propriedades?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
   };
 
   return (

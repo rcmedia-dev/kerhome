@@ -1,7 +1,7 @@
-﻿'use client'
+'use client'
 
 import React, { useState } from 'react'; // HMR Refresh
-import { Calendar, User, ArrowRight, Search } from 'lucide-react';
+import { Calendar, User, ArrowRight, Search, BookOpen, TrendingUp, Lightbulb } from 'lucide-react';
 import { Noticias } from '@/lib/types/noticia';
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchPosts } from '@/lib/functions/supabase-actions/posts-actions';
@@ -40,28 +40,55 @@ interface PostsGridProps {
 
 
 
-// Componente para o cabeçalho
+// Componente para o cabeçalho — padrão hero imobiliárias (Aurora & Glassmorphism)
 const Header: React.FC = () => (
-  <header className="relative bg-linear-to-r from-[#130f25] to-purple-900 text-white overflow-hidden pb-32 pt-20">
-    <div 
-      className="absolute inset-0 opacity-10"
-      style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Ccircle cx=\"30\" cy=\"30\" r=\"4\" fill=\"white\" fill-opacity=\"0.5\"/%3E%3C/svg%3E')" }}
-    ></div>
-    <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-    <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+  <section className="relative bg-[#05020B] overflow-hidden pt-12 pb-40 lg:pt-16 lg:pb-40">
+    {/* Ambient Backgrounds / Aurora Effect */}
+    <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#820AD1]/30 blur-[120px] pointer-events-none mix-blend-screen" />
+    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[50%] rounded-full bg-[#F97316]/20 blur-[120px] pointer-events-none mix-blend-screen" />
 
-    <div className="container mx-auto px-4 relative z-10 text-center">
-      <span className="inline-block py-1 px-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-orange-200 text-sm font-medium mb-6">
-        Insights do Mercado
-      </span>
-      <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight leading-tight">
-        KERCASA <span className="text-transparent bg-clip-text bg-linear-to-r from-orange-400 to-amber-200">BLOG</span>
+    {/* Subtle Dot Grid Pattern */}
+    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNykiLz48L3N2Zz4=')] [mask-image:linear-gradient(to_bottom,white,transparent)] pointer-events-none" />
+
+    {/* Content */}
+    <div className="container mx-auto px-4 relative z-10 flex flex-col items-center text-center">
+
+      {/* Pill Badge */}
+      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8 shadow-lg shadow-purple-900/20">
+        <span className="flex h-2 w-2 rounded-full bg-orange-500 animate-pulse" />
+        <span className="text-sm font-medium tracking-wide text-gray-300">Insights do Mercado</span>
+      </div>
+
+      {/* Main Headline */}
+      <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1] mb-6 max-w-4xl">
+        Notícias &amp; <br className="hidden md:block" />
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-purple-400 to-[#820AD1]">
+          Tendências do Mercado
+        </span>
       </h1>
-      <p className="text-xl text-purple-100 max-w-2xl mx-auto font-light leading-relaxed">
+
+      {/* Subheadline */}
+      <p className="text-lg md:text-xl text-gray-400 max-w-2xl font-light leading-relaxed mb-10">
         Seu guia definitivo para investimentos inteligentes, decoração e tendências do mercado imobiliário em Angola.
       </p>
+
+      {/* Trust Indicators */}
+      <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500 font-medium">
+        <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">
+          <BookOpen size={16} className="text-purple-400" />
+          <span>Artigos Exclusivos</span>
+        </div>
+        <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">
+          <TrendingUp size={16} className="text-purple-400" />
+          <span>Análises de Mercado</span>
+        </div>
+        <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">
+          <Lightbulb size={16} className="text-orange-400" />
+          <span>Dicas de Investimento</span>
+        </div>
+      </div>
     </div>
-  </header>
+  </section>
 );
 
 // Componente para a barra de pesquisa
@@ -202,7 +229,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             </div>
 
             {/* Title: sanitized to remove &nbsp; so CSS word-break works correctly */}
-            <div className="min-h-[52px] h-[52px] overflow-hidden w-full">
+            <div className="min-h-13 h-13 overflow-hidden w-full">
               <h3
                 className="text-base font-bold text-gray-900 leading-tight group-hover:text-purple-700 transition-colors"
                 style={{
@@ -260,7 +287,7 @@ const FeaturedPost: React.FC<FeaturedPostProps> = ({ post }) => {
         <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 to-transparent"></div>
       </div>
 
-      <div className="relative p-6 sm:p-8 md:p-16 flex flex-col justify-end h-full min-h-[320px] sm:min-h-[420px] md:min-h-[500px]">
+      <div className="relative p-6 sm:p-8 md:p-16 flex flex-col justify-end h-full min-h-80 sm:min-h md:min-h">
         <div className="max-w-3xl">
           <span className="inline-block bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-md mb-6 uppercase tracking-wider">
             Destaque da Semana

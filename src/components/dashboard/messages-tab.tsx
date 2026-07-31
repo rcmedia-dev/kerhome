@@ -465,7 +465,7 @@ export function MessagesTab() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 20 }}
-                    className="absolute bottom-20 left-0 right-0 p-4 bg-gradient-to-t from-white via-white/95 to-transparent pointer-events-none"
+                    className="absolute bottom-20 left-0 right-0 p-4 bg-linear-to from-white via-white/95 to-transparent pointer-events-none"
                   >
                     <div className="flex flex-wrap gap-2 justify-center pointer-events-auto">
                        {QUICK_REPLIES.map((text, i) => (
@@ -501,7 +501,7 @@ export function MessagesTab() {
                 <MessageCircle className="w-12 h-12 text-purple-100" />
               </div>
               <h3 className="text-sm font-black text-gray-900 mb-2 uppercase tracking-widest">Seu Hub de Vendas</h3>
-              <p className="text-[11px] text-gray-400 max-w-[240px] font-bold leading-relaxed">
+              <p className="text-[11px] text-gray-400 max-w-60 font-bold leading-relaxed">
                 Selecione um lead para iniciar a qualificação estratégica e fechar mais negócios.
               </p>
             </div>
@@ -514,7 +514,7 @@ export function MessagesTab() {
           // Desktop: always show
           "md:flex md:col-span-3",
           // Mobile: show only if isMobileCrmOpen is true
-          !isMobileCrmOpen ? "hidden" : "absolute inset-0 z-[40] flex"
+          !isMobileCrmOpen ? "hidden" : "absolute inset-0 z-40 flex"
         )}>
 
           {activeConversationId ? (
@@ -676,7 +676,7 @@ export function MessagesTab() {
                           value={localNote}
                           onChange={(e) => handleNoteChange(e.target.value)}
                           placeholder="Ex: Cliente prefere casas com quintal..."
-                          className="w-full min-h-[140px] p-4 text-[12px] font-medium bg-white border border-purple-200 rounded-md focus:outline-none focus:ring-4 focus:ring-purple-500/5 resize-none transition-all text-gray-700 shadow-sm"
+                          className="w-full min-h-35 p-4 text-[12px] font-medium bg-white border border-purple-200 rounded-md focus:outline-none focus:ring-4 focus:ring-purple-500/5 resize-none transition-all text-gray-700 shadow-sm"
                         />
                         <div className="absolute bottom-3 right-3">
                           {saveTimeoutRef.current && (
@@ -698,7 +698,7 @@ export function MessagesTab() {
                     /* DISPLAY STATE (The "Alert Style" Note Card) */
                     <div 
                       onClick={() => setIsEditingNote(true)}
-                      className="group relative flex items-center gap-4 py-3 px-5 bg-orange-50 border border-orange-100 rounded-md border-l-[5px] border-l-orange-500 cursor-pointer hover:bg-orange-100 hover:border-orange-200 transition-all animate-in slide-in-from-left-2 duration-300 min-h-[60px]"
+                      className="group relative flex items-center gap-4 py-3 px-5 bg-orange-50 border border-orange-100 rounded-md border-l-[5px] border-l-orange-500 cursor-pointer hover:bg-orange-100 hover:border-orange-200 transition-all animate-in slide-in-from-left-2 duration-300 min-h-15"
                     >
                       <div className="shrink-0">
                         <div className="w-9 h-9 rounded-md bg-white shadow-sm flex items-center justify-center border border-orange-100">
@@ -800,7 +800,7 @@ export function MessagesTab() {
                                   <div className="mt-2 flex items-center gap-2">
                                     <span className={cn('text-[8px] font-black uppercase px-2 py-0.5 rounded-md', s.cls)}>{s.label}</span>
                                     {visit.property_title && (
-                                      <span className="text-[8px] text-gray-400 font-bold uppercase truncate max-w-[120px]">
+                                      <span className="text-[8px] text-gray-400 font-bold uppercase truncate max-w-30">
                                         • {visit.property_title}
                                       </span>
                                     )}
@@ -814,7 +814,7 @@ export function MessagesTab() {
                                   </div>
                                 )}
                                 {visit.status === 'confirmed' && (
-                                  <button onClick={(e) => { e.stopPropagation(); handleUpdateVisitStatus(visit.id, 'done'); }} className="w-full mt-4 py-2 text-[9px] font-black uppercase bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors shadow-sm">✓ Concluir Visita</button>
+                                  <button onClick={(e) => { e.stopPropagation(); handleUpdateVisitStatus(visit.id, 'done'); }} className="w-full mt-4 py-2 text-[9px] font-black uppercase bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors shadow-sm"><Check className="w-3 h-3 inline mr-1" /> Concluir Visita</button>
                                 )}
                               </>
                             )}
@@ -908,7 +908,7 @@ function VisitSchedulerModal({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[9999] flex justify-end">
+        <div className="fixed inset-0 z-9999 flex justify-end">
           {/* Backdrop */}
           <motion.div 
             initial={{ opacity: 0 }}
@@ -924,7 +924,7 @@ function VisitSchedulerModal({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="relative w-full max-w-[400px] h-full bg-white shadow-2xl flex flex-col border-l border-gray-100"
+            className="relative w-full max-w-100 h-full bg-white shadow-2xl flex flex-col border-l border-gray-100"
           >
             {/* Header */}
             <div className="p-6 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white sticky top-0 z-10">

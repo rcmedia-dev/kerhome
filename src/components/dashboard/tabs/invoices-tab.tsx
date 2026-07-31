@@ -214,7 +214,7 @@ export function Faturas({ invoices }: FaturasProps) {
                     setFaturaToDelete(null);
                   }
                 }}
-                className="px-6 py-2 text-sm bg-red-600 text-white rounded-button hover:bg-red-700 transition-all font-semibold shadow-card shadow-red-600/20"
+                className="px-6 py-2 text-sm bg-red-600 text-white rounded-button hover:bg-red-700 transition-all font-semibold shadow-red-600/20"
               >
                 Eliminar
               </button>

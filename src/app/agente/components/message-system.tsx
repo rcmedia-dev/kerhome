@@ -65,7 +65,7 @@ export function MessageSystem({
                   <Button
                     onClick={() => onSendMessage?.()}
                     disabled={!message?.trim() || isSending}
-                    className="flex-1 bg-gradient-to-r from-purple-600 to-orange-600 hover:from-purple-700 hover:to-orange-700 text-white py-3 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 bg-linear-to from-purple-600 to-orange-600 hover:from-purple-700 hover:to-orange-700 text-white py-3 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSending ? (
                       <>

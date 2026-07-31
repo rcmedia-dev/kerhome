@@ -32,47 +32,47 @@ export async function searchProperties(params: SearchParams) {
         .from("properties")
         .select("*", { count: "exact" });
 
-    // 🔍 Filtro por título
+    // Filtro por título
     if (q) {
         query = query.ilike("title", `%${q}%`);
     }
 
-    // 📋 Status
+    // Status
     if (status) {
         query = query.eq("status", status);
     }
 
-    // 📍 Cidade
+    // Cidade
     if (cidade) {
         query = query.ilike("cidade", `%${cidade}%`);
     }
 
-    // 🏠 Tipo de imóvel
+    // Tipo de imóvel
     if (tipo) {
         query = query.ilike("tipo", `%${tipo}%`);
     }
 
-    // 🚿 Banheiros
+    // Banheiros
     if (banheiros) {
         query = query.gte("banheiros", Number(banheiros));
     }
 
-    // 🛏️ Quartos
+    // Quartos
     if (quartos) {
         query = query.gte("quartos", Number(quartos));
     }
 
-    // 🚗 Garagens
+    // Garagens
     if (garagens) {
         query = query.gte("garagens", Number(garagens));
     }
 
-    // 💰 Preço máximo
+    // Preço máximo
     if (preco_max) {
         query = query.lte("preco", Number(preco_max));
     }
 
-    // 📐 Tamanho mínimo
+    // Tamanho mínimo
     if (tamanho_min) {
         query = query.gte("tamanho", Number(tamanho_min));
     }

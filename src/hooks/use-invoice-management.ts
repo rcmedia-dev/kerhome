@@ -13,7 +13,7 @@ export function useInvoiceManagement(initialInvoices: Fatura[] | null) {
 
   const handleDeleteFatura = useCallback(async (faturaId: string) => {
     if (!user) {
-      toast.error('Usuário não autenticado');
+      toast.warning('Usuário não autenticado');
       return;
     }
 

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { ReactNode, ReactElement } from 'react';
 import { AlertTriangle } from 'lucide-react';
@@ -13,33 +13,18 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-/**
- * Error Boundary para capturar erros em componentes React
- * 
- * @example
- * ```tsx
- * <ErrorBoundary
- *   fallback={(error) => (
- *     <div>Erro: {error.message}</div>
- *   )}
- * >
- *   <YourComponent />
- * </ErrorBoundary>
- * ```
- */
 export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null };
   }
 
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Erro capturado por ErrorBoundary:', error);
-    console.error('Info do erro:', errorInfo);
+    console.error('ErrorBoundary:', error);
   }
 
   render() {
@@ -49,43 +34,36 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
       }
 
       return (
-        <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
-            <div className="flex justify-center mb-6">
-              <div className="bg-red-100 p-4 rounded-full">
-                <AlertTriangle className="w-8 h-8 text-red-600" />
+        <div className="min-h-50 bg-linear-to from-red-50 to-orange-50 flex items-center justify-center p-4 rounded-2xl">
+          <div className="max-w-sm w-full bg-white rounded-2xl shadow-xl p-6">
+            <div className="flex justify-center mb-4">
+              <div className="bg-red-100 p-3 rounded-full">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
               </div>
             </div>
 
-            <h1 className="text-2xl font-bold text-gray-900 text-center mb-4">
+            <h2 className="text-lg font-bold text-gray-900 text-center mb-2">
               Algo deu errado
-            </h1>
+            </h2>
 
-            <p className="text-gray-600 text-center mb-6">
-              Desculpe, encontramos um erro. Tente recarregar a página ou contacte o suporte.
+            <p className="text-gray-600 text-center text-sm mb-4">
+              Encontrámos um erro. Podes recarregar a página.
             </p>
 
-            <details className="mb-6">
-              <summary className="text-sm text-gray-500 cursor-pointer hover:text-gray-700">
+            <details className="mb-4">
+              <summary className="text-xs text-gray-400 cursor-pointer hover:text-gray-600">
                 Detalhes do erro
               </summary>
-              <pre className="mt-4 p-3 bg-gray-100 rounded text-xs overflow-auto max-h-40 text-red-600">
+              <pre className="mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto max-h-32 text-red-600">
                 {this.state.error.message}
               </pre>
             </details>
 
             <button
               onClick={() => window.location.reload()}
-              className="w-full bg-gradient-to-r from-purple-600 to-orange-600 hover:from-purple-700 hover:to-orange-700 text-white font-semibold py-3 rounded-lg transition-all duration-300"
+              className="w-full bg-linear-to from-purple-600 to-orange-600 hover:from-purple-700 hover:to-orange-700 text-white font-semibold py-2.5 rounded-lg transition-all text-sm"
             >
               Recarregar Página
-            </button>
-
-            <button
-              onClick={() => window.location.href = '/'}
-              className="w-full mt-3 text-purple-600 hover:text-purple-700 font-semibold py-3 rounded-lg transition-all duration-300"
-            >
-              Voltar ao Início
             </button>
           </div>
         </div>
@@ -95,4 +73,3 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     return this.props.children;
   }
 }
-

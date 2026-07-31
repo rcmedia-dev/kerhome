@@ -120,7 +120,7 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
       whileInView="visible"
       viewport={{ once: true, amount: 0.1 }}
       variants={containerVariants}
-      className="py-20 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden"
+      className="py-20 bg-linear-to from-gray-50 to-white relative overflow-hidden"
     >
       {/* Elementos decorativos animados para combinar com Corretores */}
       <motion.div
@@ -188,7 +188,7 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
               1024: { slidesPerView: 3, spaceBetween: 30 },
               1280: { slidesPerView: 4, spaceBetween: 30 },
             }}
-            className="pb-16 !px-4"
+            className="pb-16 px-4!"
           >
             {agencies.map((agency) => (
               <SwiperSlide key={agency.id} className="h-auto pb-4">
@@ -215,7 +215,7 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
                           className="relative w-20 h-20 bg-white rounded-button overflow-hidden border-4 border-white shadow-card p-3"
                         >
                           <Image
-                            src={agency.logo || '/logo-placeholder.png'}
+                            src={agency.logo || '/logo-placeholder.svg'}
                             alt={agency.nome}
                             fill
                             className="object-contain p-2"
