@@ -60,7 +60,7 @@ export function MobileMenu() {
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-gray-200/60 z-50 p-3 shadow-2xl shadow-black/20">
       {/* Indicador de posição ativa */}
-      <div className="absolute top-0 left-0 h-1 bg-gradient-to-r from-orange-500 to-purple-600 transition-all duration-300 ease-out"
+      <div className="absolute top-0 left-0 h-1 bg-linear-to-r from-orange-500 to-purple-600 transition-all duration-300 ease-out"
            style={{
              width: `${100 / links.length}%`,
              transform: `translateX(${activeIndex * 100}%)`
@@ -89,7 +89,7 @@ export function MobileMenu() {
                   <div className="absolute inset-0 bg-orange-500 rounded-full blur-xl opacity-40 group-hover:opacity-70 transition-opacity duration-300" />
                   
                   {/* Botão Principal */}
-                  <div className="relative bg-gradient-to-tr from-orange-500 to-purple-600 p-4 rounded-full text-white shadow-2xl border-4 border-white transform transition-all duration-300 group-hover:scale-115 group-active:scale-95 group-hover:-translate-y-1">
+                  <div className="relative bg-linear-to-tr from-orange-500 to-purple-600 p-4 rounded-full text-white shadow-2xl border-4 border-white transform transition-all duration-300 group-hover:scale-115 group-active:scale-95 group-hover:-translate-y-1">
                     {link.icon}
                   </div>
                 </div>
@@ -113,7 +113,7 @@ export function MobileMenu() {
             >
               {/* Efeito de fundo ativo */}
               {active && (
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-100 to-purple-100 rounded-2xl -z-10 scale-110" />
+                <div className="absolute inset-0 bg-linear-to-br from-orange-100 to-purple-100 rounded-2xl -z-10 scale-110" />
               )}
               
               {/* Efeito de hover */}
@@ -147,7 +147,7 @@ export function MobileMenu() {
       <AuthDialog />
 
       {/* Barra de navegação inferior decorativa */}
-      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-gray-300 to-transparent rounded-full" />
+      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-linear-to-r from-transparent via-gray-300 to-transparent rounded-full" />
     </div>
   );
 }

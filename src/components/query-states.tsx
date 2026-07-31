@@ -21,13 +21,13 @@ export function QueryError({
   if (!error) return null;
 
   return (
-    <div className="w-full bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg p-6">
+    <div className="w-full bg-linear-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg p-6">
       <div className="flex items-start gap-4">
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           <AlertCircle className="w-6 h-6 text-red-600" />
         </div>
 
-        <div className="flex-grow">
+        <div className="grow">
           <h3 className="text-lg font-semibold text-red-900 mb-2">
             {title}
           </h3>
@@ -113,7 +113,7 @@ export function QueryEmpty({
       {action && (
         <button
           onClick={action.onClick}
-          className="px-6 py-2 bg-gradient-to-r from-purple-600 to-orange-600 hover:from-purple-700 hover:to-orange-700 text-white font-semibold rounded-lg transition-all"
+          className="px-6 py-2 bg-linear-to-r from-purple-600 to-orange-600 hover:from-purple-700 hover:to-orange-700 text-white font-semibold rounded-lg transition-all"
         >
           {action.label}
         </button>

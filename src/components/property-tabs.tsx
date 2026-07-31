@@ -166,7 +166,7 @@ export function PropertyTabs({ property }: { property: TPropertyResponseSchema }
                 {property.status && (
                   <li className="flex justify-between py-2 border-b border-gray-100">
                     <span>Status</span>
-                    <span className="font-medium capitalize px-3 py-1 rounded-lg text-white bg-gradient-to-r from-purple-700 to-orange-500 shadow-md">
+                    <span className="font-medium capitalize px-3 py-1 rounded-lg text-white bg-linear-to-r from-purple-700 to-orange-500 shadow-md">
                       {property.status}
                     </span>
                   </li>
@@ -252,7 +252,7 @@ export function PropertyTabs({ property }: { property: TPropertyResponseSchema }
             {isPanolensLoaded ? (
               <SimpleVirtualTour property={property} />
             ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+              <div className="w-full h-full flex flex-col items-center justify-center bg-linear-to-br from-gray-50 to-gray-100">
                 <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500 mb-4"></div>
                 <p className="text-gray-600 font-medium">Carregando passeio virtual...</p>
                 <p className="text-gray-500 text-sm mt-2">Isso pode levar alguns segundos</p>

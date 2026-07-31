@@ -28,16 +28,16 @@ export default function KerHomePrivacy() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-orange-50">
+    <div className="min-h-screen bg-linear-to-br from-purple-50 to-orange-50">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <div className="w-8 h-8 bg-gradient-to-r from-purple-700 to-orange-500 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-linear-to-r from-purple-700 to-orange-500 rounded-lg flex items-center justify-center">
                 <Home className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-purple-700 to-orange-500 bg-clip-text text-transparent">
+              <span className="text-xl font-bold bg-linear-to-r from-purple-700 to-orange-500 bg-clip-text text-transparent">
                 KerHome
               </span>
             </div>
@@ -62,7 +62,7 @@ export default function KerHomePrivacy() {
                     onClick={() => scrollToSection(section.id)}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all ${
                       activeSection === section.id
-                        ? 'bg-gradient-to-r from-purple-700 to-orange-500 text-white'
+                        ? 'bg-linear-to-r from-purple-700 to-orange-500 text-white'
                         : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >

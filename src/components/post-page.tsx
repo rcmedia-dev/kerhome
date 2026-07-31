@@ -48,7 +48,7 @@ const ReadingProgress = () => {
 
   return (
     <motion.div
-      className="fixed top-0 left-0 right-0 h-1 bg-orange-500 z-[60] origin-left"
+      className="fixed top-0 left-0 right-0 h-1 bg-orange-500 z-60 origin-left"
       style={{ scaleX }}
     />
   );
@@ -110,7 +110,7 @@ const PropertyAd = ({ property, layout = 'horizontal' }: { property: TPropertyRe
           <div>
             <Link
               href={property.slug ? `/propriedades/${property.slug}` : `/propriedades/${property.id}`}
-              className="inline-flex items-center gap-3 px-10 py-4 bg-[#7C3AED] text-white !text-white rounded-2xl text-base font-black hover:bg-[#6D28D9] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-purple-100/50"
+              className="inline-flex items-center gap-3 px-10 py-4 bg-[#7C3AED] text-white! rounded-2xl text-base font-black hover:bg-[#6D28D9] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-purple-100/50"
             >
               <span className="text-white">Ver Detalhes do Imóvel</span>
               <ArrowRight className="w-5 h-5 text-white" />

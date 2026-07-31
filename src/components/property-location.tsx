@@ -18,10 +18,10 @@ export function PropertyLocation ({ property }: { property: TPropertyResponseSch
       <div>
         <h2 className="text-xl font-bold text-gray-800 mb-4">Localização</h2>
         <div className="flex items-start gap-2 text-gray-600 mb-4">
-          <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5 text-orange-500" />
-          <span className="break-words">{address || property.endereco}</span>
+          <MapPin className="w-5 h-5 shrink-0 mt-0.5 text-orange-500" />
+          <span className="wrap-break-word">{address || property.endereco}</span>
         </div>
-        <div className="w-full h-[250px] rounded-lg overflow-hidden">
+        <div className="w-full h-62.5 rounded-lg overflow-hidden">
           <iframe
             className="w-full h-full"
             loading="lazy"

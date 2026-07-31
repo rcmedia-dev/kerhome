@@ -160,7 +160,7 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
       whileInView="visible"
       viewport={{ once: true, amount: 0.1 }}
       variants={containerVariants}
-      className="relative py-16 lg:px-10 bg-gradient-to-br from-slate-50 via-white to-orange-50/30"
+      className="relative py-16 lg:px-10 bg-linear-to-br from-slate-50 via-white to-orange-50/30"
     >
       {/* Elementos decorativos de fundo */}
       <div className="absolute inset-0 overflow-hidden">
@@ -228,7 +228,7 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
             duration: 0.8,
             delay: 0.1
           }}
-          className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-4"
+          className="text-3xl md:text-4xl lg:text-5xl font-bold bg-linear-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-4"
         >
           Sua Próxima <span className="text-orange-500">Casa</span>
         </motion.h2>
@@ -252,7 +252,7 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
         </motion.p>
       </motion.div>
 
-      <div className="relative mx-auto w-full max-w-[1400px]">
+      <div className="relative mx-auto w-full max-w-350">
         <Swiper
           modules={[Autoplay, Pagination]}
           spaceBetween={30}
@@ -271,7 +271,7 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
             1024: { slidesPerView: 3, spaceBetween: 30 },
             1280: { slidesPerView: 4, spaceBetween: 30 },
           }}
-          className="pb-20 !px-4"
+          className="pb-20 px-4!"
         >
           {limitedProperties.map((property, index) => (
             <SwiperSlide key={property.id} className="h-full">
@@ -328,7 +328,7 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
               ...springTransition,
               delay: 0.8
             }}
-            className="group relative px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-button shadow-card"
+            className="group relative px-8 py-4 bg-linear-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-button shadow-card"
           >
             <span className="relative z-10 flex items-center gap-2">
               Explorar Todas as Propriedades
@@ -340,7 +340,7 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
             </span>
             
             {/* Efeito de brilho no hover */}
-            <div className="absolute inset-0 rounded-button bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 rounded-button bg-linear-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </motion.button>
         </Link>
       </motion.div>
@@ -353,7 +353,7 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
         transition={{ delay: 1, duration: 0.8 }}
         className="relative mt-16 flex justify-center"
       >
-        <div className="h-px w-32 bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+        <div className="h-px w-32 bg-linear-to-r from-transparent via-gray-300 to-transparent"></div>
       </motion.div>
 
       {/* Estilos customizados para a paginação laranja */}

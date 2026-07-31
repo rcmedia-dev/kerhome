@@ -72,7 +72,7 @@ function PropertyGallery({ images, title, aspectClassName }: PropertyGalleryProp
 
   return (
     <div 
-      className={`relative rounded-card overflow-hidden cursor-pointer shadow-md bg-gray-50 border border-gray-100 select-none group ${aspectClassName || 'aspect-[4/3]'}`}
+      className={`relative rounded-card overflow-hidden cursor-pointer shadow-md bg-gray-50 border border-gray-100 select-none group ${aspectClassName || 'aspect-4/3'}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -199,7 +199,7 @@ function SimpleSpec({ icon, label, value, compareValue, isPrice = false, unit = 
             animate={{ width: `${progressPercent}%` }}
             transition={{ type: 'spring', stiffness: 100, damping: 15 }}
             className={`h-full rounded-full ${
-              badge ? 'bg-gradient-to-r from-purple-500 to-[#820AD1]' : 'bg-gradient-to-r from-orange-400 to-[#F97316]'
+              badge ? 'bg-linear-to-r from-purple-500 to-[#820AD1]' : 'bg-linear-to-r from-orange-400 to-[#F97316]'
             }`}
           />
         </div>
@@ -332,7 +332,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="fixed inset-0 z-[9998] bg-black/40 flex items-center justify-center p-4"
+          className="fixed inset-0 z-9998 bg-black/40 flex items-center justify-center p-4"
           onClick={() => setShowTutorial(false)}
         >
           <motion.div
@@ -341,7 +341,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
             className="bg-white rounded-card max-w-sm w-full p-6 shadow-floating border border-purple-50"
             onClick={e => e.stopPropagation()}
           >
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#820AD1] to-purple-600 flex items-center justify-center mx-auto mb-4">
+            <div className="w-12 h-12 rounded-full bg-linear-to-br from-[#820AD1] to-purple-600 flex items-center justify-center mx-auto mb-4">
               <BarChart3 size={24} className="text-white" />
             </div>
             <h3 className="text-lg font-bold text-center text-gray-800 mb-2">Comparar Imóveis</h3>
@@ -355,7 +355,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
                 Agora não
               </button>
               <button onClick={handleStartSelection}
-                className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-[#820AD1] to-[#F97316] rounded-button transition-all">
+                className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-linear-to-r from-[#820AD1] to-[#F97316] rounded-button transition-all">
                 Começar
               </button>
             </div>
@@ -365,7 +365,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
 
       {/* Floating Selection Bar */}
       {selectionMode && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9997]">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-9997">
           <motion.div
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -404,7 +404,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 50 }}
               transition={{ type: 'spring', damping: 25, stiffness: 150 }}
-              className="fixed inset-0 z-[9999] bg-[#faf9f7] overflow-y-auto px-4 py-8 md:p-12 flex flex-col justify-start items-center select-none"
+              className="fixed inset-0 z-9999 bg-[#faf9f7] overflow-y-auto px-4 py-8 md:p-12 flex flex-col justify-start items-center select-none"
               style={{
                 backgroundImage: `
                   radial-gradient(ellipse at 20% 50%, rgba(130, 10, 209, 0.03) 0%, transparent 50%),
@@ -419,7 +419,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
                     Compare e Escolha
                   </span>
                   <h2 className="text-2xl md:text-3xl font-light text-[#1A1A1A] select-none">
-                    Qual imóvel <span className="font-bold bg-gradient-to-r from-[#820AD1] to-[#F97316] bg-clip-text text-transparent">combina mais</span> com você?
+                    Qual imóvel <span className="font-bold bg-linear-to-r from-[#820AD1] to-[#F97316] bg-clip-text text-transparent">combina mais</span> com você?
                   </h2>
                 </div>
                 <button onClick={handleClose} className="p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-gray-200 hover:bg-white transition-colors text-gray-400 hover:text-gray-600 shrink-0">
@@ -566,7 +566,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
 
                 {/* VS Divider */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 hidden md:flex">
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#820AD1] to-[#F97316] shadow-lg flex items-center justify-center border-4 border-white">
+                  <div className="w-14 h-14 rounded-full bg-linear-to-br from-[#820AD1] to-[#F97316] shadow-lg flex items-center justify-center border-4 border-white">
                     <span className="text-white font-black text-sm tracking-wider">VS</span>
                   </div>
                 </div>
@@ -578,7 +578,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
                   <div className="bg-white rounded-card border border-purple-100 shadow-sm overflow-hidden">
                     <div className="p-6">
                       <div className="flex items-center gap-2 mb-4">
-                        <div className="p-2 rounded-xl bg-gradient-to-br from-[#820AD1]/10 to-[#F97316]/10 text-[#820AD1] border border-[#820AD1]/15">
+                        <div className="p-2 rounded-xl bg-linear-to-br from-[#820AD1]/10 to-[#F97316]/10 text-[#820AD1] border border-[#820AD1]/15">
                           <Sparkles size={16} />
                         </div>
                         <div>
@@ -608,7 +608,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
                               const isA = index === 0;
                               return (
                                 <div key={String(prop.id)} className="rounded-card overflow-hidden border border-gray-200 bg-white shadow-sm">
-                                  <div className={`h-1.5 ${isA ? 'bg-gradient-to-r from-[#820AD1] to-purple-500' : 'bg-gradient-to-r from-[#F97316] to-orange-500'}`} />
+                                  <div className={`h-1.5 ${isA ? 'bg-linear-to-r from-[#820AD1] to-purple-500' : 'bg-linear-to-r from-[#F97316] to-orange-500'}`} />
                                   <div className="p-4">
                                     <span className={`text-[10px] font-extrabold uppercase tracking-wider ${isA ? 'text-purple-600' : 'text-orange-600'}`}>Imóvel {String.fromCharCode(65 + index)}</span>
                                     <h3 className="text-base font-bold text-gray-900 mt-1">{String(prop.title || '')}</h3>
@@ -664,7 +664,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
                                   const ScenarioIcon = scenario.icon;
                                   const sentence = sentences[i] || `${scenario.desc} com base nos dados disponíveis.`;
                                   return (
-                                    <div key={scenario.label} className="p-4 rounded-card bg-gradient-to-br from-purple-50 to-amber-50 border border-purple-100 flex flex-col">
+                                    <div key={scenario.label} className="p-4 rounded-card bg-linear-to-br from-purple-50 to-amber-50 border border-purple-100 flex flex-col">
                                       <div className="p-2 rounded-lg bg-purple-100/50 text-[#820AD1] w-fit">
                                         <ScenarioIcon size={18} />
                                       </div>
@@ -689,7 +689,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
                             const cheaper = aPrice <= bPrice ? 0 : 1;
                             const bigger = aRooms >= bRooms ? 0 : 1;
                             return (
-                              <div className="p-5 rounded-card border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-yellow-50">
+                              <div className="p-5 rounded-card border-2 border-amber-300 bg-linear-to-br from-amber-50 to-yellow-50">
                                 <div className="flex items-center gap-2 mb-3">
                                   <Award size={20} className="text-amber-600" />
                                   <span className="text-sm font-extrabold text-amber-800 uppercase tracking-wider">Recomendação MYWAI</span>
@@ -717,12 +717,12 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 150 }}
-              className="fixed right-0 top-0 h-full w-1/2 z-[9999] bg-white shadow-2xl border-l border-gray-200 overflow-y-auto select-none"
+              className="fixed right-0 top-0 h-full w-1/2 z-9999 bg-white shadow-2xl border-l border-gray-200 overflow-y-auto select-none"
             >
               <div className="sticky top-0 bg-white z-10 p-4 pb-3 border-b border-gray-100">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="p-1.5 rounded-xl bg-gradient-to-br from-[#820AD1]/10 to-[#F97316]/10 text-[#820AD1] border border-[#820AD1]/15">
+                    <div className="p-1.5 rounded-xl bg-linear-to-br from-[#820AD1]/10 to-[#F97316]/10 text-[#820AD1] border border-[#820AD1]/15">
                       <BarChart3 size={14} />
                     </div>
                     <div>
@@ -740,7 +740,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
               </div>
 
               {comparisonResult.summary && (
-                <div className="mx-4 mt-4 p-3 bg-gradient-to-br from-purple-50 to-amber-50 rounded-card border border-purple-100">
+                <div className="mx-4 mt-4 p-3 bg-linear-to-br from-purple-50 to-amber-50 rounded-card border border-purple-100">
                   <div className="flex items-center gap-1.5 mb-1.5">
                     <Sparkles size={12} className="text-[#820AD1]" />
                     <span className="text-[8px] font-extrabold text-[#820AD1] uppercase tracking-wider">Resumo MYWAI</span>
@@ -760,11 +760,11 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
                   <table className="w-full text-sm border-collapse">
                     <thead>
                       <tr>
-                        <th className="sticky top-0 bg-gray-50 h-[60px] px-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-200 select-none min-w-[140px]">
+                        <th className="sticky top-0 bg-gray-50 h-15 px-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-200 select-none min-w-35">
                           Característica
                         </th>
                         {selectedProperties.map((prop, i) => (
-                          <th key={i} className="sticky top-0 bg-gray-50 h-[60px] px-4 text-left border-b border-gray-200 border-l border-gray-100 min-w-[150px]">
+                          <th key={i} className="sticky top-0 bg-gray-50 h-15 px-4 text-left border-b border-l border-gray-100 min-w-37.5">
                             <div className="flex flex-col items-center gap-2 py-2">
                               <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200">
                                 <img
@@ -793,7 +793,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
                               const isBiggest = (row.field === 'size' || row.field === 'bedrooms' || row.field === 'bathrooms' || row.field === 'garagens') && val === Math.max(...row.values.map(v => Number(v) || -Infinity));
 
                               return (
-                                <td key={j} className={`px-4 py-3 text-xs border-b border-gray-100 border-l border-gray-50 ${
+                                <td key={j} className={`px-4 py-3 text-xs border-b border-gray-100 border-l ${
                                   isBestPrice ? 'font-semibold text-purple-700' : ''
                                 } ${
                                   isBiggest ? 'font-semibold text-amber-700' : 'text-gray-600'
@@ -832,7 +832,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
         onClick={handleFabClick}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-24 right-6 z-[9997] w-14 h-14 rounded-full bg-gradient-to-br from-[#820AD1] to-purple-800 text-white shadow-lg border-2 border-white flex items-center justify-center hover:shadow-xl hover:from-purple-600 hover:to-[#820AD1] transition-all duration-300"
+        className="fixed bottom-24 right-6 z-9997 w-14 h-14 rounded-full bg-linear-to-br from-[#820AD1] to-purple-800 text-white shadow-lg border-2 border-white flex items-center justify-center hover:shadow-xl hover:from-purple-600 hover:to-[#820AD1] transition-all duration-300"
         title="Comparar imóveis"
       >
         {selectionMode ? <X size={22} /> : <BarChart3 size={22} />}

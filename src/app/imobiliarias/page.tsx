@@ -88,10 +88,9 @@ export default function ImobiliariasPage() {
 
         <div className="max-w-7xl mx-auto px-4">
           {/* Filters - Desktop only */}
-          <div className="hidden md:block">
+          <div className="hidden md:block relative z-30">
             <ImobiliariaFilters onFilterChange={handleFilterChange} />
           </div>
-
 
           {/* Results Grid */}
           {loading ? (
@@ -203,7 +202,7 @@ export default function ImobiliariasPage() {
         )}
       </AnimatePresence>
 
-      {/* PAINEL LATERAL DE FILTROS (SEM OVERLAY - Reusando padrao Imoveis) */}
+      {/* PAINEL LATERAL DE FILTROS */}
       <AnimatePresence>
         {showFilterModal && (
           <motion.div
@@ -211,9 +210,9 @@ export default function ImobiliariasPage() {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 100, opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed right-6 top-1/2 -translate-y-1/2 z-50 bg-white/90 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl w-[320px] max-h-[85vh] flex flex-col overflow-hidden"
+            className="fixed right-6 top-1/2 -translate-y-1/2 z-[60] bg-white/90 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl w-[320px] max-h-[85vh] flex flex-col overflow-visible"
           >
-            {/* Header do Painel */}
+            {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-gray-100/50 bg-white/50">
               <div className="flex items-center gap-2 font-bold text-gray-800">
                 <div className="p-1.5 bg-orange-100 rounded-lg text-orange-600">
@@ -229,8 +228,8 @@ export default function ImobiliariasPage() {
               </button>
             </div>
 
-            {/* Conteúdo Scrollavel */}
-            <div className="p-5 overflow-y-auto flex-1 custom-scrollbar space-y-4">
+            {/* Conteúdo */}
+            <div className="p-5 flex-1 space-y-4">
               <ImobiliariaFilters 
                 onFilterChange={handleFilterChange} 
                 onApply={() => setShowFilterModal(false)}
@@ -238,7 +237,7 @@ export default function ImobiliariasPage() {
               />
             </div>
 
-            {/* Footer Compacto */}
+            {/* Footer */}
             <div className="p-4 border-t border-gray-100/50 bg-gray-50/50 flex justify-between items-center gap-4">
               <button
                 onClick={() => {

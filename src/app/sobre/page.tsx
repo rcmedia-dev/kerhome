@@ -20,7 +20,7 @@ const StatsSection = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((stat, index) => (
             <div key={index} className="text-center">
-              <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-700 to-orange-500 bg-clip-text text-transparent mb-2">
+              <div className="text-3xl md:text-4xl font-bold bg-linear-to-r from-purple-700 to-orange-500 bg-clip-text text-transparent mb-2">
                 {stat.number}
               </div>
               <div className="text-gray-600 font-medium">{stat.label}</div>
@@ -72,7 +72,7 @@ const FeaturesSection = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
             <div key={index} className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
-              <div className="mb-6 bg-gradient-to-br from-purple-100 to-orange-100 p-3 rounded-xl w-fit">
+              <div className="mb-6 bg-linear-to-br from-purple-100 to-orange-100 p-3 rounded-xl w-fit">
                 {feature.icon}
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">{feature.title}</h3>
@@ -91,7 +91,7 @@ const AboutSection = () => (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="grid lg:grid-cols-2 gap-12 items-center">
         <div>
-          <div className="inline-block bg-gradient-to-r from-purple-100 to-orange-100 text-purple-800 px-4 py-2 rounded-full mb-6">
+          <div className="inline-block bg-linear-to-r from-purple-100 to-orange-100 text-purple-800 px-4 py-2 rounded-full mb-6">
             <span className="font-medium">Sobre Nós</span>
           </div>
           <h2 className="text-4xl font-bold text-gray-900 mb-6">
