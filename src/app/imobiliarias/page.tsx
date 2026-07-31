@@ -5,7 +5,7 @@ import { ImobiliariaFilters } from '@/components/imobiliarias/imobiliaria-filter
 import { ImobiliariaCard } from '@/components/imobiliarias/imobiliaria-card';
 import { fetchImobiliarias } from '@/lib/functions/supabase-actions/imobiliaria-actions';
 import { Imobiliaria } from '@/lib/types/imobiliaria';
-import { Building2, Search, MapPin, SlidersHorizontal, X } from 'lucide-react';
+import { Building2, Search, MapPin, SlidersHorizontal, X, ArrowRight, CheckCircle2, Shield, Star } from 'lucide-react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -63,35 +63,56 @@ export default function ImobiliariasPage() {
   return (
     <div className="min-h-screen bg-gray-50/50">
       <main className="pb-20 flex-col">
-        {/* Hero Section */}
-        <section className="relative bg-gradient-to-r from-[#130f25] to-purple-900 text-white overflow-hidden pb-20 pt-32 mb-12">
-          {/* Decorações do fundo Idênticas a Noticias */}
-          <div 
-            className="absolute inset-0 opacity-10"
-            style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Ccircle cx=\"30\" cy=\"30\" r=\"4\" fill=\"white\" fill-opacity=\"0.5\"/%3E%3C/svg%3E')" }}
-          ></div>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+        {/* Hero Section Premium - Aurora & Glassmorphism */}
+        <section className="relative bg-[#05020B] overflow-hidden pt-20 pb-16 lg:pt-24 lg:pb-20">
+          {/* Ambient Backgrounds / Aurora Effect */}
+          <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#820AD1]/30 blur-[120px] pointer-events-none mix-blend-screen" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[50%] rounded-full bg-[#F97316]/20 blur-[120px] pointer-events-none mix-blend-screen" />
+          
+          {/* Subtle Grid Pattern Overlay */}
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNykiLz48L3N2Zz4=')] [mask-image:linear-gradient(to_bottom,white,transparent)] pointer-events-none" />
 
-          <div className="container mx-auto px-4 relative z-10 text-center">
-            <span className="inline-block py-1 px-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-orange-200 text-sm font-medium mb-6">
-              Mercado Imobiliário de Angola
-            </span>
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight leading-tight">
-              Imobiliárias <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-200">Parceiras</span>
+          {/* Content */}
+          <div className="container mx-auto px-4 relative z-10 flex flex-col items-center text-center">
+            
+            {/* Pill Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8 shadow-lg shadow-purple-900/20">
+              <span className="flex h-2 w-2 rounded-full bg-orange-500 animate-pulse" />
+              <span className="text-sm font-medium tracking-wide text-gray-300">O Mercado Angolano</span>
+            </div>
+
+            {/* Main Headline */}
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1] mb-6 max-w-4xl">
+              As Melhores <br className="hidden md:block" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-purple-400 to-[#820AD1]">
+                Imobiliárias Parceiras
+              </span>
             </h1>
-            <p className="text-xl text-purple-100 max-w-2xl mx-auto font-light leading-relaxed">
-              Conectamos você às empresas mais confiáveis do mercado angolano. Qualidade e transparência em cada transação.
+
+            {/* Subheadline */}
+            <p className="text-lg md:text-xl text-gray-400 max-w-2xl font-light leading-relaxed mb-10">
+              Conectamos você às agências mais prestigiadas e confiáveis do mercado. Explore o nosso portfólio de parceiros e faça negócios com segurança.
             </p>
+
+            {/* Trust Indicators / Social Proof */}
+            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500 font-medium">
+              <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">
+                <CheckCircle2 size={16} className="text-purple-400" />
+                <span>Agências Verificadas</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">
+                <Shield size={16} className="text-purple-400" />
+                <span>Transparência Total</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">
+                <Star size={16} className="text-orange-400" />
+                <span>Avaliações Reais</span>
+              </div>
+            </div>
           </div>
         </section>
 
-        <div className="max-w-7xl mx-auto px-4">
-          {/* Filters - Desktop only */}
-          <div className="hidden md:block relative z-30">
-            <ImobiliariaFilters onFilterChange={handleFilterChange} />
-          </div>
-
+        <div className="max-w-7xl mx-auto px-4 pt-14">
           {/* Results Grid */}
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -213,7 +234,7 @@ export default function ImobiliariasPage() {
             className="fixed right-6 top-1/2 -translate-y-1/2 z-[60] bg-white/90 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl w-[320px] max-h-[85vh] flex flex-col overflow-visible"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-gray-100/50 bg-white/50">
+            <div className="flex items-center justify-between p-5 border-b border-gray-100/50 bg-white/50 rounded-t-3xl">
               <div className="flex items-center gap-2 font-bold text-gray-800">
                 <div className="p-1.5 bg-orange-100 rounded-lg text-orange-600">
                   <SlidersHorizontal size={18} />
@@ -238,7 +259,7 @@ export default function ImobiliariasPage() {
             </div>
 
             {/* Footer */}
-            <div className="p-4 border-t border-gray-100/50 bg-gray-50/50 flex justify-between items-center gap-4">
+            <div className="p-4 border-t border-gray-100/50 bg-gray-50/50 flex justify-between items-center gap-4 rounded-b-3xl">
               <button
                 onClick={() => {
                   setFilters({});
@@ -258,10 +279,4 @@ export default function ImobiliariasPage() {
     </div>
   );
 }
-
-const ArrowRight = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-  </svg>
-);
 

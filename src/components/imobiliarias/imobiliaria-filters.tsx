@@ -60,11 +60,9 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ icon, label, value, options
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex items-center gap-3 px-4 py-3 border rounded-xl text-sm text-left transition-all duration-300 shadow-sm hover:shadow-md ${
-          isActive || value
-            ? 'border-gray-200 bg-gray-50 text-gray-700' 
-            : 'border-gray-200 bg-gray-50 text-gray-500'
-        } hover:border-purple-300 outline-none`}
+        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-left outline-none border border-purple-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md hover:border-purple-300 ${
+          isActive || value ? 'text-gray-700' : 'text-gray-500'
+        }`}
       >
         <span className="text-gray-400">{icon}</span>
         <span className="flex-1 truncate">{selectedLabel}</span>
@@ -164,10 +162,6 @@ export const ImobiliariaFilters: React.FC<ImobiliariaFiltersProps> = ({ onFilter
 
   return (
     <div className={containerClasses}>
-      {!isMobileModal && (
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 via-orange-500 to-purple-500 opacity-30"></div>
-      )}
-
       {/* Mobile Modal Filters */}
       {isMobileModal && (
         <div className="grid grid-cols-1 gap-4">
@@ -207,9 +201,9 @@ export const ImobiliariaFilters: React.FC<ImobiliariaFiltersProps> = ({ onFilter
           <button
             type="button"
             onClick={() => setVerificadasOnly(!verificadasOnly)}
-            className="flex items-center justify-between py-3 px-4 border border-gray-200 bg-gray-50 rounded-xl shadow-sm transition-all duration-300 hover:border-purple-300"
+            className="flex items-center justify-between py-3 px-4 rounded-xl outline-none border border-purple-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md hover:border-purple-300"
           >
-            <span className="text-sm text-gray-700 font-medium">Apenas Imobiliárias Verificadas</span>
+            <span className={`text-sm font-medium ${verificadasOnly ? 'text-gray-700' : 'text-gray-600'}`}>Apenas Imobiliárias Verificadas</span>
             <div className="relative">
               <div className={`block w-10 h-6 rounded-full transition-colors ${verificadasOnly ? 'bg-purple-600' : 'bg-gray-300'}`}></div>
               <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform shadow-sm ${verificadasOnly ? 'transform translate-x-4' : ''}`}></div>
@@ -224,44 +218,10 @@ export const ImobiliariaFilters: React.FC<ImobiliariaFiltersProps> = ({ onFilter
             <input
               type="text"
               placeholder="Nome da imobiliária..."
-              className="w-full pl-10 pr-4 py-3 border border-gray-200 bg-gray-50 rounded-xl text-sm text-gray-700 transition-all duration-300 shadow-sm hover:shadow-md outline-none hover:border-purple-300"
+              className="w-full pl-10 pr-4 py-3 rounded-xl text-sm outline-none border border-purple-200 bg-white text-gray-700 shadow-sm transition-all duration-300 hover:shadow-md hover:border-purple-300 focus:ring-2 focus:ring-purple-200"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-          </div>
-        </div>
-      )}
-
-      {/* Desktop: Sort and Switch */}
-      {!isMobileModal && (
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center justify-between w-full md:w-auto gap-3">
-            <span className="text-sm font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">Ordenar por:</span>
-            <CustomSelect
-              icon={<SlidersHorizontal size={16} />}
-              label="Ordenar por"
-              value={selectedOrdem}
-              options={ORDEM_OPTIONS}
-              onChange={setSelectedOrdem}
-            />
-          </div>
-
-          <div className="flex items-center justify-between w-full md:w-auto">
-            <label className="flex items-center justify-between w-full md:w-auto gap-3 cursor-pointer group">
-              <span className="text-sm font-semibold text-gray-700 group-hover:text-purple-700 transition-colors">
-                Apenas Imobiliárias Verificadas
-              </span>
-              <div className="relative">
-                <input 
-                  type="checkbox" 
-                  className="sr-only" 
-                  checked={verificadasOnly}
-                  onChange={(e) => setVerificadasOnly(e.target.checked)}
-                />
-                <div className={`block w-10 h-6 rounded-full transition-colors ${verificadasOnly ? 'bg-purple-600' : 'bg-gray-300'}`}></div>
-                <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${verificadasOnly ? 'transform translate-x-4' : ''}`}></div>
-              </div>
-            </label>
           </div>
         </div>
       )}
