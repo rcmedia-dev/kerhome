@@ -1,4 +1,4 @@
-﻿
+
 // Client Component para posts relacionados
 'use client'
 
@@ -6,14 +6,14 @@ import Link from 'next/link'
 import React from 'react'
 import Image from 'next/image'
 import { Noticias } from '@/lib/types/noticia'
-import { fetchPosts } from '@/lib/functions/supabase-actions/posts-actions'
+import { fetchPostsClient } from '@/lib/functions/supabase-actions/posts-actions'
 
 export default function RelatedPosts({ currentPostId }: { currentPostId: string }) {
   const [relatedPosts, setRelatedPosts] = React.useState<Noticias[]>([])
 
   React.useEffect(() => {
     async function fetchRelated() {
-      const allPosts = await fetchPosts()
+      const allPosts = await fetchPostsClient()
       setRelatedPosts(allPosts.filter(post => post.id !== currentPostId).slice(0, 3))
     }
     fetchRelated()

@@ -4,7 +4,7 @@ import React, { useState } from 'react'; // HMR Refresh
 import { Calendar, User, ArrowRight, Search, BookOpen, TrendingUp, Lightbulb } from 'lucide-react';
 import { Noticias } from '@/lib/types/noticia';
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { fetchPosts } from '@/lib/functions/supabase-actions/posts-actions';
+import { fetchPostsClient } from '@/lib/functions/supabase-actions/posts-actions';
 import Link from 'next/link';
 import readingTime from 'reading-time';
 
@@ -409,7 +409,7 @@ const KercasaBlog: React.FC = () => {
   } = useInfiniteQuery({
     queryKey: ["posts"],
     initialPageParam: 0, // ðŸ‘ˆ OBRIGATÓRIO agora
-    queryFn: async ({ pageParam }) => fetchPosts(pageParam, 10),
+    queryFn: async ({ pageParam }) => fetchPostsClient(pageParam, 10),
     getNextPageParam: (lastPage, allPages) =>
       lastPage.length === 10 ? allPages.length : undefined, // se trouxe menos que 10, acabou
   });

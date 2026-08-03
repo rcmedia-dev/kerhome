@@ -33,85 +33,115 @@ export async function GET(req: Request) {
             query = query.eq('imobiliaria_id', imobiliaria_id);
         }
 
+        if (status) {
+            query = query.eq('status', status);
+        }
+
         const { data: conversations, error } = await query.order('updated_at', { ascending: false });
 
-        if (error) throw error;
-        if (!conversations) return NextResponse.json({ conversations: [] });
+        if (error) {
+            console.error("Erro ao buscar conversas (query principal):", error);
+            throw error;
+        }
+        if (!conversations || conversations.length === 0) return NextResponse.json({ conversations: [] });
 
-        // --- BULK FETCH ---
-        const allUserIds = new Set<string>();
-        conversations.forEach(c => {
-            allUserIds.add(c.user1_id);
-            allUserIds.add(c.user2_id);
-        });
+        // --- BULK FETCH profiles ---
+        const allUserIds = [...new Set(
+            conversations.flatMap(c => [c.user1_id, c.user2_id]).filter(Boolean)
+        )];
 
-        const { data: profiles } = await supabase
-            .from('profiles')
-            .select('id, primeiro_nome, ultimo_nome, avatar_url, email')
-            .in('id', Array.from(allUserIds));
+        let profilesMap = new Map();
+        if (allUserIds.length > 0) {
+            const { data: profiles, error: profilesError } = await supabase
+                .from('profiles')
+                .select('id, primeiro_nome, ultimo_nome, avatar_url, email')
+                .in('id', allUserIds);
+            if (profilesError) console.error("Erro ao buscar profiles:", profilesError);
+            profilesMap = new Map(profiles?.map(p => [p.id, p]) || []);
+        }
 
-        const profilesMap = new Map(profiles?.map(p => [p.id, p]));
-
-        const allAgencyIds = new Set<string>(
+        // --- BULK FETCH agencies ---
+        const allAgencyIds = [...new Set(
             conversations
                 .filter(c => c.target_type === 'agency' && c.imobiliaria_id)
                 .map(c => c.imobiliaria_id as string)
-        );
+        )];
 
         let agenciesMap = new Map();
-        if (allAgencyIds.size > 0) {
-            const { data: agencies } = await supabase
+        if (allAgencyIds.length > 0) {
+            const { data: agencies, error: agenciesError } = await supabase
                 .from('imobiliarias')
                 .select('id, nome, logo')
-                .in('id', Array.from(allAgencyIds));
-            agenciesMap = new Map(agencies?.map(a => [a.id, a]));
+                .in('id', allAgencyIds);
+            if (agenciesError) console.error("Erro ao buscar imobiliarias:", agenciesError);
+            agenciesMap = new Map(agencies?.map(a => [a.id, a]) || []);
         }
 
-        const allPropertyIds = new Set<string>(
+        // --- BULK FETCH properties ---
+        const allPropertyIds = [...new Set(
             conversations
                 .filter(c => c.property_id)
                 .map(c => c.property_id as string)
-        );
+        )];
 
         let propertiesMap = new Map();
-        if (allPropertyIds.size > 0) {
-            const { data: properties } = await supabase
+        if (allPropertyIds.length > 0) {
+            const { data: properties, error: propertiesError } = await supabase
                 .from('properties')
                 .select('id, title, price, images, cidade, provincia')
-                .in('id', Array.from(allPropertyIds));
-            propertiesMap = new Map(properties?.map(p => [p.id, p]));
+                .in('id', allPropertyIds);
+            if (propertiesError) console.error("Erro ao buscar properties:", propertiesError);
+            propertiesMap = new Map(properties?.map(p => [p.id, p]) || []);
         }
 
-        const conversationsWithDetails = await Promise.all(conversations.map(async (conv) => {
+        // --- BULK FETCH last messages and unread counts ---
+        const convIds = conversations.map(c => c.id);
+
+        const { data: lastMessages } = await supabase
+            .from('messages')
+            .select('conversation_id, content, created_at, sender_id')
+            .in('conversation_id', convIds)
+            .order('created_at', { ascending: false });
+
+        // Keep only the last message per conversation (first occurrence after ordering)
+        const lastMsgMap = new Map<string, { content: string; created_at: string; sender_id: string }>();
+        lastMessages?.forEach(msg => {
+            if (!lastMsgMap.has(msg.conversation_id)) {
+                lastMsgMap.set(msg.conversation_id, {
+                    content: msg.content,
+                    created_at: msg.created_at,
+                    sender_id: msg.sender_id,
+                });
+            }
+        });
+
+        const { data: unreadMessages } = await supabase
+            .from('messages')
+            .select('conversation_id, sender_id')
+            .in('conversation_id', convIds)
+            .eq('read_by_receiver', false);
+
+        // Count unread per conversation (only messages not sent by the current user)
+        const unreadMap = new Map<string, number>();
+        unreadMessages?.forEach(msg => {
+            if (user_id && msg.sender_id !== user_id) {
+                unreadMap.set(msg.conversation_id, (unreadMap.get(msg.conversation_id) || 0) + 1);
+            }
+        });
+
+        // --- ASSEMBLE ---
+        const conversationsWithDetails = conversations.map((conv) => {
             const otherUserId = conv.user1_id === user_id ? conv.user2_id : conv.user1_id;
-
-            // Fetch last message separately
-            const { data: lastMessages } = await supabase
-                .from('messages')
-                .select('content, created_at, sender_id')
-                .eq('conversation_id', conv.id)
-                .order('created_at', { ascending: false })
-                .limit(1);
-
-            const lastMsg = lastMessages && lastMessages.length > 0 ? lastMessages[0] : null;
-
-            // Calculate unread count
-            const { count: unreadCount } = await supabase
-                .from('messages')
-                .select('*', { count: 'exact', head: true })
-                .eq('conversation_id', conv.id)
-                .eq('sender_id', otherUserId) 
-                .eq('read_by_receiver', false); 
 
             return {
                 ...conv,
                 other_user: profilesMap.get(otherUserId) || null,
-                agency_details: agenciesMap.get(conv.imobiliaria_id) || null,
-                property_details: propertiesMap.get(conv.property_id) || null,
-                last_message: lastMsg,
-                unread_count: unreadCount || 0
+                agency_details: agenciesMap.get(conv.imobiliaria_id || '') || null,
+                property_details: propertiesMap.get(conv.property_id || '') || null,
+                last_message: lastMsgMap.get(conv.id) || null,
+                unread_count: unreadMap.get(conv.id) || 0
             };
-        }));
+        });
 
         return NextResponse.json({ conversations: conversationsWithDetails });
     } catch (error) {
@@ -129,10 +159,8 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Data missing" }, { status: 400 });
         }
 
-        // Determinar o user2_id (se for agência e não tiver target_user_id, usa o próprio user_id como placeholder até o claim)
         const u2 = target_user_id || user_id;
         
-        // 1. Tentar encontrar conversa existente por IDs
         let query = supabase.from('conversations').select('*');
         if (target_type === 'agency' && imobiliaria_id) {
              query = query.eq('imobiliaria_id', imobiliaria_id).eq('user1_id', user_id);
@@ -145,11 +173,9 @@ export async function POST(req: Request) {
         if (findError) throw findError;
 
         if (existing) {
-            // Se for chat de agência, resetamos o status para 'open' para voltar à fila
             return NextResponse.json({ conversation: existing, created: false });
         }
 
-        // 2. Criar nova se não existir
         const { data: newConv, error: insertError } = await supabase
             .from('conversations')
             .insert([{
@@ -164,7 +190,6 @@ export async function POST(req: Request) {
             .single();
 
         if (insertError) {
-            // Caso ocorra uma race condition e o insert falhe por unique constraint após o find falhar
             if (insertError.code === '23505') {
                  let retryQuery = supabase.from('conversations').select('*');
                  if (target_type === 'agency' && imobiliaria_id) {
