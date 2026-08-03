@@ -338,8 +338,8 @@ const FeaturedSection: React.FC<FeaturedSectionProps> = ({ posts }) => {
 };
 
 // Componente para a grid de posts
-const PostsGrid: React.FC<PostsGridProps> = ({ posts }) => {
-  if (posts.length === 0) {
+const PostsGrid: React.FC<PostsGridProps & { isLoading?: boolean }> = ({ posts, isLoading }) => {
+  if (posts.length === 0 && !isLoading) {
     return (
       <div className="text-center py-24">
         <div className="bg-gray-50 rounded-3xl p-12 max-w-lg mx-auto border-2 border-dashed border-gray-200">
@@ -395,6 +395,62 @@ const NewsletterSection: React.FC = () => (
 );
 
 
+// Skeleton shimmer para o post em destaque
+const FeaturedPostSkeleton = () => (
+  <div className="relative bg-gray-200 rounded-3xl overflow-hidden mb-16 min-h-80 sm:min-h-[28rem]">
+    <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-shimmer" />
+    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+    <div className="relative p-6 sm:p-8 md:p-16 flex flex-col justify-end h-full">
+      <div className="max-w-3xl space-y-4">
+        <div className="h-6 w-36 bg-white/20 rounded-md animate-pulse" />
+        <div className="h-8 w-3/4 bg-white/20 rounded-lg animate-pulse" />
+        <div className="h-8 w-1/2 bg-white/20 rounded-lg animate-pulse" />
+        <div className="flex gap-6 mt-4">
+          <div className="h-5 w-32 bg-white/20 rounded-md animate-pulse" />
+          <div className="h-5 w-28 bg-white/20 rounded-md animate-pulse" />
+        </div>
+        <div className="h-12 w-48 bg-white/20 rounded-xl mt-4 animate-pulse" />
+      </div>
+    </div>
+  </div>
+);
+
+// Skeleton shimmer para um card de post
+const PostCardSkeleton = () => (
+  <article className="bg-white rounded-2xl overflow-hidden border border-gray-100 flex flex-col h-full relative">
+    <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shimmer z-10" />
+    <div className="h-56 bg-gray-200 relative overflow-hidden shrink-0">
+      <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-shimmer" />
+      <div className="absolute top-4 left-4 h-6 w-16 bg-gray-300/60 rounded-md animate-pulse" />
+    </div>
+    <div className="p-6 flex flex-col flex-1">
+      <div className="flex flex-col gap-2 mb-auto">
+        <div className="flex gap-4">
+          <div className="h-3 w-24 bg-gray-200 rounded animate-pulse" />
+          <div className="h-3 w-20 bg-gray-200 rounded animate-pulse" />
+        </div>
+        <div className="space-y-1.5 mt-1">
+          <div className="h-4 w-full bg-gray-200 rounded animate-pulse" />
+          <div className="h-4 w-2/3 bg-gray-200 rounded animate-pulse" />
+        </div>
+      </div>
+      <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
+        <div className="h-6 w-32 bg-gray-100 rounded-full animate-pulse" />
+        <div className="h-5 w-5 bg-gray-200 rounded animate-pulse" />
+      </div>
+    </div>
+  </article>
+);
+
+// Skeleton grid de posts
+const PostsGridSkeleton = () => (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    {[...Array(6)].map((_, i) => (
+      <PostCardSkeleton key={i} />
+    ))}
+  </div>
+);
+
 const KercasaBlog: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -403,6 +459,7 @@ const KercasaBlog: React.FC = () => {
   // âœ… Aqui está o uso correto da função com o initialPageParam
   const {
     data,
+    isLoading,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -433,11 +490,21 @@ const KercasaBlog: React.FC = () => {
       />
 
       <main className="container mx-auto px-4 py-6">
-        <FeaturedSection posts={filteredPosts.slice(0, 3)} />
+        {isLoading ? (
+          <>
+            <FeaturedPostSkeleton />
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">Todos os Artigos</h2>
+              <PostsGridSkeleton />
+            </div>
+          </>
+        ) : (
+          <>
+            <FeaturedSection posts={filteredPosts.slice(0, 3)} />
 
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Todos os Artigos</h2>
-          <PostsGrid posts={filteredPosts} />
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">Todos os Artigos</h2>
+              <PostsGrid posts={filteredPosts} isLoading={isLoading} />
 
           {hasNextPage && (
             <div className="flex justify-center mt-8">
@@ -453,6 +520,8 @@ const KercasaBlog: React.FC = () => {
         </div>
 
         <NewsletterSection />
+        </>
+        )}
       </main>
     </div>
   );
