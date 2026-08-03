@@ -1,22 +1,21 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useRef } from 'react';
 
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const prevPath = useRef(pathname);
 
-  return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={pathname}
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -8 }}
-        transition={{ duration: 0.2, ease: 'easeInOut' }}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
-  );
+  useEffect(() => {
+    if (pathname !== prevPath.current && document.startViewTransition) {
+      document.startViewTransition(() => {
+        prevPath.current = pathname;
+      });
+    } else {
+      prevPath.current = pathname;
+    }
+  }, [pathname]);
+
+  return <>{children}</>;
 }
