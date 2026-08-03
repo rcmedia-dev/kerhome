@@ -60,6 +60,11 @@
       transform: translateX(100%);
     }
   }
+
+  @keyframes splash-progress {
+    0% { width: 0%; }
+    100% { width: 100%; }
+  }
 }
 
 :root {
@@ -214,4 +219,23 @@
   .custom-scrollbar-purple::-webkit-scrollbar-thumb:hover {
     background: rgba(147, 51, 234, 0.3);
   }
+}
+
+/* Page transitions via View Transition API */
+::view-transition-old(root) {
+  animation: fade-out 150ms ease-in forwards;
+}
+
+::view-transition-new(root) {
+  animation: fade-in 150ms ease-out forwards;
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

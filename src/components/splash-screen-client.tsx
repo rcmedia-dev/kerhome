@@ -1,11 +1,6 @@
 'use client';
 
-import dynamic from 'next/dynamic';
-
-const SplashScreen = dynamic(
-  () => import('@/components/splash-screen').then((m) => m.SplashScreen),
-  { ssr: false }
-);
+import { SplashScreen } from '@/components/splash-screen';
 
 export function SplashScreenClient() {
   return <SplashScreen />;
