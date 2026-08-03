@@ -60,6 +60,11 @@
       transform: translateX(100%);
     }
   }
+
+  @keyframes splash-progress {
+    0% { width: 0%; }
+    100% { width: 100%; }
+  }
 }
 
 :root {

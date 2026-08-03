@@ -14,6 +14,7 @@ import LoaderProviders from "@/app/providers";
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/json-ld";
 import { Toaster } from "@/components/ui/sonner";
 import { PageTransition } from "@/components/page-transition";
+import { SplashScreenClient } from "@/components/splash-screen-client";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
 
@@ -68,6 +69,7 @@ export default function RootLayout({
   return (
     <html lang="pt" suppressHydrationWarning>
       <body className="antialiased font-sans" suppressHydrationWarning>
+        <SplashScreenClient />
         <OrganizationJsonLd />
         <WebsiteJsonLd />
         <AuthProvider>
