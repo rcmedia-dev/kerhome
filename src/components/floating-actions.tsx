@@ -1,59 +1,57 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircleMore, MessageSquareText, X, Bot, MessageSquare } from 'lucide-react';
 import { VirtualAssistant } from './virtual-assistant';
 import { useChatStore } from '@/lib/store/chat-store';
 import { FeedbackDialog } from './feedback-dialog';
 
-const FEEDBACK_INTERVAL = 30 * 60 * 1000 // 30 minutes
-
-function getFeedbackTimer(): number {
-  if (typeof window === 'undefined') return 0
-  return Number(localStorage.getItem('feedback_last_shown') || '0')
-}
-
-function setFeedbackTimer() {
-  localStorage.setItem('feedback_last_shown', String(Date.now()))
-}
+const PROMPT_INTERVAL_MS = 3 * 60 * 1000
 
 export default function FloatingActions() {
+  const pathname = usePathname();
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isAssistantOpen, setAssistantOpen] = useState(false);
   const [isFeedbackOpen, setFeedbackOpen] = useState(false);
+  const [isPromptExpanded, setPromptExpanded] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const { toggleChat, totalUnreadCount, isDashboardMessages } = useChatStore();
-  const feedbackTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Auto-open feedback on first visit + every 30 min
   useEffect(() => {
-    if (isDashboardMessages) return
+    if (typeof window === 'undefined') return
 
-    const lastShown = getFeedbackTimer()
-    const now = Date.now()
+    const mediaQuery = window.matchMedia('(max-width: 767px)')
+    const updateViewport = () => setIsMobile(mediaQuery.matches)
 
-    if (!lastShown || now - lastShown >= FEEDBACK_INTERVAL) {
-      const t = setTimeout(() => setFeedbackOpen(true), 2000)
-      setFeedbackTimer()
-      return () => clearTimeout(t)
+    updateViewport()
+    mediaQuery.addEventListener('change', updateViewport)
+
+    return () => mediaQuery.removeEventListener('change', updateViewport)
+  }, [])
+
+  useEffect(() => {
+    if (isMenuOpen || isMobile) {
+      setPromptExpanded(false)
+      return
     }
 
-    const remaining = FEEDBACK_INTERVAL - (now - lastShown)
-    const t = setTimeout(() => {
-      setFeedbackOpen(true)
-      setFeedbackTimer()
-    }, remaining)
+    const timeoutId = window.setTimeout(() => {
+      setPromptExpanded((prev) => !prev)
+    }, PROMPT_INTERVAL_MS)
 
-    return () => clearTimeout(t)
-  }, [isDashboardMessages])
+    return () => window.clearTimeout(timeoutId)
+  }, [isMenuOpen, isMobile, isPromptExpanded])
 
-  // Close feedback resets the timer
   const handleCloseFeedback = () => {
     setFeedbackOpen(false)
-    setFeedbackTimer()
   }
 
   if (isDashboardMessages) return null;
+
+  // Só renderiza na página inicial do site
+  if (pathname !== '/') return null;
 
   const handleOpenAssistant = () => {
     setAssistantOpen(true);
@@ -75,7 +73,7 @@ export default function FloatingActions() {
       <VirtualAssistant isOpen={isAssistantOpen} onClose={() => setAssistantOpen(false)} />
       <FeedbackDialog isOpen={isFeedbackOpen} onClose={handleCloseFeedback} />
 
-      <div className="fixed md:bottom-6 bottom-24 right-6 z-[9999] flex flex-col items-center">
+      <div className="fixed md:bottom-6 bottom-28 right-5 z-[9999] flex flex-col items-center">
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
@@ -150,16 +148,55 @@ export default function FloatingActions() {
           )}
         </AnimatePresence>
 
-        <motion.button
-          onClick={() => setMenuOpen(prev => !prev)}
-          animate={{ rotate: isMenuOpen ? 180 : 0 }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="w-14 h-14 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-700 text-white shadow-floating border-2 border-white flex items-center justify-center"
-          aria-label={isMenuOpen ? 'Fechar menu' : 'Abrir menu'}
-        >
-          {isMenuOpen ? <X size={24} /> : <MessageCircleMore size={24} />}
-        </motion.button>
+        <div className="relative flex items-center justify-end">
+          {!isMobile && (
+            <motion.div
+              initial={false}
+              animate={{
+                width: isMenuOpen ? 0 : isPromptExpanded ? 180 : 0,
+                opacity: isMenuOpen ? 0 : isPromptExpanded ? 1 : 0,
+                x: isMenuOpen ? 20 : isPromptExpanded ? 0 : 14,
+              }}
+              transition={{ duration: 0.55, ease: 'easeInOut' }}
+              className="pointer-events-auto overflow-hidden"
+              onClick={() => setMenuOpen(prev => !prev)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  setMenuOpen(prev => !prev);
+                }
+              }}
+              aria-label="Abrir opções de ajuda"
+            >
+              <div className="flex items-center justify-center rounded-full border border-white/30 bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-[0_10px_25px_rgba(109,40,217,0.35)] backdrop-blur-sm whitespace-nowrap cursor-pointer select-none">
+                Precisa de ajuda?
+              </div>
+            </motion.div>
+          )}
+
+          <motion.button
+            onClick={() => setMenuOpen(prev => !prev)}
+            animate={{ rotate: isMenuOpen ? 180 : 0 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="relative z-10 ml-[-8px] w-14 h-14 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-700 text-white shadow-floating border-2 border-white flex items-center justify-center"
+            aria-label={isMenuOpen ? 'Fechar menu' : 'Abrir menu'}
+          >
+            {isMenuOpen ? <X size={24} /> : <MessageCircleMore size={24} />}
+            {isMobile && !isMenuOpen && (
+              <motion.span
+                initial={{ scale: 0.8, opacity: 0.8 }}
+                animate={{ scale: [1, 1.18, 1], opacity: [0.9, 1, 0.9] }}
+                transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+                className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-lg"
+              >
+                1
+              </motion.span>
+            )}
+          </motion.button>
+        </div>
       </div>
     </>
   );

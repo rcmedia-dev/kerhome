@@ -1,0 +1,2344 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>KerHome - Visitas Agendadas Mobile Redesign (5 Variações UI/UX)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #820AD1;
+      --primary-hover: #6b07ad;
+      --primary-soft: #f5edfc;
+      --accent: #FF6B00;
+      --accent-soft: #fff3eb;
+      --bg: #0b0d14;
+      --device-bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-elevated: #f1f5f9;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      --border: #e2e8f0;
+      --border-subtle: #f1f5f9;
+      --success: #10b981;
+      --success-soft: #ecfdf5;
+      --warning: #f59e0b;
+      --warning-soft: #fffbeb;
+      --danger: #ef4444;
+      --danger-soft: #fef2f2;
+      --info: #3b82f6;
+      --info-soft: #eff6ff;
+      --font-display: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --font-body: 'Inter', -apple-system, sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-bottom: 70px;
+    }
+
+    /* ─── Top Control Bar / Header ─── */
+    .app-header {
+      width: 100%;
+      background: rgba(15, 17, 23, 0.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 900;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      font-size: 16px;
+      box-shadow: 0 4px 14px rgba(130, 10, 209, 0.4);
+    }
+
+    .brand-text h2 {
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+      font-family: var(--font-display);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-text span {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .route-pill {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 3px 10px;
+      border-radius: 20px;
+      color: #38bdf8;
+      font-size: 11px;
+      font-family: monospace;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-control {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      padding: 7px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-control:hover {
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+    }
+
+    .btn-next-main {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      border: none;
+      box-shadow: 0 4px 14px rgba(130, 10, 209, 0.35);
+    }
+    .btn-next-main:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(130, 10, 209, 0.45);
+      color: #fff;
+    }
+
+    /* ─── Presentation Info Card ─── */
+    .variant-meta-card {
+      width: 100%;
+      max-width: 860px;
+      margin: 14px auto 0;
+      padding: 12px 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: #e2e8f0;
+    }
+
+    .variant-meta-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .variant-badge {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .variant-meta-title {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .variant-meta-desc {
+      font-size: 12px;
+      color: #94a3b8;
+      max-width: 520px;
+      line-height: 1.4;
+    }
+
+    .variant-nav-dots {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot-btn {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .dot-btn.active {
+      width: 26px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+    }
+
+    /* ─── Device Container & Frame ─── */
+    .device-wrapper {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 16px 12px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .phone-frame {
+      position: relative;
+      width: 395px;
+      height: 840px;
+      background: var(--device-bg);
+      border-radius: 46px;
+      border: 8px solid #1e2430;
+      box-shadow: 
+        0 0 0 2px rgba(255, 255, 255, 0.08),
+        0 30px 80px -15px rgba(0, 0, 0, 0.75),
+        0 15px 35px rgba(130, 10, 209, 0.2);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: width 0.3s, height 0.3s;
+    }
+
+    .device-wrapper.full-width .phone-frame {
+      width: 100%;
+      max-width: 480px;
+      height: 870px;
+      border-radius: 28px;
+    }
+
+    /* Dynamic Island */
+    .phone-island {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 124px;
+      height: 28px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      pointer-events: none;
+    }
+
+    .island-lens {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+    }
+
+    .island-mic {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #090d16;
+    }
+
+    /* Status Bar */
+    .phone-status-bar {
+      height: 44px;
+      padding: 12px 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 700;
+      color: #0f172a;
+      z-index: 400;
+      background: transparent;
+      user-select: none;
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Phone Screen Scrollable Area */
+    .screen-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+      background: #f8fafc;
+      padding-bottom: 95px; /* space for mobile navbar */
+      scrollbar-width: none;
+    }
+    .screen-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Fixed Bottom Navbar */
+    .phone-navbar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 68px;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(18px);
+      border-top: 1px solid rgba(226, 232, 240, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 8px 10px;
+      z-index: 300;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      position: relative;
+      padding: 6px 12px;
+      transition: all 0.2s;
+    }
+
+    .nav-item.active {
+      color: var(--primary);
+    }
+
+    .nav-item.active svg {
+      color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    .nav-indicator {
+      width: 4px;
+      height: 4px;
+      background: var(--primary);
+      border-radius: 50%;
+      position: absolute;
+      bottom: 1px;
+    }
+
+    .nav-badge-dot {
+      position: absolute;
+      top: 3px;
+      right: 14px;
+      width: 7px;
+      height: 7px;
+      background: var(--accent);
+      border-radius: 50%;
+      border: 1.5px solid #fff;
+    }
+
+    /* Bottom Indicator Bar */
+    .home-indicator {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 130px;
+      height: 4px;
+      background: #0f172a;
+      opacity: 0.3;
+      border-radius: 10px;
+      z-index: 450;
+      pointer-events: none;
+    }
+
+    /* ─── Generic Common UI Components in Frame ─── */
+    .mobile-header-bar {
+      padding: 8px 16px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: rgba(248, 250, 252, 0.95);
+      backdrop-filter: blur(14px);
+      z-index: 200;
+      border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+    }
+
+    .mobile-title-wrap h1 {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .mobile-title-wrap p {
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .header-pill-badge {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 5px 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #475569;
+    }
+
+    /* Floating Toast */
+    .mobile-toast {
+      position: absolute;
+      top: 55px;
+      left: 16px;
+      right: 16px;
+      background: #0f172a;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+      z-index: 800;
+      transform: translateY(-80px);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .mobile-toast.show {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* ─── Bottom Sheet Modal (Universal) ─── */
+    .sheet-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .sheet-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .sheet-modal {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border-radius: 28px 28px 0 0;
+      padding: 12px 18px 26px;
+      z-index: 650;
+      transform: translateY(100%);
+      transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.18);
+      max-height: 84%;
+      overflow-y: auto;
+    }
+
+    .sheet-modal.active {
+      transform: translateY(0);
+    }
+
+    .sheet-handle {
+      width: 42px;
+      height: 5px;
+      background: #cbd5e1;
+      border-radius: 10px;
+      margin: 0 auto 14px;
+    }
+
+    /* ═════════════════════════════════════════════════════════════════
+       VARIAÇÃO 1: NATIVE TIMELINE FEED & DAY CLUSTERS (Linha do Tempo)
+    ═════════════════════════════════════════════════════════════════ */
+    .v1-container {
+      padding: 14px 16px;
+    }
+
+    .v1-stats-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .v1-stat-pill {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 10px 8px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+
+    .v1-stat-num {
+      font-size: 16px;
+      font-weight: 900;
+      color: #0f172a;
+      font-family: var(--font-display);
+    }
+
+    .v1-stat-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 2px;
+    }
+
+    .v1-day-cluster {
+      margin-bottom: 20px;
+    }
+
+    .v1-day-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding: 0 4px;
+    }
+
+    .v1-day-badge {
+      font-size: 12px;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .v1-day-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+
+    .v1-day-count {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+
+    .v1-timeline {
+      position: relative;
+      padding-left: 20px;
+    }
+
+    .v1-timeline::before {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 12px;
+      width: 2px;
+      background: #e2e8f0;
+    }
+
+    .v1-item {
+      position: relative;
+      margin-bottom: 14px;
+    }
+
+    .v1-node {
+      position: absolute;
+      left: -20px;
+      top: 14px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid var(--primary);
+      z-index: 2;
+    }
+
+    .v1-node.pending { border-color: var(--accent); }
+    .v1-node.done { border-color: var(--success); }
+    .v1-node.cancelled { border-color: var(--danger); }
+
+    .v1-card {
+      background: #ffffff;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      padding: 14px;
+      box-shadow: 0 3px 10px -2px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s;
+    }
+
+    .v1-card:active {
+      transform: scale(0.99);
+    }
+
+    .v1-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .v1-time-tag {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--primary-soft);
+      padding: 3px 8px;
+      border-radius: 8px;
+    }
+
+    .v1-status-pill {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .status-confirmed { background: #f3e8ff; color: #7e22ce; }
+    .status-pending { background: #ffedd5; color: #c2410c; }
+    .status-done { background: #dcfce7; color: #15803d; }
+    .status-cancelled { background: #fee2e2; color: #b91c1c; }
+
+    .v1-prop-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.3;
+      margin-bottom: 6px;
+    }
+
+    .v1-prop-location {
+      font-size: 11px;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+
+    .v1-lead-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f8fafc;
+      padding: 8px 10px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+
+    .v1-lead-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .v1-lead-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a855f7, #6366f1);
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .v1-lead-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .v1-quick-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .v1-btn-contact {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #475569;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .v1-btn-contact.whatsapp {
+      color: #16a34a;
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+
+    .v1-actions-bar {
+      display: flex;
+      gap: 8px;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 10px;
+    }
+
+    .v1-btn-confirm {
+      flex: 1;
+      background: linear-gradient(135deg, var(--primary), #6366f1);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 9px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .v1-btn-cancel {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #64748b;
+      border-radius: 12px;
+      padding: 9px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* ═════════════════════════════════════════════════════════════════
+       VARIAÇÃO 2: CALENDAR STRIP & DAY FOCUS (Mini Calendário Semanal)
+    ═════════════════════════════════════════════════════════════════ */
+    .v2-calendar-strip {
+      padding: 12px 14px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .v2-calendar-strip::-webkit-scrollbar { display: none; }
+
+    .v2-day-card {
+      flex: 0 0 46px;
+      height: 64px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .v2-day-card.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+      box-shadow: 0 4px 12px rgba(130, 10, 209, 0.35);
+      transform: translateY(-2px);
+    }
+
+    .v2-day-week {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+    .v2-day-card.active .v2-day-week { color: #e9d5ff; }
+
+    .v2-day-number {
+      font-size: 16px;
+      font-weight: 900;
+      font-family: var(--font-display);
+      color: #0f172a;
+    }
+    .v2-day-card.active .v2-day-number { color: white; }
+
+    .v2-day-has-badge {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+    .v2-day-card.active .v2-day-has-badge { background: white; }
+
+    .v2-day-summary {
+      padding: 14px 16px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .v2-summary-text {
+      font-size: 13px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .v2-filter-chips {
+      padding: 8px 16px 12px;
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .v2-filter-chips::-webkit-scrollbar { display: none; }
+
+    .v2-chip {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      color: #64748b;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .v2-chip.active {
+      background: #0f172a;
+      color: #ffffff;
+      border-color: #0f172a;
+    }
+
+    .v2-card-list {
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .v2-rich-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px -3px rgba(0,0,0,0.04);
+    }
+
+    .v2-countdown-bar {
+      padding: 7px 14px;
+      background: #fffbeb;
+      border-bottom: 1px solid #fef3c7;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 800;
+      color: #b45309;
+    }
+
+    .v2-card-body {
+      padding: 14px;
+    }
+
+    .v2-thumb-wrap {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .v2-prop-img {
+      width: 76px;
+      height: 76px;
+      border-radius: 14px;
+      object-fit: cover;
+      background: #cbd5e1;
+      flex-shrink: 0;
+    }
+
+    .v2-prop-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .v2-price-tag {
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--accent);
+      font-family: var(--font-display);
+      margin-top: 3px;
+    }
+
+    /* ═════════════════════════════════════════════════════════════════
+       VARIAÇÃO 3: MODERN APP-STYLE KANBAN TABS & HAPTIC SHEETS
+    ═════════════════════════════════════════════════════════════════ */
+    .v3-segmented-control {
+      margin: 12px 16px;
+      background: #e2e8f0;
+      padding: 3px;
+      border-radius: 16px;
+      display: flex;
+    }
+
+    .v3-seg-btn {
+      flex: 1;
+      padding: 8px 6px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: #64748b;
+      border: none;
+      background: transparent;
+      border-radius: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .v3-seg-btn.active {
+      background: #ffffff;
+      color: #0f172a;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .v3-seg-count {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 10px;
+      background: #f1f5f9;
+      color: #475569;
+    }
+    .v3-seg-btn.active .v3-seg-count {
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .v3-list-wrap {
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .v3-native-card {
+      background: #ffffff;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      cursor: pointer;
+    }
+
+    .v3-time-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .v3-time-big {
+      font-size: 17px;
+      font-weight: 900;
+      color: #0f172a;
+      font-family: var(--font-display);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .v3-note-box {
+      background: #fdf4ff;
+      border-left: 3px solid var(--primary);
+      padding: 8px 10px;
+      border-radius: 0 10px 10px 0;
+      font-size: 11px;
+      color: #701a75;
+      font-style: italic;
+      margin: 10px 0;
+    }
+
+    .v3-bottom-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .v3-btn-action {
+      flex: 1;
+      padding: 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      border: none;
+    }
+
+    .v3-btn-accept {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+    }
+
+    .v3-btn-reject {
+      background: #f1f5f9;
+      color: #64748b;
+      border: 1px solid #cbd5e1;
+    }
+
+    /* ═════════════════════════════════════════════════════════════════
+       VARIAÇÃO 4: HERO "PRÓXIMA VISITA" & FILA PRIORITÁRIA (Executive Focus)
+    ═════════════════════════════════════════════════════════════════ */
+    .v4-container {
+      padding: 14px 16px;
+    }
+
+    .v4-hero-card {
+      background: linear-gradient(145deg, #23083e, #130422);
+      color: white;
+      border-radius: 26px;
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 16px 32px -8px rgba(35, 8, 62, 0.45);
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .v4-hero-card::after {
+      content: '';
+      position: absolute;
+      right: -30px;
+      bottom: -30px;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 107, 0, 0.35), transparent 70%);
+      pointer-events: none;
+    }
+
+    .v4-hero-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .v4-hero-badge {
+      background: rgba(255, 107, 0, 0.2);
+      border: 1px solid rgba(255, 107, 0, 0.4);
+      color: #ff944d;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 10px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .v4-pulse-dot {
+      width: 6px;
+      height: 6px;
+      background: #ff6b00;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #ff6b00;
+      animation: pulse 1.6s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.8; }
+      50% { transform: scale(1.4); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.8; }
+    }
+
+    .v4-hero-time {
+      font-size: 26px;
+      font-weight: 900;
+      font-family: var(--font-display);
+      color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    .v4-hero-prop {
+      font-size: 14px;
+      font-weight: 700;
+      color: #e2e8f0;
+      margin-bottom: 12px;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .v4-hero-client {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 8px 12px;
+      border-radius: 14px;
+      margin-bottom: 14px;
+    }
+
+    .v4-client-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #f59e0b);
+      color: white;
+      font-weight: 800;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .v4-hero-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .v4-btn-hero {
+      padding: 10px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      border: none;
+    }
+
+    .v4-btn-maps {
+      background: white;
+      color: #0f172a;
+    }
+
+    .v4-btn-wpp {
+      background: #22c55e;
+      color: white;
+    }
+
+    .v4-section-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* ═════════════════════════════════════════════════════════════════
+       VARIAÇÃO 5: MAP-CENTRIC & AGENT ROUTE (Itinerário Geográfico)
+    ═════════════════════════════════════════════════════════════════ */
+    .v5-map-wrap {
+      height: 250px;
+      position: relative;
+      background: #1e293b;
+      overflow: hidden;
+    }
+
+    .v5-mock-map {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.85;
+      background: radial-gradient(circle at 40% 40%, #293548, #0f172a);
+      position: relative;
+    }
+
+    /* Grid pattern for realistic Map feel */
+    .v5-map-grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+
+    /* Map Route SVG */
+    .v5-route-line {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    /* Map Pins */
+    .v5-map-pin {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.2s;
+    }
+
+    .v5-map-pin:hover, .v5-map-pin.active {
+      transform: translate(-50%, -115%) scale(1.1);
+      z-index: 10;
+    }
+
+    .v5-pin-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      font-weight: 800;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      border: 2px solid #ffffff;
+    }
+
+    .v5-pin-badge.pending { background: var(--accent); }
+    .v5-pin-badge.done { background: var(--success); }
+
+    .v5-pin-pulse {
+      position: absolute;
+      bottom: -3px;
+      width: 8px;
+      height: 8px;
+      background: rgba(255,255,255,0.8);
+      border-radius: 50%;
+    }
+
+    .v5-map-card-banner {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      padding: 10px 14px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    }
+
+    .v5-sheet-list {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .v5-stop-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 12px 14px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      position: relative;
+    }
+
+    .v5-stop-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: #f1f5f9;
+      color: #475569;
+      font-weight: 900;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .v5-stop-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Modal Form / Detail Fields */
+    .sheet-row-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .sheet-label {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .sheet-val {
+      font-size: 13px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Top Control Bar / Switcher ─── -->
+  <header class="app-header">
+    <div class="brand-group">
+      <div class="brand-logo">K</div>
+      <div class="brand-text">
+        <h2>KerHome <span class="route-pill">/dashboard?tab=visits</span></h2>
+        <span>Redesign Mobile UI/UX Angola · 5 Variações</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn-control" id="btnPrev" title="Variação Anterior">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+        <span>Anterior</span>
+      </button>
+
+      <div class="variant-nav-dots" id="dotsContainer"></div>
+
+      <button class="btn-control btn-next-main" id="btnNext" title="Próxima Variação">
+        <span>Próximo Redesign</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+
+      <button class="btn-control" id="btnToggleFrame" title="Alternar Moldura">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="3"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ─── Variation Meta / Explicação ─── -->
+  <div class="variant-meta-card">
+    <div class="variant-meta-left">
+      <span class="variant-badge" id="varBadge">VARIAÇÃO 1 DE 5</span>
+      <div>
+        <div class="variant-meta-title" id="varTitle">Linha do Tempo Cronológica (Feed Inteligente)</div>
+        <div class="variant-meta-desc" id="varDesc">Agrupa os compromissos por dias («Hoje», «Amanhã», «Esta Semana») com badges de horário proeminentes, ações rápidas de contato (WhatsApp/Chamada) e visualização limpa.</div>
+      </div>
+    </div>
+    <div style="font-size: 11px; color: #64748b; display: flex; align-items: center; gap: 4px;">
+      Navegue com as setas <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color:#fff">←</kbd> <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color:#fff">→</kbd> ou clique em Próximo
+    </div>
+  </div>
+
+  <!-- ─── Phone Container Mockup ─── -->
+  <div class="device-wrapper" id="deviceWrapper">
+    <div class="phone-frame">
+      <!-- Dynamic Island -->
+      <div class="phone-island">
+        <div class="island-lens"></div>
+        <div class="island-mic"></div>
+      </div>
+
+      <!-- Status Bar -->
+      <div class="phone-status-bar">
+        <span id="statusBarTime">09:41</span>
+        <div class="status-icons">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.28 19.59 10.59 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9z"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+          <svg width="18" height="12" viewBox="0 0 24 14" fill="currentColor"><rect x="1" y="1" width="19" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3" y="3" width="13" height="8" rx="1.5"/><path d="M22 5v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+
+      <!-- Phone Toast Notification -->
+      <div class="mobile-toast" id="mobileToast">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+        <span id="toastMsg">Status atualizado com sucesso!</span>
+      </div>
+
+      <!-- ─── Interactive Screen Content Area ─── -->
+      <div class="screen-content" id="screenContent">
+        <!-- Injected via JavaScript based on active variation -->
+      </div>
+
+      <!-- ─── Universal Bottom Sheet ─── -->
+      <div class="sheet-overlay" id="sheetOverlay" onclick="closeSheet()"></div>
+      <div class="sheet-modal" id="sheetModal">
+        <div class="sheet-handle"></div>
+        <div id="sheetContent">
+          <!-- Dynamic Content -->
+        </div>
+      </div>
+
+      <!-- ─── Mobile Bottom Navigation (KerHome Dashboard) ─── -->
+      <div class="phone-navbar">
+        <div class="nav-item" onclick="switchNav('properties')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          <span>Imóveis</span>
+        </div>
+        <div class="nav-item" onclick="switchNav('favorites')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Favoritos</span>
+        </div>
+        <div class="nav-item active" onclick="switchNav('visits')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Visitas</span>
+          <span class="nav-badge-dot"></span>
+          <div class="nav-indicator"></div>
+        </div>
+        <div class="nav-item" onclick="switchNav('invoices')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span>Faturas</span>
+        </div>
+        <div class="nav-item" onclick="switchNav('messages')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Chat</span>
+        </div>
+      </div>
+
+      <!-- Home Indicator -->
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+
+  <script>
+    // ─── Realistic Angola Mock Data for Visits ───
+    let visitsData = [
+      {
+        id: 'vis-01',
+        scheduled_date: '2026-09-16',
+        dayLabel: 'Hoje',
+        scheduled_time: '10:30',
+        status: 'confirmed',
+        property_title: 'Apartamento T3 Vista Mar - Talatona',
+        property_location: 'Condomínio Dolce Vita, Talatona, Luanda',
+        property_price: '180.000.000 Kz',
+        property_image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=300&q=80',
+        lead_name: 'Dra. Jandira Costa',
+        lead_phone: '+244 923 456 789',
+        notes: 'Cliente busca imóvel para a família. Solicitou visita com arquiteto.',
+        lat: -8.922,
+        lng: 13.185
+      },
+      {
+        id: 'vis-02',
+        scheduled_date: '2026-09-16',
+        dayLabel: 'Hoje',
+        scheduled_time: '14:00',
+        status: 'pending',
+        property_title: 'Vivenda V4 com Piscina Privativa - Kilamba',
+        property_location: 'Quarteirão F, Centralidade do Kilamba',
+        property_price: '95.000.000 Kz',
+        property_image: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=300&q=80',
+        lead_name: 'Eng. Carlos Bento',
+        lead_phone: '+244 931 888 222',
+        notes: 'Prefere visita no período da tarde após reunião de trabalho.',
+        lat: -8.995,
+        lng: 13.262
+      },
+      {
+        id: 'vis-03',
+        scheduled_date: '2026-09-17',
+        dayLabel: 'Amanhã',
+        scheduled_time: '09:00',
+        status: 'confirmed',
+        property_title: 'Escritório Comercial 120m² - Ingombota',
+        property_location: 'Torres Kianda, Av. 4 de Fevereiro, Luanda',
+        property_price: '2.500.000 Kz /mês',
+        property_image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=300&q=80',
+        lead_name: 'Mauro Silva (FinTech Angola)',
+        lead_phone: '+244 944 111 333',
+        notes: 'Interesse imediato de arrendamento para expansão da equipa.',
+        lat: -8.814,
+        lng: 13.232
+      },
+      {
+        id: 'vis-04',
+        scheduled_date: '2026-09-18',
+        dayLabel: 'Sexta-feira',
+        scheduled_time: '16:30',
+        status: 'pending',
+        property_title: 'Cobertura Duplex T4 Luxo - Miramar',
+        property_location: 'Bairro Miramar, Luanda Centro',
+        property_price: '340.000.000 Kz',
+        property_image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=300&q=80',
+        lead_name: 'Helena dos Santos',
+        lead_phone: '+244 912 777 999',
+        notes: 'Cliente quer conferir a documentação predial e certidão predial.',
+        lat: -8.805,
+        lng: 13.245
+      },
+      {
+        id: 'vis-05',
+        scheduled_date: '2026-09-12',
+        dayLabel: 'Semana Passada',
+        scheduled_time: '11:00',
+        status: 'done',
+        property_title: 'Vivenda V3 em Condomínio Fechado - Camama',
+        property_location: 'Condomínio Jardim de Rosas, Camama',
+        property_price: '70.000.000 Kz',
+        property_image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=300&q=80',
+        lead_name: 'Dr. Sebastião Vunge',
+        lead_phone: '+244 925 333 444',
+        notes: 'Visita concluída com sucesso. Proposta formal em análise.',
+        lat: -8.930,
+        lng: 13.240
+      }
+    ];
+
+    // ─── Variations Metadata ───
+    const variations = [
+      {
+        id: 1,
+        title: "Linha do Tempo Cronológica (Feed Inteligente)",
+        desc: "Agrupa os compromissos por dias («Hoje», «Amanhã», «Esta Semana») com badges de horário proeminentes, ações rápidas de contato (WhatsApp/Chamada) e visualização limpa.",
+        render: renderVariation1
+      },
+      {
+        id: 2,
+        title: "Mini Calendário Semanal Interativo (Day Strip Focus)",
+        desc: "Barra deslizante de dias da semana (Seg a Dom) com contadores em bolinhas. Ao tocar no dia, filtra os compromissos e mostra o tempo restante até a visita com contagem regressiva.",
+        render: renderVariation2
+      },
+      {
+        id: 3,
+        title: "Kanban Tátil com Segmented Pill & Bottom Sheet",
+        desc: "Segmented switch no topo (Pendentes / Confirmadas / Histórico) com animações fluidas, cartões com notas do cliente destacadas e Bottom Sheet nativo para ações e reagendamento.",
+        render: renderVariation3
+      },
+      {
+        id: 4,
+        title: "Executive Hub: Destaque 'Próxima Visita' & Fila",
+        desc: "Card Hero dark-mode imersivo no topo com contagem da visita mais próxima («Em 45 minutos»), botão direto 'Iniciar GPS' e WhatsApp de um toque, seguido por fila de atendimento.",
+        render: renderVariation4
+      },
+      {
+        id: 5,
+        title: "Itinerário e Mapa de Rota do Agente (Location-First)",
+        desc: "Header com mapa cartográfico interativo de Luanda conectando as visitas do dia, pins clicáveis e Bottom Sheet com a sequência de rota otimizada para o corretor.",
+        render: renderVariation5
+      }
+    ];
+
+    let currentVarIdx = 0;
+
+    // ─── Initialize Dots & Events ───
+    function init() {
+      const dotsContainer = document.getElementById('dotsContainer');
+      dotsContainer.innerHTML = '';
+      variations.forEach((_, idx) => {
+        const dot = document.createElement('button');
+        dot.className = `dot-btn ${idx === currentVarIdx ? 'active' : ''}`;
+        dot.onclick = () => setVariation(idx);
+        dotsContainer.appendChild(dot);
+      });
+
+      document.getElementById('btnNext').onclick = nextVariation;
+      document.getElementById('btnPrev').onclick = prevVariation;
+      document.getElementById('btnToggleFrame').onclick = toggleFrameMode;
+
+      // Keyboard arrow navigation
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') nextVariation();
+        if (e.key === 'ArrowLeft') prevVariation();
+      });
+
+      renderCurrentVariation();
+    }
+
+    function setVariation(idx) {
+      currentVarIdx = idx;
+      updateHeaderInfo();
+      renderCurrentVariation();
+    }
+
+    function nextVariation() {
+      currentVarIdx = (currentVarIdx + 1) % variations.length;
+      updateHeaderInfo();
+      renderCurrentVariation();
+    }
+
+    function prevVariation() {
+      currentVarIdx = (currentVarIdx - 1 + variations.length) % variations.length;
+      updateHeaderInfo();
+      renderCurrentVariation();
+    }
+
+    function updateHeaderInfo() {
+      const v = variations[currentVarIdx];
+      document.getElementById('varBadge').innerText = `VARIAÇÃO ${v.id} DE ${variations.length}`;
+      document.getElementById('varTitle').innerText = v.title;
+      document.getElementById('varDesc').innerText = v.desc;
+
+      const dots = document.querySelectorAll('.dot-btn');
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentVarIdx);
+      });
+    }
+
+    function toggleFrameMode() {
+      document.getElementById('deviceWrapper').classList.toggle('full-width');
+    }
+
+    function renderCurrentVariation() {
+      const container = document.getElementById('screenContent');
+      container.scrollTop = 0;
+      variations[currentVarIdx].render(container);
+    }
+
+    // ─── Status Update Helper with Feedback Toast ───
+    function updateVisitStatus(id, newStatus) {
+      const v = visitsData.find(item => item.id === id);
+      if (v) {
+        v.status = newStatus;
+        const labels = {
+          confirmed: 'Visita Confirmada!',
+          done: 'Visita Marcada como Realizada!',
+          cancelled: 'Visita Cancelada.'
+        };
+        showToast(labels[newStatus] || 'Atualizado!');
+        renderCurrentVariation();
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('mobileToast');
+      document.getElementById('toastMsg').innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    // ─── Universal Bottom Sheet Helpers ───
+    function openSheet(htmlContent) {
+      document.getElementById('sheetContent').innerHTML = htmlContent;
+      document.getElementById('sheetOverlay').classList.add('active');
+      document.getElementById('sheetModal').classList.add('active');
+    }
+
+    function closeSheet() {
+      document.getElementById('sheetOverlay').classList.remove('active');
+      document.getElementById('sheetModal').classList.remove('active');
+    }
+
+    function showVisitDetails(id) {
+      const v = visitsData.find(x => x.id === id);
+      if (!v) return;
+
+      const statusCls = {
+        confirmed: 'status-confirmed',
+        pending: 'status-pending',
+        done: 'status-done',
+        cancelled: 'status-cancelled'
+      }[v.status];
+
+      const statusTxt = {
+        confirmed: 'Confirmada',
+        pending: 'Pendente',
+        done: 'Realizada',
+        cancelled: 'Cancelada'
+      }[v.status];
+
+      openSheet(`
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;">
+          <div>
+            <span class="v1-status-pill ${statusCls}">${statusTxt}</span>
+            <h2 style="font-size:17px; font-weight:800; color:#0f172a; margin-top:6px;">${v.property_title}</h2>
+          </div>
+          <button onclick="closeSheet()" style="background:#f1f5f9; border:none; border-radius:50%; width:30px; height:30px; cursor:pointer; font-weight:bold; color:#64748b;">✕</button>
+        </div>
+
+        <div style="border-radius:14px; overflow:hidden; margin-bottom:14px;">
+          <img src="${v.property_image}" style="width:100%; height:130px; object-fit:cover;" />
+        </div>
+
+        <div class="sheet-row-info">
+          <span class="sheet-label">Data & Horário</span>
+          <span class="sheet-val">${v.dayLabel}, ${v.scheduled_date} às ${v.scheduled_time}</span>
+        </div>
+
+        <div class="sheet-row-info">
+          <span class="sheet-label">Cliente / Lead</span>
+          <span class="sheet-val">${v.lead_name}</span>
+        </div>
+
+        <div class="sheet-row-info">
+          <span class="sheet-label">Telefone</span>
+          <span class="sheet-val">${v.lead_phone}</span>
+        </div>
+
+        <div class="sheet-row-info">
+          <span class="sheet-label">Localização</span>
+          <span class="sheet-val" style="max-width:60%; text-align:right;">${v.property_location}</span>
+        </div>
+
+        <div class="sheet-row-info">
+          <span class="sheet-label">Valor de Referência</span>
+          <span class="sheet-val" style="color:var(--accent); font-size:14px;">${v.property_price}</span>
+        </div>
+
+        ${v.notes ? `
+          <div style="background:#f5edfc; border-radius:12px; padding:10px 12px; margin:14px 0;">
+            <span style="font-size:10px; font-weight:800; color:var(--primary); text-transform:uppercase;">Observação do Cliente:</span>
+            <p style="font-size:12px; color:#4c0519; margin-top:2px;">"${v.notes}"</p>
+          </div>
+        ` : ''}
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px;">
+          <a href="https://wa.me/${v.lead_phone.replace(/\D/g, '')}" target="_blank" style="background:#22c55e; color:white; text-decoration:none; text-align:center; padding:11px; border-radius:12px; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; gap:6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.694.073-2.147-.525-1.745-.72-2.87-2.483-2.958-2.599-.086-.118-.707-.94-.707-1.794 0-.853.447-1.274.606-1.448.16-.174.348-.218.464-.218.117 0 .232.002.333.007.108.005.25-.041.391.297.144.348.491 1.201.535 1.288.044.088.073.19.014.306-.058.117-.088.19-.174.291-.087.102-.183.228-.261.306-.088.087-.179.182-.077.357.101.174.45 1.01.968 1.472.666.593 1.229.777 1.403.864.174.087.276.073.377-.044.102-.116.435-.508.55-.683.117-.174.233-.145.393-.087.159.058 1.01.476 1.184.564.174.087.29.131.334.204.043.073.043.422-.101.827z"/></svg>
+            WhatsApp
+          </a>
+          <a href="tel:${v.lead_phone}" style="background:#0f172a; color:white; text-decoration:none; text-align:center; padding:11px; border-radius:12px; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; gap:6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            Ligar
+          </a>
+        </div>
+
+        ${v.status === 'pending' ? `
+          <button onclick="updateVisitStatus('${v.id}', 'confirmed'); closeSheet();" style="width:100%; margin-top:8px; background:linear-gradient(135deg, var(--primary), #6366f1); color:white; border:none; padding:12px; border-radius:12px; font-size:12px; font-weight:800; cursor:pointer;">
+            Confirmar Esta Visita Agora
+          </button>
+        ` : v.status === 'confirmed' ? `
+          <button onclick="updateVisitStatus('${v.id}', 'done'); closeSheet();" style="width:100%; margin-top:8px; background:#10b981; color:white; border:none; padding:12px; border-radius:12px; font-size:12px; font-weight:800; cursor:pointer;">
+            Marcar Visita como Realizada ✓
+          </button>
+        ` : ''}
+      `);
+    }
+
+    function switchNav(tab) {
+      showToast(`Alternando para a aba: ${tab}`);
+    }
+
+    // ═════════════════════════════════════════════════════════════════
+    // RENDER: VARIAÇÃO 1 (Timeline & Day Clusters)
+    // ═════════════════════════════════════════════════════════════════
+    function renderVariation1(el) {
+      const pendingCount = visitsData.filter(x => x.status === 'pending').length;
+      const confirmedCount = visitsData.filter(x => x.status === 'confirmed').length;
+      const totalCount = visitsData.length;
+
+      // Group by dayLabel
+      const groups = {};
+      visitsData.forEach(v => {
+        if (!groups[v.dayLabel]) groups[v.dayLabel] = [];
+        groups[v.dayLabel].push(v);
+      });
+
+      let html = `
+        <div class="mobile-header-bar">
+          <div class="mobile-title-wrap">
+            <h1>Visitas Agendadas</h1>
+            <p>Seus compromissos de hoje e da semana</p>
+          </div>
+          <div class="header-pill-badge">
+            <span style="width:7px; height:7px; border-radius:50%; background:#10b981;"></span>
+            ${confirmedCount} Confirmadas
+          </div>
+        </div>
+
+        <div class="v1-container">
+          <!-- Stats Strip -->
+          <div class="v1-stats-strip">
+            <div class="v1-stat-pill">
+              <div class="v1-stat-num" style="color:var(--accent);">${pendingCount}</div>
+              <div class="v1-stat-label">Pendentes</div>
+            </div>
+            <div class="v1-stat-pill">
+              <div class="v1-stat-num" style="color:var(--primary);">${confirmedCount}</div>
+              <div class="v1-stat-label">Confirmadas</div>
+            </div>
+            <div class="v1-stat-pill">
+              <div class="v1-stat-num" style="color:#0f172a;">${totalCount}</div>
+              <div class="v1-stat-label">Total</div>
+            </div>
+          </div>
+      `;
+
+      for (const [day, list] of Object.entries(groups)) {
+        html += `
+          <div class="v1-day-cluster">
+            <div class="v1-day-header">
+              <span class="v1-day-badge">
+                <span class="v1-day-dot"></span>
+                ${day}
+              </span>
+              <span class="v1-day-count">${list.length} ${list.length === 1 ? 'visita' : 'visitas'}</span>
+            </div>
+
+            <div class="v1-timeline">
+        `;
+
+        list.forEach(v => {
+          const statusCls = {
+            confirmed: 'status-confirmed',
+            pending: 'status-pending',
+            done: 'status-done',
+            cancelled: 'status-cancelled'
+          }[v.status];
+
+          const statusTxt = {
+            confirmed: 'Confirmada',
+            pending: 'Pendente',
+            done: 'Realizada',
+            cancelled: 'Cancelada'
+          }[v.status];
+
+          html += `
+            <div class="v1-item">
+              <div class="v1-node ${v.status}"></div>
+              <div class="v1-card" onclick="showVisitDetails('${v.id}')">
+                <div class="v1-card-top">
+                  <div class="v1-time-tag">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    ${v.scheduled_time}
+                  </div>
+                  <span class="v1-status-pill ${statusCls}">${statusTxt}</span>
+                </div>
+
+                <div class="v1-prop-title">${v.property_title}</div>
+                <div class="v1-prop-location">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  ${v.property_location}
+                </div>
+
+                <div class="v1-lead-row" onclick="event.stopPropagation()">
+                  <div class="v1-lead-info">
+                    <div class="v1-lead-avatar">${v.lead_name.charAt(0)}</div>
+                    <div>
+                      <div class="v1-lead-name">${v.lead_name}</div>
+                      <div style="font-size:10px; color:#94a3b8;">${v.lead_phone}</div>
+                    </div>
+                  </div>
+                  <div class="v1-quick-actions">
+                    <a href="https://wa.me/${v.lead_phone.replace(/\D/g, '')}" target="_blank" class="v1-btn-contact whatsapp" title="WhatsApp">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.694.073-2.147-.525-1.745-.72-2.87-2.483-2.958-2.599-.086-.118-.707-.94-.707-1.794 0-.853.447-1.274.606-1.448.16-.174.348-.218.464-.218.117 0 .232.002.333.007.108.005.25-.041.391.297.144.348.491 1.201.535 1.288.044.088.073.19.014.306-.058.117-.088.19-.174.291-.087.102-.183.228-.261.306-.088.087-.179.182-.077.357.101.174.45 1.01.968 1.472.666.593 1.229.777 1.403.864.174.087.276.073.377-.044.102-.116.435-.508.55-.683.117-.174.233-.145.393-.087.159.058 1.01.476 1.184.564.174.087.29.131.334.204.043.073.043.422-.101.827z"/></svg>
+                    </a>
+                    <a href="tel:${v.lead_phone}" class="v1-btn-contact" title="Ligar">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    </a>
+                  </div>
+                </div>
+
+                ${v.status === 'pending' ? `
+                  <div class="v1-actions-bar" onclick="event.stopPropagation()">
+                    <button class="v1-btn-confirm" onclick="updateVisitStatus('${v.id}', 'confirmed')">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                      Confirmar
+                    </button>
+                    <button class="v1-btn-cancel" onclick="updateVisitStatus('${v.id}', 'cancelled')">
+                      Rejeitar
+                    </button>
+                  </div>
+                ` : v.status === 'confirmed' ? `
+                  <div class="v1-actions-bar" onclick="event.stopPropagation()">
+                    <button class="v1-btn-confirm" style="background:#10b981;" onclick="updateVisitStatus('${v.id}', 'done')">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                      Marcar Concluída
+                    </button>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        });
+
+        html += `
+            </div>
+          </div>
+        `;
+      }
+
+      html += `</div>`;
+      el.innerHTML = html;
+    }
+
+    // ═════════════════════════════════════════════════════════════════
+    // RENDER: VARIAÇÃO 2 (Mini Calendário Semanal & Day Focus)
+    // ═════════════════════════════════════════════════════════════════
+    let v2SelectedDay = '16';
+    let v2Filter = 'all';
+
+    function renderVariation2(el) {
+      const days = [
+        { week: 'Seg', num: '14', has: false },
+        { week: 'Ter', num: '15', has: false },
+        { week: 'Qua', num: '16', has: true },
+        { week: 'Qui', num: '17', has: true },
+        { week: 'Sex', num: '18', has: true },
+        { week: 'Sáb', num: '19', has: false },
+        { week: 'Dom', num: '20', has: false },
+      ];
+
+      let html = `
+        <div class="mobile-header-bar">
+          <div class="mobile-title-wrap">
+            <h1>Agenda Semanal</h1>
+            <p>Setembro de 2026 · Luanda</p>
+          </div>
+          <button class="header-pill-badge" onclick="showToast('Filtrando mês completo...')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
+            Set 2026
+          </button>
+        </div>
+
+        <!-- Horizontal Calendar Strip -->
+        <div class="v2-calendar-strip">
+          ${days.map(d => `
+            <div class="v2-day-card ${d.num === v2SelectedDay ? 'active' : ''}" onclick="selectV2Day('${d.num}')">
+              <span class="v2-day-week">${d.week}</span>
+              <span class="v2-day-number">${d.num}</span>
+              ${d.has ? '<span class="v2-day-has-badge"></span>' : '<span style="height:4px;"></span>'}
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="v2-day-summary">
+          <span class="v2-summary-text">Compromissos para o dia ${v2SelectedDay} de Setembro</span>
+          <span style="font-size:11px; font-weight:700; color:var(--primary);">Hoje</span>
+        </div>
+
+        <!-- Filter Chips -->
+        <div class="v2-filter-chips">
+          <button class="v2-chip ${v2Filter === 'all' ? 'active' : ''}" onclick="setV2Filter('all')">Todos</button>
+          <button class="v2-chip ${v2Filter === 'confirmed' ? 'active' : ''}" onclick="setV2Filter('confirmed')">Confirmadas</button>
+          <button class="v2-chip ${v2Filter === 'pending' ? 'active' : ''}" onclick="setV2Filter('pending')">Pendentes</button>
+        </div>
+
+        <div class="v2-card-list">
+      `;
+
+      let filtered = visitsData;
+      if (v2Filter !== 'all') {
+        filtered = filtered.filter(x => x.status === v2Filter);
+      }
+
+      filtered.forEach(v => {
+        html += `
+          <div class="v2-rich-card" onclick="showVisitDetails('${v.id}')">
+            <div class="v2-countdown-bar">
+              <span style="display:flex; align-items:center; gap:5px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Às ${v.scheduled_time} · ${v.dayLabel}
+              </span>
+              <span>Em ~2 horas</span>
+            </div>
+
+            <div class="v2-card-body">
+              <div class="v2-thumb-wrap">
+                <img src="${v.property_image}" class="v2-prop-img" alt="imóvel" />
+                <div class="v2-prop-meta">
+                  <h3 style="font-size:13px; font-weight:800; color:#0f172a; line-height:1.25; margin-bottom:4px;">${v.property_title}</h3>
+                  <p style="font-size:11px; color:#64748b; line-height:1.3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${v.property_location}</p>
+                  <div class="v2-price-tag">${v.property_price}</div>
+                </div>
+              </div>
+
+              <div style="background:#f8fafc; border-radius:14px; padding:10px; display:flex; align-items:center; justify-content:space-between;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <div style="width:30px; height:30px; border-radius:50%; background:var(--primary-soft); color:var(--primary); font-weight:800; font-size:12px; display:flex; align-items:center; justify-content:center;">
+                    ${v.lead_name.charAt(0)}
+                  </div>
+                  <div>
+                    <div style="font-size:12px; font-weight:700; color:#0f172a;">${v.lead_name}</div>
+                    <div style="font-size:10px; color:#64748b;">${v.lead_phone}</div>
+                  </div>
+                </div>
+
+                <div style="display:flex; gap:6px;" onclick="event.stopPropagation()">
+                  <a href="https://wa.me/${v.lead_phone.replace(/\D/g, '')}" target="_blank" style="padding:6px 12px; border-radius:10px; background:#22c55e; color:white; font-size:11px; font-weight:800; text-decoration:none; display:flex; align-items:center; gap:4px;">
+                    WhatsApp
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+      el.innerHTML = html;
+    }
+
+    function selectV2Day(num) {
+      v2SelectedDay = num;
+      showToast(`Filtrado para dia ${num} de Setembro`);
+      renderCurrentVariation();
+    }
+
+    function setV2Filter(f) {
+      v2Filter = f;
+      renderCurrentVariation();
+    }
+
+    // ═════════════════════════════════════════════════════════════════
+    // RENDER: VARIAÇÃO 3 (App-Style Kanban Tabs & Haptic Sheets)
+    // ═════════════════════════════════════════════════════════════════
+    let v3Tab = 'pending';
+
+    function renderVariation3(el) {
+      const pending = visitsData.filter(x => x.status === 'pending');
+      const confirmed = visitsData.filter(x => x.status === 'confirmed');
+      const history = visitsData.filter(x => x.status === 'done' || x.status === 'cancelled');
+
+      let currentList = v3Tab === 'pending' ? pending : v3Tab === 'confirmed' ? confirmed : history;
+
+      let html = `
+        <div class="mobile-header-bar">
+          <div class="mobile-title-wrap">
+            <h1>Gestor de Visitas</h1>
+            <p>Controle de agendamentos e leads</p>
+          </div>
+          <button class="header-pill-badge" onclick="showToast('Sincronizado com Supabase')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Sync
+          </button>
+        </div>
+
+        <!-- Segmented Tab Bar (Native iOS/Android Feel) -->
+        <div class="v3-segmented-control">
+          <button class="v3-seg-btn ${v3Tab === 'pending' ? 'active' : ''}" onclick="setV3Tab('pending')">
+            Pendentes
+            <span class="v3-seg-count">${pending.length}</span>
+          </button>
+          <button class="v3-seg-btn ${v3Tab === 'confirmed' ? 'active' : ''}" onclick="setV3Tab('confirmed')">
+            Confirmadas
+            <span class="v3-seg-count">${confirmed.length}</span>
+          </button>
+          <button class="v3-seg-btn ${v3Tab === 'history' ? 'active' : ''}" onclick="setV3Tab('history')">
+            Histórico
+            <span class="v3-seg-count">${history.length}</span>
+          </button>
+        </div>
+
+        <div class="v3-list-wrap">
+      `;
+
+      if (currentList.length === 0) {
+        html += `
+          <div style="text-align:center; padding:40px 20px; background:white; border-radius:20px; border:1px dashed #cbd5e1; margin-top:10px;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" style="margin:0 auto 10px;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
+            <h4 style="font-size:14px; font-weight:800; color:#334155;">Nenhuma visita nesta categoria</h4>
+            <p style="font-size:11px; color:#94a3b8; margin-top:4px;">Quando surgirem novos agendamentos aparecerão aqui.</p>
+          </div>
+        `;
+      } else {
+        currentList.forEach(v => {
+          html += `
+            <div class="v3-native-card" onclick="showVisitDetails('${v.id}')">
+              <div class="v3-time-header">
+                <div class="v3-time-big">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  ${v.scheduled_time}
+                  <span style="font-size:11px; font-weight:600; color:#64748b;">· ${v.dayLabel}</span>
+                </div>
+                <span class="v1-status-pill status-${v.status}">${v.status}</span>
+              </div>
+
+              <h3 style="font-size:14px; font-weight:800; color:#0f172a; line-height:1.3; margin-bottom:4px;">${v.property_title}</h3>
+              <p style="font-size:11px; color:#64748b; display:flex; align-items:center; gap:4px;">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                ${v.property_location}
+              </p>
+
+              ${v.notes ? `
+                <div class="v3-note-box">
+                  "${v.notes}"
+                </div>
+              ` : ''}
+
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-top:12px; padding-top:10px; border-top:1px solid #f1f5f9;">
+                <div style="font-size:12px; font-weight:800; color:#1e293b;">
+                  Lead: <span style="color:var(--primary);">${v.lead_name}</span>
+                </div>
+                <span style="font-size:11px; color:var(--accent); font-weight:800;">${v.property_price}</span>
+              </div>
+
+              ${v.status === 'pending' ? `
+                <div class="v3-bottom-actions" onclick="event.stopPropagation()">
+                  <button class="v3-btn-action v3-btn-accept" onclick="updateVisitStatus('${v.id}', 'confirmed')">
+                    Confirmar Visita
+                  </button>
+                  <button class="v3-btn-action v3-btn-reject" onclick="updateVisitStatus('${v.id}', 'cancelled')">
+                    Recusar
+                  </button>
+                </div>
+              ` : v.status === 'confirmed' ? `
+                <div class="v3-bottom-actions" onclick="event.stopPropagation()">
+                  <button class="v3-btn-action" style="background:#10b981; color:white;" onclick="updateVisitStatus('${v.id}', 'done')">
+                    Concluir Visita
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        });
+      }
+
+      html += `</div>`;
+      el.innerHTML = html;
+    }
+
+    function setV3Tab(tab) {
+      v3Tab = tab;
+      renderCurrentVariation();
+    }
+
+    // ═════════════════════════════════════════════════════════════════
+    // RENDER: VARIAÇÃO 4 (Hero "Próxima Visita" & Fila Prioritária)
+    // ═════════════════════════════════════════════════════════════════
+    function renderVariation4(el) {
+      const nextVisit = visitsData.find(x => x.status === 'confirmed') || visitsData[0];
+      const otherVisits = visitsData.filter(x => x.id !== nextVisit.id);
+
+      let html = `
+        <div class="mobile-header-bar">
+          <div class="mobile-title-wrap">
+            <h1>Central do Agente</h1>
+            <p>Foco na próxima visita em andamento</p>
+          </div>
+          <div class="header-pill-badge" style="background:#fef3c7; color:#b45309; border-color:#fde68a;">
+            Live Dispatch
+          </div>
+        </div>
+
+        <div class="v4-container">
+          <!-- HERO CARD: PRÓXIMA VISITA -->
+          <div class="v4-hero-card">
+            <div class="v4-hero-top">
+              <span class="v4-hero-badge">
+                <span class="v4-pulse-dot"></span>
+                PRÓXIMA VISITA HOJE
+              </span>
+              <span style="font-size:12px; font-weight:800; color:#cbd5e1;">Às ${nextVisit.scheduled_time}</span>
+            </div>
+
+            <div class="v4-hero-time">Em 45 minutos</div>
+            <div class="v4-hero-prop">${nextVisit.property_title}</div>
+
+            <div class="v4-hero-client">
+              <div class="v4-client-avatar">${nextVisit.lead_name.charAt(0)}</div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:12px; font-weight:800; color:#fff;">${nextVisit.lead_name}</div>
+                <div style="font-size:10px; color:#cbd5e1;">${nextVisit.property_location}</div>
+              </div>
+            </div>
+
+            <div class="v4-hero-btns">
+              <a href="https://maps.google.com/?q=${encodeURIComponent(nextVisit.property_location)}" target="_blank" class="v4-btn-hero v4-btn-maps">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                Iniciar GPS
+              </a>
+              <a href="https://wa.me/${nextVisit.lead_phone.replace(/\D/g, '')}?text=Ol%C3%A1%20${encodeURIComponent(nextVisit.lead_name)},%20estou%20a%20caminho%20da%20nossa%20visita!" target="_blank" class="v4-btn-hero v4-btn-wpp">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.694.073-2.147-.525-1.745-.72-2.87-2.483-2.958-2.599-.086-.118-.707-.94-.707-1.794 0-.853.447-1.274.606-1.448.16-.174.348-.218.464-.218.117 0 .232.002.333.007.108.005.25-.041.391.297.144.348.491 1.201.535 1.288.044.088.073.19.014.306-.058.117-.088.19-.174.291-.087.102-.183.228-.261.306-.088.087-.179.182-.077.357.101.174.45 1.01.968 1.472.666.593 1.229.777 1.403.864.174.087.276.073.377-.044.102-.116.435-.508.55-.683.117-.174.233-.145.393-.087.159.058 1.01.476 1.184.564.174.087.29.131.334.204.043.073.043.422-.101.827z"/></svg>
+                Avisar "A Caminho"
+              </a>
+            </div>
+          </div>
+
+          <!-- FILA SUBSEQUENTE -->
+          <div class="v4-section-title">
+            <span>Próximas na Fila</span>
+            <span style="font-size:11px; color:#64748b; font-weight:600;">${otherVisits.length} agendadas</span>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            ${otherVisits.map(v => `
+              <div class="v1-card" onclick="showVisitDetails('${v.id}')">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                  <span style="font-size:11px; font-weight:800; color:var(--primary);">${v.dayLabel} às ${v.scheduled_time}</span>
+                  <span class="v1-status-pill status-${v.status}">${v.status}</span>
+                </div>
+                <div style="font-size:13px; font-weight:800; color:#0f172a; margin-bottom:4px;">${v.property_title}</div>
+                <div style="font-size:11px; color:#64748b;">Cliente: <strong>${v.lead_name}</strong></div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      el.innerHTML = html;
+    }
+
+    // ═════════════════════════════════════════════════════════════════
+    // RENDER: VARIAÇÃO 5 (Map-Centric & Agent Route)
+    // ═════════════════════════════════════════════════════════════════
+    function renderVariation5(el) {
+      let html = `
+        <div class="mobile-header-bar">
+          <div class="mobile-title-wrap">
+            <h1>Itinerário do Dia</h1>
+            <p>Mapa de rota otimizada em Luanda</p>
+          </div>
+          <div class="header-pill-badge" style="background:#ecfdf5; color:#065f46; border-color:#a7f3d0;">
+            Rota Otimizada
+          </div>
+        </div>
+
+        <!-- Simulated Map View -->
+        <div class="v5-map-wrap">
+          <div class="v5-mock-map">
+            <div class="v5-map-grid"></div>
+
+            <!-- Curved route SVG line -->
+            <svg class="v5-route-line" viewBox="0 0 395 250">
+              <path d="M 60 170 Q 150 90, 240 140 T 330 60" fill="none" stroke="#ff6b00" stroke-width="3" stroke-dasharray="6,4" opacity="0.8"/>
+            </svg>
+
+            <!-- Map Pins with Numbers -->
+            <div class="v5-map-pin" style="left:60px; top:170px;" onclick="showVisitDetails('vis-01')">
+              <div class="v5-pin-badge">1</div>
+              <div class="v5-pin-pulse"></div>
+            </div>
+
+            <div class="v5-map-pin" style="left:240px; top:140px;" onclick="showVisitDetails('vis-02')">
+              <div class="v5-pin-badge pending">2</div>
+              <div class="v5-pin-pulse"></div>
+            </div>
+
+            <div class="v5-map-pin" style="left:330px; top:60px;" onclick="showVisitDetails('vis-03')">
+              <div class="v5-pin-badge">3</div>
+              <div class="v5-pin-pulse"></div>
+            </div>
+          </div>
+
+          <!-- Mini Banner over Map -->
+          <div class="v5-map-card-banner">
+            <div>
+              <div style="font-size:10px; font-weight:800; color:#64748b; text-transform:uppercase;">Tempo total estimado</div>
+              <div style="font-size:14px; font-weight:900; color:#0f172a;">3 Paragens · 28 km</div>
+            </div>
+            <button onclick="showToast('Abrindo percurso no Google Maps...')" style="background:var(--primary); color:white; border:none; padding:7px 12px; border-radius:10px; font-size:11px; font-weight:800; cursor:pointer;">
+              Abrir GPS
+            </button>
+          </div>
+        </div>
+
+        <!-- Route Stops Sheet List -->
+        <div class="v5-sheet-list">
+          <div style="font-size:12px; font-weight:800; color:#0f172a; text-transform:uppercase; letter-spacing:0.04em;">
+            Sequência de Visitas de Hoje
+          </div>
+
+          ${visitsData.slice(0, 3).map((v, i) => `
+            <div class="v5-stop-card" onclick="showVisitDetails('${v.id}')">
+              <div class="v5-stop-num">${i + 1}</div>
+              <div class="v5-stop-content">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+                  <span style="font-size:11px; font-weight:800; color:var(--primary);">${v.scheduled_time}</span>
+                  <span class="v1-status-pill status-${v.status}">${v.status}</span>
+                </div>
+                <h4 style="font-size:12px; font-weight:800; color:#0f172a; line-height:1.2;">${v.property_title}</h4>
+                <p style="font-size:10px; color:#64748b; margin-top:2px;">${v.property_location}</p>
+                <div style="font-size:11px; font-weight:700; color:#1e293b; margin-top:6px;">Cliente: ${v.lead_name}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      el.innerHTML = html;
+    }
+
+    // Run on load
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

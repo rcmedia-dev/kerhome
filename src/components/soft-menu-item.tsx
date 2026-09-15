@@ -41,7 +41,7 @@ const SoftMenuItem = ({
       <div className={cn("flex items-center", !isCollapsed && "space-x-3")}>
         <div
           className={cn(
-            "p-2.5 rounded-lg transition-all duration-200",
+            "p-2.5 rounded-lg transition-all duration-200 relative",
             isActive
               ? "bg-purple-50 text-purple-600 shadow-sm"
               : isCollapsed
@@ -50,6 +50,11 @@ const SoftMenuItem = ({
           )}
         >
           <item.icon className="w-4 h-4" />
+          {isCollapsed && item.badge !== undefined && item.badge > 0 && (
+            <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 flex items-center justify-center bg-red-500 text-white text-[9px] font-black rounded-full ring-2 ring-white">
+              {item.badge > 9 ? '9+' : item.badge}
+            </span>
+          )}
         </div>
 
         {!isCollapsed && (
@@ -64,7 +69,7 @@ const SoftMenuItem = ({
         )}
       </div>
 
-      {!isCollapsed && item.badge !== undefined && (
+      {!isCollapsed && item.badge !== undefined && item.badge > 0 && (
         <span
           className={cn(
             "px-2.5 py-0.5 text-[10px] font-black rounded-md transition-all duration-300",

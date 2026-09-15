@@ -153,7 +153,8 @@ export const faturaSchema = z.object({
   servico: z.string(),
   valor: z.number(),
   status: z.string(),
-  created_at: z.string()
+  created_at: z.string(),
+  user_id: z.string().optional(),
 });
 
 export interface PropertyFormData {

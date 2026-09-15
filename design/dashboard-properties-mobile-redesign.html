@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>KerHome - Meus Imóveis Mobile Redesign (/dashboard?tab=properties) - 5 Variações UI/UX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #820AD1;
+      --primary-hover: #6b07ad;
+      --primary-soft: #f5edfc;
+      --accent: #FF6B00;
+      --accent-soft: #fff3eb;
+      --bg: #0b0d14;
+      --device-bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      --border: #e2e8f0;
+      --border-subtle: #f1f5f9;
+      --success: #10b981;
+      --success-soft: #ecfdf5;
+      --warning: #f59e0b;
+      --warning-soft: #fffbeb;
+      --danger: #ef4444;
+      --danger-soft: #fef2f2;
+      --font-display: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --font-body: 'Inter', -apple-system, sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-bottom: 70px;
+    }
+
+    /* ─── Top Control Bar / Header ─── */
+    .app-header {
+      width: 100%;
+      background: rgba(15, 17, 23, 0.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 900;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      font-size: 18px;
+      box-shadow: 0 4px 14px rgba(130, 10, 209, 0.4);
+    }
+
+    .brand-text h2 {
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+      font-family: var(--font-display);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-text span {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .route-pill {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 3px 10px;
+      border-radius: 20px;
+      color: #a855f7;
+      font-size: 11px;
+      font-family: monospace;
+      font-weight: 700;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-control {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-control:hover {
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+    }
+
+    .btn-next-main {
+      background: linear-gradient(135deg, var(--primary), #a855f7);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 16px rgba(130, 10, 209, 0.4);
+    }
+    .btn-next-main:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(130, 10, 209, 0.55);
+      color: #fff;
+    }
+
+    /* ─── Presentation Info Card ─── */
+    .variant-meta-card {
+      width: 100%;
+      max-width: 860px;
+      margin: 14px auto 0;
+      padding: 14px 22px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: #e2e8f0;
+    }
+
+    .variant-meta-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .variant-badge {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 5px 12px;
+      border-radius: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .variant-meta-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 800;
+      color: #f8fafc;
+    }
+
+    .variant-meta-desc {
+      font-size: 12px;
+      color: #94a3b8;
+      max-width: 540px;
+      line-height: 1.4;
+    }
+
+    .variant-nav-dots {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot-btn {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .dot-btn.active {
+      width: 28px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+    }
+
+    /* ─── Device Container & Frame ─── */
+    .device-wrapper {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 16px 12px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .phone-frame {
+      position: relative;
+      width: 400px;
+      height: 844px;
+      background: var(--device-bg);
+      border-radius: 48px;
+      border: 8px solid #1e2430;
+      box-shadow: 
+        0 0 0 2px rgba(255, 255, 255, 0.08),
+        0 30px 80px -15px rgba(0, 0, 0, 0.8),
+        0 15px 35px rgba(130, 10, 209, 0.2);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Dynamic Island */
+    .dynamic-island {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 115px;
+      height: 28px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 80;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+    }
+    .island-camera {
+      width: 10px;
+      height: 10px;
+      background: #111;
+      border-radius: 50%;
+      border: 1.5px solid #1a1a2e;
+    }
+    .island-sensor {
+      width: 7px;
+      height: 7px;
+      background: #0c1c2e;
+      border-radius: 50%;
+    }
+
+    /* Phone Status Bar */
+    .phone-status-bar {
+      height: 44px;
+      padding: 12px 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+      z-index: 70;
+      background: #ffffff;
+      flex-shrink: 0;
+    }
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* App Shell Internal Topbar */
+    .phone-topbar {
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      z-index: 60;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-icon-round {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      color: #334155;
+    }
+    .topbar-title {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .topbar-subtitle {
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .user-avatar-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      padding: 2px;
+      position: relative;
+    }
+    .user-avatar-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #fff;
+    }
+    .status-dot-online {
+      position: absolute;
+      bottom: -1px;
+      right: -1px;
+      width: 10px;
+      height: 10px;
+      background: #10b981;
+      border-radius: 50%;
+      border: 2px solid #fff;
+    }
+
+    /* Screen Scrollable Viewport */
+    .screen-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-bottom: 96px; /* space for bottom floating dock */
+      scroll-behavior: smooth;
+    }
+    .screen-content::-webkit-scrollbar {
+      width: 4px;
+    }
+    .screen-content::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+
+    /* Floating Dock Navbar */
+    .floating-dock {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
+      height: 64px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(18px);
+      border-radius: 26px;
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      box-shadow: 0 12px 32px -6px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 8px;
+      z-index: 65;
+    }
+
+    .dock-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      gap: 2px;
+      flex: 1;
+    }
+    .dock-icon-wrap {
+      width: 38px;
+      height: 28px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+      transition: all 0.2s;
+    }
+    .dock-tab.active .dock-icon-wrap {
+      background: #f5edfc;
+      color: var(--primary);
+    }
+    .dock-label {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .dock-tab.active .dock-label {
+      color: var(--primary);
+      font-weight: 800;
+    }
+
+    .dock-fab-add {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border: none;
+      color: white;
+      box-shadow: 0 8px 20px rgba(130, 10, 209, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translateY(-12px);
+      cursor: pointer;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+    .dock-fab-add:active {
+      transform: translateY(-12px) scale(0.92);
+    }
+
+    /* Screen Views Container */
+    .variant-container {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    .variant-container.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Bottom Sheet / Modal Simulation */
+    .sheet-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .sheet-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .sheet-panel {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border-radius: 28px 28px 0 0;
+      padding: 16px 20px 30px;
+      z-index: 101;
+      transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+    }
+    .sheet-overlay.open .sheet-panel {
+      transform: translateY(0);
+    }
+    .sheet-notch {
+      width: 40px;
+      height: 5px;
+      background: #cbd5e1;
+      border-radius: 10px;
+      margin: 0 auto 16px;
+    }
+
+    /* Toast Notification inside device */
+    .device-toast {
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: #0f172a;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 24px;
+      font-size: 12px;
+      font-weight: 700;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+    .device-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Shared UI helpers */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .chip-primary { background: #f5edfc; color: var(--primary); }
+    .chip-success { background: #ecfdf5; color: #059669; }
+    .chip-warning { background: #fffbeb; color: #d97706; }
+    .chip-danger { background: #fef2f2; color: #dc2626; }
+    .chip-neutral { background: #f1f5f9; color: #475569; }
+
+    /* SVG icon utility */
+    svg {
+      flex-shrink: 0;
+    }
+
+    /* Bottom floating action for presenter */
+    .floating-next-bar {
+      position: fixed;
+      bottom: 14px;
+      background: rgba(15, 17, 23, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(16px);
+      padding: 8px 18px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 950;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top App Navigation / Showcase Controls -->
+  <header class="app-header">
+    <div class="brand-group">
+      <div class="brand-logo">K</div>
+      <div class="brand-text">
+        <h2>KerHome Mobile Redesign <span class="route-pill">/dashboard?tab=properties</span></h2>
+        <span>Substituição do Acordeão por Visualização Imediata (5 Abordagens)</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn-control" onclick="prevVariant()" title="Variação Anterior (Seta Esquerda)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+        Anterior
+      </button>
+
+      <button class="btn-control btn-next-main" onclick="nextVariant()" title="Próxima Variação (Seta Direita / Espaço)">
+        <span>Próxima Variação</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Presentation Meta Card -->
+  <div class="variant-meta-card">
+    <div class="variant-meta-left">
+      <span class="variant-badge" id="variant-badge-label">Variação 1 de 5</span>
+      <div>
+        <h3 class="variant-meta-title" id="variant-title">Feed Imobiliário Visual Pro (Hero Cards)</h3>
+        <p class="variant-meta-desc" id="variant-desc">
+          Cards completos com foto de alto impacto 16:9 de abertura instantânea, badges de aprovação, métricas de performance (views, visitas, leads) e barra rápida de ações com 1 toque.
+        </p>
+      </div>
+    </div>
+    <div class="variant-nav-dots" id="dots-container">
+      <button class="dot-btn active" onclick="setVariant(0)"></button>
+      <button class="dot-btn" onclick="setVariant(1)"></button>
+      <button class="dot-btn" onclick="setVariant(2)"></button>
+      <button class="dot-btn" onclick="setVariant(3)"></button>
+      <button class="dot-btn" onclick="setVariant(4)"></button>
+    </div>
+  </div>
+
+  <!-- Device Frame (Simulação Mobile iPhone 15 Pro / Android Moderno) -->
+  <div class="device-wrapper">
+    <div class="phone-frame">
+      <!-- Dynamic Island -->
+      <div class="dynamic-island">
+        <div class="island-camera"></div>
+        <div class="island-sensor"></div>
+      </div>
+
+      <!-- Phone Status Bar -->
+      <div class="phone-status-bar">
+        <span>09:41</span>
+        <div class="status-icons">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 20.3a1 1 0 0 0 1.35 1.35l2.69-.62A8.94 8.94 0 0 0 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9z"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 0 0-6 0zm-4-4l2 2a9.96 9.96 0 0 1 14 0l2-2C19.78 9.78 4.22 9.78 5 13z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="7" width="18" height="11" rx="2" ry="2"/><path d="M22 11v3"/></svg>
+        </div>
+      </div>
+
+      <!-- App Header Topbar -->
+      <div class="phone-topbar">
+        <div class="topbar-left">
+          <button class="btn-icon-round" onclick="showToast('Abrindo menu lateral...')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+          </button>
+          <div>
+            <div class="topbar-title">Meus Imóveis</div>
+            <div class="topbar-subtitle">6 publicados • 2 em análise</div>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <button class="btn-icon-round" onclick="showToast('Filtrando imóveis...')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </button>
+          <div class="user-avatar-circle" onclick="showToast('Perfil do Corretor')">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" alt="Avatar" class="user-avatar-img">
+            <div class="status-dot-online"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast Feedback inside Phone -->
+      <div class="device-toast" id="device-toast">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+        <span id="device-toast-text">Ação executada com sucesso</span>
+      </div>
+
+      <!-- Bottom Sheet Action Drawer Simulation -->
+      <div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet(event)">
+        <div class="sheet-panel">
+          <div class="sheet-notch"></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <div>
+              <div style="font-size:15px; font-weight:800; color:#0f172a;" id="sheet-property-title">Vivenda V4 em Talatona</div>
+              <div style="font-size:12px; color:#64748b;" id="sheet-property-sub">Ações Rápidas do Anúncio</div>
+            </div>
+            <button onclick="closeSheet(null)" style="background:#f1f5f9; border:none; border-radius:50%; width:30px; height:30px; cursor:pointer; font-weight:bold;">✕</button>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <button onclick="showToast('Abrindo editor do imóvel...'); closeSheet(null);" style="display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; background:#f8fafc; border:1px solid #e2e8f0; font-size:13px; font-weight:700; color:#1e293b; text-align:left;">
+              <div style="width:32px; height:32px; border-radius:8px; background:#f5edfc; color:var(--primary); display:flex; align-items:center; justify-content:center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+              </div>
+              <div>
+                <div>Editar Detalhes & Fotos</div>
+                <div style="font-size:10.5px; color:#94a3b8; font-weight:500;">Preço, descrição, comodidades</div>
+              </div>
+            </button>
+
+            <button onclick="showToast('Simulando destaque no Portal KerHome...'); closeSheet(null);" style="display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; background:#fffbf0; border:1px solid #fed7aa; font-size:13px; font-weight:700; color:#9a3412; text-align:left;">
+              <div style="width:32px; height:32px; border-radius:8px; background:#ffedd5; color:#ea580c; display:flex; align-items:center; justify-content:center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </div>
+              <div>
+                <div>Impulsionar / Destacar</div>
+                <div style="font-size:10.5px; color:#c2410c; font-weight:500;">Aparecer no topo das pesquisas de Luanda</div>
+              </div>
+            </button>
+
+            <button onclick="showToast('Link do imóvel copiado!'); closeSheet(null);" style="display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; background:#f8fafc; border:1px solid #e2e8f0; font-size:13px; font-weight:700; color:#1e293b; text-align:left;">
+              <div style="width:32px; height:32px; border-radius:8px; background:#ecfdf5; color:#059669; display:flex; align-items:center; justify-content:center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+              </div>
+              <div>
+                <div>Partilhar no WhatsApp</div>
+                <div style="font-size:10.5px; color:#94a3b8; font-weight:500;">Enviar ficha do imóvel a potenciais clientes</div>
+              </div>
+            </button>
+
+            <button onclick="showToast('Imóvel pausado com sucesso.'); closeSheet(null);" style="display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; background:#fef2f2; border:1px solid #fecaca; font-size:13px; font-weight:700; color:#dc2626; text-align:left;">
+              <div style="width:32px; height:32px; border-radius:8px; background:#fee2e2; color:#ef4444; display:flex; align-items:center; justify-content:center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="10" y1="15" x2="10" y2="9"/><line x1="14" y1="15" x2="14" y2="9"/></svg>
+              </div>
+              <div>
+                <div>Pausar Anúncio Temporariamente</div>
+                <div style="font-size:10.5px; color:#ef4444; font-weight:500;">Ocultar do público sem apagar dados</div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN SCROLLABLE CONTENT VIEWPORT -->
+      <div class="screen-content" id="screen-viewport">
+
+        <!-- ═════════════════════════════════════════════════════════════
+             VARIAÇÃO 1: FEED IMOBILIÁRIO VISUAL PRO (HERO CARDS)
+        ═════════════════════════════════════════════════════════════ -->
+        <div class="variant-container active" id="variant-0">
+          <!-- Sub-header com Estatísticas Rápidas & Filtros -->
+          <div style="padding: 14px 16px 8px; background: #ffffff; border-bottom: 1px solid #f1f5f9;">
+            <!-- Mini Banner de Cota -->
+            <div style="background: linear-gradient(135deg, #1e1b4b, #3b0764); color: white; border-radius: 16px; padding: 12px 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+              <div>
+                <div style="font-size: 10px; text-transform: uppercase; font-weight: 800; color: #d8b4fe; letter-spacing: 0.05em;">Plano Pro • Luanda</div>
+                <div style="font-size: 13px; font-weight: 800; margin-top: 1px;">6 de 10 Imóveis Utilizados</div>
+              </div>
+              <button onclick="showToast('Navegando para /cadastrar-imovel...')" style="background: linear-gradient(135deg, #FF6B00, #ea580c); color: white; border: none; padding: 7px 12px; border-radius: 10px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                <span>+ Novo</span>
+              </button>
+            </div>
+
+            <!-- Chips de Filtros Horizontais com Scroll -->
+            <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none;">
+              <button class="chip chip-primary" style="border: none; cursor: pointer;">Todos (8)</button>
+              <button class="chip chip-neutral" style="border: none; cursor: pointer;">Ativos (5)</button>
+              <button class="chip chip-warning" style="border: none; cursor: pointer;">Em Análise (2)</button>
+              <button class="chip chip-danger" style="border: none; cursor: pointer;">Pausados (1)</button>
+              <button class="chip chip-neutral" style="border: none; cursor: pointer;">Destaques (3)</button>
+            </div>
+          </div>
+
+          <!-- LISTA DE CARDS HERO ABERTOS INSTANTANEAMENTE -->
+          <div style="padding: 12px 16px; display: flex; flex-direction: column; gap: 16px;">
+
+            <!-- CARD 1 (Hero Ativo) -->
+            <div style="background: #ffffff; border-radius: 20px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.04);">
+              <!-- Imagem Hero Aberta Imediatamente -->
+              <div style="position: relative; height: 180px; width: 100%;">
+                <img src="https://images.unsplash.com/photo-1613977257363-707ba9348227?w=700&auto=format&fit=crop&q=80" alt="Imóvel" style="width: 100%; height: 100%; object-fit: cover;">
+                <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 40%, rgba(0,0,0,0.6) 100%);"></div>
+                
+                <!-- Status Badge Top Left -->
+                <div style="position: absolute; top: 12px; left: 12px; display: flex; gap: 6px;">
+                  <span class="chip chip-success" style="box-shadow: 0 2px 8px rgba(0,0,0,0.25); font-size: 10.5px;">
+                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981;"></span>
+                    Ativo
+                  </span>
+                  <span class="chip" style="background: rgba(0,0,0,0.6); color: white; backdrop-filter: blur(4px); font-size: 10px;">Venda</span>
+                </div>
+
+                <!-- Foto count top right -->
+                <div style="position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6); color: white; backdrop-filter: blur(6px); border-radius: 12px; padding: 3px 8px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                  14 fotos
+                </div>
+
+                <!-- Preço destacado sobre imagem -->
+                <div style="position: absolute; bottom: 12px; left: 14px; right: 14px; display: flex; justify-content: space-between; align-items: flex-end;">
+                  <div>
+                    <div style="font-size: 19px; font-weight: 900; color: #ffffff; text-shadow: 0 2px 6px rgba(0,0,0,0.5); font-family: var(--font-display);">
+                      185.000.000 Kz
+                    </div>
+                  </div>
+                  <span style="background: #f59e0b; color: white; padding: 2px 8px; border-radius: 6px; font-size: 9.5px; font-weight: 800; text-transform: uppercase;">
+                    ★ Destaque
+                  </span>
+                </div>
+              </div>
+
+              <!-- Detalhes do Imóvel -->
+              <div style="padding: 14px 14px 12px;">
+                <h4 style="font-size: 14.5px; font-weight: 800; color: #0f172a; line-height: 1.3; margin-bottom: 4px;">
+                  Vivenda V4 Moderna c/ Piscina Privativa
+                </h4>
+                <div style="display: flex; align-items: center; gap: 4px; font-size: 11.5px; color: #64748b; margin-bottom: 12px;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#820AD1" stroke-width="2.2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                  Talatona, Luanda (Condomínio Rosalinda)
+                </div>
+
+                <!-- Especificações em Chips Compactos -->
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9;">
+                  <span style="font-size: 11.5px; color: #475569; display: flex; align-items: center; gap: 4px;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>
+                    4 Quartos
+                  </span>
+                  <span style="font-size: 11.5px; color: #475569; display: flex; align-items: center; gap: 4px;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 21h10"/><path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/></svg>
+                    5 WCs
+                  </span>
+                  <span style="font-size: 11.5px; color: #475569; display: flex; align-items: center; gap: 4px;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+                    420 m²
+                  </span>
+                </div>
+
+                <!-- Métricas do Imóvel (Views / Leads / Visitas) -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;">
+                  <div style="background: #f8fafc; border-radius: 10px; padding: 6px 8px; text-align: center;">
+                    <div style="font-size: 13px; font-weight: 800; color: #0f172a;">342</div>
+                    <div style="font-size: 9.5px; color: #64748b; font-weight: 600;">Visualizações</div>
+                  </div>
+                  <div style="background: #f8fafc; border-radius: 10px; padding: 6px 8px; text-align: center;">
+                    <div style="font-size: 13px; font-weight: 800; color: var(--primary);">18</div>
+                    <div style="font-size: 9.5px; color: #64748b; font-weight: 600;">Contactos</div>
+                  </div>
+                  <div style="background: #f8fafc; border-radius: 10px; padding: 6px 8px; text-align: center;">
+                    <div style="font-size: 13px; font-weight: 800; color: #059669;">4</div>
+                    <div style="font-size: 9.5px; color: #64748b; font-weight: 600;">Visitas</div>
+                  </div>
+                </div>
+
+                <!-- Barra de Ações Rápidas -->
+                <div style="display: flex; gap: 6px;">
+                  <button onclick="showToast('Abrindo edição do imóvel...')" style="flex: 2; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 9px; border-radius: 12px; background: #f5edfc; border: 1px solid #e9d5ff; color: var(--primary); font-size: 12px; font-weight: 800; cursor: pointer;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                    Editar
+                  </button>
+                  <button onclick="showToast('Partilhando no WhatsApp...')" style="flex: 2; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 9px; border-radius: 12px; background: #ecfdf5; border: 1px solid #a7f3d0; color: #059669; font-size: 12px; font-weight: 800; cursor: pointer;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                    Partilhar
+                  </button>
+                  <button onclick="openSheet('Vivenda V4 em Talatona', 'Condomínio Rosalinda')" style="width: 38px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; cursor: pointer;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- CARD 2 (Hero Em Análise) -->
+            <div style="background: #ffffff; border-radius: 20px; border: 1px solid #fed7aa; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.04);">
+              <div style="position: relative; height: 160px; width: 100%;">
+                <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=700&auto=format&fit=crop&q=80" alt="Apartamento" style="width: 100%; height: 100%; object-fit: cover;">
+                <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.65) 100%);"></div>
+
+                <div style="position: absolute; top: 12px; left: 12px; display: flex; gap: 6px;">
+                  <span class="chip chip-warning" style="box-shadow: 0 2px 8px rgba(0,0,0,0.25); font-size: 10.5px;">
+                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #f59e0b;"></span>
+                    Em Análise
+                  </span>
+                  <span class="chip" style="background: rgba(0,0,0,0.6); color: white; backdrop-filter: blur(4px); font-size: 10px;">Arrendamento</span>
+                </div>
+
+                <div style="position: absolute; bottom: 12px; left: 14px;">
+                  <div style="font-size: 18px; font-weight: 900; color: #ffffff; text-shadow: 0 2px 6px rgba(0,0,0,0.5); font-family: var(--font-display);">
+                    650.000 Kz <span style="font-size: 11px; font-weight: 600; opacity: 0.9;">/mês</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="padding: 14px;">
+                <!-- Aviso de moderação amigável -->
+                <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 8px 10px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 8px;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.2" style="margin-top: 1px;"><circle cx="12" cy="10" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  <span style="font-size: 11px; color: #92400e; font-weight: 600; line-height: 1.3;">
+                    A equipa KerHome está a rever as fotos e documentos. Aprovação em até 4h úteis.
+                  </span>
+                </div>
+
+                <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 4px;">
+                  Apartamento T3 Vista Mar Miramar
+                </h4>
+                <div style="display: flex; align-items: center; gap: 4px; font-size: 11.5px; color: #64748b; margin-bottom: 12px;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#820AD1" stroke-width="2.2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                  Miramar, Ingombota, Luanda
+                </div>
+
+                <div style="display: flex; gap: 8px;">
+                  <button onclick="showToast('Ver detalhes da submissão...')" style="flex: 1; padding: 9px; border-radius: 12px; background: #f8fafc; border: 1px solid #cbd5e1; color: #334155; font-size: 12px; font-weight: 800; cursor: pointer;">
+                    Ver Submissão
+                  </button>
+                  <button onclick="showToast('Acelerar verificação via suporte...')" style="flex: 1; padding: 9px; border-radius: 12px; background: #fff7ed; border: 1px solid #fed7aa; color: #ea580c; font-size: 12px; font-weight: 800; cursor: pointer;">
+                    Agilizar Suporte
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ═════════════════════════════════════════════════════════════
+             VARIAÇÃO 2: LISTA COMPACTA DE ALTA DENSIDADE + BOTTOM SHEET
+        ═════════════════════════════════════════════════════════════ -->
+        <div class="variant-container" id="variant-1">
+          <!-- Barra de Busca & Ordenação Rápida -->
+          <div style="padding: 12px 16px; background: #ffffff; border-bottom: 1px solid #f1f5f9;">
+            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+              <div style="flex: 1; position: relative;">
+                <input type="text" placeholder="Buscar por código, bairro..." style="width: 100%; height: 38px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; padding: 0 12px 0 34px; font-size: 12.5px; outline: none;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="position: absolute; left: 11px; top: 11px;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              </div>
+              <button onclick="showToast('Alternando ordenação...')" style="padding: 0 12px; height: 38px; border-radius: 12px; background: #f1f5f9; border: 1px solid #e2e8f0; font-size: 11.5px; font-weight: 700; color: #475569; display: flex; align-items: center; gap: 4px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/></svg>
+                Recentes
+              </button>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 11.5px; font-weight: 700; color: #64748b;">Mostrando 8 imóveis</span>
+              <span style="font-size: 11.5px; color: var(--primary); font-weight: 800; cursor: pointer;" onclick="showToast('Filtrando...')">Filtrar por Status ▾</span>
+            </div>
+          </div>
+
+          <!-- LISTA COMPACTA COM CARDS DE LINHA ELEGANTE -->
+          <div style="padding: 10px 14px; display: flex; flex-direction: column; gap: 10px;">
+
+            <!-- Item 1 Compacto -->
+            <div style="background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; padding: 10px; display: flex; gap: 12px; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+              <!-- Thumb 1:1 com badge de status sobreposto -->
+              <div style="position: relative; width: 88px; height: 88px; border-radius: 12px; overflow: hidden; flex-shrink: 0;">
+                <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=300&auto=format&fit=crop&q=80" alt="Imóvel" style="width: 100%; height: 100%; object-fit: cover;">
+                <span style="position: absolute; bottom: 4px; left: 4px; background: #10b981; color: white; border-radius: 6px; padding: 1px 5px; font-size: 9px; font-weight: 800;">Ativo</span>
+              </div>
+
+              <!-- Informações Centrais -->
+              <div style="flex: 1; min-width: 0;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-size: 10px; font-weight: 800; color: var(--primary); text-transform: uppercase;">VENDA • KH-9021</span>
+                  <span style="font-size: 10px; color: #94a3b8;">Há 2 dias</span>
+                </div>
+                <h4 style="font-size: 13.5px; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 2px 0;">
+                  Vivenda V3 Condomínio Vila Sol
+                </h4>
+                <div style="font-size: 11px; color: #64748b; margin-bottom: 4px;">Kilamba Kiaxi, Luanda</div>
+                
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <div style="font-size: 14.5px; font-weight: 900; color: #820AD1;">95.000.000 Kz</div>
+                  <div style="font-size: 10.5px; color: #64748b; background: #f8fafc; padding: 2px 6px; border-radius: 6px;">
+                    👁 189 • 📞 8
+                  </div>
+                </div>
+              </div>
+
+              <!-- Botão Ações Rápidas (...) -->
+              <button onclick="openSheet('Vivenda V3 Vila Sol', 'Kilamba Kiaxi')" style="background: #f8fafc; border: 1px solid #e2e8f0; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #475569;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              </button>
+            </div>
+
+            <!-- Item 2 Compacto -->
+            <div style="background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; padding: 10px; display: flex; gap: 12px; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+              <div style="position: relative; width: 88px; height: 88px; border-radius: 12px; overflow: hidden; flex-shrink: 0;">
+                <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=300&auto=format&fit=crop&q=80" alt="Imóvel" style="width: 100%; height: 100%; object-fit: cover;">
+                <span style="position: absolute; bottom: 4px; left: 4px; background: #f59e0b; color: white; border-radius: 6px; padding: 1px 5px; font-size: 9px; font-weight: 800;">Análise</span>
+              </div>
+
+              <div style="flex: 1; min-width: 0;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-size: 10px; font-weight: 800; color: #ea580c; text-transform: uppercase;">ARRENDAMENTO</span>
+                  <span style="font-size: 10px; color: #94a3b8;">Hoje</span>
+                </div>
+                <h4 style="font-size: 13.5px; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 2px 0;">
+                  Apartamento T2 Edifício Kilamba
+                </h4>
+                <div style="font-size: 11px; color: #64748b; margin-bottom: 4px;">Centralidade do Kilamba, Luanda</div>
+                
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <div style="font-size: 14.5px; font-weight: 900; color: #820AD1;">350.000 Kz<span style="font-size:10px; font-weight:600; color:#64748b;">/mês</span></div>
+                  <div style="font-size: 10px; color: #d97706; background: #fffbeb; padding: 2px 6px; border-radius: 6px; font-weight: 700;">
+                    Em moderação
+                  </div>
+                </div>
+              </div>
+
+              <button onclick="openSheet('Apartamento T2 Kilamba', 'Centralidade do Kilamba')" style="background: #f8fafc; border: 1px solid #e2e8f0; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #475569;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              </button>
+            </div>
+
+            <!-- Item 3 Compacto -->
+            <div style="background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; padding: 10px; display: flex; gap: 12px; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+              <div style="position: relative; width: 88px; height: 88px; border-radius: 12px; overflow: hidden; flex-shrink: 0;">
+                <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=300&auto=format&fit=crop&q=80" alt="Imóvel" style="width: 100%; height: 100%; object-fit: cover;">
+                <span style="position: absolute; bottom: 4px; left: 4px; background: #10b981; color: white; border-radius: 6px; padding: 1px 5px; font-size: 9px; font-weight: 800;">Ativo</span>
+              </div>
+
+              <div style="flex: 1; min-width: 0;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-size: 10px; font-weight: 800; color: var(--primary); text-transform: uppercase;">VENDA • KH-7108</span>
+                  <span style="font-size: 10px; color: #94a3b8;">Há 5 dias</span>
+                </div>
+                <h4 style="font-size: 13.5px; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 2px 0;">
+                  Duplex T4 com Terraço Panorâmico
+                </h4>
+                <div style="font-size: 11px; color: #64748b; margin-bottom: 4px;">Alvalade, Maianga, Luanda</div>
+                
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <div style="font-size: 14.5px; font-weight: 900; color: #820AD1;">240.000.000 Kz</div>
+                  <div style="font-size: 10.5px; color: #64748b; background: #f8fafc; padding: 2px 6px; border-radius: 6px;">
+                    👁 412 • 📞 21
+                  </div>
+                </div>
+              </div>
+
+              <button onclick="openSheet('Duplex T4 Alvalade', 'Maianga, Luanda')" style="background: #f8fafc; border: 1px solid #e2e8f0; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #475569;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              </button>
+            </div>
+
+            <!-- Item 4 Compacto (Pausado) -->
+            <div style="background: #fbfcfe; border-radius: 16px; border: 1px dashed #cbd5e1; padding: 10px; display: flex; gap: 12px; align-items: center; opacity: 0.85;">
+              <div style="position: relative; width: 88px; height: 88px; border-radius: 12px; overflow: hidden; flex-shrink: 0; filter: grayscale(40%);">
+                <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=300&auto=format&fit=crop&q=80" alt="Imóvel" style="width: 100%; height: 100%; object-fit: cover;">
+                <span style="position: absolute; bottom: 4px; left: 4px; background: #64748b; color: white; border-radius: 6px; padding: 1px 5px; font-size: 9px; font-weight: 800;">Pausado</span>
+              </div>
+
+              <div style="flex: 1; min-width: 0;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase;">RESERVADO</span>
+                  <span style="font-size: 10px; color: #94a3b8;">Há 2 sem</span>
+                </div>
+                <h4 style="font-size: 13.5px; font-weight: 800; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 2px 0;">
+                  Moradia T3 em Camama
+                </h4>
+                <div style="font-size: 11px; color: #64748b; margin-bottom: 4px;">Camama, Talatona</div>
+                
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <div style="font-size: 14px; font-weight: 800; color: #475569;">65.000.000 Kz</div>
+                  <button onclick="showToast('Reativando imóvel...')" style="font-size: 10.5px; color: var(--primary); background: #f5edfc; padding: 2px 8px; border-radius: 6px; font-weight: 800; border: none; cursor: pointer;">
+                    Reativar
+                  </button>
+                </div>
+              </div>
+
+              <button onclick="openSheet('Moradia T3 Camama', 'Camama, Talatona')" style="background: #f8fafc; border: 1px solid #e2e8f0; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #475569;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ═════════════════════════════════════════════════════════════
+             VARIAÇÃO 3: GESTÃO FINTECH & PERFORMANCE (HEALTH SCORE)
+        ═════════════════════════════════════════════════════════════ -->
+        <div class="variant-container" id="variant-2">
+          <!-- Card de Insights Gerais do Portfólio -->
+          <div style="padding: 14px 16px; background: #ffffff; border-bottom: 1px solid #f1f5f9;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em;">Saúde dos Anúncios</span>
+              <span style="font-size: 11.5px; font-weight: 800; color: #10b981; background: #ecfdf5; padding: 2px 8px; border-radius: 12px;">Média: 92% Excelente</span>
+            </div>
+
+            <!-- Mini Dashboard Cards de Conversão -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+              <div style="background: #faf5ff; border: 1px solid #f3e8ff; border-radius: 12px; padding: 8px 10px;">
+                <div style="font-size: 10px; color: #7e22ce; font-weight: 700;">Visitas Agendadas</div>
+                <div style="font-size: 17px; font-weight: 900; color: #581c87; margin-top: 2px;">12</div>
+                <div style="font-size: 9px; color: #10b981; font-weight: 700;">+3 esta semana</div>
+              </div>
+              <div style="background: #fff7ed; border: 1px solid #ffedd5; border-radius: 12px; padding: 8px 10px;">
+                <div style="font-size: 10px; color: #c2410c; font-weight: 700;">Leads WhatsApp</div>
+                <div style="font-size: 17px; font-weight: 900; color: #7c2d12; margin-top: 2px;">47</div>
+                <div style="font-size: 9px; color: #ea580c; font-weight: 700;">Taxa conv. 6.8%</div>
+              </div>
+              <div style="background: #f0fdf4; border: 1px solid #dcfce7; border-radius: 12px; padding: 8px 10px;">
+                <div style="font-size: 10px; color: #15803d; font-weight: 700;">Valor da Carteira</div>
+                <div style="font-size: 14px; font-weight: 900; color: #14532d; margin-top: 4px;">620M Kz</div>
+                <div style="font-size: 9px; color: #16a34a; font-weight: 700;">6 imóveis</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARDS ESTILO FINTECH COM SCORE E AÇÕES DE CONVERSÃO -->
+          <div style="padding: 12px 16px; display: flex; flex-direction: column; gap: 14px;">
+
+            <!-- Fintech Card 1 -->
+            <div style="background: #ffffff; border-radius: 18px; border: 1px solid #e2e8f0; padding: 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.03);">
+              <!-- Top Header com Score -->
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span class="chip chip-success" style="font-size: 10px; padding: 2px 8px;">Ativo</span>
+                  <span style="font-size: 10.5px; color: #94a3b8; font-weight: 600;">Ref: KH-3301</span>
+                </div>
+                <!-- Health Score Progress Mini -->
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 11px; font-weight: 800; color: #10b981;">Score 98%</span>
+                  <div style="width: 32px; height: 6px; background: #e2e8f0; border-radius: 10px; overflow: hidden;">
+                    <div style="width: 98%; height: 100%; background: #10b981;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Body com Mini Imagem e Info -->
+              <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
+                <img src="https://images.unsplash.com/photo-1613977257363-707ba9348227?w=300&auto=format&fit=crop&q=80" alt="Imóvel" style="width: 76px; height: 76px; border-radius: 12px; object-fit: cover;">
+                <div style="flex: 1; min-width: 0;">
+                  <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; line-height: 1.3;">
+                    Vivenda V4 Moderna c/ Piscina
+                  </h4>
+                  <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Talatona, Luanda</div>
+                  <div style="font-size: 16px; font-weight: 900; color: #820AD1; margin-top: 4px;">
+                    185.000.000 Kz
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mini Painel de Performance Semanal -->
+              <div style="background: #f8fafc; border-radius: 12px; padding: 8px 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-size: 10px; color: #64748b; font-weight: 600;">Desempenho (Últimos 7 dias)</div>
+                  <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-top: 2px;">
+                    +142 visitas ao anúncio • 5 pedidos de agendamento
+                  </div>
+                </div>
+                <button onclick="showToast('Abrindo analytics detalhado...')" style="border: none; background: none; color: var(--primary); font-size: 11px; font-weight: 800; cursor: pointer;">
+                  Métricas →
+                </button>
+              </div>
+
+              <!-- Ações Principais -->
+              <div style="display: flex; gap: 8px;">
+                <button onclick="showToast('Gerindo visitas para este imóvel...')" style="flex: 1; padding: 8px 12px; border-radius: 10px; background: #f5edfc; border: 1px solid #d8b4fe; color: var(--primary); font-size: 11.5px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  Visitas (4)
+                </button>
+                <button onclick="openSheet('Vivenda V4 em Talatona', 'Talatona')" style="flex: 1; padding: 8px 12px; border-radius: 10px; background: #0f172a; border: none; color: white; font-size: 11.5px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
+                  <span>Gerir Anúncio</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Fintech Card 2 (Oportunidade de Melhoria / Alerta) -->
+            <div style="background: #ffffff; border-radius: 18px; border: 1px solid #fed7aa; padding: 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.03);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span class="chip chip-success" style="font-size: 10px; padding: 2px 8px;">Ativo</span>
+                  <span style="font-size: 10.5px; color: #94a3b8; font-weight: 600;">Ref: KH-8812</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 11px; font-weight: 800; color: #d97706;">Score 65% Atenção</span>
+                  <div style="width: 32px; height: 6px; background: #e2e8f0; border-radius: 10px; overflow: hidden;">
+                    <div style="width: 65%; height: 100%; background: #d97706;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
+                <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=300&auto=format&fit=crop&q=80" alt="Imóvel" style="width: 76px; height: 76px; border-radius: 12px; object-fit: cover;">
+                <div style="flex: 1; min-width: 0;">
+                  <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; line-height: 1.3;">
+                    Apartamento T2 Maculusso
+                  </h4>
+                  <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Maculusso, Ingombota</div>
+                  <div style="font-size: 16px; font-weight: 900; color: #820AD1; margin-top: 4px;">
+                    450.000 Kz<span style="font-size:10px; color:#64748b;">/mês</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dica de otimização de IA -->
+              <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 12px; padding: 8px 10px; margin-bottom: 12px; font-size: 11px; color: #92400e; display: flex; align-items: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M12 2v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="M2 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="M12 22v-4"/><path d="m19.07 19.07-2.83-2.83"/><path d="M22 12h-4"/><path d="m19.07 4.93-2.83 2.83"/></svg>
+                <span><strong>Dica:</strong> Adicione mais 3 fotos e comodidades para atingir 95% de conversão.</span>
+              </div>
+
+              <div style="display: flex; gap: 8px;">
+                <button onclick="showToast('Abrindo editor para adicionar fotos...')" style="flex: 1; padding: 8px 12px; border-radius: 10px; background: #fff7ed; border: 1px solid #fed7aa; color: #c2410c; font-size: 11.5px; font-weight: 800; cursor: pointer;">
+                  Melhorar Anúncio
+                </button>
+                <button onclick="openSheet('Apartamento T2 Maculusso', 'Ingombota')" style="width: 40px; border-radius: 10px; background: #f1f5f9; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ═════════════════════════════════════════════════════════════
+             VARIAÇÃO 4: CARROSSEL DE FOTOS SWIPEABLE + GRID 2 COLUNAS
+        ═════════════════════════════════════════════════════════════ -->
+        <div class="variant-container" id="variant-3">
+          <!-- Top Toolbar com Toggle de Visualização (Grade vs Lista) -->
+          <div style="padding: 12px 16px; background: #ffffff; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 13.5px; font-weight: 800; color: #0f172a;">Galeria Dinâmica</div>
+              <div style="font-size: 11px; color: #64748b;">Navegue pelas fotos sem abrir o anúncio</div>
+            </div>
+
+            <!-- Toggle Segmentado -->
+            <div style="background: #f1f5f9; padding: 3px; border-radius: 10px; display: flex; gap: 2px;">
+              <button onclick="showToast('Modo Lista Expandida')" style="padding: 4px 8px; border-radius: 7px; background: white; border: none; font-size: 11px; font-weight: 700; color: #0f172a; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer;">
+                Feed
+              </button>
+              <button onclick="showToast('Modo Grade 2 Colunas')" style="padding: 4px 8px; border-radius: 7px; background: none; border: none; font-size: 11px; font-weight: 600; color: #64748b; cursor: pointer;">
+                Grade
+              </button>
+            </div>
+          </div>
+
+          <div style="padding: 14px 16px; display: flex; flex-direction: column; gap: 16px;">
+
+            <!-- Card com Carrossel de Miniaturas Horizontais Integrado -->
+            <div style="background: #ffffff; border-radius: 20px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.03);">
+              <!-- Carrossel de 3 Fotos com Scroll Horizontal -->
+              <div style="display: flex; gap: 4px; overflow-x: auto; height: 160px; scrollbar-width: none; background: #000;">
+                <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&auto=format&fit=crop&q=80" alt="Sala" style="height: 100%; width: 75%; object-fit: cover; flex-shrink: 0;">
+                <img src="https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=600&auto=format&fit=crop&q=80" alt="Cozinha" style="height: 100%; width: 75%; object-fit: cover; flex-shrink: 0;">
+                <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=600&auto=format&fit=crop&q=80" alt="Piscina" style="height: 100%; width: 75%; object-fit: cover; flex-shrink: 0;">
+              </div>
+
+              <div style="padding: 12px 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <span style="font-size: 10px; font-weight: 800; color: var(--primary); text-transform: uppercase;">VENDA • TALATONA</span>
+                  <span class="chip chip-success" style="font-size: 9.5px; padding: 1px 6px;">Ativo</span>
+                </div>
+
+                <h4 style="font-size: 14.5px; font-weight: 800; color: #0f172a;">Vivenda V4 Triplex Alto Padrão</h4>
+                <div style="font-size: 11px; color: #64748b; margin-bottom: 8px;">Condomínio Belas Business Park</div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px solid #f1f5f9;">
+                  <div style="font-size: 17px; font-weight: 900; color: #820AD1;">210.000.000 Kz</div>
+                  <div style="display: flex; gap: 6px;">
+                    <button onclick="showToast('Editar imóvel...')" style="padding: 6px 12px; border-radius: 8px; background: #f5edfc; border: none; color: var(--primary); font-size: 11px; font-weight: 800; cursor: pointer;">Editar</button>
+                    <button onclick="openSheet('Vivenda V4 Belas', 'Talatona')" style="padding: 6px 10px; border-radius: 8px; background: #f1f5f9; border: none; color: #475569; font-size: 11px; font-weight: 800; cursor: pointer;">Mais ▾</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Grade de 2 Colunas para Imóveis Secundários -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <!-- Mini Card 1 -->
+              <div style="background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                <div style="height: 100px; position: relative;">
+                  <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&auto=format&fit=crop&q=80" alt="Imóvel" style="width: 100%; height: 100%; object-fit: cover;">
+                  <span style="position: absolute; top: 6px; left: 6px; background: #10b981; color: white; font-size: 8.5px; font-weight: 800; border-radius: 4px; padding: 1px 4px;">Ativo</span>
+                </div>
+                <div style="padding: 8px;">
+                  <div style="font-size: 12px; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Apartamento T3</div>
+                  <div style="font-size: 10px; color: #64748b;">Miramar</div>
+                  <div style="font-size: 12.5px; font-weight: 900; color: #820AD1; margin-top: 4px;">650.000 Kz</div>
+                </div>
+              </div>
+
+              <!-- Mini Card 2 -->
+              <div style="background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                <div style="height: 100px; position: relative;">
+                  <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&auto=format&fit=crop&q=80" alt="Imóvel" style="width: 100%; height: 100%; object-fit: cover;">
+                  <span style="position: absolute; top: 6px; left: 6px; background: #f59e0b; color: white; font-size: 8.5px; font-weight: 800; border-radius: 4px; padding: 1px 4px;">Análise</span>
+                </div>
+                <div style="padding: 8px;">
+                  <div style="font-size: 12px; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Duplex T4 Alvalade</div>
+                  <div style="font-size: 10px; color: #64748b;">Maianga</div>
+                  <div style="font-size: 12.5px; font-weight: 900; color: #820AD1; margin-top: 4px;">240.000.000 Kz</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ═════════════════════════════════════════════════════════════
+             VARIAÇÃO 5: KANBAN OPERACIONAL & PIPELINE DE STATUS
+        ═════════════════════════════════════════════════════════════ -->
+        <div class="variant-container" id="variant-4">
+          <!-- Abas de Pipeline / Estágio com Contadores Vivos -->
+          <div style="padding: 10px 14px; background: #ffffff; border-bottom: 1px solid #f1f5f9; position: sticky; top: 0; z-index: 20;">
+            <div style="display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;">
+              <button onclick="switchKanbanTab(this, 'ativos')" style="background: #10b981; color: white; border: none; padding: 7px 12px; border-radius: 12px; font-size: 11.5px; font-weight: 800; display: flex; align-items: center; gap: 6px; flex-shrink: 0; cursor: pointer;">
+                <span>Ativos</span>
+                <span style="background: rgba(255,255,255,0.3); padding: 1px 6px; border-radius: 10px; font-size: 10px;">5</span>
+              </button>
+
+              <button onclick="switchKanbanTab(this, 'analise')" style="background: #f1f5f9; color: #475569; border: none; padding: 7px 12px; border-radius: 12px; font-size: 11.5px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-shrink: 0; cursor: pointer;">
+                <span>Em Análise</span>
+                <span style="background: #e2e8f0; padding: 1px 6px; border-radius: 10px; font-size: 10px;">2</span>
+              </button>
+
+              <button onclick="switchKanbanTab(this, 'pausados')" style="background: #f1f5f9; color: #475569; border: none; padding: 7px 12px; border-radius: 12px; font-size: 11.5px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-shrink: 0; cursor: pointer;">
+                <span>Pausados</span>
+                <span style="background: #e2e8f0; padding: 1px 6px; border-radius: 10px; font-size: 10px;">1</span>
+              </button>
+
+              <button onclick="switchKanbanTab(this, 'fechados')" style="background: #f1f5f9; color: #475569; border: none; padding: 7px 12px; border-radius: 12px; font-size: 11.5px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-shrink: 0; cursor: pointer;">
+                <span>Fechados / Vendidos</span>
+                <span style="background: #e2e8f0; padding: 1px 6px; border-radius: 10px; font-size: 10px;">3</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Conteúdo do Estágio Selecionado -->
+          <div style="padding: 12px 16px; display: flex; flex-direction: column; gap: 12px;">
+
+            <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 14px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
+                <span style="font-size: 11.5px; font-weight: 800; color: #065f46;">5 Imóveis Visíveis no Portal</span>
+              </div>
+              <span style="font-size: 11px; color: #047857; font-weight: 700;">100% Verificados</span>
+            </div>
+
+            <!-- Card Operacional 1 -->
+            <div style="background: #ffffff; border-radius: 18px; border: 1px solid #e2e8f0; padding: 12px; box-shadow: 0 3px 12px rgba(0,0,0,0.03);">
+              <div style="display: flex; gap: 12px;">
+                <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=300&auto=format&fit=crop&q=80" alt="Imóvel" style="width: 84px; height: 84px; border-radius: 12px; object-fit: cover;">
+                <div style="flex: 1; min-width: 0;">
+                  <div style="font-size: 10px; font-weight: 800; color: var(--primary); text-transform: uppercase;">TALATONA • VENDA</div>
+                  <h4 style="font-size: 13.5px; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    Vivenda V3 Vila Sol
+                  </h4>
+                  <div style="font-size: 15px; font-weight: 900; color: #820AD1; margin: 2px 0;">95.000.000 Kz</div>
+                  <div style="font-size: 10.5px; color: #10b981; font-weight: 700;">● 2 visitas marcadas para hoje</div>
+                </div>
+              </div>
+
+              <!-- Ação Recomendada pelo Pipeline -->
+              <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #f1f5f9; display: flex; gap: 6px;">
+                <button onclick="showToast('Abrindo agenda de visitas...')" style="flex: 1; padding: 8px; border-radius: 10px; background: #f5edfc; border: 1px solid #d8b4fe; color: var(--primary); font-size: 11.5px; font-weight: 800; cursor: pointer;">
+                  Ver Agendamentos (2)
+                </button>
+                <button onclick="openSheet('Vivenda V3 Vila Sol', 'Talatona')" style="padding: 8px 12px; border-radius: 10px; background: #f1f5f9; border: 1px solid #e2e8f0; color: #334155; font-size: 11.5px; font-weight: 800; cursor: pointer;">
+                  Ações ▾
+                </button>
+              </div>
+            </div>
+
+            <!-- Card Operacional 2 -->
+            <div style="background: #ffffff; border-radius: 18px; border: 1px solid #e2e8f0; padding: 12px; box-shadow: 0 3px 12px rgba(0,0,0,0.03);">
+              <div style="display: flex; gap: 12px;">
+                <img src="https://images.unsplash.com/photo-1613977257363-707ba9348227?w=300&auto=format&fit=crop&q=80" alt="Imóvel" style="width: 84px; height: 84px; border-radius: 12px; object-fit: cover;">
+                <div style="flex: 1; min-width: 0;">
+                  <div style="font-size: 10px; font-weight: 800; color: #f59e0b; text-transform: uppercase;">★ DESTAQUE ATIVO</div>
+                  <h4 style="font-size: 13.5px; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    Vivenda V4 Moderna Rosalinda
+                  </h4>
+                  <div style="font-size: 15px; font-weight: 900; color: #820AD1; margin: 2px 0;">185.000.000 Kz</div>
+                  <div style="font-size: 10.5px; color: #64748b;">Expira em 5 dias</div>
+                </div>
+              </div>
+
+              <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #f1f5f9; display: flex; gap: 6px;">
+                <button onclick="showToast('Renovando destaque do anúncio...')" style="flex: 1; padding: 8px; border-radius: 10px; background: #fffbeb; border: 1px solid #fed7aa; color: #b45309; font-size: 11.5px; font-weight: 800; cursor: pointer;">
+                  Renovar Destaque
+                </button>
+                <button onclick="openSheet('Vivenda V4 Rosalinda', 'Talatona')" style="padding: 8px 12px; border-radius: 10px; background: #f1f5f9; border: 1px solid #e2e8f0; color: #334155; font-size: 11.5px; font-weight: 800; cursor: pointer;">
+                  Ações ▾
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FLOATING DOCK NAVBAR (Com botão central de cadastro) -->
+      <div class="floating-dock">
+        <button class="dock-tab active" onclick="showToast('Aba Imóveis já ativa')">
+          <div class="dock-icon-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <span class="dock-label">Imóveis</span>
+        </button>
+
+        <button class="dock-tab" onclick="showToast('Indo para Imóveis Salvos (/dashboard?tab=favorites)')">
+          <div class="dock-icon-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          </div>
+          <span class="dock-label">Salvos</span>
+        </button>
+
+        <!-- Botão Central FAB -> /cadastrar-imovel -->
+        <button class="dock-fab-add" onclick="showToast('Redirecionando para /cadastrar-imovel...')" title="Cadastrar Novo Imóvel">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+
+        <button class="dock-tab" onclick="showToast('Indo para Mensagens (/dashboard?tab=messages)')">
+          <div class="dock-icon-wrap" style="position: relative;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+            <span style="position: absolute; top: -2px; right: -2px; background: #ef4444; color: white; border-radius: 50%; font-size: 8.5px; font-weight: 800; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; border: 1.5px solid white;">2</span>
+          </div>
+          <span class="dock-label">Chat</span>
+        </button>
+
+        <button class="dock-tab" onclick="showToast('Indo para Visitas (/dashboard?tab=visits)')">
+          <div class="dock-icon-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <span class="dock-label">Visitas</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom Floating Presenter Bar -->
+  <div class="floating-next-bar">
+    <button class="btn-control" onclick="prevVariant()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+      Anterior
+    </button>
+    <div style="font-size: 12px; font-weight: 800; color: #fff;" id="floating-page-indicator">1 / 5</div>
+    <button class="btn-control btn-next-main" onclick="nextVariant()">
+      <span>Próxima Variação</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+
+  <script>
+    const variantsData = [
+      {
+        badge: "Variação 1 de 5",
+        title: "Feed Imobiliário Visual Pro (Hero Cards)",
+        desc: "Exibição imediata com fotos 16:9 destacadas, eliminação completa do acordeão, visualização direta de especificações (quartos, banheiros, m²), métricas de views/leads e botões de ação direta."
+      },
+      {
+        badge: "Variação 2 de 5",
+        title: "Lista Compacta de Alta Densidade + Bottom Sheet",
+        desc: "Ideal para corretores com carteira extensa de imóveis: miniaturas quadradas 1:1, status instantâneo, preço em Kz e acionamento de um menu inferior (Bottom Sheet) com opções de gestão."
+      },
+      {
+        badge: "Variação 3 de 5",
+        title: "Gestão FinTech & Health Score de Anúncios",
+        desc: "Foco em conversão e qualidade: cada anúncio exibe o Health Score (ex: 98%), alertas inteligentes de fotos faltantes e métricas analíticas de visitas e contactos dos últimos 7 dias."
+      },
+      {
+        badge: "Variação 4 de 5",
+        title: "Carrossel Swipeable de Fotos + Alternância Feed/Grade",
+        desc: "Permite que o usuário deslize horizontalmente pelas fotos do imóvel diretamente na listagem sem precisar abrir outra página, com toggle para visualização em grade de 2 colunas."
+      },
+      {
+        badge: "Variação 5 de 5",
+        title: "Kanban Operacional & Pipeline de Status",
+        desc: "Abas superiores dinâmicas por estágio (Ativos, Em Análise, Pausados, Fechados). Cada card traz a ação prioritária imediata (ver agendamentos de hoje, renovar destaque ou agilizar suporte)."
+      }
+    ];
+
+    let currentVariantIndex = 0;
+
+    function updateView() {
+      // Toggle screens
+      for (let i = 0; i < 5; i++) {
+        const el = document.getElementById(`variant-${i}`);
+        if (el) {
+          el.classList.toggle('active', i === currentVariantIndex);
+        }
+      }
+
+      // Update Meta
+      const data = variantsData[currentVariantIndex];
+      document.getElementById('variant-badge-label').innerText = data.badge;
+      document.getElementById('variant-title').innerText = data.title;
+      document.getElementById('variant-desc').innerText = data.desc;
+      document.getElementById('floating-page-indicator').innerText = `${currentVariantIndex + 1} / 5`;
+
+      // Update dots
+      const dots = document.querySelectorAll('.dot-btn');
+      dots.forEach((d, idx) => {
+        d.classList.toggle('active', idx === currentVariantIndex);
+      });
+
+      // Scroll device content to top
+      const vp = document.getElementById('screen-viewport');
+      if (vp) vp.scrollTop = 0;
+    }
+
+    function nextVariant() {
+      currentVariantIndex = (currentVariantIndex + 1) % 5;
+      updateView();
+      showToast(`Exibindo: ${variantsData[currentVariantIndex].title}`);
+    }
+
+    function prevVariant() {
+      currentVariantIndex = (currentVariantIndex - 1 + 5) % 5;
+      updateView();
+      showToast(`Exibindo: ${variantsData[currentVariantIndex].title}`);
+    }
+
+    function setVariant(index) {
+      currentVariantIndex = index;
+      updateView();
+      showToast(`Exibindo: ${variantsData[currentVariantIndex].title}`);
+    }
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        nextVariant();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        prevVariant();
+      }
+    });
+
+    // Toast simulation
+    let toastTimeout;
+    function showToast(text) {
+      const toast = document.getElementById('device-toast');
+      const toastText = document.getElementById('device-toast-text');
+      toastText.innerText = text;
+      toast.classList.add('show');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
+    // Bottom Sheet simulation
+    function openSheet(title, sub) {
+      document.getElementById('sheet-property-title').innerText = title;
+      document.getElementById('sheet-property-sub').innerText = sub;
+      document.getElementById('sheet-overlay').classList.add('open');
+    }
+
+    function closeSheet(e) {
+      if (!e || e.target.id === 'sheet-overlay') {
+        document.getElementById('sheet-overlay').classList.remove('open');
+      }
+    }
+
+    // Kanban tab switch
+    function switchKanbanTab(btn, stage) {
+      const parent = btn.parentElement;
+      parent.querySelectorAll('button').forEach(b => {
+        b.style.background = '#f1f5f9';
+        b.style.color = '#475569';
+      });
+      btn.style.background = '#10b981';
+      btn.style.color = '#ffffff';
+      showToast(`Filtrando por estágio: ${btn.querySelector('span').innerText}`);
+    }
+  </script>
+</body>
+</html>

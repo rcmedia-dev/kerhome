@@ -13,6 +13,8 @@ interface DashboardSidebarProps {
     favoriteCount: number;
     invoiceCount: number;
     viewCount: number;
+    visitCount?: number;
+    isAgent?: boolean;
     userAgency?: any;
     isCollapsed: boolean;
     onToggleCollapse: () => void;
@@ -25,6 +27,8 @@ export function DashboardSidebar({
     favoriteCount,
     invoiceCount,
     viewCount,
+    visitCount = 0,
+    isAgent = false,
     userAgency,
     isCollapsed,
     onToggleCollapse
@@ -34,8 +38,8 @@ export function DashboardSidebar({
     const menuItems = [
         { id: 'properties', label: 'Minhas Propriedades', icon: Home, badge: propertyCount },
         { id: 'favorites', label: 'Favoritas', icon: Heart, badge: favoriteCount },
-        { id: 'messages', label: 'Mensagens', icon: MessageCircle, badge: totalUnreadCount > 0 ? totalUnreadCount : undefined },
-        { id: 'visits', label: 'Visitas', icon: Calendar },
+        { id: 'messages', label: 'Mensagens', icon: MessageCircle, badge: !isAgent && totalUnreadCount > 0 ? totalUnreadCount : undefined },
+        { id: 'visits', label: 'Visitas', icon: Calendar, badge: visitCount > 0 ? visitCount : undefined },
         { id: 'invoices', label: 'Faturas', icon: BarChart3, badge: invoiceCount },
         { id: 'stats', label: 'Estatísticas', icon: BarChart3 },
         { id: 'settings', label: 'Configurações', icon: Settings },

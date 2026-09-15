@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="pt-AO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Bottom Sheet Mobile - Carteira do Corretor</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #718096;
+      --line: #e7eaf0;
+      --paper: #ffffff;
+      --canvas: #edf0f5;
+      --purple: #6d28d9;
+      --purple-soft: #f0eaff;
+      --orange: #f97316;
+      --green: #059669;
+      --blue: #2563eb;
+      --danger: #e11d48;
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: linear-gradient(145deg, #f7f8fb 0%, #e8ebf2 100%);
+      color: var(--ink);
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    }
+
+    .stage {
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 20px 12px 28px;
+    }
+
+    .phone {
+      width: min(100%, 430px);
+      min-height: min(850px, calc(100svh - 40px));
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      background: #d9dee8;
+      border: 8px solid #222936;
+      border-radius: 38px;
+      box-shadow: 0 24px 60px rgba(23, 32, 51, .24);
+    }
+
+    .notch {
+      width: 112px;
+      height: 24px;
+      position: absolute;
+      z-index: 4;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 0 0 16px 16px;
+      background: #222936;
+    }
+
+    .property-backdrop {
+      flex: 1;
+      min-height: 230px;
+      position: relative;
+      padding: 38px 16px 18px;
+      background:
+        linear-gradient(180deg, rgba(20, 27, 42, .12), rgba(20, 27, 42, .65)),
+        url("https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=900&q=85") center/cover;
+    }
+
+    .topbar { display: flex; justify-content: space-between; align-items: center; }
+    .icon-button, .close-button {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      color: white;
+      background: rgba(15, 23, 42, .58);
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .backdrop-copy { position: absolute; left: 16px; right: 16px; bottom: 20px; color: white; }
+    .backdrop-copy h1 { max-width: 320px; margin: 8px 0 4px; font-size: 22px; line-height: 1.08; }
+    .backdrop-copy p { margin: 0; font-size: 12px; opacity: .86; }
+    .status { display: inline-flex; padding: 6px 10px; border-radius: 10px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; background: #d1fae5; color: #047857; }
+
+    .sheet {
+      position: relative;
+      z-index: 2;
+      margin-top: -28px;
+      padding: 10px 16px calc(16px + env(safe-area-inset-bottom));
+      border-radius: 28px 28px 0 0;
+      background: var(--paper);
+      box-shadow: 0 -12px 30px rgba(23, 32, 51, .12);
+    }
+
+    .handle { width: 42px; height: 4px; margin: 0 auto 14px; border-radius: 5px; background: #d6dae3; }
+    .sheet-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .sheet-header h2 { margin: 0; font-size: 18px; line-height: 1.12; }
+    .price { margin: 6px 0 0; color: var(--orange); font-size: 17px; font-weight: 900; }
+    .location { display: flex; gap: 5px; align-items: center; margin: 7px 0 0; color: var(--muted); font-size: 11px; }
+
+    .specs { display: grid; grid-template-columns: repeat(3, 1fr); margin: 16px 0; border: 1px solid var(--line); border-radius: 14px; background: #fafbfc; }
+    .spec { min-width: 0; padding: 11px 5px; text-align: center; border-right: 1px solid var(--line); }
+    .spec:last-child { border-right: 0; }
+    .spec strong { display: block; font-size: 13px; }
+    .spec span { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; }
+
+    .primary, .secondary, .danger-button {
+      width: 100%;
+      min-height: 46px;
+      border: 0;
+      border-radius: 14px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .primary { color: white; background: linear-gradient(120deg, #6d28d9, #f97316); box-shadow: 0 8px 18px rgba(109, 40, 217, .2); }
+    .secondary { color: var(--ink); background: #f5f6f9; border: 1px solid var(--line); }
+    .danger-button { color: var(--danger); background: #fff1f3; }
+    .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 9px; }
+    .micro-actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 13px; padding-top: 12px; border-top: 1px solid var(--line); }
+    .text-action { border: 0; padding: 0; color: var(--muted); background: transparent; font: inherit; font-size: 11px; font-weight: 800; cursor: pointer; }
+    .text-action.danger { color: var(--danger); }
+
+    .variation { display: none; }
+    .variation.active { display: block; }
+    .variation-label { position: absolute; left: 14px; top: 30px; z-index: 5; padding: 6px 9px; border-radius: 9px; color: white; background: rgba(15, 23, 42, .7); font-size: 10px; font-weight: 800; }
+
+    /* Variation-specific compositions */
+    .v2 .property-backdrop { min-height: 190px; }
+    .v2 .sheet { margin-top: -54px; border-radius: 26px 26px 0 0; }
+    .v2 .sheet-header { align-items: center; }
+    .v2 .specs { margin: 12px 0; }
+    .v2 .primary { border-radius: 12px; }
+
+    .v3 .property-backdrop { min-height: 255px; }
+    .v3 .sheet { margin-top: -72px; padding-top: 8px; }
+    .v3 .sheet-header { display: block; }
+    .v3 .sheet-header .close-button { position: absolute; right: 16px; top: 12px; color: var(--ink); background: var(--purple-soft); }
+    .v3 .primary { margin-top: 14px; }
+
+    .v4 .property-backdrop { min-height: 210px; }
+    .v4 .sheet { margin-top: -36px; border-radius: 20px 20px 0 0; }
+    .v4 .specs { grid-template-columns: repeat(3, 1fr); border: 0; background: transparent; gap: 7px; }
+    .v4 .spec { border: 1px solid var(--line); border-radius: 12px; background: #fafbfc; }
+    .v4 .action-row { grid-template-columns: 1fr; }
+    .v4 .secondary { min-height: 40px; }
+
+    .v5 .property-backdrop { min-height: 150px; padding-top: 32px; }
+    .v5 .sheet { margin-top: -24px; border-radius: 22px 22px 0 0; }
+    .v5 .sheet-header h2 { font-size: 16px; }
+    .v5 .specs { margin: 12px 0; }
+    .v5 .primary { min-height: 42px; }
+    .v5 .action-row { grid-template-columns: 1fr 1fr; }
+
+    .controls { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 18px; }
+    .next-button { min-width: 104px; padding: 11px 18px; border: 0; border-radius: 12px; color: white; background: var(--ink); font: inherit; font-size: 12px; font-weight: 900; cursor: pointer; }
+    .next-button:active { transform: scale(.97); }
+    .dots { display: flex; gap: 6px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #c7cdd8; }
+    .dot.active { width: 20px; border-radius: 5px; background: var(--purple); }
+    .hint { margin: 10px auto 0; color: #7b8495; font-size: 11px; text-align: center; }
+
+    @media (max-height: 720px) {
+      .stage { padding-top: 8px; }
+      .phone { min-height: calc(100svh - 16px); }
+      .property-backdrop { min-height: 160px; }
+      .sheet { padding-bottom: 10px; }
+      .specs { margin: 10px 0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <section class="phone" aria-label="Protótipo de bottom sheet mobile para corretor">
+      <div class="notch" aria-hidden="true"></div>
+      <div class="variation-label" id="variationLabel">Variação 1 · Resumo do anúncio</div>
+
+      <article class="variation v1 active">
+        <div class="property-backdrop">
+          <div class="topbar"><button class="icon-button" aria-label="Voltar">‹</button><button class="icon-button" aria-label="Partilhar">↗</button></div>
+          <div class="backdrop-copy"><span class="status">Publicado</span><h1>Apartamento T3 Vista Mar</h1><p>Condomínio Dolce Vita · Talatona</p></div>
+        </div>
+        <div class="sheet">
+          <div class="handle"></div>
+          <div class="sheet-header"><div><h2>Apartamento T3 Vista Mar</h2><p class="price">180.000.000 Kz</p><p class="location">⌖ Talatona, Luanda</p></div><button class="close-button" aria-label="Fechar">×</button></div>
+          <div class="specs"><div class="spec"><strong>3</strong><span>Quartos</span></div><div class="spec"><strong>2</strong><span>Banheiros</span></div><div class="spec"><strong>185 m²</strong><span>Área</span></div></div>
+          <button class="primary">Ver anúncio público</button><div class="action-row"><button class="secondary">Ver leads</button><button class="secondary">Editar anúncio</button></div><div class="micro-actions"><button class="text-action">Partilhar anúncio</button><button class="text-action danger">Remover da carteira</button></div>
+        </div>
+      </article>
+
+      <article class="variation v2">
+        <div class="property-backdrop"><div class="topbar"><button class="icon-button" aria-label="Voltar">‹</button><button class="icon-button" aria-label="Partilhar anúncio">↗</button></div><div class="backdrop-copy"><span class="status">Publicado</span><h1>Apartamento T3 Vista Mar</h1><p>Condomínio Dolce Vita · Talatona</p></div></div>
+        <div class="sheet"><div class="handle"></div><div class="sheet-header"><div><h2>Apartamento T3 Vista Mar</h2><p class="location">⌖ Talatona, Luanda</p></div><p class="price">180.000.000 Kz</p></div><div class="specs"><div class="spec"><strong>3</strong><span>Quartos</span></div><div class="spec"><strong>2</strong><span>WC</span></div><div class="spec"><strong>185 m²</strong><span>Área</span></div></div><button class="primary">Abrir anúncio</button><div class="action-row"><button class="secondary">Leads recebidos</button><button class="secondary">Editar imóvel</button></div><div class="micro-actions"><button class="text-action">Partilhar anúncio</button><button class="text-action danger">Remover da carteira</button></div></div>
+      </article>
+
+      <article class="variation v3">
+        <div class="property-backdrop"><div class="topbar"><button class="icon-button" aria-label="Voltar">‹</button><button class="icon-button" aria-label="Partilhar anúncio">↗</button></div><div class="backdrop-copy"><span class="status">Publicado</span><h1>Apartamento T3 Vista Mar</h1><p>Condomínio Dolce Vita · Talatona</p></div></div>
+        <div class="sheet"><div class="handle"></div><div class="sheet-header"><div><h2>Resumo de performance</h2><p class="location">⌖ Talatona, Luanda</p><p class="price">180.000.000 Kz</p></div><button class="close-button" aria-label="Fechar">×</button></div><div class="specs"><div class="spec"><strong>24</strong><span>Visualizações</span></div><div class="spec"><strong>6</strong><span>Contactos</span></div><div class="spec"><strong>2</strong><span>Leads</span></div></div><button class="primary">Ver performance</button><div class="action-row"><button class="secondary">Gerir leads</button><button class="secondary">Editar anúncio</button></div><div class="micro-actions"><button class="text-action">Partilhar anúncio</button><button class="text-action danger">Remover da carteira</button></div></div>
+      </article>
+
+      <article class="variation v4">
+        <div class="property-backdrop"><div class="topbar"><button class="icon-button" aria-label="Voltar">‹</button><button class="icon-button" aria-label="Partilhar anúncio">↗</button></div><div class="backdrop-copy"><span class="status">Em destaque</span><h1>Apartamento T3 Vista Mar</h1><p>Condomínio Dolce Vita · Talatona</p></div></div>
+        <div class="sheet"><div class="handle"></div><div class="sheet-header"><div><h2>Apartamento T3 Vista Mar</h2><p class="price">180.000.000 Kz</p></div><button class="close-button" aria-label="Fechar">×</button></div><div class="specs"><div class="spec"><strong>24</strong><span>Visualizações</span></div><div class="spec"><strong>6</strong><span>Contactos</span></div><div class="spec"><strong>Ativo</strong><span>Estado</span></div></div><button class="primary">Impulsionar anúncio</button><div class="action-row"><button class="secondary">Abrir anúncio</button><button class="secondary">Gerir campanha</button></div><div class="micro-actions"><button class="text-action">Partilhar anúncio</button><button class="text-action danger">Remover da carteira</button></div></div>
+      </article>
+
+      <article class="variation v5">
+        <div class="property-backdrop"><div class="topbar"><button class="icon-button" aria-label="Voltar">‹</button><button class="icon-button" aria-label="Partilhar anúncio">↗</button></div><div class="backdrop-copy"><span class="status">Publicado</span><h1>Apartamento T3 Vista Mar</h1><p>Condomínio Dolce Vita · Talatona</p></div></div>
+        <div class="sheet"><div class="handle"></div><div class="sheet-header"><div><h2>Apartamento T3 Vista Mar</h2><p class="location">⌖ Talatona, Luanda</p></div><button class="close-button" aria-label="Fechar">×</button></div><div class="specs"><div class="spec"><strong>24</strong><span>Visualizações</span></div><div class="spec"><strong>6</strong><span>Contactos</span></div><div class="spec"><strong>Ativo</strong><span>Estado</span></div></div><button class="primary">Abrir anúncio público</button><div class="action-row"><button class="secondary">Contactar lead</button><button class="secondary">Editar imóvel</button></div><div class="micro-actions"><button class="text-action">Partilhar anúncio</button><button class="text-action danger">Remover da carteira</button></div></div>
+      </article>
+
+      <div class="controls"><div class="dots" aria-label="Variação atual"><span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><button class="next-button" id="nextButton">Next →</button></div>
+      <p class="hint">Protótipo do fluxo de gestão de imóveis para corretor.</p>
+    </section>
+  </main>
+  <script>
+    const variations = Array.from(document.querySelectorAll('.variation'));
+    const dots = Array.from(document.querySelectorAll('.dot'));
+    const label = document.getElementById('variationLabel');
+    const nextButton = document.getElementById('nextButton');
+    const names = ['Resumo do anúncio', 'Ações da carteira', 'Performance', 'Impulsionamento', 'Compacta'];
+    let current = 0;
+
+    function showVariation(index) {
+      current = (index + variations.length) % variations.length;
+      variations.forEach((item, i) => item.classList.toggle('active', i === current));
+      dots.forEach((dot, i) => dot.classList.toggle('active', i === current));
+      label.textContent = `Variação ${current + 1} · ${names[current]}`;
+      nextButton.textContent = current === variations.length - 1 ? 'Recomeçar ↻' : 'Next →';
+    }
+
+    nextButton.addEventListener('click', () => showVariation(current + 1));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowRight' || event.key === 'Enter') showVariation(current + 1);
+    });
+  </script>
+</body>
+</html>

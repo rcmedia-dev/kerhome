@@ -345,8 +345,58 @@ export function MessagesTab() {
           "md:col-span-3 border-r border-gray-100 flex flex-col h-full overflow-hidden bg-white z-20",
           activeConversationId && "hidden md:flex"
         )}>
-          {/* Header: Search & Filter */}
-          <div className="p-4 border-b border-gray-50 bg-white/50 backdrop-blur-md shrink-0 space-y-3">
+          {/* Header: Mobile - WhatsApp Style / Desktop - Original */}
+          <div className="lg:hidden shrink-0">
+            {/* Mobile Header */}
+            <div className="px-5 pt-3 pb-3 flex items-center justify-between bg-white">
+              <h1 className="text-xl font-black text-gray-900">Conversas</h1>
+            </div>
+            {/* Mobile Search */}
+            <div className="px-4 pb-3">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder="Pesquisar leads..."
+                  className="conv-search-input w-full pl-11 pr-4 py-3 text-sm bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-200 transition-all font-medium text-gray-700 placeholder:text-gray-400"
+                />
+              </div>
+            </div>
+            {/* Mobile Filter Chips */}
+            <div className="flex gap-2 px-4 pb-4 overflow-x-auto scrollbar-none">
+              {[
+                { value: 'all' as const, label: 'Todos', count: conversations.length },
+                { value: 'hot' as const, label: 'Quentes', count: conversations.filter(c => c.lead_temperature === 'hot').length, icon: <Flame className="w-3 h-3 text-red-500" /> },
+                { value: 'warm' as const, label: 'Mornos', count: conversations.filter(c => c.lead_temperature === 'warm').length, icon: <Flame className="w-3 h-3 text-orange-400" /> },
+                { value: 'cold' as const, label: 'Frios', count: conversations.filter(c => c.lead_temperature === 'cold').length, icon: <Flame className="w-3 h-3 text-blue-400" /> },
+              ].map(chip => (
+                <button
+                  key={chip.value}
+                  onClick={() => setFilter(chip.value)}
+                  className={cn(
+                    "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
+                    filter === chip.value
+                      ? "bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-200"
+                      : "bg-white text-gray-600 border-gray-200 active:bg-gray-50"
+                  )}
+                >
+                  {chip.icon}
+                  {chip.label}
+                  <span className={cn(
+                    "ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-black",
+                    filter === chip.value ? "bg-white/20" : "bg-gray-100"
+                  )}>
+                    {chip.count}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Desktop Header - Original */}
+          <div className="hidden lg:block p-4 border-b border-gray-50 bg-white/50 backdrop-blur-md shrink-0 space-y-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
@@ -378,72 +428,115 @@ export function MessagesTab() {
                 <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest">Sem conversas encontradas</p>
               </div>
             ) : (
-              <AnimatePresence initial={false}>
-                {filtered.map((conv, idx) => {
-                  const name = conv.target_type === 'agency' && conv.agency_details?.nome
-                    ? conv.agency_details.nome
-                    : `${conv.other_user?.primeiro_nome ?? ''} ${conv.other_user?.ultimo_nome ?? ''}`;
-                  const avatar = conv.target_type === 'agency' && conv.agency_details?.logo
-                    ? conv.agency_details.logo
-                    : conv.other_user?.avatar_url;
-                  const hasUnread = (conv.unread_count ?? 0) > 0;
-                  const isActive = conv.id === activeConversationId;
-                  const leadTemp = conv.lead_temperature || 'none';
+              <>
+                {/* Mobile: Pinned Conversations */}
+                {filtered.some(c => (c.unread_count ?? 0) > 0) && (
+                  <div className="lg:hidden">
+                    <div className="px-5 py-2 flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="m12 17 0 5M18.5 11.5l-12.5-.5 3.5-4-1-4 5 3 3.5-1.5"/></svg>
+                      Não lidos
+                    </div>
+                  </div>
+                )}
 
-                  return (
-                    <motion.div
-                      key={conv.id}
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.02 }}
-                      onClick={() => openChat(conv.id, conv.other_user)}
-                      className={cn(
-                        'flex items-center gap-3 px-4 py-4 cursor-pointer border-b border-gray-50 transition-all relative group',
-                        isActive ? 'bg-purple-50/80' : 'hover:bg-gray-50/50',
-                        hasUnread && !isActive && 'bg-orange-50/10'
-                      )}
-                    >
-                      {isActive && <div className="absolute left-0 top-0 bottom-0 w-1 bg-purple-600" />}
-                      
-                      <div className="relative shrink-0">
-                        {avatar ? (
-                          <img src={avatar} alt={name} className="w-11 h-11 rounded-badge object-cover border-2 border-white shadow-card" />
-                        ) : (
-                          <div className="w-11 h-11 rounded-badge bg-gray-100 flex items-center justify-center border border-gray-200">
-                            <UserCircle className="w-6 h-6 text-gray-300" />
-                          </div>
-                        )}
-                        {hasUnread && (
-                          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-purple-600 border-2 border-white rounded-full shadow-lg" />
-                        )}
-                        {leadTemp !== 'none' && (
-                          <div className={cn(
-                            "absolute -bottom-1 -right-1 w-5 h-5 rounded-badge flex items-center justify-center shadow-card border-2 border-white",
-                            leadTemp === 'hot' ? "bg-red-500" : leadTemp === 'warm' ? "bg-orange-400" : "bg-blue-400"
-                          )}>
-                            <Flame className="w-3 h-3 text-white" />
-                          </div>
-                        )}
-                      </div>
+                <AnimatePresence initial={false}>
+                  {filtered.map((conv, idx) => {
+                    const name = conv.target_type === 'agency' && conv.agency_details?.nome
+                      ? conv.agency_details.nome
+                      : `${conv.other_user?.primeiro_nome ?? ''} ${conv.other_user?.ultimo_nome ?? ''}`;
+                    const avatar = conv.target_type === 'agency' && conv.agency_details?.logo
+                      ? conv.agency_details.logo
+                      : conv.other_user?.avatar_url;
+                    const hasUnread = (conv.unread_count ?? 0) > 0;
+                    const isActive = conv.id === activeConversationId;
+                    const leadTemp = conv.lead_temperature || 'none';
 
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-baseline justify-between gap-2 mb-1">
-                          <h3 className={cn('text-[11px] truncate uppercase tracking-tight', hasUnread ? 'font-black text-gray-900' : 'font-bold text-gray-800')}>
-                            {name}
-                          </h3>
-                          <span className="text-[9px] text-gray-400 font-bold shrink-0">
-                            {conv.last_message ? formatDate(conv.last_message.created_at) : ''}
-                          </span>
+                    return (
+                      <motion.div
+                        key={conv.id}
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.02 }}
+                        onClick={() => openChat(conv.id, conv.other_user)}
+                        className={cn(
+                          'flex items-center gap-3 lg:gap-3 px-4 lg:px-4 py-3.5 lg:py-4 cursor-pointer border-b border-gray-50 transition-all relative group',
+                          isActive ? 'lg:bg-purple-50/80 bg-purple-50/60' : 'active:bg-gray-50/80 lg:hover:bg-gray-50/50',
+                          hasUnread && !isActive && 'bg-orange-50/20'
+                        )}
+                      >
+                        {/* Desktop: Active indicator bar */}
+                        {isActive && <div className="hidden lg:block absolute left-0 top-0 bottom-0 w-1 bg-purple-600" />}
+                        
+                        {/* Avatar */}
+                        <div className="relative shrink-0">
+                          {avatar ? (
+                            <img
+                              src={avatar}
+                              alt={name}
+                              className="lg:w-11 lg:h-11 lg:rounded-badge w-[52px] h-[52px] rounded-2xl object-cover border-2 border-white shadow-sm"
+                            />
+                          ) : (
+                            <div className="lg:w-11 lg:h-11 lg:rounded-badge w-[52px] h-[52px] rounded-2xl bg-gradient-to-br from-purple-100 to-orange-50 flex items-center justify-center border border-gray-200">
+                              <UserCircle className="w-6 h-6 text-gray-300" />
+                            </div>
+                          )}
+                          {/* Online dot */}
+                          {conv.other_user?.online_status === 'online' && (
+                            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2.5 border-white shadow-sm" />
+                          )}
+                          {/* Unread dot */}
+                          {hasUnread && (
+                            <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-purple-600 border-2 border-white rounded-full shadow-md" />
+                          )}
+                          {/* Temperature badge */}
+                          {leadTemp !== 'none' && (
+                            <div className={cn(
+                              "absolute -bottom-1 -right-1 w-5 h-5 rounded-lg flex items-center justify-center shadow-sm border-2 border-white",
+                              leadTemp === 'hot' ? "bg-red-500" : leadTemp === 'warm' ? "bg-orange-400" : "bg-blue-400"
+                            )}>
+                              <Flame className="w-3 h-3 text-white" />
+                            </div>
+                          )}
                         </div>
-                        <p className={cn('text-[10px] truncate leading-relaxed', hasUnread ? 'text-gray-900 font-bold' : 'text-gray-500 font-medium')}>
-                          {conv.last_message?.sender_id === user?.id && <CheckCheck className="w-3 h-3 inline mr-1 text-purple-400" />}
-                          {conv.last_message?.content ?? 'Inicie a qualificação...'}
-                        </p>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-baseline justify-between gap-2 mb-1">
+                            <h3 className={cn(
+                              'lg:text-[11px] lg:uppercase lg:tracking-tight text-[15px] truncate',
+                              hasUnread ? 'font-extrabold text-gray-900' : 'font-semibold text-gray-800'
+                            )}>
+                              {name}
+                            </h3>
+                            <span className={cn(
+                              "lg:text-[9px] text-xs shrink-0 font-semibold",
+                              hasUnread ? "text-purple-600" : "text-gray-400"
+                            )}>
+                              {conv.last_message ? formatDate(conv.last_message.created_at) : ''}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            {conv.last_message?.sender_id === user?.id && (
+                              <CheckCheck className="w-4 h-4 lg:w-3 lg:h-3 shrink-0 text-purple-400" />
+                            )}
+                            <p className={cn(
+                              'lg:text-[10px] text-[13px] truncate flex-1 leading-relaxed',
+                              hasUnread ? 'text-gray-700 font-semibold' : 'text-gray-500'
+                            )}>
+                              {conv.last_message?.content ?? 'Inicie a qualificação...'}
+                            </p>
+                            {hasUnread && (
+                              <div className="w-5 h-5 rounded-full bg-purple-600 flex items-center justify-center shrink-0">
+                                <span className="text-[10px] font-bold text-white">{conv.unread_count}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+              </>
             )}
           </div>
         </div>
@@ -458,20 +551,20 @@ export function MessagesTab() {
               {/* Chat Core */}
               <ChatWindow onClose={backToList} onShowCRM={() => setIsMobileCrmOpen(true)} />
               
-              {/* Contextual Quick Replies */}
+              {/* Contextual Quick Replies - Mobile: Bottom sheet style */}
               <AnimatePresence>
                 {showTemplates && (
                   <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 20 }}
-                    className="absolute bottom-20 left-0 right-0 p-4 bg-linear-to from-white via-white/95 to-transparent pointer-events-none"
+                    className="lg:absolute lg:bottom-20 lg:left-0 lg:right-0 lg:p-4 absolute bottom-0 left-0 right-0 p-4 bg-linear-to from-white via-white/95 to-white lg:bg-linear-to lg:from-white lg:via-white/95 lg:to-transparent pointer-events-none"
                   >
-                    <div className="flex flex-wrap gap-2 justify-center pointer-events-auto">
+                    <div className="flex flex-wrap gap-2 justify-center pointer-events-auto lg:flex-wrap">
                        {QUICK_REPLIES.map((text, i) => (
                          <button 
                            key={i} 
-                           className="px-4 py-2 bg-white shadow-card border border-purple-100 rounded-full text-[10px] font-black text-purple-700 hover:bg-purple-600 hover:text-white hover:scale-105 transition-all flex items-center gap-2 cursor-pointer active:scale-95"
+                           className="lg:px-4 lg:py-2 px-3 py-2 bg-white shadow-md border border-purple-100 rounded-full lg:text-[10px] text-xs font-bold text-purple-700 active:bg-purple-600 active:text-white active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
                          >
                            <Zap className="w-3.5 h-3.5" />
                            {text}
@@ -495,16 +588,29 @@ export function MessagesTab() {
               </AnimatePresence>
             </div>
           ) : (
-            /* Empty State for Chat */
-            <div className="flex flex-col items-center justify-center h-full text-center p-12 bg-gray-50/30">
-              <div className="w-24 h-24 bg-white rounded-badge shadow-card flex items-center justify-center mb-6 border border-gray-100">
-                <MessageCircle className="w-12 h-12 text-purple-100" />
+            /* Empty State for Chat - Mobile: Clean minimal / Desktop: Original */
+            <>
+              {/* Mobile Empty State */}
+              <div className="lg:hidden flex flex-col items-center justify-center h-full text-center px-8">
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-orange-50 rounded-3xl flex items-center justify-center mb-6 shadow-sm">
+                  <MessageCircle className="w-10 h-10 text-purple-300" />
+                </div>
+                <h3 className="text-lg font-extrabold text-gray-900 mb-2">Seu Hub de Vendas</h3>
+                <p className="text-sm text-gray-400 max-w-[240px] font-medium leading-relaxed">
+                  Selecione um lead para iniciar a qualificação estratégica.
+                </p>
               </div>
-              <h3 className="text-sm font-black text-gray-900 mb-2 uppercase tracking-widest">Seu Hub de Vendas</h3>
-              <p className="text-[11px] text-gray-400 max-w-60 font-bold leading-relaxed">
-                Selecione um lead para iniciar a qualificação estratégica e fechar mais negócios.
-              </p>
-            </div>
+              {/* Desktop Empty State */}
+              <div className="hidden lg:flex flex-col items-center justify-center h-full text-center p-12 bg-gray-50/30">
+                <div className="w-24 h-24 bg-white rounded-badge shadow-card flex items-center justify-center mb-6 border border-gray-100">
+                  <MessageCircle className="w-12 h-12 text-purple-100" />
+                </div>
+                <h3 className="text-sm font-black text-gray-900 mb-2 uppercase tracking-widest">Seu Hub de Vendas</h3>
+                <p className="text-[11px] text-gray-400 max-w-60 font-bold leading-relaxed">
+                  Selecione um lead para iniciar a qualificação estratégica e fechar mais negócios.
+                </p>
+              </div>
+            </>
           )}
         </div>
 
@@ -518,40 +624,40 @@ export function MessagesTab() {
         )}>
 
           {activeConversationId ? (
-            <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col pb-10">
+            <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col pb-10 lg:pb-10">
               
-              {/* Profile Overview - Premium Card Style */}
-              <div className="p-6 bg-white border-b border-gray-100 shadow-sm shrink-0 relative">
+              {/* Profile Overview - Mobile: Full screen header / Desktop: Original */}
+              <div className="lg:p-6 p-4 pt-14 lg:pt-6 bg-white border-b border-gray-100 shadow-sm shrink-0 relative">
                 {/* Mobile Back Button */}
                 <button 
                   onClick={() => setIsMobileCrmOpen(false)}
-                  className="md:hidden absolute top-4 left-4 p-2 bg-gray-50 rounded-full text-gray-500 hover:text-gray-900 transition-colors"
+                  className="lg:hidden absolute top-4 left-4 w-10 h-10 flex items-center justify-center bg-gray-50 rounded-2xl text-gray-500 active:scale-95 transition-transform"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                <div className="flex flex-col items-center text-center space-y-3 mb-6">
+                <div className="flex flex-col items-center text-center space-y-3 mb-4 lg:mb-6">
                   <div className="relative">
                     {contactAvatar ? (
-                      <img src={contactAvatar} alt={contactName ?? ''} className="w-20 h-20 rounded-md object-cover border-4 border-white shadow-card" />
+                      <img src={contactAvatar} alt={contactName ?? ''} className="lg:w-20 lg:h-20 lg:rounded-md w-[72px] h-[72px] rounded-2xl object-cover border-4 border-white shadow-md" />
                     ) : (
-                      <div className="w-20 h-20 rounded-md bg-purple-50 flex items-center justify-center border-4 border-white shadow-sm">
+                      <div className="lg:w-20 lg:h-20 lg:rounded-md w-[72px] h-[72px] rounded-2xl bg-gradient-to-br from-purple-100 to-orange-50 flex items-center justify-center border-4 border-white shadow-sm">
                         <User className="w-10 h-10 text-purple-200" />
                       </div>
                     )}
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 border-4 border-white rounded-full shadow-lg" />
+                    <div className="absolute -bottom-1 -right-1 w-5 h-5 lg:w-6 lg:h-6 bg-green-500 border-3 lg:border-4 border-white rounded-full shadow-md" />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="font-black text-gray-900 text-lg tracking-tighter leading-none mb-1">{contactName}</h3>
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{activeProfile?.email || 'Lead Kercasa'}</p>
+                    <h3 className="font-extrabold text-gray-900 text-lg lg:text-lg tracking-tight leading-none mb-1">{contactName}</h3>
+                    <p className="text-[11px] lg:text-[10px] text-gray-400 font-semibold">{activeProfile?.email || 'Lead Kercasa'}</p>
                   </div>
                 </div>
 
-                {/* Lead Temp Control - Ergonomic Selectors */}
-                <div className="space-y-4">
+                {/* Lead Temp Control - Mobile: Compact / Desktop: Original */}
+                <div className="space-y-3 lg:space-y-4">
                   <div className="flex items-center justify-between px-1">
-                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Qualificação</p>
+                    <p className="text-[10px] lg:text-[9px] font-bold text-gray-400 uppercase tracking-wider">Qualificação</p>
                     <div className={cn(
-                      "px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-tighter",
+                      "px-2.5 py-1 rounded-full text-[10px] lg:text-[8px] font-bold uppercase",
                       currentTemp === 'hot' ? "bg-red-100 text-red-600" : currentTemp === 'warm' ? "bg-orange-100 text-orange-600" : currentTemp === 'cold' ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-400"
                     )}>
                       {currentTemp === 'none' ? 'Não definida' : currentTemp}
@@ -559,18 +665,18 @@ export function MessagesTab() {
                   </div>
                   <div className="flex gap-2">
                     {[
-                      { id: 'hot', label: 'Quente', activeBg: 'bg-rose-500', activeText: 'text-white' },
-                      { id: 'warm', label: 'Morno', activeBg: 'bg-amber-500', activeText: 'text-white' },
-                      { id: 'cold', label: 'Frio', activeBg: 'bg-sky-500', activeText: 'text-white' },
+                      { id: 'hot', label: 'Quente', activeBg: 'bg-rose-500', activeText: 'text-white', inactiveBg: 'bg-rose-50 text-rose-400 border-rose-100' },
+                      { id: 'warm', label: 'Morno', activeBg: 'bg-amber-500', activeText: 'text-white', inactiveBg: 'bg-amber-50 text-amber-400 border-amber-100' },
+                      { id: 'cold', label: 'Frio', activeBg: 'bg-sky-500', activeText: 'text-white', inactiveBg: 'bg-sky-50 text-sky-400 border-sky-100' },
                     ].map(t => (
                       <button
                         key={t.id}
                         onClick={() => handleTempChange(t.id as LeadTemperature)}
                         className={cn(
-                          "flex-1 py-3 rounded-md border transition-all duration-200 text-[10px] font-black uppercase tracking-tighter cursor-pointer",
+                          "flex-1 py-2.5 lg:py-3 rounded-xl lg:rounded-md border transition-all duration-200 text-xs lg:text-[10px] font-bold cursor-pointer",
                           currentTemp === t.id 
-                            ? `${t.activeBg} ${t.activeText} border-transparent shadow-md transform scale-105`
-                            : "bg-white border-gray-100 text-gray-400 hover:border-gray-200"
+                            ? `${t.activeBg} ${t.activeText} border-transparent shadow-md`
+                            : `${t.inactiveBg} active:scale-95`
                         )}
                       >
                         {t.label}
@@ -581,27 +687,27 @@ export function MessagesTab() {
               </div>
 
               {/* CRM Features - Organized Sections */}
-              <div className="p-6 space-y-8 flex-1">
+              <div className="p-5 lg:p-6 space-y-6 lg:space-y-8 flex-1">
                 
                 {/* Actions Grid */}
                 <div className="grid grid-cols-1 gap-3">
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest">Próximos Passos</p>
+                    <p className="text-[11px] lg:text-[10px] font-bold text-gray-900 uppercase tracking-wider">Próximos Passos</p>
                   </div>
                   <button 
                     onClick={() => setIsVisitModalOpen(true)}
-                    className="flex items-center justify-between p-4 bg-purple-600 rounded-md shadow-lg hover:bg-purple-700 transition-all group active:scale-[0.98] cursor-pointer"
+                    className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-600 to-purple-700 rounded-2xl lg:rounded-md shadow-lg shadow-purple-200 active:scale-[0.98] transition-transform cursor-pointer"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-md bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                      <div className="w-11 h-11 lg:w-10 lg:h-10 rounded-xl lg:rounded-md bg-white/20 flex items-center justify-center">
                         <Calendar className="w-5 h-5 text-white" />
                       </div>
                       <div className="text-left">
-                        <span className="block text-[11px] font-black text-white uppercase tracking-widest leading-none">Agendar Visita</span>
-                        <span className="text-[9px] text-purple-100 font-bold uppercase tracking-tighter mt-1 block">Defina o próximo follow-up</span>
+                        <span className="block text-xs lg:text-[11px] font-bold text-white leading-none">Agendar Visita</span>
+                        <span className="text-[10px] lg:text-[9px] text-purple-200 font-medium mt-1 block">Defina o próximo follow-up</span>
                       </div>
                     </div>
-                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:rotate-90 transition-all">
+                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
                       <Plus className="w-4 h-4 text-white" />
                     </div>
                   </button>
@@ -609,32 +715,31 @@ export function MessagesTab() {
 
                 {/* Property Context - Dynamic Card */}
                 <section className="space-y-3">
-                  <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest">Imóvel de Interesse</p>
+                  <p className="text-[11px] lg:text-[10px] font-bold text-gray-900 uppercase tracking-wider">Imóvel de Interesse</p>
                   {property ? (
-                    <div className="bg-white p-4 rounded-md border border-gray-100 shadow-card flex gap-4 group cursor-pointer hover:border-purple-200 transition-all">
-                      <div className="w-20 h-20 rounded-md bg-gray-50 shrink-0 overflow-hidden border border-gray-50 relative">
+                    <div className="bg-white p-3 lg:p-4 rounded-2xl lg:rounded-md border border-gray-100 shadow-sm flex gap-3 lg:gap-4 active:scale-[0.98] transition-transform cursor-pointer">
+                      <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-xl lg:rounded-md bg-gray-50 shrink-0 overflow-hidden border border-gray-50 relative">
                         {property.images?.[0] ? (
-                          <img src={property.images[0]} alt={property.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                          <img src={property.images[0]} alt={property.title} className="w-full h-full object-cover" />
                         ) : (
-                          <Building2 className="w-full h-full p-5 text-gray-200" />
+                          <Building2 className="w-full h-full p-4 lg:p-5 text-gray-200" />
                         )}
-                        <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
                       <div className="min-w-0 flex flex-col justify-center py-1">
-                        <h4 className="text-[12px] font-black text-gray-900 truncate uppercase tracking-tighter mb-1">{property.title}</h4>
+                        <h4 className="text-[13px] lg:text-[12px] font-bold text-gray-900 truncate mb-1">{property.title}</h4>
                         <div className="flex items-center gap-1.5 text-gray-400 mb-2">
                           <Search className="w-3 h-3" />
-                          <span className="text-[10px] font-bold truncate">{property.cidade}</span>
+                          <span className="text-[11px] lg:text-[10px] font-medium truncate">{property.cidade}</span>
                         </div>
                         <div className="mt-auto">
-                          <p className="text-[14px] font-black text-purple-600 tracking-tighter">{property.price?.toLocaleString('pt-PT')} Kz</p>
+                          <p className="text-[15px] lg:text-[14px] font-bold text-purple-600">{property.price?.toLocaleString('pt-PT')} Kz</p>
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-white/50 p-8 rounded-md border-2 border-dashed border-gray-100 text-center flex flex-col items-center gap-2">
-                      <Inbox className="w-6 h-6 text-gray-200" />
-                      <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Nenhum imóvel vinculado</p>
+                    <div className="bg-gray-50 p-6 lg:p-8 rounded-2xl lg:rounded-md border border-dashed border-gray-200 text-center flex flex-col items-center gap-2">
+                      <Inbox className="w-6 h-6 text-gray-300" />
+                      <p className="text-[11px] lg:text-[10px] text-gray-400 font-semibold">Nenhum imóvel vinculado</p>
                     </div>
                   )}
                 </section>
@@ -643,13 +748,13 @@ export function MessagesTab() {
                 <section className="space-y-4">
                   <div className="flex items-center justify-between px-1">
                     <div className="flex items-center gap-2">
-                      <StickyNote className="w-3.5 h-3.5 text-purple-600" />
-                      <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest">Notas Estratégicas</p>
+                      <StickyNote className="w-4 h-4 lg:w-3.5 lg:h-3.5 text-purple-600" />
+                      <p className="text-[11px] lg:text-[10px] font-bold text-gray-900 uppercase tracking-wider">Notas Estratégicas</p>
                     </div>
                     {localNote && !isEditingNote && (
                       <button 
                         onClick={() => setIsEditingNote(true)} 
-                        className="text-[10px] font-black text-purple-600 uppercase hover:underline tracking-tighter"
+                        className="text-[11px] lg:text-[10px] font-bold text-purple-600 active:text-purple-800"
                       >
                         Editar
                       </button>
@@ -660,12 +765,12 @@ export function MessagesTab() {
                     /* EMPTY STATE */
                     <button 
                       onClick={() => setIsEditingNote(true)}
-                      className="w-full py-8 border-2 border-dashed border-gray-100 rounded-md flex flex-col items-center justify-center gap-2 group hover:border-purple-200 hover:bg-purple-50/30 transition-all"
+                      className="w-full py-6 lg:py-8 border-2 border-dashed border-gray-200 rounded-2xl lg:rounded-md flex flex-col items-center justify-center gap-2 active:border-purple-300 active:bg-purple-50/30 transition-all"
                     >
-                      <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-purple-100 transition-colors">
-                        <Plus className="w-5 h-5 text-gray-300 group-hover:text-purple-600" />
+                      <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                        <Plus className="w-5 h-5 text-gray-400" />
                       </div>
-                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest group-hover:text-purple-600">Adicionar nota estratégica</span>
+                      <span className="text-[11px] lg:text-[10px] font-semibold text-gray-400">Adicionar nota estratégica</span>
                     </button>
                   ) : isEditingNote ? (
                     /* EDIT STATE */
@@ -676,45 +781,45 @@ export function MessagesTab() {
                           value={localNote}
                           onChange={(e) => handleNoteChange(e.target.value)}
                           placeholder="Ex: Cliente prefere casas com quintal..."
-                          className="w-full min-h-35 p-4 text-[12px] font-medium bg-white border border-purple-200 rounded-md focus:outline-none focus:ring-4 focus:ring-purple-500/5 resize-none transition-all text-gray-700 shadow-sm"
+                          className="w-full min-h-32 lg:min-h-35 p-4 text-sm lg:text-[12px] font-medium bg-white border border-gray-200 rounded-2xl lg:rounded-md focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-300 resize-none transition-all text-gray-700 shadow-sm"
                         />
                         <div className="absolute bottom-3 right-3">
                           {saveTimeoutRef.current && (
-                            <div className="flex items-center gap-1.5 px-2 py-1 bg-white/90 rounded-md border border-orange-100">
+                            <div className="flex items-center gap-1.5 px-2 py-1 bg-white/90 rounded-lg border border-orange-100">
                               <div className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
-                              <span className="text-[8px] text-orange-600 font-black uppercase tracking-tighter">A gravar...</span>
+                              <span className="text-[9px] lg:text-[8px] text-orange-600 font-semibold">A gravar...</span>
                             </div>
                           )}
                         </div>
                       </div>
                       <button 
                         onClick={() => setIsEditingNote(false)}
-                        className="w-full py-2.5 bg-purple-600 text-white text-[10px] font-black uppercase rounded-md shadow-md hover:bg-purple-700 active:scale-95 transition-all"
+                        className="w-full py-3 lg:py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white text-xs lg:text-[10px] font-bold rounded-xl lg:rounded-md shadow-md shadow-purple-200 active:scale-95 transition-all"
                       >
                         Concluir e Guardar
                       </button>
                     </div>
                   ) : (
-                    /* DISPLAY STATE (The "Alert Style" Note Card) */
+                    /* DISPLAY STATE */
                     <div 
                       onClick={() => setIsEditingNote(true)}
-                      className="group relative flex items-center gap-4 py-3 px-5 bg-orange-50 border border-orange-100 rounded-md border-l-[5px] border-l-orange-500 cursor-pointer hover:bg-orange-100 hover:border-orange-200 transition-all animate-in slide-in-from-left-2 duration-300 min-h-15"
+                      className="group relative flex items-center gap-3 lg:gap-4 py-3 px-4 lg:px-5 bg-orange-50 border border-orange-100 rounded-2xl lg:rounded-md border-l-[4px] lg:border-l-[5px] border-l-orange-400 active:bg-orange-100 transition-all min-h-14 lg:min-h-15"
                     >
                       <div className="shrink-0">
-                        <div className="w-9 h-9 rounded-md bg-white shadow-sm flex items-center justify-center border border-orange-100">
-                          <StickyNote className="w-4.5 h-4.5 text-orange-600" />
+                        <div className="w-9 h-9 rounded-xl lg:rounded-md bg-white shadow-sm flex items-center justify-center border border-orange-100">
+                          <StickyNote className="w-4 h-4 lg:w-4.5 lg:h-4.5 text-orange-500" />
                         </div>
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <p className="text-[12px] text-gray-900 font-black leading-tight whitespace-pre-wrap">
+                        <p className="text-[13px] lg:text-[12px] text-gray-900 font-semibold leading-tight whitespace-pre-wrap">
                           {localNote.length > 80 ? `${localNote.substring(0, 80)}...` : localNote}
                         </p>
                       </div>
                     </div>
                   )}
 
-                  <p className="px-1 text-[9px] text-gray-400 font-bold italic opacity-60">
+                  <p className="px-1 text-[10px] lg:text-[9px] text-gray-400 font-medium italic">
                     * Notas privadas visíveis apenas para a sua equipa.
                   </p>
                 </section>
@@ -724,12 +829,12 @@ export function MessagesTab() {
                   <section className="space-y-4">
                     <div className="flex items-center justify-between px-1">
                       <div className="flex items-center gap-2">
-                        <CalendarDays className="w-3.5 h-3.5 text-purple-600" />
-                        <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest">Visitas no Radar</p>
+                        <CalendarDays className="w-4 h-4 lg:w-3.5 lg:h-3.5 text-purple-600" />
+                        <p className="text-[11px] lg:text-[10px] font-bold text-gray-900 uppercase tracking-wider">Visitas no Radar</p>
                       </div>
-                      <span className="text-[9px] bg-purple-50 text-purple-600 font-black px-2 py-0.5 rounded-md uppercase tracking-tighter">{visits.length}</span>
+                      <span className="text-[10px] lg:text-[9px] bg-purple-100 text-purple-600 font-bold px-2.5 py-0.5 lg:px-2 lg:py-0.5 rounded-lg lg:rounded-md">{visits.length}</span>
                     </div>
-                    <div className="space-y-2.5">
+                    <div className="space-y-2 lg:space-y-2.5">
                       {visits.map(visit => {
                         const statusMap = {
                           pending: { label: 'Pendente', cls: 'bg-amber-500 text-white border-transparent' },

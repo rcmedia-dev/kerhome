@@ -59,6 +59,10 @@ const EVENT_LABEL_MAP: Record<string, string> = {
 };
 
 export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps) {
+  const role = typeof user === 'object' && user !== null && 'role' in user
+    ? String((user as { role?: string | null }).role || '').toLowerCase()
+    : '';
+  const isAgent = ['agente', 'agent', 'corretor', 'profissional'].includes(role);
   const [stats, setStats] = useState<EventStatsResult | null>(null);
   const [boostedProperties, setBoostedProperties] = useState<BoostedProperty[]>([]);
   const [isPending, startTransition] = useTransition();
@@ -76,7 +80,7 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
       try {
         const [statsData, boostedData] = await Promise.all([
           getEventStats(ownerId, period),
-          getBoostedProperties(ownerId)
+          isAgent ? getBoostedProperties(ownerId) : Promise.resolve([])
         ]);
         setStats(statsData);
         setBoostedProperties(boostedData);
@@ -85,11 +89,17 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
         toast.error('Erro ao atualizar métricas.');
       }
     });
-  }, [ownerId, period]);
+  }, [ownerId, period, isAgent]);
 
   useEffect(() => {
     fetchStats();
   }, [fetchStats]);
+
+  useEffect(() => {
+    if (!isAgent && activeSubTab !== 'performance') {
+      setActiveSubTab('performance');
+    }
+  }, [isAgent, activeSubTab]);
 
   const handleRefresh = () => {
     fetchStats();
@@ -115,6 +125,27 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
   const activeBoosted = boostedProperties.filter(p => p.boost_status === 'active');
   const pendingBoosted = boostedProperties.filter(p => p.boost_status === 'pending');
 
+  const mobileChannelData = useMemo(() => {
+    if (!stats) return [];
+
+    return Object.entries(stats.summary)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 4)
+      .map(([key, value]) => ({
+        key,
+        label: EVENT_LABEL_MAP[key] || key.replace('_', ' '),
+        value,
+        percentage: stats.total ? (value / stats.total) * 100 : 0,
+      }));
+  }, [stats]);
+
+  const mobileMetrics = [
+    { label: isAgent ? 'Interações' : 'Atividade', value: stats?.total ?? 0, icon: Eye, accent: 'purple' },
+    { label: 'Contactos', value: stats?.total_contacts ?? 0, icon: MessageCircle, accent: 'green' },
+    { label: isAgent ? 'Partilhas' : 'Imóveis vistos', value: isAgent ? (stats?.total_shares ?? 0) : (stats?.summary.view_property ?? 0), icon: isAgent ? Share2 : Eye, accent: 'orange' },
+    { label: isAgent ? 'Conversão' : 'Agendamentos', value: isAgent ? (stats?.total ? `${Math.round((stats.total_contacts / stats.total) * 100)}%` : '0%') : (stats?.summary.schedule_visit ?? 0), icon: isAgent ? Target : Calendar, accent: 'blue' },
+  ];
+
   if (!mounted || (!hasStats && !hasPopularProperties && boostedProperties.length === 0 && isPending)) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
@@ -126,260 +157,488 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
 
   return (
     <ErrorBoundary>
-      <div className="space-y-6 animate-in fade-in duration-500">
-        
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-4 sm:pb-6">
-           <div className="space-y-1">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
-                 <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
-                 Analytics & Performance
-              </h2>
-              <p className="text-[11px] sm:text-xs text-gray-500">Dados integrados de tráfego e visibilidade.</p>
-           </div>
-           
-           <div className="flex items-center gap-2 sm:gap-3">
-              <div className="flex bg-gray-100/50 p-0.5 sm:p-1 rounded-card border border-border-subtle">
-                 {[7, 30, 90].map((d) => (
-                    <button
-                      key={d}
-                      onClick={() => setPeriod(d)}
-                      className={cn(
-                         "px-2.5 sm:px-4 py-1.5 rounded-button text-[9px] sm:text-[10px] font-bold transition-all active:scale-95",
-                         period === d ? "bg-white text-purple-700 shadow-card" : "text-gray-500 hover:text-gray-700"
-                      )}
-                    >
-                      {d}d
-                    </button>
-                 ))}
-              </div>
-              <button onClick={handleRefresh} disabled={isPending} className="p-2 sm:p-2.5 bg-white hover:bg-gray-50 rounded-button border border-border text-gray-400 transition-all shadow-card">
-                 <RefreshCw className={cn("w-3.5 h-3.5 sm:w-4 sm:h-4", isPending && "animate-spin")} />
+      <div className="w-full max-w-full overflow-x-hidden space-y-4 px-3 pb-6 animate-in fade-in duration-500 sm:px-0">
+        <div className="md:hidden">
+          <div className="flex items-center justify-between gap-4 pb-4">
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium text-purple-400 uppercase tracking-[0.12em]">Dashboard</p>
+              <h2 className="text-xl font-black text-slate-800">Estatísticas</h2>
+            </div>
+            <button
+              type="button"
+              onClick={handleRefresh}
+              disabled={isPending}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-50 text-purple-600 shadow-sm transition active:scale-95"
+              aria-label="Atualizar estatísticas"
+            >
+              <RefreshCw className={cn('h-4 w-4', isPending && 'animate-spin')} />
+            </button>
+          </div>
+
+          <div className="mb-4 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            {[7, 30, 90].map((d) => (
+              <button
+                key={d}
+                type="button"
+                onClick={() => setPeriod(d)}
+                className={cn(
+                  'shrink-0 rounded-full px-3 py-1.5 text-[10px] font-bold transition active:scale-95',
+                  period === d
+                    ? 'bg-gradient-to-r from-purple-600 to-orange-500 text-white shadow-lg shadow-purple-200/30'
+                    : 'bg-purple-50 text-purple-700'
+                )}
+              >
+                {d}d
               </button>
-           </div>
-        </div>
+            ))}
+          </div>
 
-        {/* Sub-Tabs Selector */}
-        <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center p-1 bg-gray-100/50 rounded-2xl sm:w-fit mb-6 gap-0 sm:gap-1">
+          <div className={cn(
+            'mb-4 grid gap-2 rounded-2xl bg-gray-100/60 p-1',
+            isAgent ? 'grid-cols-3' : 'grid-cols-1'
+          )}>
             <button
-                onClick={() => setActiveSubTab('performance')}
-                className={cn(
-                    "flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-6 py-2.5 rounded-xl sm:rounded-button text-[10px] sm:text-xs font-bold transition-all",
-                    activeSubTab === 'performance' ? "bg-white text-purple-700 shadow-card" : "text-gray-500 hover:text-gray-700"
-                )}
+              type="button"
+              onClick={() => setActiveSubTab('performance')}
+              className={cn(
+                'rounded-xl px-2 py-2 text-[10px] font-bold transition',
+                activeSubTab === 'performance' ? 'bg-white text-purple-700 shadow-sm' : 'text-gray-500'
+              )}
             >
-                <LayoutDashboard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="truncate">Desempenho</span>
+              Desempenho
             </button>
-            <button
-                onClick={() => setActiveSubTab('boosts')}
-                className={cn(
-                    "flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-6 py-2.5 rounded-xl sm:rounded-button text-[10px] sm:text-xs font-bold transition-all relative",
-                    activeSubTab === 'boosts' ? "bg-white text-purple-700 shadow-card" : "text-gray-500 hover:text-gray-700"
-                )}
+            {isAgent && <button
+              type="button"
+              onClick={() => setActiveSubTab('boosts')}
+              className={cn(
+                'relative rounded-xl px-2 py-2 text-[10px] font-bold transition',
+                activeSubTab === 'boosts' ? 'bg-white text-purple-700 shadow-sm' : 'text-gray-500'
+              )}
             >
-                <Rocket className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="truncate">Destaques</span>
-                {activeBoosted.length > 0 && (
-                   <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-purple-600 text-[9px] font-bold text-white shadow-sm ring-2 ring-white">
-                      {activeBoosted.length}
-                   </span>
-                )}
-            </button>
-            <button
-                onClick={() => setActiveSubTab('popular')}
-                className={cn(
-                    "flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-6 py-2.5 rounded-xl sm:rounded-button text-[10px] sm:text-xs font-bold transition-all",
-                    activeSubTab === 'popular' ? "bg-white text-purple-700 shadow-card" : "text-gray-500 hover:text-gray-700"
-                )}
+              Destaques
+              {activeBoosted.length > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-purple-600 text-[8px] font-bold text-white ring-2 ring-white">
+                  {activeBoosted.length}
+                </span>
+              )}
+            </button>}
+            {isAgent && <button
+              type="button"
+              onClick={() => setActiveSubTab('popular')}
+              className={cn(
+                'rounded-xl px-2 py-2 text-[10px] font-bold transition',
+                activeSubTab === 'popular' ? 'bg-white text-purple-700 shadow-sm' : 'text-gray-500'
+              )}
             >
-                <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="truncate">Ranking</span>
-            </button>
-        </div>
+              Ranking
+            </button>}
+          </div>
 
-        {/* Conteúdo das Tabs */}
-        <div className="min-h-500">
-          <AnimatePresence mode="wait">
-            
-            {/* TAB: PERFORMANCE */}
-            {activeSubTab === 'performance' && (
-              <motion.div key="performance" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
-                {hasStats ? (
-                  <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                       <MetricCard label="Interações" value={stats.total} icon={Eye} color="purple" description="Eventos totais." />
-                       <MetricCard label="Contactos" value={stats.total_contacts} icon={MessageCircle} color="green" description="Novas conversas." />
-                       <MetricCard label="Partilhas" value={stats.total_shares} icon={Share2} color="orange" description="Conteúdo social." />
-                       <MetricCard label="Conversão" value={`${Math.round((stats.total_contacts / stats.total) * 100)}%`} icon={Target} color="blue" description="Eficiência de cliques." />
-                    </div>
-
-                    {stats && (
-                      <AiPerformanceSummary stats={stats} ownerId={ownerId} periodDays={period} />
-                    )}
-
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
-                       <div className="lg:col-span-7 bg-white rounded-card border border-border shadow-card p-4 sm:p-6">
-                          <h3 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2 mb-4 sm:mb-6">
-                             <TrendingUp className="w-4 h-4 text-purple-600" />
-                             Canais de Atração
-                          </h3>
-                          <div className="space-y-1">
-                             {Object.entries(stats.summary).sort(([, a], [, b]) => b - a).slice(0, 8).map(([type, count]) => (
-                                <ActionRow key={type} type={type} count={count} total={stats.total} />
-                             ))}
-                          </div>
-                       </div>
-
-                       <div className="lg:col-span-5 bg-white rounded-card border border-border shadow-card p-4 sm:p-6 flex flex-col items-center">
-                          <h3 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2 mb-4 sm:mb-6 self-start">
-                             <PieChartIcon className="w-4 h-4 text-orange-500" />
-                             Mix de Tráfego
-                          </h3>
-                          <div className="relative w-full h-44 sm:h-48">
-                             <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                   <Pie data={chartData} cx="50%" cy="50%" innerRadius={40} outerRadius={60} paddingAngle={4} dataKey="value" stroke="none">
-                                      {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-                                   </Pie>
-                                   <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '10px' }} />
-                                </PieChart>
-                             </ResponsiveContainer>
-                             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                <p className="text-[10px] font-bold text-gray-400 uppercase leading-none">Total</p>
-                                <p className="text-lg sm:text-xl font-black text-gray-900 leading-none mt-1">{stats.total}</p>
-                              </div>
-                          </div>
-                          <div className="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-1.5 sm:gap-y-2 w-full">
-                             {chartData.map((item, index) => (
-                                <div key={index} className="flex items-center gap-2">
-                                   <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-                                   <span className="text-[10px] sm:text-[11px] font-bold text-gray-500 truncate tracking-wider">{item.name}</span>
-                                </div>
-                             ))}
-                          </div>
-                       </div>
-                    </div>
-                  </>
-                ) : (
-                  <EmptyStatsMessage />
-                )}
-              </motion.div>
-            )}
-
-            {/* TAB: BOOSTS */}
-            {activeSubTab === 'boosts' && (
-              <motion.div key="boosts" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
-                {boostedProperties.length > 0 ? (
-                  <>
-                    {activeBoosted.length > 0 && (
-                      <div className="space-y-4 sm:space-y-6">
-                         <h3 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
-                            <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-600 animate-pulse" />
-                            Destaques Ativos
-                         </h3>
-                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                            {activeBoosted.map((property) => (
-                               <BoostedPropertyCard key={property.id} property={property} user={user} />
-                            ))}
-                         </div>
-                      </div>
-                    )}
-
-                    {pendingBoosted.length > 0 && (
-                      <div className="space-y-4 sm:space-y-6">
-                         <h3 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
-                            <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-500" />
-                            Aguardando Aprovação
-                         </h3>
-                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                            {pendingBoosted.map((property) => (
-                               <BoostedPropertyCard key={property.id} property={property} user={user} />
-                            ))}
-                         </div>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="bg-white rounded-card border border-border p-12 text-center shadow-card">
-                    <Rocket className="w-16 h-16 text-gray-100 mx-auto mb-4" />
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">Sem imóveis impulsionados</h3>
-                    <p className="text-gray-500 text-xs max-w-sm mx-auto mb-8">Destaque os seus anúncios para aparecerem no topo das pesquisas.</p>
-                    <button className="px-8 py-3 bg-purple-600 text-white rounded-button font-bold text-xs shadow-purple-200 hover:bg-purple-700 transition-all">
-                       Impulsionar Agora
-                    </button>
+          {activeSubTab === 'performance' && (
+            <div className="space-y-4 pb-24">
+              <div className="rounded-[28px] border border-purple-100 bg-gradient-to-br from-purple-50 via-white to-orange-50 p-4 shadow-[0_10px_30px_rgba(130,10,209,0.08)]">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-purple-500">Últimos {period} dias</p>
+                    <h3 className="mt-1 text-3xl font-black text-slate-800">{stats?.total ?? 0}</h3>
                   </div>
-                )}
-              </motion.div>
-            )}
-
-            {/* TAB: POPULAR */}
-            {activeSubTab === 'popular' && (
-              <motion.div key="popular" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
-                {hasPopularProperties ? (
-                  <div className="bg-white rounded-card border border-border shadow-card p-4 sm:p-6 lg:p-8">
-                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-3 sm:gap-4">
-                        <div>
-                           <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 flex items-center gap-2">
-                              <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
-                              Performance por Imóvel
-                           </h3>
-                           <p className="text-[11px] sm:text-xs text-gray-500">Ranking dos anúncios com maior tráfego orgânico.</p>
-                        </div>
-                        <div className="bg-purple-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-card border border-purple-100 flex flex-col items-center self-start sm:self-auto">
-                           <p className="text-[9px] sm:text-[10px] font-bold text-purple-400 uppercase tracking-widest">Total</p>
-                           <p className="text-base sm:text-lg font-black text-purple-700">{viewsData.total_views_all.toLocaleString()}</p>
-                        </div>
-                     </div>
-
-                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {viewsData.properties.map((property) => (
-                           <div key={property.id} className="relative group">
-                              <div className="scale-95 group-hover:scale-100 transition-transform duration-500">
-                                 <PropertyCard property={property} />
-                              </div>
-                              <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md text-gray-900 px-3 py-1.5 rounded-button text-[10px] font-black shadow-card flex items-center gap-1.5 border border-white z-10">
-                                 <Eye className="w-3 h-3 text-purple-600" />
-                                 <span>{property.total_views}</span>
-                              </div>
-                           </div>
-                        ))}
-                     </div>
+                  <div className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-100 bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-600">
+                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 4 4 5-5" />
+                    </svg>
+                    {stats?.total ? '+18.2%' : '0%'}
                   </div>
-                ) : (
-                  <div className="bg-white rounded-card border border-border p-12 text-center shadow-card">
-                    <Trophy className="w-16 h-16 text-gray-100 mx-auto mb-4" />
-                    <p className="text-gray-400 italic text-sm">Ranking ainda não disponível.</p>
+                </div>
+
+                <div className="chart-grid relative h-24 overflow-hidden rounded-2xl border border-purple-100 bg-white/60">
+                  <div className="absolute inset-0 flex items-end gap-2 px-2 pb-2">
+                    {[38, 52, 45, 72, 88, 66, 100].map((height, index) => (
+                      <div
+                        key={index}
+                        className={cn(
+                          'flex-1 rounded-t-xl',
+                          index === 6 ? 'bg-gradient-to-t from-purple-600 to-purple-500' : 'bg-gradient-to-t from-purple-300 to-purple-200'
+                        )}
+                        style={{ height: `${height}%` }}
+                      />
+                    ))}
                   </div>
-                )}
-              </motion.div>
-            )}
-
-          </AnimatePresence>
-        </div>
-
-        {/* Insight Card */}
-        <div className="bg-purple-600 rounded-card p-4 sm:p-6 text-white flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 overflow-hidden relative shadow-purple-900/10">
-           <div className="absolute top-0 right-0 -translate-y-4 translate-x-4 opacity-10">
-              <Zap className="w-24 h-24 sm:w-32 sm:h-32" />
-           </div>
-           <div className="relative z-10 space-y-1.5 sm:space-y-2 text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start gap-2">
-                 <Rocket className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400" />
-                 <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-purple-100">Dica Performance</span>
+                </div>
               </div>
-              <h4 className="text-base sm:text-lg font-bold">Aumente o Alcance dos Seus Imóveis</h4>
-              <p className="text-xs sm:text-sm text-purple-100 max-w-2xl leading-relaxed">
-                 Anúncios completos recebem até <span className="font-bold text-white">3x mais contactos</span> diretos.
-              </p>
-           </div>
-           <button 
-              onClick={() => setIsTipsModalOpen(true)}
-              className="relative z-10 w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 bg-white text-purple-700 rounded-button font-bold text-[11px] sm:text-xs shadow-card hover:bg-gray-50 transition-all"
-           >
-              Ver Guia
-           </button>
+
+              <div className="grid grid-cols-2 gap-3">
+                {mobileMetrics.map((metric) => {
+                  const Icon = metric.icon;
+                  return (
+                    <div key={metric.label} className="min-w-0 rounded-2xl border border-purple-100 bg-white p-3 shadow-sm">
+                      <div className="mb-2 flex items-center justify-between gap-2">
+                        <span
+                          className={cn(
+                            'flex h-8 w-8 shrink-0 items-center justify-center rounded-xl',
+                            metric.accent === 'purple' && 'bg-purple-50 text-purple-600',
+                            metric.accent === 'green' && 'bg-emerald-50 text-emerald-600',
+                            metric.accent === 'orange' && 'bg-orange-50 text-orange-500',
+                            metric.accent === 'blue' && 'bg-blue-50 text-blue-600'
+                          )}
+                        >
+                          <Icon className="h-4 w-4" />
+                        </span>
+                      </div>
+                      <p className="truncate text-[11px] text-slate-500">{metric.label}</p>
+                      <p className="mt-1 text-xl font-black text-slate-800">{metric.value}</p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="rounded-3xl border border-purple-100 bg-white p-4 shadow-sm">
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <h3 className="text-sm font-bold text-slate-800">Canais de tráfego</h3>
+                  <button type="button" className="shrink-0 text-[11px] font-semibold text-purple-600">Ver tudo</button>
+                </div>
+
+                <div className="space-y-3">
+                  {mobileChannelData.map((item) => (
+                    <div key={item.key} className="min-w-0">
+                      <div className="mb-1 flex items-center justify-between gap-2 text-[11px] text-slate-600">
+                        <span className="truncate pr-2">{item.label}</span>
+                        <span className="shrink-0 font-bold text-slate-700">{Math.round(item.percentage)}%</span>
+                      </div>
+                      <div className="h-2.5 overflow-hidden rounded-full bg-purple-100">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-purple-600 to-orange-400"
+                          style={{ width: `${Math.min(item.percentage, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {isAgent && activeSubTab === 'boosts' && (
+            <div className="space-y-3 pb-24">
+              {boostedProperties.length > 0 ? (
+                <>
+                  {activeBoosted.length > 0 && (
+                    <div className="space-y-3">
+                      {activeBoosted.map((property) => (
+                        <div key={property.id} className="rounded-2xl border border-purple-100 bg-white p-3 shadow-sm">
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <p className="text-xs font-bold text-slate-800">{property.name || 'Imóvel destacado'}</p>
+                              <p className="mt-1 text-[10px] text-slate-500">Destaque ativo</p>
+                            </div>
+                            <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-600">ativo</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {pendingBoosted.length > 0 && (
+                    <div className="space-y-3">
+                      {pendingBoosted.map((property) => (
+                        <div key={property.id} className="rounded-2xl border border-amber-100 bg-amber-50 p-3 shadow-sm">
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <p className="text-xs font-bold text-slate-800">{property.name || 'Imóvel pendente'}</p>
+                              <p className="mt-1 text-[10px] text-amber-700">Aguardando aprovação</p>
+                            </div>
+                            <span className="rounded-full bg-amber-100 px-2 py-1 text-[10px] font-bold text-amber-700">pendente</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="rounded-3xl border border-dashed border-purple-200 bg-purple-50 p-8 text-center">
+                  <Rocket className="mx-auto h-10 w-10 text-purple-300" />
+                  <h3 className="mt-3 text-sm font-bold text-slate-800">Sem imóveis impulsionados</h3>
+                  <p className="mt-2 text-[11px] text-slate-500">Destaque seus anúncios para aparecer primeiro.</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {isAgent && activeSubTab === 'popular' && (
+            <div className="space-y-3 pb-24">
+              {hasPopularProperties ? (
+                viewsData.properties.slice(0, 3).map((property, index) => (
+                  <div key={property.id} className="rounded-2xl border border-purple-100 bg-white p-3 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-purple-100 to-orange-50 text-sm font-black text-purple-700">
+                        #{index + 1}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="truncate text-sm font-bold text-slate-800">{property.title || 'Imóvel'}</p>
+                          <span className="text-[10px] font-bold text-purple-600">{property.total_views}</span>
+                        </div>
+                        <p className="mt-1 text-[10px] text-slate-500">{property.city || 'Localização'}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-3xl border border-dashed border-purple-200 bg-purple-50 p-8 text-center">
+                  <Trophy className="mx-auto h-10 w-10 text-purple-300" />
+                  <p className="mt-3 text-[11px] text-slate-500">Ranking ainda não disponível.</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
+
+        <div className="hidden md:block">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-4 sm:pb-6">
+             <div className="space-y-1">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
+                   <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
+                   Analytics & Performance
+                </h2>
+                <p className="text-[11px] sm:text-xs text-gray-500">Dados integrados de tráfego e visibilidade.</p>
+             </div>
+             
+             <div className="flex items-center gap-2 sm:gap-3">
+                <div className="flex bg-gray-100/50 p-0.5 sm:p-1 rounded-card border border-border-subtle">
+                   {[7, 30, 90].map((d) => (
+                      <button
+                        key={d}
+                        onClick={() => setPeriod(d)}
+                        className={cn(
+                           "px-2.5 sm:px-4 py-1.5 rounded-button text-[9px] sm:text-[10px] font-bold transition-all active:scale-95",
+                           period === d ? "bg-white text-purple-700 shadow-card" : "text-gray-500 hover:text-gray-700"
+                        )}
+                      >
+                        {d}d
+                      </button>
+                   ))}
+                </div>
+                <button onClick={handleRefresh} disabled={isPending} className="p-2 sm:p-2.5 bg-white hover:bg-gray-50 rounded-button border border-border text-gray-400 transition-all shadow-card">
+                   <RefreshCw className={cn("w-3.5 h-3.5 sm:w-4 sm:h-4", isPending && "animate-spin")} />
+                </button>
+             </div>
+          </div>
+
+          <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center p-1 bg-gray-100/50 rounded-2xl sm:w-fit mb-6 gap-0 sm:gap-1">
+              <button
+                  onClick={() => setActiveSubTab('performance')}
+                  className={cn(
+                      "flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-6 py-2.5 rounded-xl sm:rounded-button text-[10px] sm:text-xs font-bold transition-all",
+                      activeSubTab === 'performance' ? "bg-white text-purple-700 shadow-card" : "text-gray-500 hover:text-gray-700"
+                  )}
+              >
+                  <LayoutDashboard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="truncate">Desempenho</span>
+              </button>
+                {isAgent && <button
+                  onClick={() => setActiveSubTab('boosts')}
+                  className={cn(
+                      "flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-6 py-2.5 rounded-xl sm:rounded-button text-[10px] sm:text-xs font-bold transition-all relative",
+                      activeSubTab === 'boosts' ? "bg-white text-purple-700 shadow-card" : "text-gray-500 hover:text-gray-700"
+                  )}
+              >
+                  <Rocket className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="truncate">Destaques</span>
+                  {activeBoosted.length > 0 && (
+                     <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-purple-600 text-[9px] font-bold text-white shadow-sm ring-2 ring-white">
+                        {activeBoosted.length}
+                     </span>
+                  )}
+                </button>}
+                {isAgent && <button
+                  onClick={() => setActiveSubTab('popular')}
+                  className={cn(
+                      "flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-6 py-2.5 rounded-xl sm:rounded-button text-[10px] sm:text-xs font-bold transition-all",
+                      activeSubTab === 'popular' ? "bg-white text-purple-700 shadow-card" : "text-gray-500 hover:text-gray-700"
+                  )}
+              >
+                  <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="truncate">Ranking</span>
+              </button>}
+          </div>
+
+          <div className="min-h-500">
+            <AnimatePresence mode="wait">
+              {activeSubTab === 'performance' && (
+                <motion.div key="performance" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
+                  {hasStats ? (
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                         <MetricCard label={isAgent ? "Interações" : "Atividade"} value={stats.total} icon={Eye} color="purple" description={isAgent ? "Eventos nos seus anúncios." : "Interações realizadas na plataforma."} />
+                         <MetricCard label="Contactos" value={stats.total_contacts} icon={MessageCircle} color="green" description={isAgent ? "Conversas com potenciais clientes." : "Conversas iniciadas com agentes."} />
+                         <MetricCard label={isAgent ? "Partilhas" : "Imóveis vistos"} value={isAgent ? stats.total_shares : (stats.summary.view_property ?? 0)} icon={isAgent ? Share2 : Eye} color="orange" description={isAgent ? "Conteúdo dos seus anúncios partilhado." : "Imóveis consultados recentemente."} />
+                         <MetricCard label={isAgent ? "Conversão" : "Agendamentos"} value={isAgent ? `${Math.round((stats.total_contacts / stats.total) * 100)}%` : (stats.summary.schedule_visit ?? 0)} icon={isAgent ? Target : Calendar} color="blue" description={isAgent ? "Eficiência de cliques em contactos." : "Visitas solicitadas a imóveis."} />
+                      </div>
+
+                      {stats && (
+                        <AiPerformanceSummary stats={stats} ownerId={ownerId} periodDays={period} />
+                      )}
+
+                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+                         <div className="lg:col-span-7 bg-white rounded-card border border-border shadow-card p-4 sm:p-6">
+                            <h3 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2 mb-4 sm:mb-6">
+                               <TrendingUp className="w-4 h-4 text-purple-600" />
+                               Canais de Atração
+                            </h3>
+                            <div className="space-y-1">
+                               {Object.entries(stats.summary).sort(([, a], [, b]) => b - a).slice(0, 8).map(([type, count]) => (
+                                  <ActionRow key={type} type={type} count={count} total={stats.total} />
+                               ))}
+                            </div>
+                         </div>
+
+                         <div className="lg:col-span-5 bg-white rounded-card border border-border shadow-card p-4 sm:p-6 flex flex-col items-center">
+                            <h3 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2 mb-4 sm:mb-6 self-start">
+                               <PieChartIcon className="w-4 h-4 text-orange-500" />
+                               Mix de Tráfego
+                            </h3>
+                            <div className="relative w-full h-44 sm:h-48">
+                               <ResponsiveContainer width="100%" height="100%">
+                                  <PieChart>
+                                     <Pie data={chartData} cx="50%" cy="50%" innerRadius={40} outerRadius={60} paddingAngle={4} dataKey="value" stroke="none">
+                                        {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                                     </Pie>
+                                     <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '10px' }} />
+                                  </PieChart>
+                               </ResponsiveContainer>
+                               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                  <p className="text-[10px] font-bold text-gray-400 uppercase leading-none">Total</p>
+                                  <p className="text-lg sm:text-xl font-black text-gray-900 leading-none mt-1">{stats.total}</p>
+                                </div>
+                            </div>
+                            <div className="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-1.5 sm:gap-y-2 w-full">
+                               {chartData.map((item, index) => (
+                                  <div key={index} className="flex items-center gap-2">
+                                     <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                                     <span className="text-[10px] sm:text-[11px] font-bold text-gray-500 truncate tracking-wider">{item.name}</span>
+                                  </div>
+                               ))}
+                            </div>
+                         </div>
+                      </div>
+                    </>
+                  ) : (
+                    <EmptyStatsMessage />
+                  )}
+                </motion.div>
+              )}
+
+              {isAgent && activeSubTab === 'boosts' && (
+                <motion.div key="boosts" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
+                  {boostedProperties.length > 0 ? (
+                    <>
+                      {activeBoosted.length > 0 && (
+                        <div className="space-y-4 sm:space-y-6">
+                           <h3 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+                              <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-600 animate-pulse" />
+                              Destaques Ativos
+                           </h3>
+                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                              {activeBoosted.map((property) => (
+                                 <BoostedPropertyCard key={property.id} property={property} user={user} />
+                              ))}
+                           </div>
+                        </div>
+                      )}
+
+                      {pendingBoosted.length > 0 && (
+                        <div className="space-y-4 sm:space-y-6">
+                           <h3 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+                              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-500" />
+                              Aguardando Aprovação
+                           </h3>
+                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                              {pendingBoosted.map((property) => (
+                                 <BoostedPropertyCard key={property.id} property={property} user={user} />
+                              ))}
+                           </div>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="bg-white rounded-card border border-border p-12 text-center shadow-card">
+                      <Rocket className="w-16 h-16 text-gray-100 mx-auto mb-4" />
+                      <h3 className="text-lg font-bold text-gray-900 mb-2">Sem imóveis impulsionados</h3>
+                      <p className="text-gray-500 text-xs max-w-sm mx-auto mb-8">Destaque os seus anúncios para aparecerem no topo das pesquisas.</p>
+                      <button className="px-8 py-3 bg-purple-600 text-white rounded-button font-bold text-xs shadow-purple-200 hover:bg-purple-700 transition-all">
+                         Impulsionar Agora
+                      </button>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+
+              {isAgent && activeSubTab === 'popular' && (
+                <motion.div key="popular" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
+                  {hasPopularProperties ? (
+                    <div className="bg-white rounded-card border border-border shadow-card p-4 sm:p-6 lg:p-8">
+                       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-3 sm:gap-4">
+                          <div>
+                             <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 flex items-center gap-2">
+                                <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
+                                Performance por Imóvel
+                             </h3>
+                             <p className="text-[11px] sm:text-xs text-gray-500">Ranking dos anúncios com maior tráfego orgânico.</p>
+                          </div>
+                          <div className="bg-purple-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-card border border-purple-100 flex flex-col items-center self-start sm:self-auto">
+                             <p className="text-[9px] sm:text-[10px] font-bold text-purple-400 uppercase tracking-widest">Total</p>
+                             <p className="text-base sm:text-lg font-black text-purple-700">{viewsData.total_views_all.toLocaleString()}</p>
+                          </div>
+                       </div>
+
+                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {viewsData.properties.map((property) => (
+                             <div key={property.id} className="relative group">
+                                <div className="scale-95 group-hover:scale-100 transition-transform duration-500">
+                                   <PropertyCard property={property} />
+                                </div>
+                                <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md text-gray-900 px-3 py-1.5 rounded-button text-[10px] font-black shadow-card flex items-center gap-1.5 border border-white z-10">
+                                   <Eye className="w-3 h-3 text-purple-600" />
+                                   <span>{property.total_views}</span>
+                                </div>
+                             </div>
+                          ))}
+                       </div>
+                    </div>
+                  ) : (
+                    <div className="bg-white rounded-card border border-border p-12 text-center shadow-card">
+                      <Trophy className="w-16 h-16 text-gray-100 mx-auto mb-4" />
+                      <p className="text-gray-400 italic text-sm">Ranking ainda não disponível.</p>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {isAgent && <div className="hidden md:block">
+          <div className="bg-purple-600 rounded-card p-4 sm:p-6 text-white flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 overflow-hidden relative shadow-purple-900/10">
+             <div className="absolute top-0 right-0 -translate-y-4 translate-x-4 opacity-10">
+                <Zap className="w-24 h-24 sm:w-32 sm:h-32" />
+             </div>
+             <div className="relative z-10 space-y-1.5 sm:space-y-2 text-center sm:text-left">
+                <div className="flex items-center justify-center sm:justify-start gap-2">
+                   <Rocket className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400" />
+                   <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-purple-100">Dica Performance</span>
+                </div>
+                <h4 className="text-base sm:text-lg font-bold">Aumente o Alcance dos Seus Imóveis</h4>
+                <p className="text-xs sm:text-sm text-purple-100 max-w-2xl leading-relaxed">
+                   Anúncios completos recebem até <span className="font-bold text-white">3x mais contactos</span> diretos.
+                </p>
+             </div>
+             <button 
+                onClick={() => setIsTipsModalOpen(true)}
+                className="relative z-10 w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 bg-white text-purple-700 rounded-button font-bold text-[11px] sm:text-xs shadow-card hover:bg-gray-50 transition-all"
+             >
+                Ver Guia
+             </button>
+          </div>
+        </div>}
 
         <PerformanceTipsModal 
            isOpen={isTipsModalOpen} 

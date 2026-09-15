@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>KerHome - Settings Mobile Redesign - 5 Variações</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    :root {
+      --primary: #820AD1;
+      --primary-light: #a855f7;
+      --accent: #FF6B00;
+      --bg: #f8f9fa;
+      --bg-card: #ffffff;
+      --bg-elevated: #f1f3f5;
+      --text: #1a1a2e;
+      --text-muted: #6b7280;
+      --text-dim: #9ca3af;
+      --border: #e5e7eb;
+      --green: #22c55e;
+      --red: #ef4444;
+      --orange: #f59e0b;
+      --blue: #3b82f6;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100dvh; }
+
+    /* ─── Navigation Bar ─── */
+    .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-top: 1px solid var(--border); padding: 8px 16px; padding-bottom: calc(8px + var(--safe-bottom)); display: flex; align-items: center; justify-content: space-between; }
+    .nav-btn { padding: 10px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; border: none; display: flex; align-items: center; gap: 6px; }
+    .nav-btn.prev { background: var(--bg-elevated); color: var(--text-muted); }
+    .nav-btn.prev:hover { background: var(--primary); color: white; }
+    .nav-btn.next { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; box-shadow: 0 4px 20px rgba(130,10,209,0.4); }
+    .nav-btn.next:hover { transform: translateY(-1px); }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none !important; }
+    .nav-info { text-align: center; }
+    .nav-info .variant-label { font-size: 11px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.1em; }
+    .nav-info .variant-title { font-size: 13px; font-weight: 700; color: var(--text); margin-top: 2px; }
+    .nav-dots { display: flex; gap: 6px; justify-content: center; margin-top: 4px; }
+    .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-dim); transition: all 0.3s; }
+    .nav-dot.active { background: var(--primary); width: 20px; border-radius: 3px; }
+
+    /* ─── Phone Frame ─── */
+    .phone-frame { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); width: 375px; height: calc(100dvh - 110px); max-height: 812px; border-radius: 40px; border: 3px solid #1a1a2e; overflow: hidden; background: var(--bg); box-shadow: 0 25px 80px rgba(0,0,0,0.15); }
+    .phone-notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 150px; height: 28px; background: #1a1a2e; border-radius: 0 0 20px 20px; z-index: 100; }
+    .phone-screen { width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth; }
+    .phone-screen::-webkit-scrollbar { display: none; }
+
+    /* ─── Variant Container ─── */
+    .variant { display: none; width: 100%; height: 100%; flex-direction: column; }
+    .variant.active { display: flex; }
+
+    /* ─── Shared ─── */
+    .top-bar { padding: 40px 16px 12px; display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); position: sticky; top: 0; z-index: 50; border-bottom: 1px solid var(--border); }
+    .top-bar h1 { font-size: 20px; font-weight: 900; }
+    .section-title { font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; padding: 0 16px; margin-bottom: 8px; margin-top: 20px; }
+    .card { background: var(--bg-card); border-radius: 16px; margin: 0 16px; border: 1px solid var(--border); overflow: hidden; }
+    .card-row { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; }
+    .card-row:last-child { border-bottom: none; }
+    .card-row:active { background: var(--bg-elevated); }
+    .card-row-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .card-row-info { flex: 1; min-width: 0; }
+    .card-row-label { font-size: 15px; font-weight: 600; color: var(--text); }
+    .card-row-value { font-size: 13px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-row-chevron { color: var(--text-dim); flex-shrink: 0; }
+    .save-btn { margin: 20px 16px; padding: 16px; border-radius: 16px; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; font-size: 15px; font-weight: 700; text-align: center; cursor: pointer; border: none; width: calc(100% - 32px); box-shadow: 0 4px 20px rgba(130,10,209,0.3); }
+    .save-btn:active { transform: scale(0.98); }
+
+    /* ─── Toggle ─── */
+    .toggle { width: 48px; height: 28px; border-radius: 14px; background: #d1d5db; position: relative; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+    .toggle.on { background: var(--primary); }
+    .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 24px; height: 24px; border-radius: 50%; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: transform 0.2s; }
+    .toggle.on::after { transform: translateX(20px); }
+
+    /* ─── Avatar ─── */
+    .profile-header { display: flex; flex-direction: column; align-items: center; padding: 24px 16px; background: var(--bg-card); border-bottom: 1px solid var(--border); }
+    .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); padding: 3px; margin-bottom: 12px; }
+    .profile-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid white; }
+    .profile-name { font-size: 18px; font-weight: 800; }
+    .profile-email { font-size: 13px; color: var(--text-muted); }
+
+    /* ─── Edit Bottom Sheet ─── */
+    .sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; display: none; }
+    .sheet-overlay.show { display: block; }
+    .sheet { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-card); border-radius: 20px 20px 0 0; z-index: 201; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); max-height: 80vh; padding-bottom: calc(20px + var(--safe-bottom)); }
+    .sheet.show { transform: translateY(0); }
+    .sheet-handle { width: 36px; height: 4px; border-radius: 2px; background: #d1d5db; margin: 10px auto 0; }
+    .sheet-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .sheet-header h3 { font-size: 17px; font-weight: 800; }
+    .sheet-close { font-size: 15px; font-weight: 700; color: var(--primary); cursor: pointer; background: none; border: none; }
+    .sheet-body { padding: 20px; }
+    .sheet-field { margin-bottom: 20px; }
+    .sheet-field label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .sheet-field input, .sheet-field textarea { width: 100%; padding: 14px 16px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--bg); font-size: 15px; font-weight: 500; color: var(--text); outline: none; transition: border-color 0.2s; }
+    .sheet-field input:focus, .sheet-field textarea:focus { border-color: var(--primary); }
+    .sheet-field textarea { min-height: 100px; resize: none; font-family: inherit; }
+    .sheet-save { width: 100%; padding: 16px; border-radius: 14px; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; font-size: 15px; font-weight: 700; border: none; cursor: pointer; margin-top: 8px; }
+
+    /* ─── Score Bar ─── */
+    .score-bar { height: 6px; border-radius: 3px; background: #e5e7eb; overflow: hidden; margin-top: 6px; }
+    .score-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--primary), var(--accent)); transition: width 0.5s; }
+  </style>
+</head>
+<body>
+
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+
+      <!-- ═══════════ VARIANT 1: iOS Settings Style ═══════════ -->
+      <div class="variant active" id="v1">
+        <div class="top-bar">
+          <h1>Configurações</h1>
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:800;">M</div>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="profile-header">
+          <div class="profile-avatar">
+            <img src="https://i.pravatar.cc/160?img=12" alt="" />
+          </div>
+          <div class="profile-name">Maria Fernanda</div>
+          <div class="profile-email">maria@email.com</div>
+          <div style="margin-top:10px;width:100%;max-width:200px;">
+            <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--text-dim);margin-bottom:4px;">
+              <span>Perfil</span>
+              <span style="color:var(--primary);">75%</span>
+            </div>
+            <div class="score-bar"><div class="score-fill" style="width:75%;"></div></div>
+          </div>
+        </div>
+
+        <div class="section-title">Conta</div>
+        <div class="card">
+          <div class="card-row" onclick="openSheet('nome')">
+            <div class="card-row-icon" style="background:#f3e8ff;"><svg width="18" height="18" fill="none" stroke="#820AD1" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+            <div class="card-row-info">
+              <div class="card-row-label">Nome</div>
+              <div class="card-row-value">Maria Fernanda</div>
+            </div>
+            <svg class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+          <div class="card-row" onclick="openSheet('email')">
+            <div class="card-row-icon" style="background:#dbeafe;"><svg width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+            <div class="card-row-info">
+              <div class="card-row-label">Email</div>
+              <div class="card-row-value">maria@email.com</div>
+            </div>
+            <svg class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+          <div class="card-row" onclick="openSheet('telefone')">
+            <div class="card-row-icon" style="background:#dcfce7;"><svg width="18" height="18" fill="none" stroke="#22c55e" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+            <div class="card-row-info">
+              <div class="card-row-label">Telefone</div>
+              <div class="card-row-value">+244 923 456 789</div>
+            </div>
+            <svg class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+        </div>
+
+        <div class="section-title">Profissional</div>
+        <div class="card">
+          <div class="card-row" onclick="openSheet('empresa')">
+            <div class="card-row-icon" style="background:#fef3c7;"><svg width="18" height="18" fill="none" stroke="#f59e0b" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>
+            <div class="card-row-info">
+              <div class="card-row-label">Empresa</div>
+              <div class="card-row-value">Kercasa Imobiliária</div>
+            </div>
+            <svg class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+          <div class="card-row" onclick="openSheet('licenca')">
+            <div class="card-row-icon" style="background:#fce7f3;"><svg width="18" height="18" fill="none" stroke="#ec4899" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15l-2 5-2-5"/><circle cx="12" cy="9" r="6"/></svg></div>
+            <div class="card-row-info">
+              <div class="card-row-label">Licença</div>
+              <div class="card-row-value">CRECI-12345</div>
+            </div>
+            <svg class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+        </div>
+
+        <div class="section-title">Redes Sociais</div>
+        <div class="card">
+          <div class="card-row" onclick="openSheet('website')">
+            <div class="card-row-icon" style="background:#e0e7ff;"><svg width="18" height="18" fill="none" stroke="#6366f1" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+            <div class="card-row-info">
+              <div class="card-row-label">Website</div>
+              <div class="card-row-value">www.mariaimobiliaria.co.ao</div>
+            </div>
+            <svg class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+          <div class="card-row" onclick="openSheet('instagram')">
+            <div class="card-row-icon" style="background:#fce7f3;"><svg width="18" height="18" fill="none" stroke="#ec4899" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div>
+            <div class="card-row-info">
+              <div class="card-row-label">Instagram</div>
+              <div class="card-row-value">@maria.imobiliaria</div>
+            </div>
+            <svg class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+          <div class="card-row" onclick="openSheet('facebook')">
+            <div class="card-row-icon" style="background:#dbeafe;"><svg width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="2" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></div>
+            <div class="card-row-info">
+              <div class="card-row-label">Facebook</div>
+              <div class="card-row-value">facebook.com/maria.imobiliaria</div>
+            </div>
+            <svg class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+        </div>
+
+        <div class="section-title">Sobre</div>
+        <div class="card">
+          <div class="card-row" onclick="openSheet('sobre')">
+            <div class="card-row-icon" style="background:#f3e8ff;"><svg width="18" height="18" fill="none" stroke="#820AD1" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+            <div class="card-row-info">
+              <div class="card-row-label">Sobre Mim</div>
+              <div class="card-row-value">Especialista em imóveis residenciais...</div>
+            </div>
+            <svg class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+        </div>
+
+        <button class="save-btn" style="margin-bottom:100px;">Salvar Alterações</button>
+      </div>
+
+      <!-- ═══════════ VARIANT 2: Profile Card + Groups ═══════════ -->
+      <div class="variant" id="v2">
+        <div class="top-bar" style="border-bottom:none;background:transparent;">
+          <h1>Meu Perfil</h1>
+          <button style="padding:8px 16px;border-radius:10px;background:var(--primary);color:white;font-size:13px;font-weight:700;border:none;cursor:pointer;">Editar</button>
+        </div>
+
+        <!-- Profile Hero -->
+        <div style="margin:0 16px 16px;padding:24px;background:linear-gradient(135deg,var(--primary),#6d28d9);border-radius:20px;color:white;text-align:center;">
+          <div style="width:72px;height:72px;border-radius:50%;border:3px solid rgba(255,255,255,0.3);margin:0 auto 12px;overflow:hidden;">
+            <img src="https://i.pravatar.cc/144?img=12" alt="" style="width:100%;height:100%;object-fit:cover;" />
+          </div>
+          <div style="font-size:18px;font-weight:800;">Maria Fernanda</div>
+          <div style="font-size:13px;opacity:0.8;margin-top:2px;">Kercasa Imobiliária</div>
+          <div style="display:flex;gap:24px;justify-content:center;margin-top:16px;">
+            <div style="text-align:center;">
+              <div style="font-size:20px;font-weight:900;">12</div>
+              <div style="font-size:10px;opacity:0.7;text-transform:uppercase;letter-spacing:0.05em;">Imóveis</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:20px;font-weight:900;">75%</div>
+              <div style="font-size:10px;opacity:0.7;text-transform:uppercase;letter-spacing:0.05em;">Perfil</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:20px;font-weight:900;">156</div>
+              <div style="font-size:10px;opacity:0.7;text-transform:uppercase;letter-spacing:0.05em;">Views</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">Informações Pessoais</div>
+        <div class="card">
+          <div class="card-row" onclick="openSheet('nome')">
+            <div class="card-row-icon" style="background:#f3e8ff;"><svg width="18" height="18" fill="none" stroke="#820AD1" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+            <div class="card-row-info">
+              <div class="card-row-label">Nome Completo</div>
+              <div class="card-row-value">Maria Fernanda</div>
+            </div>
+            <svg class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+          <div class="card-row" onclick="openSheet('email')">
+            <div class="card-row-icon" style="background:#dbeafe;"><svg width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+            <div class="card-row-info">
+              <div class="card-row-label">Email</div>
+              <div class="card-row-value">maria@email.com</div>
+            </div>
+            <svg class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+          <div class="card-row" onclick="openSheet('telefone')">
+            <div class="card-row-icon" style="background:#dcfce7;"><svg width="18" height="18" fill="none" stroke="#22c55e" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+            <div class="card-row-info">
+              <div class="card-row-label">Telefone</div>
+              <div class="card-row-value">+244 923 456 789</div>
+            </div>
+            <svg class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+        </div>
+
+        <div class="section-title">Profissional</div>
+        <div class="card">
+          <div class="card-row" onclick="openSheet('empresa')">
+            <div class="card-row-icon" style="background:#fef3c7;"><svg width="18" height="18" fill="none" stroke="#f59e0b" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>
+            <div class="card-row-info">
+              <div class="card-row-label">Empresa</div>
+              <div class="card-row-value">Kercasa Imobiliária</div>
+            </div>
+            <svg class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+          <div class="card-row" onclick="openSheet('licenca')">
+            <div class="card-row-icon" style="background:#fce7f3;"><svg width="18" height="18" fill="none" stroke="#ec4899" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15l-2 5-2-5"/><circle cx="12" cy="9" r="6"/></svg></div>
+            <div class="card-row-info">
+              <div class="card-row-label">Licença</div>
+              <div class="card-row-value">CRECI-12345</div>
+            </div>
+            <svg class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+        </div>
+
+        <div class="section-title">Sobre Mim</div>
+        <div class="card">
+          <div class="card-row" onclick="openSheet('sobre')" style="padding:16px;">
+            <div style="font-size:14px;color:var(--text-muted);line-height:1.6;">Especialista em imóveis residenciais e comerciais. Mais de 10 anos de experiência no mercado imobiliário angolano.</div>
+          </div>
+        </div>
+
+        <div style="height:100px;"></div>
+      </div>
+
+      <!-- ═══════════ VARIANT 3: Accordion Sections ═══════════ -->
+      <div class="variant" id="v3">
+        <div class="top-bar">
+          <h1>Configurações</h1>
+          <button style="width:36px;height:36px;border-radius:10px;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;">
+            <svg width="18" height="18" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </button>
+        </div>
+
+        <!-- Profile Card -->
+        <div style="margin:16px;padding:20px;background:var(--bg-card);border-radius:16px;border:1px solid var(--border);display:flex;align-items:center;gap:14px;">
+          <div style="width:56px;height:56px;border-radius:16px;overflow:hidden;flex-shrink:0;">
+            <img src="https://i.pravatar.cc/112?img=12" alt="" style="width:100%;height:100%;object-fit:cover;" />
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:700;">Maria Fernanda</div>
+            <div style="font-size:12px;color:var(--text-muted);">maria@email.com</div>
+            <div style="margin-top:8px;">
+              <div class="score-bar"><div class="score-fill" style="width:75%;"></div></div>
+              <div style="font-size:10px;color:var(--primary);font-weight:700;margin-top:3px;">Perfil 75% completo</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accordion Sections -->
+        <div class="card" style="margin-top:4px;">
+          <div class="card-row" onclick="toggleAccordion('acc1')">
+            <div class="card-row-icon" style="background:#f3e8ff;"><svg width="18" height="18" fill="none" stroke="#820AD1" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+            <div class="card-row-info"><div class="card-row-label">Informações Pessoais</div></div>
+            <svg id="acc1-chevron" class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="transition:transform 0.2s;"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          <div id="acc1" style="display:none;padding:0 16px 16px;">
+            <div style="margin-bottom:12px;">
+              <label style="font-size:11px;font-weight:700;color:var(--text-dim);display:block;margin-bottom:4px;">Primeiro Nome</label>
+              <input type="text" value="Maria" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;font-weight:500;outline:none;" />
+            </div>
+            <div style="margin-bottom:12px;">
+              <label style="font-size:11px;font-weight:700;color:var(--text-dim);display:block;margin-bottom:4px;">Último Nome</label>
+              <input type="text" value="Fernanda" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;font-weight:500;outline:none;" />
+            </div>
+            <div style="margin-bottom:12px;">
+              <label style="font-size:11px;font-weight:700;color:var(--text-dim);display:block;margin-bottom:4px;">Email</label>
+              <input type="email" value="maria@email.com" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;font-weight:500;outline:none;" />
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:var(--text-dim);display:block;margin-bottom:4px;">Telefone</label>
+              <input type="tel" value="+244 923 456 789" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;font-weight:500;outline:none;" />
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:8px;">
+          <div class="card-row" onclick="toggleAccordion('acc2')">
+            <div class="card-row-icon" style="background:#fef3c7;"><svg width="18" height="18" fill="none" stroke="#f59e0b" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>
+            <div class="card-row-info"><div class="card-row-label">Profissional</div></div>
+            <svg id="acc2-chevron" class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="transition:transform 0.2s;"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          <div id="acc2" style="display:none;padding:0 16px 16px;">
+            <div style="margin-bottom:12px;">
+              <label style="font-size:11px;font-weight:700;color:var(--text-dim);display:block;margin-bottom:4px;">Empresa</label>
+              <input type="text" value="Kercasa Imobiliária" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;font-weight:500;outline:none;" />
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:var(--text-dim);display:block;margin-bottom:4px;">Licença</label>
+              <input type="text" value="CRECI-12345" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;font-weight:500;outline:none;" />
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:8px;">
+          <div class="card-row" onclick="toggleAccordion('acc3')">
+            <div class="card-row-icon" style="background:#e0e7ff;"><svg width="18" height="18" fill="none" stroke="#6366f1" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+            <div class="card-row-info"><div class="card-row-label">Redes Sociais</div></div>
+            <svg id="acc3-chevron" class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="transition:transform 0.2s;"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          <div id="acc3" style="display:none;padding:0 16px 16px;">
+            <div style="margin-bottom:12px;">
+              <label style="font-size:11px;font-weight:700;color:var(--text-dim);display:block;margin-bottom:4px;">Website</label>
+              <input type="url" value="www.mariaimobiliaria.co.ao" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;font-weight:500;outline:none;" />
+            </div>
+            <div style="margin-bottom:12px;">
+              <label style="font-size:11px;font-weight:700;color:var(--text-dim);display:block;margin-bottom:4px;">Instagram</label>
+              <input type="text" value="@maria.imobiliaria" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;font-weight:500;outline:none;" />
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:var(--text-dim);display:block;margin-bottom:4px;">Facebook</label>
+              <input type="text" value="facebook.com/maria.imobiliaria" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;font-weight:500;outline:none;" />
+            </div>
+          </div>
+        </div>
+
+        <button class="save-btn" style="margin-bottom:100px;">Salvar Alterações</button>
+      </div>
+
+      <!-- ═══════════ VARIANT 4: Bottom Sheet Edit ═══════════ -->
+      <div class="variant" id="v4">
+        <div class="top-bar">
+          <h1>Configurações</h1>
+        </div>
+
+        <div class="profile-header" style="padding:20px 16px;">
+          <div style="position:relative;">
+            <div class="profile-avatar">
+              <img src="https://i.pravatar.cc/160?img=12" alt="" />
+            </div>
+            <div style="position:absolute;bottom:2px;right:2px;width:28px;height:28px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;border:2px solid white;cursor:pointer;">
+              <svg width="12" height="12" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
+          </div>
+          <div class="profile-name" style="margin-top:8px;">Maria Fernanda</div>
+          <div class="profile-email">maria@email.com</div>
+        </div>
+
+        <div class="section-title">Dados da Conta</div>
+        <div class="card">
+          <div class="card-row" onclick="openSheet('nome')">
+            <div style="flex:1;"><div class="card-row-label" style="font-size:14px;">Nome</div><div class="card-row-value">Maria Fernanda</div></div>
+            <svg class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+          <div class="card-row" onclick="openSheet('email')">
+            <div style="flex:1;"><div class="card-row-label" style="font-size:14px;">Email</div><div class="card-row-value">maria@email.com</div></div>
+            <svg class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+          <div class="card-row" onclick="openSheet('telefone')">
+            <div style="flex:1;"><div class="card-row-label" style="font-size:14px;">Telefone</div><div class="card-row-value">+244 923 456 789</div></div>
+            <svg class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+        </div>
+
+        <div class="section-title">Dados Profissionais</div>
+        <div class="card">
+          <div class="card-row" onclick="openSheet('empresa')">
+            <div style="flex:1;"><div class="card-row-label" style="font-size:14px;">Empresa</div><div class="card-row-value">Kercasa Imobiliária</div></div>
+            <svg class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+          <div class="card-row" onclick="openSheet('licenca')">
+            <div style="flex:1;"><div class="card-row-label" style="font-size:14px;">Licença</div><div class="card-row-value">CRECI-12345</div></div>
+            <svg class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+        </div>
+
+        <div class="section-title">Redes Sociais</div>
+        <div class="card">
+          <div class="card-row" onclick="openSheet('website')">
+            <div class="card-row-icon" style="background:#e0e7ff;width:32px;height:32px;border-radius:8px;"><svg width="16" height="16" fill="none" stroke="#6366f1" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+            <div style="flex:1;"><div class="card-row-label" style="font-size:14px;">Website</div><div class="card-row-value">www.mariaimobiliaria.co.ao</div></div>
+          </div>
+          <div class="card-row" onclick="openSheet('instagram')">
+            <div class="card-row-icon" style="background:#fce7f3;width:32px;height:32px;border-radius:8px;"><svg width="16" height="16" fill="none" stroke="#ec4899" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/></svg></div>
+            <div style="flex:1;"><div class="card-row-label" style="font-size:14px;">Instagram</div><div class="card-row-value">@maria.imobiliaria</div></div>
+          </div>
+          <div class="card-row" onclick="openSheet('facebook')">
+            <div class="card-row-icon" style="background:#dbeafe;width:32px;height:32px;border-radius:8px;"><svg width="16" height="16" fill="none" stroke="#3b82f6" stroke-width="2" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></div>
+            <div style="flex:1;"><div class="card-row-label" style="font-size:14px;">Facebook</div><div class="card-row-value">facebook.com/maria.imobiliaria</div></div>
+          </div>
+        </div>
+
+        <div class="section-title">Sobre</div>
+        <div class="card">
+          <div class="card-row" onclick="openSheet('sobre')">
+            <div style="flex:1;"><div class="card-row-label" style="font-size:14px;">Bio</div><div class="card-row-value" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">Especialista em imóveis residenciais e comerciais. Mais de 10 anos de experiência no mercado imobiliário angolano.</div></div>
+            <svg class="card-row-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+        </div>
+
+        <div style="height:100px;"></div>
+      </div>
+
+      <!-- ═══════════ VARIANT 5: Tab Pills + Sections ═══════════ -->
+      <div class="variant" id="v5">
+        <div class="top-bar">
+          <h1>Minha Conta</h1>
+        </div>
+
+        <!-- Mini Profile -->
+        <div style="display:flex;align-items:center;gap:12px;padding:0 16px 16px;">
+          <div style="width:48px;height:48px;border-radius:14px;overflow:hidden;flex-shrink:0;">
+            <img src="https://i.pravatar.cc/96?img=12" alt="" style="width:100%;height:100%;object-fit:cover;" />
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:700;">Maria Fernanda</div>
+            <div style="font-size:12px;color:var(--text-muted);">Kercasa Imobiliária</div>
+          </div>
+          <div style="width:40px;height:40px;border-radius:12px;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;">
+            <svg width="18" height="18" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+        </div>
+
+        <!-- Tab Pills -->
+        <div style="display:flex;gap:8px;padding:0 16px 16px;overflow-x:auto;">
+          <div style="padding:8px 16px;border-radius:20px;background:var(--primary);color:white;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;">Pessoal</div>
+          <div style="padding:8px 16px;border-radius:20px;background:var(--bg-elevated);color:var(--text-muted);font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;">Profissional</div>
+          <div style="padding:8px 16px;border-radius:20px;background:var(--bg-elevated);color:var(--text-muted);font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;">Redes</div>
+          <div style="padding:8px 16px;border-radius:20px;background:var(--bg-elevated);color:var(--text-muted);font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;">Sobre</div>
+        </div>
+
+        <!-- Form Fields -->
+        <div style="padding:0 16px;">
+          <div style="margin-bottom:16px;">
+            <label style="font-size:12px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;">Primeiro Nome</label>
+            <input type="text" value="Maria" style="width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid var(--border);background:var(--bg-card);font-size:15px;font-weight:500;outline:none;" />
+          </div>
+          <div style="margin-bottom:16px;">
+            <label style="font-size:12px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;">Último Nome</label>
+            <input type="text" value="Fernanda" style="width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid var(--border);background:var(--bg-card);font-size:15px;font-weight:500;outline:none;" />
+          </div>
+          <div style="margin-bottom:16px;">
+            <label style="font-size:12px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;">Email</label>
+            <input type="email" value="maria@email.com" style="width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid var(--border);background:var(--bg-card);font-size:15px;font-weight:500;outline:none;" />
+          </div>
+          <div style="margin-bottom:16px;">
+            <label style="font-size:12px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;">Telefone</label>
+            <input type="tel" value="+244 923 456 789" style="width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid var(--border);background:var(--bg-card);font-size:15px;font-weight:500;outline:none;" />
+          </div>
+        </div>
+
+        <button class="save-btn" style="margin-bottom:100px;">Salvar Alterações</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom Sheet Edit -->
+  <div class="sheet-overlay" id="sheetOverlay" onclick="closeSheet()"></div>
+  <div class="sheet" id="editSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <h3 id="sheetTitle">Editar</h3>
+      <button class="sheet-close" onclick="closeSheet()">Concluído</button>
+    </div>
+    <div class="sheet-body">
+      <div class="sheet-field">
+        <label id="sheetLabel">Campo</label>
+        <input type="text" id="sheetInput" />
+      </div>
+      <button class="sheet-save" onclick="closeSheet()">Salvar</button>
+    </div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <div class="nav-bar">
+    <button class="nav-btn prev" id="prevBtn" onclick="navigate(-1)" disabled>
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+      Anterior
+    </button>
+    <div class="nav-info">
+      <div class="variant-label" id="variantLabel">Variação 1</div>
+      <div class="variant-title" id="variantTitle">iOS Settings Style</div>
+      <div class="nav-dots">
+        <div class="nav-dot active" data-index="0"></div>
+        <div class="nav-dot" data-index="1"></div>
+        <div class="nav-dot" data-index="2"></div>
+        <div class="nav-dot" data-index="3"></div>
+        <div class="nav-dot" data-index="4"></div>
+      </div>
+    </div>
+    <button class="nav-btn next" id="nextBtn" onclick="navigate(1)">
+      Próximo
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+  </div>
+
+  <script>
+    const variants = [
+      { id: 'v1', label: 'Variação 1', title: 'iOS Settings Style' },
+      { id: 'v2', label: 'Variação 2', title: 'Profile Card + Groups' },
+      { id: 'v3', label: 'Variação 3', title: 'Accordion Sections' },
+      { id: 'v4', label: 'Variação 4', title: 'Bottom Sheet Edit' },
+      { id: 'v5', label: 'Variação 5', title: 'Tab Pills + Form' },
+    ];
+    let currentIndex = 0;
+
+    function navigate(dir) {
+      currentIndex = Math.max(0, Math.min(variants.length - 1, currentIndex + dir));
+      updateView();
+    }
+
+    function updateView() {
+      document.querySelectorAll('.variant').forEach(v => v.classList.remove('active'));
+      document.getElementById(variants[currentIndex].id).classList.add('active');
+      document.getElementById('variantLabel').textContent = variants[currentIndex].label;
+      document.getElementById('variantTitle').textContent = variants[currentIndex].title;
+      document.getElementById('prevBtn').disabled = currentIndex === 0;
+      document.getElementById('nextBtn').disabled = currentIndex === variants.length - 1;
+      document.querySelectorAll('.nav-dot').forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentIndex);
+      });
+    }
+
+    function openSheet(field) {
+      document.getElementById('sheetOverlay').classList.add('show');
+      document.getElementById('editSheet').classList.add('show');
+      const labels = { nome: 'Nome', email: 'Email', telefone: 'Telefone', empresa: 'Empresa', licenca: 'Licença', website: 'Website', instagram: 'Instagram', facebook: 'Facebook', sobre: 'Sobre Mim' };
+      const values = { nome: 'Maria Fernanda', email: 'maria@email.com', telefone: '+244 923 456 789', empresa: 'Kercasa Imobiliária', licenca: 'CRECI-12345', website: 'www.mariaimobiliaria.co.ao', instagram: '@maria.imobiliaria', facebook: 'facebook.com/maria.imobiliaria', sobre: 'Especialista em imóveis residenciais e comerciais.' };
+      document.getElementById('sheetTitle').textContent = `Editar ${labels[field] || field}`;
+      document.getElementById('sheetLabel').textContent = labels[field] || field;
+      document.getElementById('sheetInput').value = values[field] || '';
+      if (field === 'sobre') {
+        document.getElementById('sheetInput').outerHTML = '<textarea id="sheetInput" style="width:100%;padding:14px 16px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);font-size:15px;font-weight:500;color:var(--text);outline:none;min-height:120px;resize:none;font-family:inherit;">' + (values[field] || '') + '</textarea>';
+      } else {
+        const input = document.getElementById('sheetInput');
+        if (input.tagName === 'TEXTAREA') {
+          document.getElementById('sheetInput').outerHTML = '<input type="text" id="sheetInput" />';
+        }
+        document.getElementById('sheetInput').value = values[field] || '';
+      }
+    }
+
+    function closeSheet() {
+      document.getElementById('sheetOverlay').classList.remove('show');
+      document.getElementById('editSheet').classList.remove('show');
+    }
+
+    function toggleAccordion(id) {
+      const el = document.getElementById(id);
+      const chevron = document.getElementById(id + '-chevron');
+      const isOpen = el.style.display !== 'none';
+      el.style.display = isOpen ? 'none' : 'block';
+      chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') navigate(1);
+      if (e.key === 'ArrowLeft') navigate(-1);
+    });
+  </script>
+</body>
+</html>

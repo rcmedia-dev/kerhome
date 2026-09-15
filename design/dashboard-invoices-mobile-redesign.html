@@ -1,0 +1,2436 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>KerHome - Faturas Mobile Redesign (5 Variações UI/UX)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #820AD1;
+      --primary-hover: #6b07ad;
+      --primary-soft: #f5edfc;
+      --accent: #FF6B00;
+      --accent-soft: #fff3eb;
+      --bg: #0f1117;
+      --device-bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-elevated: #f1f5f9;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      --border: #e2e8f0;
+      --border-subtle: #f1f5f9;
+      --success: #10b981;
+      --success-soft: #ecfdf5;
+      --warning: #f59e0b;
+      --warning-soft: #fffbeb;
+      --danger: #ef4444;
+      --danger-soft: #fef2f2;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --font-display: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --font-body: 'Inter', -apple-system, sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-bottom: 90px;
+    }
+
+    /* ─── Top Control Bar / Header ─── */
+    .app-header {
+      width: 100%;
+      background: rgba(15, 17, 23, 0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 900;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 16px;
+      box-shadow: 0 4px 14px rgba(130, 10, 209, 0.4);
+    }
+
+    .brand-text h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      font-family: var(--font-display);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-text span {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .route-pill {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 4px 10px;
+      border-radius: 20px;
+      color: #38bdf8;
+      font-size: 11px;
+      font-family: monospace;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mode-toggle-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #cbd5e1;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .mode-toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    /* ─── Presentation Info Card ─── */
+    .variant-meta-card {
+      width: 100%;
+      max-width: 860px;
+      margin: 16px auto 0;
+      padding: 14px 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: #e2e8f0;
+    }
+
+    .variant-meta-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .variant-badge {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .variant-meta-title {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .variant-meta-desc {
+      font-size: 12px;
+      color: #94a3b8;
+      max-width: 520px;
+      line-height: 1.4;
+    }
+
+    .keyboard-hint {
+      font-size: 11px;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .key-tag {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #cbd5e1;
+      font-weight: 600;
+      font-size: 10px;
+    }
+
+    /* ─── Device Container & Frame ─── */
+    .device-wrapper {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 16px 12px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .device-wrapper.full-width .phone-frame {
+      width: 100%;
+      max-width: 480px;
+      height: 840px;
+      border-radius: 28px;
+    }
+
+    .phone-frame {
+      position: relative;
+      width: 390px;
+      height: 820px;
+      background: var(--device-bg);
+      border-radius: 46px;
+      border: 8px solid #1e2430;
+      box-shadow: 
+        0 0 0 2px rgba(255, 255, 255, 0.08),
+        0 30px 80px -15px rgba(0, 0, 0, 0.7),
+        0 15px 35px rgba(130, 10, 209, 0.15);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: width 0.3s, height 0.3s;
+    }
+
+    /* Dynamic Island / Notch */
+    .phone-island {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 28px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      pointer-events: none;
+    }
+
+    .island-lens {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+    }
+
+    .island-mic {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #090d16;
+    }
+
+    /* Status Bar */
+    .phone-status-bar {
+      height: 44px;
+      padding: 12px 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+      z-index: 250;
+      background: transparent;
+      user-select: none;
+    }
+
+    .phone-screen {
+      flex: 1;
+      width: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+      position: relative;
+      background: var(--device-bg);
+      padding-bottom: 74px; /* space for mobile navbar */
+    }
+
+    .phone-screen::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Bottom Home Indicator */
+    .phone-home-indicator {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 4px;
+      background: #0f172a;
+      border-radius: 100px;
+      opacity: 0.25;
+      z-index: 300;
+      pointer-events: none;
+    }
+
+    /* ─── Floating Bottom Navigation Controller (Next / Prev) ─── */
+    .nav-controller {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(15, 17, 23, 0.94);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 20px;
+      padding-bottom: calc(12px + var(--safe-bottom));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .controller-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .controller-title {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      color: #f8fafc;
+      letter-spacing: -0.01em;
+    }
+
+    .controller-dots {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .controller-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .controller-dot.active {
+      background: linear-gradient(135deg, var(--primary-hover), var(--accent));
+      width: 26px;
+      box-shadow: 0 0 12px rgba(130, 10, 209, 0.6);
+    }
+
+    .ctrl-btn {
+      padding: 11px 22px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: var(--font-display);
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ctrl-btn.prev {
+      background: rgba(255, 255, 255, 0.08);
+      color: #cbd5e1;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .ctrl-btn.prev:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+    }
+
+    .ctrl-btn.next {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      box-shadow: 0 6px 20px rgba(130, 10, 209, 0.45);
+    }
+
+    .ctrl-btn.next:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(130, 10, 209, 0.6);
+    }
+
+    .ctrl-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    /* ─── Variants Display Management ─── */
+    .variant-view {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      min-height: 100%;
+      animation: fadeInSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .variant-view.active {
+      display: flex;
+    }
+
+    @keyframes fadeInSlide {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ─── Mock In-App Mobile Bottom Bar ─── */
+    .mock-mobile-bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      z-index: 200;
+      padding-bottom: 4px;
+    }
+
+    .mock-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .mock-nav-item.active {
+      color: var(--primary);
+      font-weight: 800;
+    }
+
+    .mock-nav-item svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 2.2;
+    }
+
+    /* ─── Toast Notifications ─── */
+    .toast-popup {
+      position: absolute;
+      top: 50px;
+      left: 16px;
+      right: 16px;
+      background: #1e293b;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      z-index: 400;
+      transform: translateY(-80px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .toast-popup.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* ─── Common UI Components ─── */
+    .app-topbar {
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .app-topbar-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-action-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .icon-action-btn:active {
+      transform: scale(0.94);
+      background: var(--surface-elevated);
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       VARIAÇÃO 1: FINTECH NEO-BANK (Estilo Nubank / Revolut)
+    ───────────────────────────────────────────────────────────── */
+    .v1-balance-card {
+      margin: 14px 16px;
+      background: linear-gradient(135deg, #1e1035, #2d0b52 65%, #4c118a);
+      border-radius: 22px;
+      padding: 20px;
+      color: white;
+      box-shadow: 0 12px 28px -6px rgba(130, 10, 209, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .v1-balance-card::before {
+      content: '';
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      width: 140px;
+      height: 140px;
+      background: radial-gradient(circle, rgba(255, 107, 0, 0.35), transparent 70%);
+      pointer-events: none;
+    }
+
+    .v1-balance-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .v1-balance-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .v1-balance-status-tag {
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(245, 158, 11, 0.25);
+      color: #fcd34d;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      padding: 3px 8px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .v1-balance-amount {
+      font-family: var(--font-display);
+      font-size: 27px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 4px 0 14px;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .v1-balance-amount small {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.65);
+    }
+
+    .v1-balance-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      padding-top: 12px;
+    }
+
+    .v1-stat-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .v1-stat-col span {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .v1-stat-col strong {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .v1-filter-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 0 16px 14px;
+      overflow-x: auto;
+    }
+
+    .v1-tab-pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .v1-tab-pill.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(130, 10, 209, 0.25);
+    }
+
+    .v1-tab-count {
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    .v1-tab-pill.active .v1-tab-count {
+      background: rgba(255, 255, 255, 0.25);
+      color: white;
+    }
+
+    .v1-invoice-card {
+      background: var(--surface);
+      margin: 0 16px 12px;
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+      transition: all 0.2s;
+    }
+
+    .v1-invoice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .v1-service-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .v1-service-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .v1-service-icon.orange {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .v1-service-icon.purple {
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .v1-service-icon.green {
+      background: var(--success-soft);
+      color: var(--success);
+    }
+
+    .v1-service-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .v1-service-ref {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-family: monospace;
+    }
+
+    .v1-price-tag {
+      text-align: right;
+    }
+
+    .v1-price-val {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .v1-price-val.pending {
+      color: #ea580c;
+    }
+
+    .v1-price-val.paid {
+      color: var(--success);
+    }
+
+    .v1-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 12px;
+      margin-top: 10px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 12px;
+    }
+
+    .v1-date-indicator {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .v1-quick-pay-btn {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(130, 10, 209, 0.25);
+    }
+
+    .v1-receipt-btn {
+      background: var(--surface-elevated);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       VARIAÇÃO 2: SWIPE CARDS & BOTTOM-SHEET EXPRESS
+    ───────────────────────────────────────────────────────────── */
+    .v2-kpi-scroll {
+      display: flex;
+      gap: 10px;
+      padding: 12px 16px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+    }
+
+    .v2-kpi-card {
+      min-width: 170px;
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      scroll-snap-align: start;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    }
+
+    .v2-kpi-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .v2-kpi-val {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .v2-search-box {
+      margin: 0 16px 12px;
+      position: relative;
+    }
+
+    .v2-search-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 10px 14px 10px 38px;
+      border-radius: 12px;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .v2-search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+    }
+
+    .v2-item-row {
+      background: var(--surface);
+      margin: 0 16px 10px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.15s;
+    }
+
+    .v2-item-row:active {
+      background: #f8fafc;
+    }
+
+    .v2-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .v2-status-dot.pending {
+      background: #f59e0b;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
+    }
+
+    .v2-status-dot.paid {
+      background: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
+    }
+
+    .v2-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .v2-item-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .v2-item-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .v2-item-amount {
+      text-align: right;
+    }
+
+    .v2-amount-num {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .v2-pay-chip {
+      display: inline-block;
+      margin-top: 4px;
+      font-size: 10px;
+      font-weight: 800;
+      color: white;
+      background: #820AD1;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       VARIAÇÃO 3: TIMELINE & EXTRATO COM ACCORDION
+    ───────────────────────────────────────────────────────────── */
+    .v3-month-group {
+      margin: 12px 16px 18px;
+    }
+
+    .v3-month-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 2px 10px;
+    }
+
+    .v3-month-name {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .v3-month-sum {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .v3-timeline-wrap {
+      position: relative;
+      padding-left: 20px;
+    }
+
+    .v3-timeline-wrap::before {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: 10px;
+      bottom: 10px;
+      width: 2px;
+      background: var(--border);
+    }
+
+    .v3-timeline-item {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .v3-timeline-node {
+      position: absolute;
+      left: -20px;
+      top: 18px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 3px solid var(--border);
+      z-index: 2;
+    }
+
+    .v3-timeline-node.pending {
+      border-color: #f59e0b;
+      background: #fef3c7;
+    }
+
+    .v3-timeline-node.paid {
+      border-color: #10b981;
+      background: #d1fae5;
+    }
+
+    .v3-accordion-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .v3-accordion-head {
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .v3-accordion-body {
+      padding: 14px;
+      background: #fafafa;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 12px;
+      display: none;
+    }
+
+    .v3-accordion-body.open {
+      display: block;
+    }
+
+    .v3-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .v3-detail-item span {
+      display: block;
+      color: var(--text-dim);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .v3-detail-item strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       VARIAÇÃO 4: MOBILE KANBAN DE ABAS DESLIZANTES
+    ───────────────────────────────────────────────────────────── */
+    .v4-segmented-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      margin: 14px 16px 16px;
+      background: #e2e8f0;
+      padding: 4px;
+      border-radius: 14px;
+      position: relative;
+    }
+
+    .v4-seg-btn {
+      padding: 9px 0;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .v4-seg-btn.active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .v4-count-bubble {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 12px;
+      font-weight: 800;
+    }
+
+    .v4-count-bubble.orange {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .v4-count-bubble.green {
+      background: #d1fae5;
+      color: #047857;
+    }
+
+    .v4-kanban-lane {
+      display: none;
+      padding: 0 16px;
+    }
+
+    .v4-kanban-lane.active {
+      display: block;
+    }
+
+    .v4-pending-card {
+      background: var(--surface);
+      border-radius: 18px;
+      border: 1.5px solid #fed7aa;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 16px rgba(251, 146, 60, 0.08);
+      position: relative;
+    }
+
+    .v4-urgency-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #ffedd5;
+      color: #c2410c;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+
+    .v4-paid-card {
+      background: var(--surface);
+      border-radius: 18px;
+      border: 1px solid #bbf7d0;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 16px rgba(34, 197, 94, 0.05);
+      position: relative;
+    }
+
+    .v4-receipt-stamp {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      border: 1.5px dashed #10b981;
+      color: #10b981;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      transform: rotate(4deg);
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       VARIAÇÃO 5: EXECUTIVE DENSE LIST & DRAWER FISCAL
+    ───────────────────────────────────────────────────────────── */
+    .v5-compact-toolbar {
+      padding: 8px 16px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .v5-dense-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border-subtle);
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+
+    .v5-dense-row:active {
+      background: var(--surface-elevated);
+    }
+
+    .v5-dense-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .v5-dense-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .v5-dense-meta h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .v5-dense-meta p {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .v5-dense-right {
+      text-align: right;
+    }
+
+    .v5-dense-price {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+      font-family: var(--font-display);
+    }
+
+    .v5-status-pill {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-top: 2px;
+    }
+
+    .v5-status-pill.p {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .v5-status-pill.ok {
+      background: #d1fae5;
+      color: #047857;
+    }
+
+    /* ─── Bottom Sheet Modal (Multicaixa / Fatura Drawer) ─── */
+    .sheet-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(4px);
+      z-index: 500;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .sheet-backdrop.show {
+      display: block;
+      opacity: 1;
+    }
+
+    .sheet-modal {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border-radius: 26px 26px 0 0;
+      z-index: 510;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      max-height: 85%;
+      overflow-y: auto;
+      padding: 12px 20px 28px;
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    .sheet-modal.show {
+      transform: translateY(0);
+    }
+
+    .sheet-drag-handle {
+      width: 40px;
+      height: 4px;
+      border-radius: 10px;
+      background: #cbd5e1;
+      margin: 0 auto 16px;
+    }
+
+    .sheet-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .sheet-title-row h3 {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .mcx-box {
+      background: #f8fafc;
+      border: 1.5px dashed #cbd5e1;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .mcx-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-weight: 800;
+      color: #0f172a;
+      font-size: 13px;
+    }
+
+    .mcx-field {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 13px;
+    }
+
+    .mcx-field:last-child {
+      border-bottom: none;
+    }
+
+    .copy-pill-btn {
+      background: var(--primary-soft);
+      color: var(--primary);
+      border: none;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .copy-pill-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* SVG helper icons */
+    .icon {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 2;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ TOP PLATFORM HEADER ════════════ -->
+  <header class="app-header">
+    <div class="brand-group">
+      <div class="brand-logo">K</div>
+      <div class="brand-text">
+        <h2>KerHome Dashboard <span class="route-pill">//dashboard?tab=invoices</span></h2>
+        <span>Protótipo Mobile UI/UX &bull; Responsivo em Kwanza (Kz)</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="mode-toggle-btn" id="toggleFrameBtn" onclick="toggleDeviceWidth()">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+        <span>Alternar Frame</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ════════════ VARIANT EXPLANATION BANNER ════════════ -->
+  <section class="variant-meta-card" id="variantMetaBar">
+    <div class="variant-meta-left">
+      <span class="variant-badge" id="vBadge">Variação 1 de 5</span>
+      <div>
+        <h3 class="variant-meta-title" id="vTitle">Fintech Neo-Bank (Nubank / Revolut Style)</h3>
+        <p class="variant-meta-desc" id="vDesc">
+          Foco em clareza financeira imediata: cartão escuro com gradiente mostrando Total a Pagar, filtros de pílulas rápidas com contadores e cards com ação direta de liquidação.
+        </p>
+      </div>
+    </div>
+    <div class="keyboard-hint">
+      Navegar: <span class="key-tag">&larr; Anterior</span> <span class="key-tag">Próximo &rarr;</span>
+    </div>
+  </section>
+
+  <!-- ════════════ MAIN DEVICE PREVIEW ════════════ -->
+  <div class="device-wrapper" id="deviceWrapper">
+    <div class="phone-frame">
+      <!-- Phone Hardware Mock -->
+      <div class="phone-island">
+        <div class="island-lens"></div>
+        <div class="island-mic"></div>
+      </div>
+      <div class="phone-status-bar">
+        <span>09:41</span>
+        <div style="display: flex; gap: 5px; align-items: center;">
+          <svg style="width: 14px; height: 14px;" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.28 19.59 10.58 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9z"/></svg>
+          <svg style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="7" width="18" height="11" rx="2" ry="2"/><path d="M22 11v3"/></svg>
+        </div>
+      </div>
+
+      <!-- In-app Toast Alert -->
+      <div class="toast-popup" id="appToast">
+        <svg class="icon" style="color: #4ade80;" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+        <span id="toastMsg">Operação realizada com sucesso</span>
+      </div>
+
+      <!-- ════════════ SCREEN SCROLL CONTAINER ════════════ -->
+      <main class="phone-screen" id="phoneScreen">
+
+        <!-- ─────────────────────────────────────────────────────────────
+             VARIAÇÃO 1: FINTECH NEO-BANK (Pills + Hero Card)
+        ───────────────────────────────────────────────────────────── -->
+        <div class="variant-view active" id="var1">
+          <div class="app-topbar">
+            <div class="app-topbar-title">
+              <svg class="icon" style="color: var(--primary);" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              Faturas
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="icon-action-btn" title="Exportar CSV" onclick="showToast('Exportando faturas para CSV...')">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Hero Balance Card -->
+          <div class="v1-balance-card">
+            <div class="v1-balance-header">
+              <span class="v1-balance-label">Total a Regularizar</span>
+              <span class="v1-balance-status-tag">
+                <span style="width: 6px; height: 6px; border-radius: 50%; background: #f59e0b;"></span>
+                2 Pendentes
+              </span>
+            </div>
+            <div class="v1-balance-amount">
+              70.000 <small>Kz</small>
+            </div>
+            <div class="v1-balance-stats">
+              <div class="v1-stat-col">
+                <span>Pagas (Este Mês)</span>
+                <strong>165.000 Kz</strong>
+              </div>
+              <div class="v1-stat-col" style="align-items: flex-end;">
+                <span>Próximo Vencimento</span>
+                <strong>18 Set 2026</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Segmented Filter Pills -->
+          <div class="v1-filter-tabs">
+            <div class="v1-tab-pill active" onclick="v1Filter('all', this)">
+              Todas <span class="v1-tab-count">5</span>
+            </div>
+            <div class="v1-tab-pill" onclick="v1Filter('pending', this)">
+              Pendentes <span class="v1-tab-count">2</span>
+            </div>
+            <div class="v1-tab-pill" onclick="v1Filter('paid', this)">
+              Liquidadas <span class="v1-tab-count">3</span>
+            </div>
+          </div>
+
+          <!-- Invoices List -->
+          <div id="v1List">
+            <!-- Item 1 (Pendente) -->
+            <div class="v1-invoice-card" data-status="pending">
+              <div class="v1-invoice-header">
+                <div class="v1-service-badge">
+                  <div class="v1-service-icon orange">
+                    <svg class="icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                  </div>
+                  <div>
+                    <h4 class="v1-service-title">Destaque Ouro - Talatona</h4>
+                    <span class="v1-service-ref">#FAT-2026-089</span>
+                  </div>
+                </div>
+                <div class="v1-price-tag">
+                  <div class="v1-price-val pending">45.000 Kz</div>
+                  <span style="font-size: 10px; color: #ea580c; font-weight: 700;">Aguardando Pagto</span>
+                </div>
+              </div>
+              <div class="v1-card-footer">
+                <div class="v1-date-indicator">
+                  <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                  Vence em 18 Set 2026
+                </div>
+                <button class="v1-quick-pay-btn" onclick="openPaymentModal('Destaque Ouro - Talatona', '45.000 Kz', '005421890', '923 456 789')">
+                  <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                  Pagar Agora
+                </button>
+              </div>
+            </div>
+
+            <!-- Item 2 (Pendente) -->
+            <div class="v1-invoice-card" data-status="pending">
+              <div class="v1-invoice-header">
+                <div class="v1-service-badge">
+                  <div class="v1-service-icon purple">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                  </div>
+                  <div>
+                    <h4 class="v1-service-title">Impulso 7 Dias - Kilamba</h4>
+                    <span class="v1-service-ref">#FAT-2026-088</span>
+                  </div>
+                </div>
+                <div class="v1-price-tag">
+                  <div class="v1-price-val pending">25.000 Kz</div>
+                  <span style="font-size: 10px; color: #ea580c; font-weight: 700;">Aguardando Pagto</span>
+                </div>
+              </div>
+              <div class="v1-card-footer">
+                <div class="v1-date-indicator">
+                  <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                  Vence em 20 Set 2026
+                </div>
+                <button class="v1-quick-pay-btn" onclick="openPaymentModal('Impulso 7 Dias - Kilamba', '25.000 Kz', '005421891', '923 456 789')">
+                  Pagar Agora
+                </button>
+              </div>
+            </div>
+
+            <!-- Item 3 (Pago) -->
+            <div class="v1-invoice-card" data-status="paid">
+              <div class="v1-invoice-header">
+                <div class="v1-service-badge">
+                  <div class="v1-service-icon green">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  </div>
+                  <div>
+                    <h4 class="v1-service-title">Subscrição Agência Pro</h4>
+                    <span class="v1-service-ref">#FAT-2026-070</span>
+                  </div>
+                </div>
+                <div class="v1-price-tag">
+                  <div class="v1-price-val paid">120.000 Kz</div>
+                  <span style="font-size: 10px; color: #10b981; font-weight: 700;">Liquidado</span>
+                </div>
+              </div>
+              <div class="v1-card-footer">
+                <div class="v1-date-indicator">
+                  <svg class="icon" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                  Pago em 01 Set 2026
+                </div>
+                <button class="v1-receipt-btn" onclick="showToast('Baixando Recibo PDF...')">
+                  <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  Recibo
+                </button>
+              </div>
+            </div>
+
+            <!-- Item 4 (Pago) -->
+            <div class="v1-invoice-card" data-status="paid">
+              <div class="v1-invoice-header">
+                <div class="v1-service-badge">
+                  <div class="v1-service-icon green">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                  </div>
+                  <div>
+                    <h4 class="v1-service-title">Certificação de Imóvel</h4>
+                    <span class="v1-service-ref">#FAT-2026-064</span>
+                  </div>
+                </div>
+                <div class="v1-price-tag">
+                  <div class="v1-price-val paid">30.000 Kz</div>
+                  <span style="font-size: 10px; color: #10b981; font-weight: 700;">Liquidado</span>
+                </div>
+              </div>
+              <div class="v1-card-footer">
+                <div class="v1-date-indicator">
+                  <svg class="icon" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                  Pago em 24 Ago 2026
+                </div>
+                <button class="v1-receipt-btn" onclick="showToast('Baixando Recibo PDF...')">
+                  Recibo
+                </button>
+              </div>
+            </div>
+
+            <!-- Item 5 (Pago) -->
+            <div class="v1-invoice-card" data-status="paid">
+              <div class="v1-invoice-header">
+                <div class="v1-service-badge">
+                  <div class="v1-service-icon green">
+                    <svg class="icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                  </div>
+                  <div>
+                    <h4 class="v1-service-title">Destaque Homepage 15D</h4>
+                    <span class="v1-service-ref">#FAT-2026-052</span>
+                  </div>
+                </div>
+                <div class="v1-price-tag">
+                  <div class="v1-price-val paid">15.000 Kz</div>
+                  <span style="font-size: 10px; color: #10b981; font-weight: 700;">Liquidado</span>
+                </div>
+              </div>
+              <div class="v1-card-footer">
+                <div class="v1-date-indicator">
+                  <svg class="icon" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                  Pago em 10 Ago 2026
+                </div>
+                <button class="v1-receipt-btn" onclick="showToast('Baixando Recibo PDF...')">
+                  Recibo
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────────────────────
+             VARIAÇÃO 2: INTERACTIVE SWIPE / QUICK SEARCH & BOTTOM SHEET
+        ───────────────────────────────────────────────────────────── -->
+        <div class="variant-view" id="var2">
+          <div class="app-topbar">
+            <div class="app-topbar-title">
+              Faturas & Pagamentos
+            </div>
+            <div class="icon-action-btn" onclick="showToast('Filtrar por período')">
+              <svg class="icon" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+            </div>
+          </div>
+
+          <!-- Carousel of Financial KPI Cards -->
+          <div class="v2-kpi-scroll">
+            <div class="v2-kpi-card" style="border-left: 4px solid #f59e0b;">
+              <div class="v2-kpi-label">
+                <span style="color: #f59e0b;">●</span> Pendente
+              </div>
+              <div class="v2-kpi-val" style="color: #ea580c;">70.000 Kz</div>
+              <span style="font-size: 11px; color: var(--text-muted);">2 faturas ativas</span>
+            </div>
+
+            <div class="v2-kpi-card" style="border-left: 4px solid #10b981;">
+              <div class="v2-kpi-label">
+                <span style="color: #10b981;">●</span> Total Pago
+              </div>
+              <div class="v2-kpi-val" style="color: #10b981;">165.000 Kz</div>
+              <span style="font-size: 11px; color: var(--text-muted);">3 faturas quitadas</span>
+            </div>
+
+            <div class="v2-kpi-card" style="border-left: 4px solid var(--primary);">
+              <div class="v2-kpi-label">
+                <span style="color: var(--primary);">●</span> Próximo Venc.
+              </div>
+              <div class="v2-kpi-val" style="color: var(--primary);">18 Set</div>
+              <span style="font-size: 11px; color: var(--text-muted);">Em 3 dias</span>
+            </div>
+          </div>
+
+          <!-- Live Search Bar -->
+          <div class="v2-search-box">
+            <svg class="icon v2-search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" class="v2-search-input" placeholder="Buscar por serviço ou ref..." oninput="v2Search(this.value)">
+          </div>
+
+          <!-- Touch Rows -->
+          <div id="v2List">
+            <div class="v2-item-row" onclick="openPaymentModal('Destaque Ouro - Talatona', '45.000 Kz', '005421890', '923 456 789')">
+              <div class="v2-status-dot pending"></div>
+              <div class="v2-item-info">
+                <div class="v2-item-name">Destaque Ouro - Talatona</div>
+                <div class="v2-item-sub">Vence em 18/09 &bull; Ref: 005421890</div>
+              </div>
+              <div class="v2-item-amount">
+                <div class="v2-amount-num">45.000 Kz</div>
+                <span class="v2-pay-chip">Pagar Express</span>
+              </div>
+            </div>
+
+            <div class="v2-item-row" onclick="openPaymentModal('Impulso 7 Dias - Kilamba', '25.000 Kz', '005421891', '923 456 789')">
+              <div class="v2-status-dot pending"></div>
+              <div class="v2-item-info">
+                <div class="v2-item-name">Impulso 7 Dias - Kilamba</div>
+                <div class="v2-item-sub">Vence em 20/09 &bull; Ref: 005421891</div>
+              </div>
+              <div class="v2-item-amount">
+                <div class="v2-amount-num">25.000 Kz</div>
+                <span class="v2-pay-chip">Pagar Express</span>
+              </div>
+            </div>
+
+            <div class="v2-item-row" onclick="showToast('Fatura #070 liquidada via Multicaixa')">
+              <div class="v2-status-dot paid"></div>
+              <div class="v2-item-info">
+                <div class="v2-item-name">Subscrição Agência Pro</div>
+                <div class="v2-item-sub">Pago em 01/09 &bull; Multicaixa</div>
+              </div>
+              <div class="v2-item-amount">
+                <div class="v2-amount-num" style="color: #10b981;">120.000 Kz</div>
+                <span style="font-size: 10px; color: #64748b;">Ver Recibo &rarr;</span>
+              </div>
+            </div>
+
+            <div class="v2-item-row" onclick="showToast('Fatura #064 liquidada via Transferência')">
+              <div class="v2-status-dot paid"></div>
+              <div class="v2-item-info">
+                <div class="v2-item-name">Certificação de Imóvel</div>
+                <div class="v2-item-sub">Pago em 24/08 &bull; BFA Express</div>
+              </div>
+              <div class="v2-item-amount">
+                <div class="v2-amount-num" style="color: #10b981;">30.000 Kz</div>
+                <span style="font-size: 10px; color: #64748b;">Ver Recibo &rarr;</span>
+              </div>
+            </div>
+
+            <div class="v2-item-row" onclick="showToast('Fatura #052 liquidada')">
+              <div class="v2-status-dot paid"></div>
+              <div class="v2-item-info">
+                <div class="v2-item-name">Destaque Homepage 15D</div>
+                <div class="v2-item-sub">Pago em 10/08 &bull; BAI Direto</div>
+              </div>
+              <div class="v2-item-amount">
+                <div class="v2-amount-num" style="color: #10b981;">15.000 Kz</div>
+                <span style="font-size: 10px; color: #64748b;">Ver Recibo &rarr;</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────────────────────
+             VARIAÇÃO 3: TIMELINE & EXTRATO COM ACCORDION EXPANDÍVEL
+        ───────────────────────────────────────────────────────────── -->
+        <div class="variant-view" id="var3">
+          <div class="app-topbar">
+            <div class="app-topbar-title">
+              Extrato Financeiro
+            </div>
+            <button class="v1-receipt-btn" onclick="showToast('Exportando extrato anual...')">
+              <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              Extrato
+            </button>
+          </div>
+
+          <!-- Month Group 1: Setembro 2026 -->
+          <div class="v3-month-group">
+            <div class="v3-month-header">
+              <span class="v3-month-name">Setembro 2026</span>
+              <span class="v3-month-sum">Total: 190.000 Kz</span>
+            </div>
+
+            <div class="v3-timeline-wrap">
+              <!-- Item 1 with Accordion -->
+              <div class="v3-timeline-item">
+                <div class="v3-timeline-node pending"></div>
+                <div class="v3-accordion-card">
+                  <div class="v3-accordion-head" onclick="toggleV3Accordion('acc1')">
+                    <div>
+                      <h4 style="font-size: 13px; font-weight: 700;">Destaque Ouro - Talatona</h4>
+                      <span style="font-size: 11px; color: #f59e0b; font-weight: 700;">● Vence em 18/09</span>
+                    </div>
+                    <div style="text-align: right;">
+                      <span style="font-weight: 800; font-size: 14px; color: #ea580c;">45.000 Kz</span>
+                      <div style="font-size: 10px; color: var(--text-dim);">Toque para expandir</div>
+                    </div>
+                  </div>
+                  <div class="v3-accordion-body" id="acc1">
+                    <div class="v3-detail-grid">
+                      <div class="v3-detail-item">
+                        <span>Fatura Nº</span>
+                        <strong>#FAT-2026-089</strong>
+                      </div>
+                      <div class="v3-detail-item">
+                        <span>Emissão</span>
+                        <strong>15 Set 2026</strong>
+                      </div>
+                      <div class="v3-detail-item">
+                        <span>Entidade MCX</span>
+                        <strong>00542</strong>
+                      </div>
+                      <div class="v3-detail-item">
+                        <span>Referência</span>
+                        <strong>923 456 789</strong>
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                      <button class="v1-quick-pay-btn" style="flex: 1; justify-content: center;" onclick="openPaymentModal('Destaque Ouro - Talatona', '45.000 Kz', '005421890', '923 456 789')">
+                        Liquidar Fatura
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Item 2 with Accordion -->
+              <div class="v3-timeline-item">
+                <div class="v3-timeline-node pending"></div>
+                <div class="v3-accordion-card">
+                  <div class="v3-accordion-head" onclick="toggleV3Accordion('acc2')">
+                    <div>
+                      <h4 style="font-size: 13px; font-weight: 700;">Impulso 7 Dias - Kilamba</h4>
+                      <span style="font-size: 11px; color: #f59e0b; font-weight: 700;">● Vence em 20/09</span>
+                    </div>
+                    <div style="text-align: right;">
+                      <span style="font-weight: 800; font-size: 14px; color: #ea580c;">25.000 Kz</span>
+                      <div style="font-size: 10px; color: var(--text-dim);">Toque para expandir</div>
+                    </div>
+                  </div>
+                  <div class="v3-accordion-body" id="acc2">
+                    <div class="v3-detail-grid">
+                      <div class="v3-detail-item">
+                        <span>Fatura Nº</span>
+                        <strong>#FAT-2026-088</strong>
+                      </div>
+                      <div class="v3-detail-item">
+                        <span>Emissão</span>
+                        <strong>14 Set 2026</strong>
+                      </div>
+                      <div class="v3-detail-item">
+                        <span>Entidade MCX</span>
+                        <strong>00542</strong>
+                      </div>
+                      <div class="v3-detail-item">
+                        <span>Referência</span>
+                        <strong>923 456 790</strong>
+                      </div>
+                    </div>
+                    <button class="v1-quick-pay-btn" style="width: 100%; justify-content: center;" onclick="openPaymentModal('Impulso 7 Dias - Kilamba', '25.000 Kz', '005421891', '923 456 790')">
+                      Liquidar Fatura
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Item 3 (Pago) -->
+              <div class="v3-timeline-item">
+                <div class="v3-timeline-node paid"></div>
+                <div class="v3-accordion-card">
+                  <div class="v3-accordion-head" onclick="toggleV3Accordion('acc3')">
+                    <div>
+                      <h4 style="font-size: 13px; font-weight: 700;">Subscrição Agência Pro</h4>
+                      <span style="font-size: 11px; color: #10b981; font-weight: 700;">✔ Pago em 01/09</span>
+                    </div>
+                    <div style="text-align: right;">
+                      <span style="font-weight: 800; font-size: 14px; color: #10b981;">120.000 Kz</span>
+                      <div style="font-size: 10px; color: var(--text-dim);">Ver Detalhes</div>
+                    </div>
+                  </div>
+                  <div class="v3-accordion-body" id="acc3">
+                    <div class="v3-detail-grid">
+                      <div class="v3-detail-item">
+                        <span>Nº Recibo</span>
+                        <strong>#REC-2026-070</strong>
+                      </div>
+                      <div class="v3-detail-item">
+                        <span>Método</span>
+                        <strong>Multicaixa Express</strong>
+                      </div>
+                    </div>
+                    <button class="v1-receipt-btn" style="width: 100%; justify-content: center;" onclick="showToast('Baixando recibo em PDF...')">
+                      Baixar Recibo com Assinatura Digital
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Month Group 2: Agosto 2026 -->
+          <div class="v3-month-group">
+            <div class="v3-month-header">
+              <span class="v3-month-name">Agosto 2026</span>
+              <span class="v3-month-sum">Total: 45.000 Kz (Liquidado)</span>
+            </div>
+            <div class="v3-timeline-wrap">
+              <div class="v3-timeline-item">
+                <div class="v3-timeline-node paid"></div>
+                <div class="v3-accordion-card">
+                  <div class="v3-accordion-head" onclick="toggleV3Accordion('acc4')">
+                    <div>
+                      <h4 style="font-size: 13px; font-weight: 700;">Certificação de Imóvel</h4>
+                      <span style="font-size: 11px; color: #10b981; font-weight: 700;">✔ Pago em 24/08</span>
+                    </div>
+                    <div style="text-align: right;">
+                      <span style="font-weight: 800; font-size: 14px; color: #10b981;">30.000 Kz</span>
+                    </div>
+                  </div>
+                  <div class="v3-accordion-body" id="acc4">
+                    <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 10px;">Inspeção técnica e emissão de selo KerHome Verificado.</p>
+                    <button class="v1-receipt-btn" style="width: 100%; justify-content: center;" onclick="showToast('Baixando PDF...')">Baixar Documento</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────────────────────
+             VARIAÇÃO 4: MOBILE KANBAN DE ABAS DESLIZANTES
+        ───────────────────────────────────────────────────────────── -->
+        <div class="variant-view" id="var4">
+          <div class="app-topbar">
+            <div class="app-topbar-title">
+              Quadro de Faturas
+            </div>
+            <button class="icon-action-btn" onclick="showToast('Todos os registros atualizados')">
+              <svg class="icon" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            </button>
+          </div>
+
+          <!-- Kanban Column Switcher -->
+          <div class="v4-segmented-switch">
+            <button class="v4-seg-btn active" id="v4BtnPending" onclick="switchV4Lane('pending')">
+              Pendentes
+              <span class="v4-count-bubble orange">2</span>
+            </button>
+            <button class="v4-seg-btn" id="v4BtnPaid" onclick="switchV4Lane('paid')">
+              Pagas
+              <span class="v4-count-bubble green">3</span>
+            </button>
+          </div>
+
+          <!-- Pending Lane -->
+          <div class="v4-kanban-lane active" id="v4LanePending">
+            <!-- Card 1 -->
+            <div class="v4-pending-card">
+              <div class="v4-urgency-badge">
+                <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                Vence em 48 Horas
+              </div>
+              <h3 style="font-size: 15px; font-weight: 800; color: #1e293b;">Destaque Ouro - Talatona</h3>
+              <p style="font-size: 12px; color: #64748b; margin: 4px 0 14px;">Posicionamento #1 nos resultados de pesquisa de Talatona.</p>
+              
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
+                <span style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Valor da Fatura</span>
+                <span style="font-size: 20px; font-weight: 800; color: #ea580c; font-family: var(--font-display);">45.000 Kz</span>
+              </div>
+
+              <div style="display: flex; gap: 8px;">
+                <button class="v1-quick-pay-btn" style="flex: 1; justify-content: center; padding: 10px;" onclick="openPaymentModal('Destaque Ouro - Talatona', '45.000 Kz', '005421890', '923 456 789')">
+                  Pagar c/ Express
+                </button>
+                <button class="v1-receipt-btn" onclick="showToast('Instruções de pagamento enviadas por SMS')">
+                  SMS
+                </button>
+              </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="v4-pending-card">
+              <div class="v4-urgency-badge">
+                <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                Vence em 4 Dias
+              </div>
+              <h3 style="font-size: 15px; font-weight: 800; color: #1e293b;">Impulso 7 Dias - Kilamba</h3>
+              <p style="font-size: 12px; color: #64748b; margin: 4px 0 14px;">3x mais visualizações e contatos no WhatsApp.</p>
+              
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
+                <span style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Valor da Fatura</span>
+                <span style="font-size: 20px; font-weight: 800; color: #ea580c; font-family: var(--font-display);">25.000 Kz</span>
+              </div>
+
+              <div style="display: flex; gap: 8px;">
+                <button class="v1-quick-pay-btn" style="flex: 1; justify-content: center; padding: 10px;" onclick="openPaymentModal('Impulso 7 Dias - Kilamba', '25.000 Kz', '005421891', '923 456 790')">
+                  Pagar c/ Express
+                </button>
+                <button class="v1-receipt-btn" onclick="showToast('Instruções de pagamento enviadas por SMS')">
+                  SMS
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Paid Lane -->
+          <div class="v4-kanban-lane" id="v4LanePaid">
+            <!-- Card 1 -->
+            <div class="v4-paid-card">
+              <div class="v4-receipt-stamp">Liquidado</div>
+              <h3 style="font-size: 15px; font-weight: 800; color: #1e293b;">Subscrição Agência Pro</h3>
+              <p style="font-size: 12px; color: #64748b; margin: 4px 0 10px;">Renovação de 30 dias de anúncios ilimitados.</p>
+              
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
+                <span style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Total Liquidado</span>
+                <span style="font-size: 18px; font-weight: 800; color: #10b981; font-family: var(--font-display);">120.000 Kz</span>
+              </div>
+
+              <button class="v1-receipt-btn" style="width: 100%; justify-content: center; padding: 10px;" onclick="showToast('Baixando Recibo com Chave de Autenticação...')">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Baixar Recibo Oficial
+              </button>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="v4-paid-card">
+              <div class="v4-receipt-stamp">Liquidado</div>
+              <h3 style="font-size: 15px; font-weight: 800; color: #1e293b;">Certificação de Imóvel</h3>
+              <p style="font-size: 12px; color: #64748b; margin: 4px 0 10px;">Vistoria e validação de documentos.</p>
+              
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
+                <span style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Total Liquidado</span>
+                <span style="font-size: 18px; font-weight: 800; color: #10b981; font-family: var(--font-display);">30.000 Kz</span>
+              </div>
+
+              <button class="v1-receipt-btn" style="width: 100%; justify-content: center; padding: 10px;" onclick="showToast('Baixando Recibo Oficial...')">
+                Baixar Recibo Oficial
+              </button>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="v4-paid-card">
+              <div class="v4-receipt-stamp">Liquidado</div>
+              <h3 style="font-size: 15px; font-weight: 800; color: #1e293b;">Destaque Homepage 15D</h3>
+              <p style="font-size: 12px; color: #64748b; margin: 4px 0 10px;">Campanha de 15 dias na capa.</p>
+              
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
+                <span style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Total Liquidado</span>
+                <span style="font-size: 18px; font-weight: 800; color: #10b981; font-family: var(--font-display);">15.000 Kz</span>
+              </div>
+
+              <button class="v1-receipt-btn" style="width: 100%; justify-content: center; padding: 10px;" onclick="showToast('Baixando Recibo Oficial...')">
+                Baixar Recibo Oficial
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────────────────────
+             VARIAÇÃO 5: EXECUTIVE DENSE LIST & DRAWER FISCAL COM QR
+        ───────────────────────────────────────────────────────────── -->
+        <div class="variant-view" id="var5">
+          <div class="app-topbar">
+            <div class="app-topbar-title">
+              Faturas & Cobranças
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <button class="icon-action-btn" onclick="showToast('Histórico completo sincronizado')">
+                <svg class="icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </button>
+              <button class="icon-action-btn" onclick="showToast('Exportando relatório gerencial...')">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="v5-compact-toolbar">
+            <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">
+              Total: <strong>235.000 Kz</strong> &bull; 5 Lançamentos
+            </span>
+            <span style="background: #f1f5f9; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; color: var(--primary);">
+              Exercício 2026
+            </span>
+          </div>
+
+          <!-- Dense Rows List -->
+          <div>
+            <div class="v5-dense-row" onclick="openPaymentModal('Destaque Ouro - Talatona', '45.000 Kz', '005421890', '923 456 789')">
+              <div class="v5-dense-left">
+                <div class="v5-dense-avatar" style="background: #fff3eb; color: #ea580c;">DO</div>
+                <div class="v5-dense-meta">
+                  <h4>Destaque Ouro - Talatona</h4>
+                  <p>15/09/2026 &bull; #FAT-089</p>
+                </div>
+              </div>
+              <div class="v5-dense-right">
+                <div class="v5-dense-price" style="color: #ea580c;">45.000 Kz</div>
+                <span class="v5-status-pill p">A Pagar</span>
+              </div>
+            </div>
+
+            <div class="v5-dense-row" onclick="openPaymentModal('Impulso 7 Dias - Kilamba', '25.000 Kz', '005421891', '923 456 790')">
+              <div class="v5-dense-left">
+                <div class="v5-dense-avatar" style="background: #fff3eb; color: #ea580c;">IM</div>
+                <div class="v5-dense-meta">
+                  <h4>Impulso 7 Dias - Kilamba</h4>
+                  <p>14/09/2026 &bull; #FAT-088</p>
+                </div>
+              </div>
+              <div class="v5-dense-right">
+                <div class="v5-dense-price" style="color: #ea580c;">25.000 Kz</div>
+                <span class="v5-status-pill p">A Pagar</span>
+              </div>
+            </div>
+
+            <div class="v5-dense-row" onclick="showToast('Visualizando comprovativo #070...')">
+              <div class="v5-dense-left">
+                <div class="v5-dense-avatar" style="background: #ecfdf5; color: #059669;">AP</div>
+                <div class="v5-dense-meta">
+                  <h4>Subscrição Agência Pro</h4>
+                  <p>01/09/2026 &bull; #FAT-070</p>
+                </div>
+              </div>
+              <div class="v5-dense-right">
+                <div class="v5-dense-price">120.000 Kz</div>
+                <span class="v5-status-pill ok">Pago</span>
+              </div>
+            </div>
+
+            <div class="v5-dense-row" onclick="showToast('Visualizando comprovativo #064...')">
+              <div class="v5-dense-left">
+                <div class="v5-dense-avatar" style="background: #ecfdf5; color: #059669;">CI</div>
+                <div class="v5-dense-meta">
+                  <h4>Certificação de Imóvel</h4>
+                  <p>24/08/2026 &bull; #FAT-064</p>
+                </div>
+              </div>
+              <div class="v5-dense-right">
+                <div class="v5-dense-price">30.000 Kz</div>
+                <span class="v5-status-pill ok">Pago</span>
+              </div>
+            </div>
+
+            <div class="v5-dense-row" onclick="showToast('Visualizando comprovativo #052...')">
+              <div class="v5-dense-left">
+                <div class="v5-dense-avatar" style="background: #ecfdf5; color: #059669;">DH</div>
+                <div class="v5-dense-meta">
+                  <h4>Destaque Homepage 15D</h4>
+                  <p>10/08/2026 &bull; #FAT-052</p>
+                </div>
+              </div>
+              <div class="v5-dense-right">
+                <div class="v5-dense-price">15.000 Kz</div>
+                <span class="v5-status-pill ok">Pago</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+
+      <!-- ════════════ IN-APP MOCK MOBILE NAVBAR ════════════ -->
+      <nav class="mock-mobile-bottom-nav">
+        <div class="mock-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+          <span>Imóveis</span>
+        </div>
+        <div class="mock-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+          <span>Favoritas</span>
+        </div>
+        <div class="mock-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          <span>Chat</span>
+        </div>
+        <div class="mock-nav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          <span>Faturas</span>
+        </div>
+      </nav>
+
+      <!-- ════════════ INTERACTIVE PAYMENT MODAL (MULTICAIXA EXPRESS) ════════════ -->
+      <div class="sheet-backdrop" id="sheetBackdrop" onclick="closePaymentModal()"></div>
+      <div class="sheet-modal" id="paymentSheet">
+        <div class="sheet-drag-handle"></div>
+        <div class="sheet-title-row">
+          <div>
+            <h3 id="sheetServiceTitle">Pagamento de Fatura</h3>
+            <span style="font-size: 11px; color: var(--text-dim);" id="sheetServiceSub">Multicaixa Express &bull; EMIS Angola</span>
+          </div>
+          <button class="icon-action-btn" onclick="closePaymentModal()">
+            <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <div class="mcx-box">
+          <div class="mcx-header">
+            <svg class="icon" style="color: var(--primary);" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+            Dados para Pagamento Multicaixa
+          </div>
+          
+          <div class="mcx-field">
+            <span style="color: var(--text-muted);">Entidade:</span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <strong style="font-family: monospace; font-size: 14px;" id="mcxEntidade">00542</strong>
+              <button class="copy-pill-btn" onclick="copyText('00542', 'Entidade copiada!')">Copiar</button>
+            </div>
+          </div>
+
+          <div class="mcx-field">
+            <span style="color: var(--text-muted);">Referência:</span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <strong style="font-family: monospace; font-size: 14px;" id="mcxReferencia">923 456 789</strong>
+              <button class="copy-pill-btn" onclick="copyText('923 456 789', 'Referência copiada!')">Copiar</button>
+            </div>
+          </div>
+
+          <div class="mcx-field">
+            <span style="color: var(--text-muted);">Montante:</span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <strong style="font-size: 15px; color: #ea580c; font-family: var(--font-display);" id="mcxValor">45.000 Kz</strong>
+              <button class="copy-pill-btn" onclick="copyText('45000', 'Montante copiado!')">Copiar</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase;">
+            Já efetuou a transferência?
+          </label>
+          <button class="v1-receipt-btn" style="width: 100%; justify-content: center; padding: 12px;" onclick="showToast('Comprovativo anexado! Validação em até 15 minutos.')">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            Anexar Comprovativo Bancário (PDF/Foto)
+          </button>
+        </div>
+
+        <button class="v1-quick-pay-btn" style="width: 100%; justify-content: center; padding: 14px; font-size: 14px;" onclick="simulateMcxPay()">
+          Confirmar Pagamento via Multicaixa Express
+        </button>
+      </div>
+
+      <div class="phone-home-indicator"></div>
+    </div>
+  </div>
+
+  <!-- ════════════ PERSISTENT CONTROLLER BAR (NEXT / PREV) ════════════ -->
+  <footer class="nav-controller">
+    <button class="ctrl-btn prev" id="btnPrev" onclick="changeVariant(-1)" disabled>
+      <svg class="icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      Anterior
+    </button>
+
+    <div class="controller-info">
+      <span class="controller-title" id="ctrlTitle">Variação 1 de 5</span>
+      <div class="controller-dots">
+        <div class="controller-dot active" onclick="jumpToVariant(0)"></div>
+        <div class="controller-dot" onclick="jumpToVariant(1)"></div>
+        <div class="controller-dot" onclick="jumpToVariant(2)"></div>
+        <div class="controller-dot" onclick="jumpToVariant(3)"></div>
+        <div class="controller-dot" onclick="jumpToVariant(4)"></div>
+      </div>
+    </div>
+
+    <button class="ctrl-btn next" id="btnNext" onclick="changeVariant(1)">
+      Próximo Redesign
+      <svg class="icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </button>
+  </footer>
+
+  <script>
+    // Variation metadata
+    const variations = [
+      {
+        id: 'var1',
+        title: 'Fintech Neo-Bank (Nubank / Revolut Style)',
+        badge: 'Variação 1 de 5',
+        desc: 'Foco em clareza financeira imediata: cartão escuro com gradiente mostrando Total a Pagar, filtros de pílulas rápidas com contadores e cards com ação direta de liquidação.'
+      },
+      {
+        id: 'var2',
+        title: 'Gestos Rápidos & Bottom-Sheet Multicaixa',
+        badge: 'Variação 2 de 5',
+        desc: 'Design tátil com barra horizontal de métricas financeiras (KPIs), busca em tempo real e abertura de Bottom-Sheet com detalhes do Multicaixa Express em 1 toque.'
+      },
+      {
+        id: 'var3',
+        title: 'Extrato em Timeline com Accordion Fiscal',
+        badge: 'Variação 3 de 5',
+        desc: 'Visualização cronológica organizada por meses (Setembro, Agosto) com nós de status conectados e expansão instantânea dos dados fiscais e download do recibo.'
+      },
+      {
+        id: 'var4',
+        title: 'Mobile Kanban com Abas Deslizantes',
+        badge: 'Variação 4 de 5',
+        desc: 'Adapta o modelo mental das colunas Kanban do Desktop para Mobile com seletor segmentado ergonômico (Pendentes vs Pagas) e badges de urgência e selo de quitação.'
+      },
+      {
+        id: 'var5',
+        title: 'Lista Executiva Compacta & Alta Densidade',
+        badge: 'Variação 5 de 5',
+        desc: 'Pensada para imobiliárias e corretores com dezenas de imóveis: linhas condensadas sem rolagem excessiva, permitindo escanear rapidamente valores e estados.'
+      }
+    ];
+
+    let currentIndex = 0;
+
+    function changeVariant(delta) {
+      const newIndex = currentIndex + delta;
+      if (newIndex >= 0 && newIndex < variations.length) {
+        jumpToVariant(newIndex);
+      }
+    }
+
+    function jumpToVariant(index) {
+      currentIndex = index;
+      const v = variations[currentIndex];
+
+      // Update screens
+      document.querySelectorAll('.variant-view').forEach(view => {
+        view.classList.remove('active');
+      });
+      document.getElementById(v.id).classList.add('active');
+
+      // Scroll phone screen to top
+      document.getElementById('phoneScreen').scrollTop = 0;
+
+      // Update banner metadata
+      document.getElementById('vBadge').textContent = v.badge;
+      document.getElementById('vTitle').textContent = v.title;
+      document.getElementById('vDesc').textContent = v.desc;
+
+      // Update controller bar
+      document.getElementById('ctrlTitle').textContent = `${v.badge}: ${v.title.split(' ')[0]}`;
+      document.querySelectorAll('.controller-dot').forEach((dot, idx) => {
+        dot.classList.toggle('active', idx === currentIndex);
+      });
+
+      // Update buttons state
+      document.getElementById('btnPrev').disabled = currentIndex === 0;
+      document.getElementById('btnNext').disabled = currentIndex === variations.length - 1;
+    }
+
+    // Toggle frame width between mobile device frame & responsive tablet/fluid
+    function toggleDeviceWidth() {
+      const wrapper = document.getElementById('deviceWrapper');
+      wrapper.classList.toggle('full-width');
+      const isWide = wrapper.classList.contains('full-width');
+      showToast(isWide ? 'Modo Responsivo Expandido Ativado' : 'Modo Frame iPhone Ativado');
+    }
+
+    // Toast alert helper
+    let toastTimeout;
+    function showToast(msg) {
+      const toast = document.getElementById('appToast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2600);
+    }
+
+    // Copy to clipboard helper
+    function copyText(text, successMsg) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast(successMsg);
+      }).catch(() => {
+        showToast(successMsg);
+      });
+    }
+
+    // V1 Filter
+    function v1Filter(type, el) {
+      document.querySelectorAll('.v1-tab-pill').forEach(pill => pill.classList.remove('active'));
+      el.classList.add('active');
+
+      const cards = document.querySelectorAll('#v1List .v1-invoice-card');
+      cards.forEach(card => {
+        const status = card.getAttribute('data-status');
+        if (type === 'all') {
+          card.style.display = 'block';
+        } else if (status === type) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    // V2 Live Search
+    function v2Search(query) {
+      const q = query.toLowerCase();
+      const rows = document.querySelectorAll('#v2List .v2-item-row');
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(q) ? 'flex' : 'none';
+      });
+    }
+
+    // V3 Accordion Toggle
+    function toggleV3Accordion(id) {
+      const body = document.getElementById(id);
+      body.classList.toggle('open');
+    }
+
+    // V4 Lane Switcher
+    function switchV4Lane(lane) {
+      document.getElementById('v4BtnPending').classList.toggle('active', lane === 'pending');
+      document.getElementById('v4BtnPaid').classList.toggle('active', lane === 'paid');
+      document.getElementById('v4LanePending').classList.toggle('active', lane === 'pending');
+      document.getElementById('v4LanePaid').classList.toggle('active', lane === 'paid');
+    }
+
+    // Payment Modal Controls
+    function openPaymentModal(service, amount, entity, ref) {
+      document.getElementById('sheetServiceTitle').textContent = service;
+      document.getElementById('mcxValor').textContent = amount;
+      document.getElementById('mcxReferencia').textContent = ref;
+      document.getElementById('mcxEntidade').textContent = entity.substring(0, 5);
+
+      document.getElementById('sheetBackdrop').classList.add('show');
+      document.getElementById('paymentSheet').classList.add('show');
+    }
+
+    function closePaymentModal() {
+      document.getElementById('sheetBackdrop').classList.remove('show');
+      document.getElementById('paymentSheet').classList.remove('show');
+    }
+
+    function simulateMcxPay() {
+      closePaymentModal();
+      showToast('Pagamento processado com sucesso! Fatura liquidada.');
+    }
+
+    // Keyboard navigation (Left and Right Arrow keys)
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') {
+        changeVariant(1);
+      } else if (e.key === 'ArrowLeft') {
+        changeVariant(-1);
+      }
+    });
+  </script>
+</body>
+</html>
