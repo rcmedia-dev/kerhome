@@ -57,123 +57,6 @@ function useUserRole() {
   return { isAgent, hasAgency, hasLicense, hasPlan, role };
 }
 
-// ─── Dados Mockados para visualização em Luanda ───
-const MOCK_AGENT: TPropertyResponseSchema[] = [
-  {
-    id: 'prop-mock-ag-1',
-    owner_id: 'mock-agent',
-    titulo: 'Vivenda V4 Moderna c/ Piscina Privativa',
-    preco: 185000000,
-    tipo_negocio: 'venda',
-    tipo_imovel: 'casa',
-    quartos: 4,
-    banheiros: 5,
-    area_total: 420,
-    bairro: 'Talatona',
-    cidade: 'Luanda',
-    estado: 'Luanda',
-    aprovement_status: 'approved',
-    views_count: 342,
-    favorites_count: 28,
-    is_destaque: true,
-    slug: 'vivenda-v4-moderna-talatona',
-    fotos: ['https://images.unsplash.com/photo-1613977257363-707ba9348227?w=400&auto=format&fit=crop&q=80'],
-    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date().toISOString(),
-  } as unknown as TPropertyResponseSchema,
-  {
-    id: 'prop-mock-ag-2',
-    owner_id: 'mock-agent',
-    titulo: 'Apartamento T3 Vista Mar Miramar',
-    preco: 650000,
-    tipo_negocio: 'aluguel',
-    tipo_imovel: 'apartamento',
-    quartos: 3,
-    banheiros: 3,
-    area_total: 180,
-    bairro: 'Miramar',
-    cidade: 'Luanda',
-    estado: 'Luanda',
-    aprovement_status: 'pending',
-    views_count: 85,
-    favorites_count: 12,
-    is_destaque: false,
-    slug: 'apartamento-t3-miramar',
-    fotos: ['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&auto=format&fit=crop&q=80'],
-    created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date().toISOString(),
-  } as unknown as TPropertyResponseSchema,
-  {
-    id: 'prop-mock-ag-3',
-    owner_id: 'mock-agent',
-    titulo: 'Duplex T4 com Terraço Panorâmico — Alvalade',
-    preco: 240000000,
-    tipo_negocio: 'venda',
-    tipo_imovel: 'apartamento',
-    quartos: 4,
-    banheiros: 5,
-    area_total: 320,
-    bairro: 'Alvalade',
-    cidade: 'Luanda',
-    estado: 'Luanda',
-    aprovement_status: 'approved',
-    views_count: 412,
-    favorites_count: 35,
-    is_destaque: true,
-    slug: 'duplex-t4-alvalade',
-    fotos: ['https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&auto=format&fit=crop&q=80'],
-    created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date().toISOString(),
-  } as unknown as TPropertyResponseSchema,
-];
-
-const MOCK_USER: TPropertyResponseSchema[] = [
-  {
-    id: 'prop-mock-u-1',
-    owner_id: 'mock-user',
-    titulo: 'Moradia T3 em Camama',
-    preco: 65000000,
-    tipo_negocio: 'venda',
-    tipo_imovel: 'casa',
-    quartos: 3,
-    banheiros: 2,
-    area_total: 200,
-    bairro: 'Camama',
-    cidade: 'Luanda',
-    estado: 'Luanda',
-    aprovement_status: 'approved',
-    views_count: 72,
-    favorites_count: 5,
-    is_destaque: false,
-    slug: 'moradia-t3-camama',
-    fotos: ['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&auto=format&fit=crop&q=80'],
-    created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date().toISOString(),
-  } as unknown as TPropertyResponseSchema,
-  {
-    id: 'prop-mock-u-2',
-    owner_id: 'mock-user',
-    titulo: 'Quarto Suíte em Talatona com AC',
-    preco: 180000,
-    tipo_negocio: 'aluguel',
-    tipo_imovel: 'quarto',
-    quartos: 1,
-    banheiros: 1,
-    area_total: 40,
-    bairro: 'Talatona',
-    cidade: 'Luanda',
-    estado: 'Luanda',
-    aprovement_status: 'pending',
-    views_count: 20,
-    favorites_count: 2,
-    is_destaque: false,
-    slug: 'quarto-suite-talatona',
-    fotos: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&auto=format&fit=crop&q=80'],
-    created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date().toISOString(),
-  } as unknown as TPropertyResponseSchema,
-];
-
 // ─── Status config helper ───
 function getStatusConfig(status: string) {
   const map: Record<string, { label: string; dot: string; text: string; bg: string; border: string }> = {
@@ -864,10 +747,8 @@ function MobileFilterSheet({
 export function MinhasPropriedades({ userProperties }: MinePropertiesProps) {
   const { isAgent, hasAgency, hasPlan } = useUserRole();
 
-  // Injecta mocks diferenciados por perfil se não houver dados reais
   const [localProperties, setLocalProperties] = useState<TPropertyResponseSchema[]>(() => {
-    if (userProperties && userProperties.length > 0) return userProperties;
-    return isAgent ? MOCK_AGENT : MOCK_USER;
+    return userProperties || [];
   });
 
   const [isRefreshing, startTransition] = useTransition();
@@ -879,11 +760,7 @@ export function MinhasPropriedades({ userProperties }: MinePropertiesProps) {
   const [selectedProperty, setSelectedProperty] = useState<TPropertyResponseSchema | null>(null);
 
   useEffect(() => {
-    if (userProperties && userProperties.length > 0) {
-      setLocalProperties(userProperties);
-    } else {
-      setLocalProperties(isAgent ? MOCK_AGENT : MOCK_USER);
-    }
+    setLocalProperties(userProperties || []);
   }, [userProperties, isAgent]);
 
   const handleDelete = useCallback((id: string) => {

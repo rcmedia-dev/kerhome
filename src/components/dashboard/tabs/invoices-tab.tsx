@@ -36,46 +36,6 @@ import {
   ErrorBoundary,
 } from '@/components/dashboard/shared-ui';
 
-// ─── Dados mockados para visualização / desenvolvimento ──────────────────────
-const MOCK_INVOICES: Fatura[] = [
-  {
-    id: 'fat-2026-0001',
-    servico: 'destaque ouro talatona',
-    valor: 45000,
-    status: 'pendente',
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
-  },
-  {
-    id: 'fat-2026-0002',
-    servico: 'impulso 7 dias kilamba',
-    valor: 25000,
-    status: 'pendente',
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-  },
-  {
-    id: 'fat-2026-0003',
-    servico: 'subscricao agencia pro',
-    valor: 120000,
-    status: 'pago',
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14).toISOString(),
-  },
-  {
-    id: 'fat-2026-0004',
-    servico: 'certificacao de imovel',
-    valor: 30000,
-    status: 'pago',
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 21).toISOString(),
-  },
-  {
-    id: 'fat-2026-0005',
-    servico: 'destaque homepage 15 dias',
-    valor: 15000,
-    status: 'paid',
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 36).toISOString(),
-  },
-];
-// ─────────────────────────────────────────────────────────────────────────────
-
 type FaturasProps = {
   invoices: Fatura[] | null;
 };
@@ -133,8 +93,7 @@ function BottomSheet({
 export function Faturas({ invoices }: FaturasProps) {
   if (!invoices) return <LoadingState.LoadingList count={4} />;
 
-  // Usa mocks se não houver dados reais ainda
-  const effectiveInvoices = invoices.length === 0 ? MOCK_INVOICES : invoices;
+  const effectiveInvoices = invoices;
   const formatInvoiceValue = (value: number) => value.toLocaleString('pt-AO').replace(/[\s\u00a0]+/g, '.');
   const formatInvoiceNumber = (id: string) => {
     if (id.startsWith('fat-')) return id.replace(/^fat-/, 'FAT-').toUpperCase();

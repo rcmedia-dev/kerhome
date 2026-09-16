@@ -50,121 +50,22 @@ type FavoritePropertyItem = {
   image: string | null;
   gallery?: string[];
   agent_phone?: string;
-  isMock?: boolean;
 };
 
-// ─── Dados Mockados Realistas de Luanda (Angola) para Pré-visualização ────────
-const MOCK_FAVORITES: FavoritePropertyItem[] = [
-  {
-    id: 'fav-mock-01',
-    propertyid: 'prop-talatona-01',
-    title: 'Apartamento T3 Vista Mar - Talatona',
-    tipo: 'Apartamento',
-    status: 'comprar',
-    price: 180000000,
-    endereco: 'Condomínio Dolce Vita, Talatona, Luanda',
-    bairro: 'Talatona',
-    cidade: 'Luanda',
-    bedrooms: 3,
-    bathrooms: 2,
-    garagens: 2,
-    size: '185 m²',
-    image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=500&q=80',
-    agent_phone: '+244923456789',
-    isMock: true
-  },
-  {
-    id: 'fav-mock-02',
-    propertyid: 'prop-kilamba-02',
-    title: 'Vivenda V4 com Piscina Privativa - Kilamba',
-    tipo: 'Vivenda',
-    status: 'comprar',
-    price: 95000000,
-    endereco: 'Quarteirão F, Centralidade do Kilamba',
-    bairro: 'Kilamba',
-    cidade: 'Luanda',
-    bedrooms: 4,
-    bathrooms: 3,
-    garagens: 3,
-    size: '260 m²',
-    image: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=500&q=80',
-    agent_phone: '+244931888222',
-    isMock: true
-  },
-  {
-    id: 'fav-mock-03',
-    propertyid: 'prop-ingombota-03',
-    title: 'Escritório Comercial 120m² - Ingombota',
-    tipo: 'Comercial',
-    status: 'alugar',
-    price: 2500000,
-    endereco: 'Torres Kianda, Av. 4 de Fevereiro, Luanda',
-    bairro: 'Ingombota',
-    cidade: 'Luanda',
-    bedrooms: 1,
-    bathrooms: 2,
-    garagens: 2,
-    size: '120 m²',
-    image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=500&q=80',
-    agent_phone: '+244944111333',
-    isMock: true
-  },
-  {
-    id: 'fav-mock-04',
-    propertyid: 'prop-miramar-04',
-    title: 'Cobertura Duplex T4 Luxo - Miramar',
-    tipo: 'Apartamento',
-    status: 'comprar',
-    price: 340000000,
-    endereco: 'Bairro Miramar, Luanda Centro',
-    bairro: 'Miramar',
-    cidade: 'Luanda',
-    bedrooms: 4,
-    bathrooms: 4,
-    garagens: 3,
-    size: '320 m²',
-    image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=500&q=80',
-    agent_phone: '+244912777999',
-    isMock: true
-  },
-  {
-    id: 'fav-mock-05',
-    propertyid: 'prop-camama-05',
-    title: 'Vivenda V3 em Condomínio Fechado - Camama',
-    tipo: 'Vivenda',
-    status: 'comprar',
-    price: 70000000,
-    endereco: 'Condomínio Jardim de Rosas, Camama',
-    bairro: 'Camama',
-    cidade: 'Luanda',
-    bedrooms: 3,
-    bathrooms: 2,
-    garagens: 2,
-    size: '170 m²',
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=500&q=80',
-    agent_phone: '+244925333444',
-    isMock: true
-  }
-];
-
-// ─── Formatador de Moeda em Kwanza ───────────────────────────────────────────
 function formatKwanzaPrice(price: number | string | null, status: string): string {
   if (price === null || price === undefined || price === '') return 'Sob consulta';
   const num = typeof price === 'string' ? parseFloat(price) : price;
-  if (isNaN(num)) return String(price);
-
+  if (Number.isNaN(num)) return String(price);
   const formatted = num.toLocaleString('pt-AO');
-  const isRent = status === 'alugar' || status === 'para alugar';
-  return isRent ? `${formatted} Kz/mês` : `${formatted} Kz`;
+  return status === 'alugar' || status === 'para alugar' ? `${formatted} Kz/mês` : `${formatted} Kz`;
 }
 
-// ─── Componente Bottom Sheet de Ação Rápida no Mobile ────────────────────────
 function FavoriteActionSheet({
   open,
   onClose,
   property,
   onRemove,
-  isAgent
+  isAgent,
 }: {
   open: boolean;
   onClose: () => void;
@@ -355,9 +256,7 @@ export function Favoritas({ userFavoriteProperties }: FavoritasProps) {
 
   // Converte e normaliza dados reais recebidos da prop
   const initialFavorites = useMemo<FavoritePropertyItem[]>(() => {
-    if (!userFavoriteProperties || userFavoriteProperties.length === 0) {
-      return MOCK_FAVORITES;
-    }
+    if (!userFavoriteProperties) return [];
     return userFavoriteProperties.map(p => ({
       id: p.id,
       propertyid: p.propertyid || p.id,
@@ -374,7 +273,6 @@ export function Favoritas({ userFavoriteProperties }: FavoritasProps) {
       size: p.size ?? '',
       image: (typeof p.image === 'string' ? p.image : null) || (Array.isArray(p.gallery) && p.gallery[0] ? String(p.gallery[0]) : null),
       gallery: Array.isArray(p.gallery) ? p.gallery.map(String) : [],
-      isMock: false
     }));
   }, [userFavoriteProperties]);
 
@@ -395,16 +293,8 @@ export function Favoritas({ userFavoriteProperties }: FavoritasProps) {
   // Bottom Sheet de Ações Rápidas
   const [sheetProperty, setSheetProperty] = useState<FavoritePropertyItem | null>(null);
 
-  // ─── Remoção com suporte tanto a Mocks quanto a Dados Reais ──────────────
   const handleRemoveFavorite = useCallback(async (propertyId: string) => {
     const propToRemove = favorites.find(f => f.id === propertyId);
-
-    // Se for mock, apenas remove do estado local
-    if (propToRemove?.isMock || propertyId.startsWith('fav-mock-')) {
-      setFavorites(prev => prev.filter(f => f.id !== propertyId));
-      toast.success('Imóvel removido da sua lista');
-      return;
-    }
 
     // Se for registro real da base de dados Supabase
     try {

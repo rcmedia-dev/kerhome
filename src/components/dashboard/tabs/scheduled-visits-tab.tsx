@@ -67,8 +67,6 @@ type VisitasProps = {
   userId?: string;
 };
 
-const MOCK_PREFIX = 'vis-mock-';
-
 // ─── Helper de Role ──────────────────────────────────────────────────────────
 function useUserRole() {
   const { user } = useUserStore();
@@ -76,131 +74,6 @@ function useUserRole() {
   const isAgent = ['agente', 'agent', 'corretor', 'profissional'].includes(role);
   const hasAgency = !!user?.imobiliaria_id;
   return { isAgent, hasAgency, user };
-}
-
-// ─── Mocks para o Corretor (Visitas Recebidas de Clientes) ───────────────────
-function generateAgentVisits(): VisitItem[] {
-  const today = new Date();
-  const tomorrow = addDays(today, 1);
-  const inTwoDays = addDays(today, 2);
-
-  return [
-    {
-      id: `${MOCK_PREFIX}ag-01`,
-      property_id: 'prop-talatona-01',
-      property_slug: 'vivenda-v4-moderna-talatona',
-      property_title: 'Vivenda V4 Moderna c/ Piscina Privativa',
-      property_location: 'Condomínio Rosalinda, Talatona, Luanda',
-      property_price: '185.000.000 Kz',
-      property_image: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=500&q=80',
-      lead_name: 'Dra. Jandira Costa',
-      lead_phone: '+244 923 456 789',
-      scheduled_date: format(today, 'yyyy-MM-dd'),
-      scheduled_time: '10:30',
-      status: 'confirmed',
-      notes: 'Cliente busca imóvel para a família. Virá acompanhada pelo arquiteto para avaliar ampliações.'
-    },
-    {
-      id: `${MOCK_PREFIX}ag-02`,
-      property_id: 'prop-miramar-02',
-      property_slug: 'apartamento-t3-miramar',
-      property_title: 'Apartamento T3 Vista Mar Miramar',
-      property_location: 'Av. 4 de Fevereiro, Ingombota, Luanda',
-      property_price: '650.000 Kz /mês',
-      property_image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=500&q=80',
-      lead_name: 'Eng. Carlos Bento',
-      lead_phone: '+244 931 888 222',
-      scheduled_date: format(today, 'yyyy-MM-dd'),
-      scheduled_time: '14:00',
-      status: 'pending',
-      notes: 'Prefere horário após almoço. Solicitou confirmação do valor de condomínio antes da visita.'
-    },
-    {
-      id: `${MOCK_PREFIX}ag-03`,
-      property_id: 'prop-alvalade-03',
-      property_slug: 'duplex-t4-alvalade',
-      property_title: 'Duplex T4 com Terraço Panorâmico',
-      property_location: 'Rua Comandante Gika, Alvalade, Maianga',
-      property_price: '240.000.000 Kz',
-      property_image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=500&q=80',
-      lead_name: 'Mauro Silva (FinTech Angola)',
-      lead_phone: '+244 944 111 333',
-      scheduled_date: format(tomorrow, 'yyyy-MM-dd'),
-      scheduled_time: '09:00',
-      status: 'confirmed',
-      notes: 'Interesse em fechar proposta rápida se a garagem comportar 3 viaturas.'
-    },
-    {
-      id: `${MOCK_PREFIX}ag-04`,
-      property_id: 'prop-kilamba-04',
-      property_slug: 'vivenda-v3-vila-sol-kilamba',
-      property_title: 'Vivenda V3 Condomínio Vila Sol',
-      property_location: 'Quarteirão F, Kilamba Kiaxi, Luanda',
-      property_price: '95.000.000 Kz',
-      property_image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=500&q=80',
-      lead_name: 'Helena dos Santos',
-      lead_phone: '+244 922 777 999',
-      scheduled_date: format(inTwoDays, 'yyyy-MM-dd'),
-      scheduled_time: '16:30',
-      status: 'done',
-      notes: 'Visita realizada com sucesso. Cliente pediu minuta do contrato de promessa de compra e venda.'
-    }
-  ];
-}
-
-// ─── Mocks para o Usuário Normal (Visitas Solicitadas pelo Cliente) ───────────
-function generateUserVisits(): VisitItem[] {
-  const today = new Date();
-  const tomorrow = addDays(today, 1);
-  const inThreeDays = addDays(today, 3);
-
-  return [
-    {
-      id: `${MOCK_PREFIX}usr-01`,
-      property_id: 'prop-talatona-dolce',
-      property_slug: 'apartamento-t3-dolce-vita-talatona',
-      property_title: 'Apartamento T3 no Condomínio Dolce Vita',
-      property_location: 'Via AL14, Talatona, Luanda (próximo ao Belas Shopping)',
-      property_price: '180.000.000 Kz',
-      property_image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=500&q=80',
-      agent_name: 'Manuel Silva (Imobiliária Luanda Premium)',
-      agent_phone: '+244 924 111 222',
-      scheduled_date: format(today, 'yyyy-MM-dd'),
-      scheduled_time: '10:30',
-      status: 'confirmed',
-      notes: 'O corretor estará aguardando na portaria principal do condomínio com as chaves.'
-    },
-    {
-      id: `${MOCK_PREFIX}usr-02`,
-      property_id: 'prop-camama-moradia',
-      property_slug: 'moradia-t3-camama-talatona',
-      property_title: 'Moradia T3 Isolada c/ Quintal Amplo',
-      property_location: 'Camama 1, Talatona, Luanda',
-      property_price: '65.000.000 Kz',
-      property_image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=500&q=80',
-      agent_name: 'Ana Paula Fernandes (Corretora Autorizada)',
-      agent_phone: '+244 912 333 444',
-      scheduled_date: format(tomorrow, 'yyyy-MM-dd'),
-      scheduled_time: '15:00',
-      status: 'pending',
-      notes: 'Aguardando confirmação de horário por parte do proprietário/corretor.'
-    },
-    {
-      id: `${MOCK_PREFIX}usr-03`,
-      property_id: 'prop-maianga-t2',
-      property_slug: 'apartamento-t2-maianga-luanda',
-      property_title: 'Apartamento T2 Renovado na Maianga',
-      property_location: 'Bairro Sagrada Família, Maianga, Luanda',
-      property_price: '400.000 Kz /mês',
-      property_image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=500&q=80',
-      agent_name: 'Gelson Cassoma (KerHome Agente)',
-      agent_phone: '+244 935 666 777',
-      scheduled_date: format(inThreeDays, 'yyyy-MM-dd'),
-      scheduled_time: '11:00',
-      status: 'done',
-      notes: 'Visita realizada na semana passada.'
-    }
-  ];
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -879,12 +752,12 @@ export function VisitasAgendadas({ userId }: VisitasProps) {
   const [deletingVisitId, setDeletingVisitId] = useState<string | null>(null);
   const [activeSheetVisit, setActiveSheetVisit] = useState<VisitItem | null>(null);
 
-  // ─── Busca de Dados com Mocks Coerentes por Perfil ─────────────────────────
+  // ─── Busca de Dados por Perfil ────────────────────────────────────────────
   const fetchVisits = useCallback(async () => {
     setIsLoading(true);
     try {
       if (!userId) {
-        setVisits(isAgent ? generateAgentVisits() : generateUserVisits());
+        setVisits([]);
         setIsLoading(false);
         return;
       }
@@ -893,16 +766,12 @@ export function VisitasAgendadas({ userId }: VisitasProps) {
       if (res.ok) {
         const data = await res.json();
         const serverVisits: VisitItem[] = data.visits || [];
-        if (serverVisits.length > 0) {
-          setVisits(serverVisits);
-        } else {
-          setVisits(isAgent ? generateAgentVisits() : generateUserVisits());
-        }
+        setVisits(serverVisits);
       } else {
-        setVisits(isAgent ? generateAgentVisits() : generateUserVisits());
+        setVisits([]);
       }
     } catch {
-      setVisits(isAgent ? generateAgentVisits() : generateUserVisits());
+      setVisits([]);
     } finally {
       setIsLoading(false);
     }
@@ -914,17 +783,6 @@ export function VisitasAgendadas({ userId }: VisitasProps) {
 
   // ─── Atualização de Status ────────────────────────────────────────────────
   const handleUpdateStatus = async (id: string, newStatus: VisitItem['status']) => {
-    if (id.startsWith(MOCK_PREFIX)) {
-      setVisits(prev => prev ? prev.map(v => v.id === id ? { ...v, status: newStatus } : v) : null);
-      const labels: Record<string, string> = {
-        confirmed: 'Visita confirmada com sucesso!',
-        done: 'Visita marcada como realizada!',
-        cancelled: 'Visita cancelada.'
-      };
-      toast.success(labels[newStatus] || 'Status atualizado');
-      return;
-    }
-
     try {
       const res = await fetch('/api/visits', {
         method: 'PATCH',
@@ -944,13 +802,6 @@ export function VisitasAgendadas({ userId }: VisitasProps) {
 
   // ─── Cancelamento / Remoção de Visita ──────────────────────────────────────
   const confirmDeleteVisit = async (id: string) => {
-    if (id.startsWith(MOCK_PREFIX)) {
-      setVisits(prev => prev ? prev.filter(v => v.id !== id) : null);
-      toast.success(isAgent ? 'Agendamento removido' : 'Visita desmarcada');
-      setDeletingVisitId(null);
-      return;
-    }
-
     try {
       const res = await fetch(`/api/visits?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
