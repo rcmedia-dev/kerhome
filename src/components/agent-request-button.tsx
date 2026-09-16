@@ -2,10 +2,9 @@ import { createClient } from '@/lib/supabase/client';
 import { cn } from "@/lib/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { User, X } from "lucide-react";
+import { User } from "lucide-react";
 import { useState } from "react";
 import { toast } from 'sonner';
-import { useUserStore } from '@/lib/store/user-store';
 
 const supabase = createClient();
 
@@ -88,79 +87,7 @@ export function AgentRequestButton({ userId, userName }: AgentRequestButtonProps
       await queryClient.invalidateQueries({ queryKey: ["agent-request-status", userId] });
       window.dispatchEvent(new CustomEvent('new-notification'));
 
-      toast.info('Solicitação enviada. A IA está a analisar o teu perfil...');
-
-      // Executar e aguardar revisão automática por IA (com delay mínimo de 1.5 segundos)
-      const startReview = Date.now();
-      
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
-      
-      let result;
-      try {
-        const res = await fetch('/api/mywai/review-agent', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId }),
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        
-        if (!res.ok) {
-          throw new Error(`Servidor respondeu com status ${res.status}`);
-        }
-        result = await res.json();
-      } catch (fetchErr: any) {
-        clearTimeout(timeoutId);
-        if (fetchErr.name === 'AbortError') {
-          throw new Error('A verificação da IA demorou demasiado tempo. O pedido foi registado mas será revisto manualmente.');
-        }
-        throw fetchErr;
-      }
-
-      const elapsed = Date.now() - startReview;
-      const delay = Math.max(0, 1500 - elapsed);
-      if (delay > 0) {
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
-
-      // Atualizar queries e notificações finais
-      await queryClient.invalidateQueries({ queryKey: ["agent-request", userId] });
-      await queryClient.invalidateQueries({ queryKey: ["agent-request-status", userId] });
-      window.dispatchEvent(new CustomEvent('new-notification'));
-
-      if (result.decision === 'approved') {
-        console.log(`IA aprovou agente ${userId} (score: ${result.score}%)`);
-        await useUserStore.getState().updateUser({ role: 'agent' });
-        toast.success('Parabéns! O teu pedido para te tornares agente foi aprovado pela nossa IA!');
-      } else if (result.decision === 'rejected') {
-        console.log(`IA rejeitou agente ${userId}: ${result.reasons.join(', ')}`);
-        
-        // Caixa persistente de rejeição que só fecha ao clicar no X
-        toast.custom((t) => (
-          <div className="bg-red-50 border border-red-200 p-4 rounded-xl shadow-lg max-w-sm flex items-start gap-3 relative">
-            <div className="flex-1">
-              <h4 className="font-bold text-red-800 text-sm">Pedido de Agente Rejeitado pela IA</h4>
-              <p className="text-xs text-red-700 mt-1 leading-relaxed">
-                Motivos: {result.reasons.join(', ')}.
-              </p>
-              <p className="text-[10.5px] text-red-600 mt-2 font-medium">
-                Dica: Atualiza o teu perfil com uma foto profissional, telefone e descrição antes de tentar novamente.
-              </p>
-            </div>
-            <button 
-              onClick={() => toast.dismiss(t)} 
-              className="text-red-400 hover:text-red-600 p-1 hover:bg-red-100/50 rounded-lg transition-colors cursor-pointer shrink-0"
-              aria-label="Fechar"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        ), { duration: Infinity });
-      } else {
-        console.log(`IA inconclusiva para agente ${userId} — mantido como pendente`);
-        toast.info("A IA não pôde tomar uma decisão imediata. O teu pedido será revisto manualmente pela administração.");
-      }
+      toast.info('Solicitação enviada. A administração irá rever o teu pedido.');
 
     } catch (err: any) {
       console.error('Erro no processo:', err);
