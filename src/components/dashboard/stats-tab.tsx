@@ -18,6 +18,7 @@ import {
   Clock,
   Rocket,
   LayoutDashboard,
+  Calendar,
 } from 'lucide-react';
 import { PropertyCard } from '@/components/property-card';
 import { TMyPropertiesWithViews } from '@/lib/functions/supabase-actions/property-views-actions';
@@ -327,7 +328,7 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
                         <div key={property.id} className="rounded-2xl border border-purple-100 bg-white p-3 shadow-sm">
                           <div className="flex items-center justify-between gap-3">
                             <div>
-                              <p className="text-xs font-bold text-slate-800">{property.name || 'Imóvel destacado'}</p>
+                              <p className="text-xs font-bold text-slate-800">{property.title || 'Imóvel destacado'}</p>
                               <p className="mt-1 text-[10px] text-slate-500">Destaque ativo</p>
                             </div>
                             <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-600">ativo</span>
@@ -343,7 +344,7 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
                         <div key={property.id} className="rounded-2xl border border-amber-100 bg-amber-50 p-3 shadow-sm">
                           <div className="flex items-center justify-between gap-3">
                             <div>
-                              <p className="text-xs font-bold text-slate-800">{property.name || 'Imóvel pendente'}</p>
+                              <p className="text-xs font-bold text-slate-800">{property.title || 'Imóvel pendente'}</p>
                               <p className="mt-1 text-[10px] text-amber-700">Aguardando aprovação</p>
                             </div>
                             <span className="rounded-full bg-amber-100 px-2 py-1 text-[10px] font-bold text-amber-700">pendente</span>
@@ -377,7 +378,7 @@ export function StatsTab({ ownerId, mostViewedProperties, user }: StatsTabProps)
                           <p className="truncate text-sm font-bold text-slate-800">{property.title || 'Imóvel'}</p>
                           <span className="text-[10px] font-bold text-purple-600">{property.total_views}</span>
                         </div>
-                        <p className="mt-1 text-[10px] text-slate-500">{property.city || 'Localização'}</p>
+                        <p className="mt-1 text-[10px] text-slate-500">{property.cidade || 'Localização'}</p>
                       </div>
                     </div>
                   </div>

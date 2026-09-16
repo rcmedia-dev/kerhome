@@ -104,7 +104,7 @@ function AgentPropertyCard({
   property,
   onOpenActions,
 }: {
-  property: TPropertyResponseSchema;
+  property: any;
   onOpenActions: (p: TPropertyResponseSchema) => void;
 }) {
   const status = getStatusConfig(property.aprovement_status);
@@ -208,7 +208,7 @@ function UserPropertyCard({
   property,
   onOpenActions,
 }: {
-  property: TPropertyResponseSchema;
+  property: any;
   onOpenActions: (p: TPropertyResponseSchema) => void;
 }) {
   const status = getStatusConfig(property.aprovement_status);
@@ -293,7 +293,7 @@ function AgentActionsSheet({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  property: TPropertyResponseSchema | null;
+  property: any;
   onDelete?: (id: string) => void;
 }) {
   const [copied, setCopied] = useState(false);
@@ -502,7 +502,7 @@ function UserActionsSheet({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  property: TPropertyResponseSchema | null;
+  property: any;
   onDelete?: (id: string) => void;
 }) {
   const [copied, setCopied] = useState(false);
@@ -785,11 +785,11 @@ export function MinhasPropriedades({ userProperties }: MinePropertiesProps) {
     else if (filterStatus === 'rejected') list = list.filter((p: any) => p.aprovement_status === 'rejected' || p.rejected_reason === 'suspicious');
 
     switch (sortBy) {
-      case 'newest': return [...list].sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
-      case 'oldest': return [...list].sort((a, b) => new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime());
-      case 'price-high': return [...list].sort((a, b) => (b.preco || 0) - (a.preco || 0));
-      case 'price-low': return [...list].sort((a, b) => (a.preco || 0) - (b.preco || 0));
-      case 'views': return [...list].sort((a, b) => (b.views_count || 0) - (a.views_count || 0));
+      case 'newest': return [...list].sort((a, b) => new Date((b as any).created_at || (b as any).createdAt || 0).getTime() - new Date((a as any).created_at || (a as any).createdAt || 0).getTime());
+      case 'oldest': return [...list].sort((a, b) => new Date((a as any).created_at || (a as any).createdAt || 0).getTime() - new Date((b as any).created_at || (b as any).createdAt || 0).getTime());
+      case 'price-high': return [...list].sort((a, b) => ((b as any).preco ?? (b as any).price ?? 0) - ((a as any).preco ?? (a as any).price ?? 0));
+      case 'price-low': return [...list].sort((a, b) => ((a as any).preco ?? (a as any).price ?? 0) - ((b as any).preco ?? (b as any).price ?? 0));
+      case 'views': return [...list].sort((a, b) => ((b as any).views_count ?? (b as any).views ?? 0) - ((a as any).views_count ?? (a as any).views ?? 0));
       default: return list;
     }
   }, [localProperties, filterStatus, sortBy]);

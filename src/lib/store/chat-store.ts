@@ -7,6 +7,7 @@ export interface Profile {
     ultimo_nome: string | null;
     email: string | null;
     avatar_url: string | null;
+    online_status?: 'online' | 'offline' | string | null;
 }
 
 export interface Message {
