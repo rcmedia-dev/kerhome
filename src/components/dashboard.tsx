@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { Home, Heart, BarChart3, Eye, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -28,6 +28,7 @@ import { NotificationsPanel } from './dashboard/notifications-panel';
 function DashboardInner() {
   const { user, isLoading: userLoading } = useUserStore();
   const { activeConversationId } = useChatStore();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const isAgent = ['agente', 'agent', 'corretor', 'profissional'].includes(user?.role?.toLowerCase() || '');
   const [activeTab, setActiveTab] = useState('properties');
@@ -240,9 +241,9 @@ function DashboardInner() {
               <div className="flex items-center gap-2 shrink-0">
                 <NotificationsPanel userId={user.id} />
                 <button
-                  onClick={() => setShowMobileSidebar(true)}
+                  onClick={() => router.push('/dashboard?tab=settings')}
                   className="relative shrink-0 active:scale-95 transition-transform"
-                  aria-label="Perfil do Usuário"
+                  aria-label="Configurações do perfil"
                 >
                   <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-purple-600 to-orange-500 p-[2px] shadow-sm shadow-purple-300/40">
                     <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center">

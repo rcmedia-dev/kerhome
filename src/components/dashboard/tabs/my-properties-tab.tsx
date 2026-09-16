@@ -231,6 +231,7 @@ function AgentPropertyCard({
 
   const leads = (property as any).leads_count ?? Math.max(1, Math.round((property.views_count || 10) * 0.07));
   const score = Math.min(100, Math.round(60 + ((property.views_count || 0) / 5)));
+  const photoCount = property.fotos?.length || 0;
 
   return (
     <motion.div
@@ -240,93 +241,79 @@ function AgentPropertyCard({
       exit={{ opacity: 0, scale: 0.97 }}
       transition={{ duration: 0.22 }}
       className={cn(
-        "bg-white rounded-2xl border flex gap-3 p-3 shadow-sm active:scale-[0.992] transition-transform",
+        "bg-white rounded-[20px] border overflow-hidden shadow-sm active:scale-[0.992] transition-transform",
         property.aprovement_status === 'rejected' ? "border-rose-200/80 opacity-80" : "border-slate-200/80",
         (property as any).is_destaque && property.aprovement_status === 'approved' && "border-amber-300/70 ring-1 ring-amber-200/60"
       )}
     >
-      {/* Thumbnail com overlay de status */}
-      <div className="relative w-[90px] h-[90px] shrink-0 rounded-xl overflow-hidden bg-slate-100">
+      {/* Hero image: status, tipo de negócio, fotos e preço ficam no contexto visual do imóvel. */}
+      <div className="relative h-[172px] w-full overflow-hidden bg-slate-100">
         <img
           src={thumb}
           alt={property.titulo}
           className="w-full h-full object-cover"
           loading="lazy"
         />
-        {/* Status badge na thumbnail */}
-        <span className={cn(
-          "absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tight flex items-center gap-1",
-          status.bg, status.text, status.border, "border"
-        )}>
-          <span className={cn("w-1.5 h-1.5 rounded-full", status.dot)} />
-          {status.label}
-        </span>
-        {/* Badge destaque */}
-        {(property as any).is_destaque && (
-          <span className="absolute top-1.5 right-1.5 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center shadow-sm">
-            <Sparkles className="w-2.5 h-2.5 text-white fill-white" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-transparent to-black/70" />
+        <div className="absolute top-3 left-3 flex items-center gap-1.5">
+          <span className={cn("px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-tight flex items-center gap-1 shadow-sm", status.bg, status.text, status.border, "border")}>
+            <span className={cn("w-1.5 h-1.5 rounded-full", status.dot)} />
+            {status.label}
+          </span>
+          <span className="px-2 py-1 rounded-lg bg-black/55 text-white text-[10px] font-bold backdrop-blur-sm">
+            {property.tipo_negocio === 'aluguel' || property.tipo_negocio === 'arrendamento' ? 'Arrendamento' : 'Venda'}
+          </span>
+        </div>
+        {photoCount > 0 && (
+          <span className="absolute top-3 right-3 px-2 py-1 rounded-lg bg-black/55 text-white text-[10px] font-bold backdrop-blur-sm">
+            {photoCount} fotos
           </span>
         )}
+        {(property as any).is_destaque && (
+          <span className="absolute bottom-3 right-3 px-2 py-1 rounded-lg bg-amber-500 text-white text-[9px] font-black uppercase shadow-sm">
+            ★ Destaque
+          </span>
+        )}
+        <div className="absolute bottom-3 left-3 right-3">
+          <span className="text-[19px] font-black leading-none text-white drop-shadow-md">
+            {formatPriceKz(property.preco, property.tipo_negocio)}
+          </span>
+        </div>
       </div>
 
-      {/* Conteúdo Central */}
-      <div className="flex-1 min-w-0 flex flex-col">
-        {/* Row 1: Referência + Data */}
-        <div className="flex items-center justify-between mb-0.5">
-          <span className="text-[10px] font-black text-purple-700 uppercase tracking-wider">
-            {property.tipo_negocio === 'aluguel' || property.tipo_negocio === 'arrendamento' ? 'Arrendamento' : 'Venda'}
-            {' '}·{' '}
-            {property.bairro || property.cidade}
-          </span>
-          <span className="text-[9.5px] text-slate-400 font-semibold ml-1 shrink-0">
-            {relativeDate(property.created_at)}
-          </span>
-        </div>
-
-        {/* Título */}
-        <h3 className="text-[12.5px] font-black text-slate-900 leading-snug line-clamp-2 mb-1">
-          {property.titulo}
-        </h3>
-
-        {/* Preço em Kz */}
-        <div className="text-[14px] font-black text-purple-700 leading-none mb-2">
-          {formatPriceKz(property.preco, property.tipo_negocio)}
-        </div>
-
-        {/* Métricas Comerciais do Corretor: Views + Leads + Health Score */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="flex items-center gap-1 text-[10.5px] text-slate-500 font-bold">
-            <Eye className="w-3 h-3 text-slate-400" />
-            {property.views_count || 0}
-          </span>
-          <span className="text-slate-300 text-xs">·</span>
-          <span className="flex items-center gap-1 text-[10.5px] text-emerald-700 font-black">
-            <Phone className="w-3 h-3 text-emerald-500" />
-            {leads} leads
-          </span>
-          <span className="text-slate-300 text-xs">·</span>
-          {/* Health Score mini-bar */}
-          <div className="flex items-center gap-1">
-            <div className="w-12 h-1.5 bg-slate-200 rounded-full overflow-hidden">
-              <div
-                className={cn("h-full rounded-full", score >= 80 ? "bg-emerald-500" : score >= 60 ? "bg-amber-500" : "bg-rose-500")}
-                style={{ width: `${score}%` }}
-              />
+      <div className="p-3">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h3 className="text-[14.5px] font-black text-slate-900 leading-snug line-clamp-2">{property.titulo}</h3>
+            <div className="flex items-center gap-1 mt-0.5 text-[10.5px] text-slate-500">
+              <MapPin className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+              <span className="truncate">{property.bairro || property.cidade}, {property.cidade || 'Angola'}</span>
             </div>
-            <span className={cn("text-[9.5px] font-black", score >= 80 ? "text-emerald-700" : score >= 60 ? "text-amber-700" : "text-rose-700")}>
-              {score}%
-            </span>
           </div>
+          <span className="text-[10px] text-slate-400 font-semibold shrink-0">{relativeDate(property.created_at)}</span>
+        </div>
+
+        <div className="flex items-center gap-2.5 mt-2 pb-2 border-b border-slate-100">
+          <span className="text-[10.5px] text-slate-600"><strong className="text-slate-900">{property.quartos || 0}</strong> quartos</span>
+          <span className="text-[10.5px] text-slate-600"><strong className="text-slate-900">{property.banheiros || 0}</strong> WCs</span>
+          <span className="text-[10.5px] text-slate-600"><strong className="text-slate-900">{property.area_total || 0}</strong> m²</span>
+        </div>
+
+        <div className="flex items-center justify-center gap-5 mt-2 mb-2 text-[10px] font-semibold">
+          <span className="text-slate-500"><Eye className="inline w-3 h-3 mr-0.5" />{property.views_count || 0} views</span>
+          <span className="text-purple-700"><Phone className="inline w-3 h-3 mr-0.5" />{leads} leads</span>
+          <span className={cn(score >= 80 ? "text-emerald-700" : score >= 60 ? "text-amber-700" : "text-rose-700")}>Saúde {score}%</span>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <Link href={`/dashboard/editar-imovel/${property.id}`} className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-purple-50 border border-purple-100 py-1.5 text-[11px] font-black text-purple-700 active:scale-[0.98]">
+            <Pencil className="w-3.5 h-3.5" />Editar
+          </Link>
+          <button onClick={() => onOpenActions(property)} className="w-9 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center active:scale-90" aria-label={`Mais ações para ${property.titulo}`}>
+            <MoreVertical className="w-4 h-4" />
+          </button>
         </div>
       </div>
-
-      {/* Botão de Ações Rápidas */}
-      <button
-        onClick={() => onOpenActions(property)}
-        className="shrink-0 self-start mt-0.5 w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center active:scale-90 transition-all"
-      >
-        <MoreVertical className="w-4 h-4" />
-      </button>
     </motion.div>
   );
 }
@@ -345,6 +332,8 @@ function UserPropertyCard({
   const thumb =
     property.fotos?.[0] ||
     'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=300&auto=format&fit=crop&q=80';
+  const photoCount = property.fotos?.length || 0;
+  const propertyData = property as any;
 
   return (
     <motion.div
@@ -354,67 +343,58 @@ function UserPropertyCard({
       exit={{ opacity: 0, scale: 0.97 }}
       transition={{ duration: 0.22 }}
       className={cn(
-        "bg-white rounded-2xl border flex gap-3 p-3 shadow-sm active:scale-[0.992] transition-transform",
+        "bg-white rounded-[20px] border overflow-hidden shadow-sm active:scale-[0.992] transition-transform",
         property.aprovement_status === 'rejected' ? "border-rose-200/60 opacity-75" : "border-slate-200/80"
       )}
     >
-      {/* Thumbnail simples */}
-      <div className="relative w-[84px] h-[84px] shrink-0 rounded-xl overflow-hidden bg-slate-100">
+      <div className="relative h-[160px] w-full overflow-hidden bg-slate-100">
         <img
           src={thumb}
           alt={property.titulo}
           className="w-full h-full object-cover"
           loading="lazy"
         />
-        {/* Status badge */}
-        <span className={cn(
-          "absolute bottom-1 left-1 px-1.5 py-0.5 rounded-md text-[9px] font-black",
-          status.bg, status.text, "border", status.border
-        )}>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/65" />
+        <span className={cn("absolute top-3 left-3 px-2 py-1 rounded-lg text-[10px] font-black shadow-sm", status.bg, status.text, "border", status.border)}>
           {status.label}
+        </span>
+        {photoCount > 0 && (
+          <span className="absolute top-3 right-3 px-2 py-1 rounded-lg bg-black/55 text-white text-[10px] font-bold backdrop-blur-sm">
+            {photoCount} fotos
+          </span>
+        )}
+        <span className="absolute bottom-3 left-3 text-[18px] font-black text-white drop-shadow-md">
+          {formatPriceKz(property.preco, property.tipo_negocio)}
         </span>
       </div>
 
-      {/* Conteúdo */}
-      <div className="flex-1 min-w-0 flex flex-col justify-between">
-        {/* Tipo negócio + localização */}
-        <div className="flex items-center justify-between mb-0.5">
-          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">
-            {property.tipo_negocio === 'aluguel' || property.tipo_negocio === 'arrendamento' ? 'Para Arrendar' : 'Para Venda'}
-          </span>
-          <span className="text-[9.5px] text-slate-400 font-medium">{relativeDate(property.created_at)}</span>
+      <div className="p-3">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h3 className="text-[14px] font-black text-slate-900 leading-snug line-clamp-2">{property.titulo}</h3>
+            <div className="flex items-center gap-1 mt-0.5 text-[10.5px] text-slate-500">
+              <MapPin className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+              <span className="truncate">{property.bairro || property.cidade}, {property.cidade || 'Angola'}</span>
+            </div>
+          </div>
+          <span className="text-[10px] text-slate-400 font-semibold shrink-0">{relativeDate(property.created_at)}</span>
         </div>
 
-        {/* Título */}
-        <h3 className="text-[12.5px] font-bold text-slate-900 leading-snug line-clamp-2 mb-1">
-          {property.titulo}
-        </h3>
-
-        {/* Localização */}
-        <div className="flex items-center gap-1 text-[10.5px] text-slate-500 mb-2">
-          <MapPin className="w-3 h-3 text-purple-500 shrink-0" />
-          <span className="truncate">{property.bairro || property.cidade}, Angola</span>
+        <div className="flex items-center gap-2.5 mt-2 pb-2 border-b border-slate-100">
+          <span className="text-[10.5px] text-slate-600"><strong className="text-slate-900">{propertyData.quartos || 0}</strong> quartos</span>
+          <span className="text-[10.5px] text-slate-600"><strong className="text-slate-900">{propertyData.banheiros || 0}</strong> WCs</span>
+          <span className="text-[10.5px] text-slate-600"><strong className="text-slate-900">{propertyData.area_total || 0}</strong> m²</span>
         </div>
 
-        {/* Preço + visualizações simples */}
-        <div className="flex items-center justify-between">
-          <span className="text-[13px] font-black text-purple-700">
-            {formatPriceKz(property.preco, property.tipo_negocio)}
+        <div className="flex items-center justify-between mt-2">
+          <span className="flex items-center gap-1 text-[10px] text-slate-500 font-semibold bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded-lg">
+            <Eye className="w-3 h-3" /> {propertyData.views_count || 0} visualizações
           </span>
-          <span className="flex items-center gap-1 text-[10px] text-slate-400 font-semibold bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded-lg">
-            <Eye className="w-3 h-3" />
-            {property.views_count || 0}
-          </span>
+          <button onClick={() => onOpenActions(property)} className="w-9 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center active:scale-90" aria-label={`Mais ações para ${propertyData.titulo}`}>
+            <MoreVertical className="w-4 h-4" />
+          </button>
         </div>
       </div>
-
-      {/* Botão (...) */}
-      <button
-        onClick={() => onOpenActions(property)}
-        className="shrink-0 self-start mt-0.5 w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center active:scale-90 transition-all"
-      >
-        <MoreVertical className="w-4 h-4" />
-      </button>
     </motion.div>
   );
 }
