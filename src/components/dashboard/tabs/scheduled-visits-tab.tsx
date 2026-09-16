@@ -575,14 +575,14 @@ function AgentVisitSheet({
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-            className="fixed bottom-0 left-0 right-0 z-[101] bg-white rounded-t-[30px] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col lg:hidden"
+            className="fixed bottom-0 left-0 right-0 z-[101] bg-white rounded-t-[30px] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col lg:hidden mobile-scroll-container safe-area-bottom"
             style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}
           >
             <div className="flex justify-center pt-3 pb-1 shrink-0">
               <div className="w-10 h-1 rounded-full bg-slate-300" />
             </div>
 
-            <div className="overflow-y-auto px-5 pb-6 pt-2 space-y-4">
+            <div className="mobile-scroll-container overflow-y-auto px-5 pb-6 pt-2 space-y-4">
               <div className="flex items-start justify-between">
                 <div>
                   <span className="text-[10px] font-black uppercase tracking-wider text-purple-700 block">
@@ -694,14 +694,14 @@ function UserVisitSheet({
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-            className="fixed bottom-0 left-0 right-0 z-[101] bg-white rounded-t-[30px] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col lg:hidden"
+            className="fixed bottom-0 left-0 right-0 z-[101] bg-white rounded-t-[30px] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col lg:hidden mobile-scroll-container safe-area-bottom"
             style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}
           >
             <div className="flex justify-center pt-3 pb-1 shrink-0">
               <div className="w-10 h-1 rounded-full bg-slate-300" />
             </div>
 
-            <div className="overflow-y-auto px-5 pb-6 pt-2 space-y-4">
+            <div className="mobile-scroll-container overflow-y-auto px-5 pb-6 pt-2 space-y-4">
               <div className="flex items-start justify-between">
                 <div>
                   <span className="text-[10px] font-black uppercase tracking-wider text-purple-700 block">

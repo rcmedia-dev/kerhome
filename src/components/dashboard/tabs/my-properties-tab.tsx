@@ -444,7 +444,7 @@ function AgentActionsSheet({
           <motion.div
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 280 }}
-            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[28px] z-[101] max-h-[92vh] flex flex-col lg:hidden"
+            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[28px] z-[101] max-h-[92vh] flex flex-col lg:hidden mobile-scroll-container safe-area-bottom"
             style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}
           >
             {/* Handle */}
@@ -484,7 +484,7 @@ function AgentActionsSheet({
               </div>
             </div>
 
-            <div className="overflow-y-auto flex-1 p-4 space-y-2">
+            <div className="mobile-scroll-container overflow-y-auto flex-1 p-4 space-y-2">
               {/* Editar anúncio */}
               <Link href={`/dashboard/editar-imovel/${property.id}`} onClick={onClose}
                 className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80 active:scale-[0.98] transition-transform">
@@ -650,7 +650,7 @@ function UserActionsSheet({
           <motion.div
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 280 }}
-            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[28px] z-[101] max-h-[85vh] flex flex-col lg:hidden"
+            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[28px] z-[101] max-h-[85vh] flex flex-col lg:hidden mobile-scroll-container safe-area-bottom"
             style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}
           >
             <div className="flex justify-center pt-3 pb-1.5">
@@ -678,7 +678,7 @@ function UserActionsSheet({
               </button>
             </div>
 
-            <div className="overflow-y-auto flex-1 p-4 space-y-2">
+            <div className="mobile-scroll-container overflow-y-auto flex-1 p-4 space-y-2">
               {/* Ver detalhes */}
               <Link href={`/propriedades/${property.slug || property.id}`} onClick={onClose}
                 className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80 active:scale-[0.98] transition-transform">
@@ -803,7 +803,7 @@ function MobileFilterSheet({
           <motion.div
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 280 }}
-            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[28px] z-[101] max-h-[85vh] flex flex-col lg:hidden"
+            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[28px] z-[101] max-h-[85vh] flex flex-col lg:hidden mobile-scroll-container safe-area-bottom"
             style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}>
 
             <div className="flex justify-center pt-3 pb-1.5">
@@ -817,7 +817,7 @@ function MobileFilterSheet({
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
+            <div className="mobile-scroll-container flex-1 overflow-y-auto px-5 py-4 space-y-5">
               <div>
                 <p className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">Status</p>
                 <div className="grid grid-cols-2 gap-2">

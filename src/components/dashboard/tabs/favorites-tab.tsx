@@ -209,14 +209,14 @@ function FavoriteActionSheet({
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-            className="fixed bottom-0 left-0 right-0 z-[101] bg-white rounded-t-[32px] shadow-2xl overflow-hidden max-h-[88vh] flex flex-col"
+            className="fixed bottom-0 left-0 right-0 z-[101] bg-white rounded-t-[32px] shadow-2xl overflow-hidden max-h-[88vh] flex flex-col mobile-scroll-container safe-area-bottom"
           >
             {/* Drag Handle */}
             <div className="flex justify-center pt-3 pb-1 shrink-0">
               <div className="w-11 h-1.5 rounded-full bg-slate-300" />
             </div>
 
-            <div className="overflow-y-auto px-5 pb-8 pt-2 space-y-4">
+            <div className="mobile-scroll-container overflow-y-auto px-5 pb-8 pt-2 space-y-4">
               {/* Header do Sheet */}
               <div className="flex items-start justify-between">
                 <div>

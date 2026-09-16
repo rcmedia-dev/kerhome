@@ -166,7 +166,7 @@ function DashboardInner() {
   const hasRightSidebar = activeTab !== 'stats' && activeTab !== 'messages';
 
   return (
-    <div className="h-[100dvh] lg:h-[calc(100vh-104px)] bg-gray-50 flex flex-col lg:flex-row relative overflow-hidden">
+    <div className="mobile-app-shell lg:h-[calc(100vh-104px)] bg-gray-50 flex flex-col lg:flex-row relative overflow-hidden">
 
       {/* Listener de Notificações de Lead */}
       <AgencyNotificationsListener imobiliariaId={userAgency.data?.id || null} />
@@ -224,7 +224,7 @@ function DashboardInner() {
           "lg:hidden sticky top-0 z-30 shrink-0",
           isInChatView && "hidden"
         )}>
-          <div className="bg-white/95 backdrop-blur-xl border-b border-slate-100/90 shadow-2xs">
+          <div className="safe-area-top bg-white/95 backdrop-blur-xl border-b border-slate-100/90 shadow-2xs">
             <div className="px-3.5 py-2.5 flex items-center justify-between">
               {/* Left: Hamburger Menu */}
               <button
@@ -264,7 +264,7 @@ function DashboardInner() {
         </div>
 
         {/* ── Scrollable Content ── */}
-        <div className="flex-1 overflow-y-auto lg:overflow-hidden flex flex-col">
+        <div className="mobile-scroll-container flex-1 overflow-y-auto lg:overflow-hidden flex flex-col">
           <div className={cn(
             "w-full lg:pb-4",
             isInChatView

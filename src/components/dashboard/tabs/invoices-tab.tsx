@@ -108,7 +108,7 @@ function BottomSheet({
           {/* Sheet panel — slides up from bottom */}
           <motion.div
             key="bs-panel"
-            className="fixed bottom-0 left-0 right-0 z-[101] bg-white rounded-t-3xl shadow-2xl overflow-hidden"
+            className="fixed bottom-0 left-0 right-0 z-[101] bg-white rounded-t-3xl shadow-2xl overflow-hidden mobile-scroll-container safe-area-bottom"
             style={{ maxHeight: '88vh' }}
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
@@ -119,7 +119,7 @@ function BottomSheet({
             <div className="flex justify-center pt-3 pb-1">
               <div className="w-10 h-1 rounded-full bg-slate-200" />
             </div>
-            <div className="overflow-y-auto" style={{ maxHeight: 'calc(88vh - 20px)' }}>
+            <div className="mobile-scroll-container overflow-y-auto" style={{ maxHeight: 'calc(88vh - 20px)' }}>
               {children}
             </div>
           </motion.div>

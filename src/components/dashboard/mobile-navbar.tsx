@@ -111,8 +111,7 @@ export function MobileNavbar({
                 NAVBAR — FLOATING DOCK ARREDONDADO (VARIAÇÃO 1: FINTECH DOCK)
             ═════════════════════════════════════════════════════════════════ */}
             <nav
-                className="lg:hidden fixed bottom-3 left-3 right-3 z-50 bg-white/95 backdrop-blur-2xl rounded-[26px] border border-slate-200/90 shadow-[0_12px_32px_-6px_rgba(0,0,0,0.15)] flex items-center justify-around px-2 py-1 select-none"
-                style={{ marginBottom: 'env(safe-area-inset-bottom, 0px)' }}
+                className="lg:hidden fixed bottom-3 left-3 right-3 z-50 bg-white/95 backdrop-blur-2xl rounded-[26px] border border-slate-200/90 shadow-[0_12px_32px_-6px_rgba(0,0,0,0.15)] flex items-center justify-around px-2 pt-1 select-none safe-area-bottom"
             >
                 {/* Aba 1: Imóveis */}
                 <button
@@ -251,7 +250,7 @@ export function MobileNavbar({
                             animate={{ x: 0 }}
                             exit={{ x: '-100%' }}
                             transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-                            className="lg:hidden fixed top-0 left-0 bottom-0 w-[310px] max-w-[85vw] bg-white z-[70] shadow-2xl flex flex-col overflow-hidden"
+                            className="lg:hidden fixed top-0 left-0 bottom-0 w-[310px] max-w-[85vw] bg-white z-[70] shadow-2xl flex flex-col overflow-hidden safe-area-top mobile-app-shell"
                         >
                             {/* Card Executivo do Usuário */}
                             <div className="p-5 bg-gradient-to-br from-[#1e1b4b] via-[#2a133d] to-[#3b0d40] text-white shrink-0 rounded-b-[28px] shadow-md">
@@ -310,7 +309,7 @@ export function MobileNavbar({
                             </div>
 
                             {/* Links de Navegação Categorizados */}
-                            <div className="flex-1 overflow-y-auto py-3 px-3 space-y-4">
+                            <div className="mobile-scroll-container flex-1 overflow-y-auto py-3 px-3 space-y-4">
                                 {/* Seção: Gestão Imobiliária */}
                                 <div>
                                     <p className="px-3 py-1 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">

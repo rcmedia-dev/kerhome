@@ -416,7 +416,7 @@ export function MessagesTab() {
           </div>
 
           {/* Body: Conversation Items */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <div className="mobile-scroll-container flex-1 overflow-y-auto custom-scrollbar">
             {isLoading && conversations.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-3">
                 <div className="w-8 h-8 border-4 border-purple-100 border-t-purple-600 rounded-full animate-spin" />
@@ -624,7 +624,7 @@ export function MessagesTab() {
         )}>
 
           {activeConversationId ? (
-            <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col pb-10 lg:pb-10">
+            <div className="mobile-scroll-container flex-1 overflow-y-auto custom-scrollbar flex flex-col pb-10 lg:pb-10">
               
               {/* Profile Overview - Mobile: Full screen header / Desktop: Original */}
               <div className="lg:p-6 p-4 pt-14 lg:pt-6 bg-white border-b border-gray-100 shadow-sm shrink-0 relative">
@@ -1049,7 +1049,7 @@ function VisitSchedulerModal({
             </div>
 
             {/* Content - Scrollable */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8">
+            <div className="mobile-scroll-container flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8">
               {/* Property selector */}
               <section className="space-y-3">
                 <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">Imóvel da Visita *</p>

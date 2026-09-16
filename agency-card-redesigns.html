@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agency Card Redesigns</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; min-height: 100vh; }
+  nav { position: sticky; top: 0; z-index: 100; background: #fff; border-bottom: 1px solid #e5e7eb; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  nav button { background: #6D28D9; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .2s; }
+  nav button:hover { background: #5b21b6; }
+  nav button:disabled { background: #c4b5fd; cursor: default; }
+  nav .label { font-size: 14px; font-weight: 500; color: #374151; }
+  .variation { display: none; padding: 40px 24px; max-width: 1200px; margin: 0 auto; }
+  .variation.active { display: block; }
+  .variation h2 { text-align: center; font-size: 22px; color: #1f2937; margin-bottom: 8px; }
+  .variation .desc { text-align: center; color: #6b7280; font-size: 14px; margin-bottom: 32px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+
+  /* V1 - Clean Centered */
+  .v1-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 0; overflow: hidden; transition: transform .25s, box-shadow .25s; border-top: 4px solid #6D28D9; }
+  .v1-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(109,40,217,.15); }
+  .v1-card .inner { padding: 28px 24px 24px; display: flex; flex-direction: column; align-items: center; }
+  .v1-card .logo-wrap { position: relative; margin-bottom: 14px; }
+  .v1-card .logo-wrap img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 3px solid #f3e8ff; }
+  .v1-card .badge { position: absolute; bottom: 0; right: -2px; background: #fff; border-radius: 50%; padding: 3px; }
+  .v1-card .badge svg { display: block; }
+  .v1-card .name { font-size: 17px; font-weight: 700; color: #1f2937; margin-bottom: 6px; text-align: center; }
+  .v1-card .city { display: flex; align-items: center; gap: 5px; font-size: 13px; color: #6b7280; margin-bottom: 18px; }
+  .v1-card .btn { width: 100%; background: #6D28D9; color: #fff; border: none; padding: 11px 0; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .2s; }
+  .v1-card .btn:hover { background: #5b21b6; }
+
+  /* V2 - Horizontal Split */
+  .v2-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 20px; display: flex; align-items: center; gap: 18px; transition: transform .25s, box-shadow .25s; }
+  .v2-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(109,40,217,.12); }
+  .v2-card .logo-wrap { flex-shrink: 0; position: relative; }
+  .v2-card .logo-wrap img { width: 64px; height: 64px; border-radius: 14px; object-fit: cover; }
+  .v2-card .badge { position: absolute; bottom: -4px; right: -4px; background: #fff; border-radius: 50%; padding: 2px; }
+  .v2-card .badge svg { display: block; }
+  .v2-card .info { flex: 1; min-width: 0; }
+  .v2-card .name { font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .v2-card .city { display: flex; align-items: center; gap: 5px; font-size: 13px; color: #6b7280; margin-bottom: 12px; }
+  .v2-card .btn { background: #f3e8ff; color: #6D28D9; border: none; padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .2s, color .2s; display: inline-flex; align-items: center; gap: 4px; }
+  .v2-card .btn:hover { background: #6D28D9; color: #fff; }
+
+  /* V3 - Glass Morphism */
+  .v3-wrap { background: linear-gradient(135deg, #6D28D9 0%, #a855f7 50%, #6D28D9 100%); border-radius: 20px; padding: 3px; transition: transform .25s, box-shadow .25s; }
+  .v3-wrap:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(109,40,217,.25); }
+  .v3-card { background: rgba(255,255,255,.15); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,.25); border-radius: 18px; padding: 32px 24px 24px; display: flex; flex-direction: column; align-items: center; }
+  .v3-card .logo-wrap { position: relative; margin-bottom: 16px; }
+  .v3-card .logo-wrap img { width: 68px; height: 68px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,.4); }
+  .v3-card .badge { position: absolute; bottom: 0; right: -2px; background: rgba(255,255,255,.9); border-radius: 50%; padding: 3px; }
+  .v3-card .badge svg { display: block; }
+  .v3-card .name { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 6px; text-align: center; }
+  .v3-card .city { display: flex; align-items: center; gap: 5px; font-size: 13px; color: rgba(255,255,255,.8); margin-bottom: 20px; }
+  .v3-card .btn { width: 100%; background: linear-gradient(135deg, #a855f7, #6D28D9); color: #fff; border: none; padding: 11px 0; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity .2s; }
+  .v3-card .btn:hover { opacity: .88; }
+
+  /* V4 - Compact Split */
+  .v4-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; overflow: hidden; transition: transform .25s, box-shadow .25s; }
+  .v4-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(109,40,217,.15); }
+  .v4-card .top { background: linear-gradient(135deg, #6D28D9, #a855f7); padding: 24px 22px 20px; display: flex; align-items: center; gap: 14px; }
+  .v4-card .logo-wrap { flex-shrink: 0; position: relative; }
+  .v4-card .logo-wrap img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,.4); }
+  .v4-card .badge { position: absolute; bottom: -3px; right: -3px; background: #fff; border-radius: 50%; padding: 2px; }
+  .v4-card .badge svg { display: block; }
+  .v4-card .top .name { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+  .v4-card .top .city { display: flex; align-items: center; gap: 5px; font-size: 12px; color: rgba(255,255,255,.8); }
+  .v4-card .bottom { padding: 18px 22px 20px; }
+  .v4-card .stats { display: flex; gap: 24px; margin-bottom: 16px; }
+  .v4-card .stat-val { font-size: 18px; font-weight: 700; color: #1f2937; }
+  .v4-card .stat-lbl { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .v4-card .btn { width: 100%; background: #6D28D9; color: #fff; border: none; padding: 10px 0; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .2s; }
+  .v4-card .btn:hover { background: #5b21b6; }
+
+  /* V5 - Minimal Borderless */
+  .v5-card { background: #fff; border: none; border-radius: 16px; padding: 28px 24px; display: flex; flex-direction: column; align-items: center; transition: transform .25s, box-shadow .25s; }
+  .v5-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(109,40,217,.12); }
+  .v5-card .logo-wrap { position: relative; margin-bottom: 14px; }
+  .v5-card .logo-wrap img { width: 76px; height: 76px; border-radius: 50%; object-fit: cover; }
+  .v5-card .badge { position: absolute; bottom: 0; right: -2px; background: #fff; border-radius: 50%; padding: 3px; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+  .v5-card .badge svg { display: block; }
+  .v5-card .name { font-size: 17px; font-weight: 700; color: #1f2937; margin-bottom: 4px; text-align: center; }
+  .v5-card .city { display: flex; align-items: center; gap: 5px; font-size: 13px; color: #6b7280; margin-bottom: 18px; }
+  .v5-card .divider { width: 60%; height: 1px; background: #d8b4fe; margin-bottom: 18px; }
+  .v5-card .btn { background: transparent; color: #6D28D9; border: 2px solid #6D28D9; padding: 9px 28px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .2s, color .2s; }
+  .v5-card .btn:hover { background: #6D28D9; color: #fff; }
+</style>
+</head>
+<body>
+
+<nav>
+  <button id="prevBtn" disabled onclick="navigate(-1)">← Anterior</button>
+  <span class="label" id="navLabel">Variante 1 de 5</span>
+  <button id="nextBtn" onclick="navigate(1)">Próximo →</button>
+</nav>
+
+<!-- V1 -->
+<div class="variation active" id="v1">
+  <h2>Variante 1 — Clean Centered</h2>
+  <p class="desc">Logo centralizado, barra roxa no topo, fundo branco limpo</p>
+  <div class="grid">
+    <div class="v1-card"><div class="inner">
+      <div class="logo-wrap">
+        <img src="https://placehold.co/144x144/f3e8ff/6D28D9?text=AG" alt="Logo">
+        <span class="badge"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="9" fill="#6D28D9"/><path d="M5.5 9.5l2.2 2.2 4.8-4.8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="name">Imobiliária Alpha</div>
+      <div class="city"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>São Paulo, SP</div>
+      <button class="btn">Ver Perfil</button>
+    </div></div>
+    <div class="v1-card"><div class="inner">
+      <div class="logo-wrap">
+        <img src="https://placehold.co/144x144/e0e7ff/4338ca?text=BR" alt="Logo">
+        <span class="badge"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="9" fill="#6D28D9"/><path d="M5.5 9.5l2.2 2.2 4.8-4.8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="name">Brasil Realty Group</div>
+      <div class="city"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Rio de Janeiro, RJ</div>
+      <button class="btn">Ver Perfil</button>
+    </div></div>
+    <div class="v1-card"><div class="inner">
+      <div class="logo-wrap">
+        <img src="https://placehold.co/144x144/fce7f3/be185d?text=MC" alt="Logo">
+        <span class="badge"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="9" fill="#6D28D9"/><path d="M5.5 9.5l2.2 2.2 4.8-4.8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="name">Mercado Casa Ltda</div>
+      <div class="city"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Belo Horizonte, MG</div>
+      <button class="btn">Ver Perfil</button>
+    </div></div>
+  </div>
+</div>
+
+<!-- V2 -->
+<div class="variation" id="v2">
+  <h2>Variante 2 — Horizontal Split</h2>
+  <p class="desc">Logo à esquerda, informações à direita, botão inline</p>
+  <div class="grid">
+    <div class="v2-card">
+      <div class="logo-wrap">
+        <img src="https://placehold.co/128x128/f3e8ff/6D28D9?text=AG" alt="Logo">
+        <span class="badge"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="9" fill="#6D28D9"/><path d="M5.5 9.5l2.2 2.2 4.8-4.8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="info">
+        <div class="name">Imobiliária Alpha</div>
+        <div class="city"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>São Paulo, SP</div>
+        <button class="btn">Ver Perfil <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6l6 6-6 6"/></svg></button>
+      </div>
+    </div>
+    <div class="v2-card">
+      <div class="logo-wrap">
+        <img src="https://placehold.co/128x128/e0e7ff/4338ca?text=BR" alt="Logo">
+        <span class="badge"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="9" fill="#6D28D9"/><path d="M5.5 9.5l2.2 2.2 4.8-4.8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="info">
+        <div class="name">Brasil Realty Group</div>
+        <div class="city"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Rio de Janeiro, RJ</div>
+        <button class="btn">Ver Perfil <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6l6 6-6 6"/></svg></button>
+      </div>
+    </div>
+    <div class="v2-card">
+      <div class="logo-wrap">
+        <img src="https://placehold.co/128x128/fce7f3/be185d?text=MC" alt="Logo">
+        <span class="badge"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="9" fill="#6D28D9"/><path d="M5.5 9.5l2.2 2.2 4.8-4.8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="info">
+        <div class="name">Mercado Casa Ltda</div>
+        <div class="city"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Belo Horizonte, MG</div>
+        <button class="btn">Ver Perfil <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6l6 6-6 6"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- V3 -->
+<div class="variation" id="v3">
+  <h2>Variante 3 — Glass Morphism</h2>
+  <p class="desc">Efeito vidro fosco, borda gradiente, fundo translúcido</p>
+  <div class="grid">
+    <div class="v3-wrap"><div class="v3-card">
+      <div class="logo-wrap">
+        <img src="https://placehold.co/136x136/f3e8ff/6D28D9?text=AG" alt="Logo">
+        <span class="badge"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="9" fill="#6D28D9"/><path d="M5.5 9.5l2.2 2.2 4.8-4.8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="name">Imobiliária Alpha</div>
+      <div class="city"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>São Paulo, SP</div>
+      <button class="btn">Ver Perfil</button>
+    </div></div>
+    <div class="v3-wrap"><div class="v3-card">
+      <div class="logo-wrap">
+        <img src="https://placehold.co/136x136/e0e7ff/4338ca?text=BR" alt="Logo">
+        <span class="badge"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="9" fill="#6D28D9"/><path d="M5.5 9.5l2.2 2.2 4.8-4.8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="name">Brasil Realty Group</div>
+      <div class="city"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Rio de Janeiro, RJ</div>
+      <button class="btn">Ver Perfil</button>
+    </div></div>
+    <div class="v3-wrap"><div class="v3-card">
+      <div class="logo-wrap">
+        <img src="https://placehold.co/136x136/fce7f3/be185d?text=MC" alt="Logo">
+        <span class="badge"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="9" fill="#6D28D9"/><path d="M5.5 9.5l2.2 2.2 4.8-4.8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="name">Mercado Casa Ltda</div>
+      <div class="city"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Belo Horizonte, MG</div>
+      <button class="btn">Ver Perfil</button>
+    </div></div>
+  </div>
+</div>
+
+<!-- V4 -->
+<div class="variation" id="v4">
+  <h2>Variante 4 — Compact Split</h2>
+  <p class="desc">Seção gradiente no topo com info, seção branca com estatísticas</p>
+  <div class="grid">
+    <div class="v4-card">
+      <div class="top">
+        <div class="logo-wrap">
+          <img src="https://placehold.co/112x112/f3e8ff/6D28D9?text=AG" alt="Logo">
+          <span class="badge"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="9" fill="#6D28D9"/><path d="M5.5 9.5l2.2 2.2 4.8-4.8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+        <div>
+          <div class="name">Imobiliária Alpha</div>
+          <div class="city"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>São Paulo, SP</div>
+        </div>
+      </div>
+      <div class="bottom">
+        <div class="stats">
+          <div><div class="stat-val">45</div><div class="stat-lbl">Imóveis</div></div>
+          <div><div class="stat-val">4.8</div><div class="stat-lbl">Avaliação</div></div>
+        </div>
+        <button class="btn">Ver Perfil</button>
+      </div>
+    </div>
+    <div class="v4-card">
+      <div class="top">
+        <div class="logo-wrap">
+          <img src="https://placehold.co/112x112/e0e7ff/4338ca?text=BR" alt="Logo">
+          <span class="badge"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="9" fill="#6D28D9"/><path d="M5.5 9.5l2.2 2.2 4.8-4.8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+        <div>
+          <div class="name">Brasil Realty Group</div>
+          <div class="city"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Rio de Janeiro, RJ</div>
+        </div>
+      </div>
+      <div class="bottom">
+        <div class="stats">
+          <div><div class="stat-val">78</div><div class="stat-lbl">Imóveis</div></div>
+          <div><div class="stat-val">4.9</div><div class="stat-lbl">Avaliação</div></div>
+        </div>
+        <button class="btn">Ver Perfil</button>
+      </div>
+    </div>
+    <div class="v4-card">
+      <div class="top">
+        <div class="logo-wrap">
+          <img src="https://placehold.co/112x112/fce7f3/be185d?text=MC" alt="Logo">
+          <span class="badge"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="9" fill="#6D28D9"/><path d="M5.5 9.5l2.2 2.2 4.8-4.8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+        <div>
+          <div class="name">Mercado Casa Ltda</div>
+          <div class="city"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Belo Horizonte, MG</div>
+        </div>
+      </div>
+      <div class="bottom">
+        <div class="stats">
+          <div><div class="stat-val">32</div><div class="stat-lbl">Imóveis</div></div>
+          <div><div class="stat-val">4.7</div><div class="stat-lbl">Avaliação</div></div>
+        </div>
+        <button class="btn">Ver Perfil</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- V5 -->
+<div class="variation" id="v5">
+  <h2>Variante 5 — Minimal Borderless</h2>
+  <p class="desc">Sem bordas, logo grande, divisor fino, botão contornado</p>
+  <div class="grid">
+    <div class="v5-card">
+      <div class="logo-wrap">
+        <img src="https://placehold.co/152x152/f3e8ff/6D28D9?text=AG" alt="Logo">
+        <span class="badge"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="9" fill="#6D28D9"/><path d="M5.5 9.5l2.2 2.2 4.8-4.8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="name">Imobiliária Alpha</div>
+      <div class="city"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>São Paulo, SP</div>
+      <div class="divider"></div>
+      <button class="btn">Ver Perfil</button>
+    </div>
+    <div class="v5-card">
+      <div class="logo-wrap">
+        <img src="https://placehold.co/152x152/e0e7ff/4338ca?text=BR" alt="Logo">
+        <span class="badge"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="9" fill="#6D28D9"/><path d="M5.5 9.5l2.2 2.2 4.8-4.8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="name">Brasil Realty Group</div>
+      <div class="city"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Rio de Janeiro, RJ</div>
+      <div class="divider"></div>
+      <button class="btn">Ver Perfil</button>
+    </div>
+    <div class="v5-card">
+      <div class="logo-wrap">
+        <img src="https://placehold.co/152x152/fce7f3/be185d?text=MC" alt="Logo">
+        <span class="badge"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="9" fill="#6D28D9"/><path d="M5.5 9.5l2.2 2.2 4.8-4.8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="name">Mercado Casa Ltda</div>
+      <div class="city"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Belo Horizonte, MG</div>
+      <div class="divider"></div>
+      <button class="btn">Ver Perfil</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const variations = document.querySelectorAll('.variation');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const label = document.getElementById('navLabel');
+  let current = 0;
+
+  function update() {
+    variations.forEach((v, i) => v.classList.toggle('active', i === current));
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === variations.length - 1;
+    label.textContent = `Variante ${current + 1} de ${variations.length}`;
+  }
+
+  function navigate(dir) {
+    current = Math.max(0, Math.min(variations.length - 1, current + dir));
+    update();
+  }
+</script>
+
+</body>
+</html>
