@@ -182,11 +182,13 @@ function DashboardInner() {
       {/* Listener de Notificações de Lead */}
       <AgencyNotificationsListener imobiliariaId={userAgency.data?.id || null} />
 
-      {/* Tips Modal — mostra dicas em steps ao entrar no dashboard */}
-      <DashboardTipsModal
-        userId={user.id}
-        userProperties={userProperties.data || []}
-      />
+      {/* Tips Modal — mostra dicas em steps ao entrar no dashboard para corretores/agentes */}
+      {isAgent && (
+        <DashboardTipsModal
+          userId={user.id}
+          userProperties={userProperties.data || []}
+        />
+      )}
 
       {/* ── Mobile: Bottom Tab Bar → Sidebar Drawer — hidden when viewing a chat conversation ── */}
       {!isInChatView && (

@@ -30,7 +30,7 @@ const SoftMenuItem = ({
       whileTap={{ scale: 0.98 }}
       onClick={() => setActiveTab(item.id)}
       className={cn(
-        "relative flex items-center justify-between p-3 mb-1.5 rounded-md cursor-pointer select-none transition-all duration-300",
+        "relative flex items-center justify-between p-3 mb-1.5 rounded-xl cursor-pointer select-none transition-all duration-300",
         isActive
           ? "bg-white text-purple-700 shadow-sm border border-gray-100"
           : "text-gray-500 hover:bg-gray-50/80 hover:text-gray-900 border border-transparent",
@@ -41,7 +41,7 @@ const SoftMenuItem = ({
       <div className={cn("flex items-center", !isCollapsed && "space-x-3")}>
         <div
           className={cn(
-            "p-2.5 rounded-lg transition-all duration-200 relative",
+            "p-2.5 rounded-xl transition-all duration-200 relative",
             isActive
               ? "bg-purple-50 text-purple-600 shadow-sm"
               : isCollapsed

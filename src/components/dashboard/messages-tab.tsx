@@ -381,7 +381,7 @@ export function MessagesTab() {
                   key={chip.value}
                   onClick={() => setFilter(chip.value)}
                   className={cn(
-                    "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
+                    "flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border",
                     filter === chip.value
                       ? "bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-200"
                       : "bg-white text-gray-600 border-gray-200 active:bg-gray-50"
@@ -390,7 +390,7 @@ export function MessagesTab() {
                   {chip.icon}
                   {chip.label}
                   <span className={cn(
-                    "ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-black",
+                    "ml-0.5 px-1.5 py-0.5 rounded-lg text-[10px] font-black",
                     filter === chip.value ? "bg-white/20" : "bg-gray-100"
                   )}>
                     {chip.count}
@@ -549,23 +549,24 @@ export function MessagesTab() {
         {/* COLUMN 2: Chat Window (6/12) */}
         <div className={cn(
           "md:col-span-6 flex flex-col h-full overflow-hidden bg-white border-r border-gray-100 z-10",
-          !activeConversationId && "hidden md:flex"
+          !activeConversationId && "hidden md:flex",
+          activeConversationId && "fixed inset-0 z-50 md:relative md:inset-auto md:z-10 h-[100dvh] md:h-full w-full"
         )}>
           {activeConversationId ? (
-            <div className="flex-1 flex flex-col min-h-0 relative">
+            <div className="flex-1 flex flex-col min-h-0 relative h-full overflow-hidden">
               {/* Chat Core */}
               <ChatWindow onClose={backToList} onShowCRM={() => setIsMobileCrmOpen(true)} />
               
-              {/* Contextual Quick Replies - Mobile: Bottom sheet style */}
+              {/* Contextual Quick Replies - Mobile: Above input form */}
               <AnimatePresence>
                 {showTemplates && (
                   <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 20 }}
-                    className="lg:absolute lg:bottom-20 lg:left-0 lg:right-0 lg:p-4 absolute bottom-0 left-0 right-0 p-4 bg-linear-to from-white via-white/95 to-white lg:bg-linear-to lg:from-white lg:via-white/95 lg:to-transparent pointer-events-none"
+                    className="absolute bottom-20 left-0 right-0 p-3 bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none z-20"
                   >
-                    <div className="flex flex-wrap gap-2 justify-center pointer-events-auto lg:flex-wrap">
+                    <div className="flex flex-wrap gap-2 justify-center pointer-events-auto">
                        {QUICK_REPLIES.map((text, i) => (
                          <button 
                            key={i} 
@@ -573,9 +574,9 @@ export function MessagesTab() {
                              const event = new CustomEvent('insert-ai-reply', { detail: text });
                              window.dispatchEvent(event);
                            }}
-                           className="lg:px-4 lg:py-2 px-3 py-2 bg-white shadow-md border border-purple-100 rounded-full lg:text-[10px] text-xs font-bold text-purple-700 active:bg-purple-600 active:text-white active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+                           className="px-3 py-1.5 bg-white shadow-md border border-purple-100 rounded-full text-xs font-bold text-purple-700 active:bg-purple-600 active:text-white active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
                          >
-                           <Zap className="w-3.5 h-3.5" />
+                           <Zap className="w-3.5 h-3.5 text-purple-600" />
                            {text}
                          </button>
                        ))}
@@ -966,7 +967,7 @@ function FilterButton({ children, active, onClick, icon }: { children: React.Rea
     <button
       onClick={onClick}
       className={cn(
-        "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black transition-all border-2 shrink-0 uppercase tracking-tighter cursor-pointer",
+        "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black transition-all border-2 shrink-0 uppercase tracking-tighter cursor-pointer",
         active 
           ? "bg-purple-700 text-white border-purple-700 shadow-md" 
           : "bg-white text-gray-500 border-gray-100 hover:border-gray-300"

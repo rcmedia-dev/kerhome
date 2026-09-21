@@ -5,15 +5,13 @@ import { getFaturas } from '@/lib/functions/supabase-actions/user-bills-action';
 import { getMyPropertiesWithViews } from '@/lib/functions/supabase-actions/property-views-actions';
 import { getUserPlan } from '@/lib/functions/supabase-actions/get-user-package-action';
 import { getUserAgency } from '@/lib/functions/supabase-actions/imobiliaria-actions';
-import { getMockDashboardInvoices, getMockDashboardProperties } from '@/lib/mocks/dashboard-data';
 
 export function useDashboardData(userId: string | undefined) {
     const userProperties = useQuery({
         queryKey: ['user-properties', userId],
         queryFn: async () => {
             if (!userId) return [];
-            const properties = await getSupabaseUserProperties(userId);
-            return properties.length > 0 ? properties : getMockDashboardProperties(userId);
+            return await getSupabaseUserProperties(userId);
         },
         enabled: !!userId,
         staleTime: 5 * 60 * 1000,
@@ -33,8 +31,7 @@ export function useDashboardData(userId: string | undefined) {
         queryKey: ['user-invoices', userId],
         queryFn: async () => {
             if (!userId) return [];
-            const invoices = await getFaturas(userId);
-            return invoices.length > 0 ? invoices : getMockDashboardInvoices(userId);
+            return await getFaturas(userId);
         },
         enabled: !!userId,
         staleTime: 5 * 60 * 1000,

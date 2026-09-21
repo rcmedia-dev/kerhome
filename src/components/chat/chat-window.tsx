@@ -36,12 +36,10 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
     const messagesContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    // Auto-scroll to bottom safely within messages container
+    // Auto-scroll to bottom safely strictly within messages container (never scroll window)
     const scrollToBottom = () => {
         if (messagesContainerRef.current) {
             messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
-        } else {
-            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
     };
 
@@ -51,7 +49,8 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
             const text = e.detail;
             if (typeof text === 'string') {
                 setInputValue(text);
-                inputRef.current?.focus();
+                // Prevent mobile browser from scrolling the window/header out of view
+                inputRef.current?.focus({ preventScroll: true });
             }
         };
         window.addEventListener('insert-ai-reply', handleInsertReply as EventListener);
@@ -212,11 +211,21 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
                 onChange={handleFileUpload}
             />
 
-            {/* Header with safe-area-top for mobile status bar */}
-            <div className="safe-area-top bg-gradient-to-r from-purple-700 to-purple-600 p-2.5 sm:p-3 flex items-center justify-between text-white shrink-0 min-w-0 shadow-xs z-10">
+            {/* Header with safe-area-top for mobile status bar - pinned to top */}
+            <div className="sticky top-0 z-30 shrink-0 safe-area-top bg-gradient-to-r from-purple-700 to-purple-600 p-2.5 sm:p-3 flex items-center justify-between text-white min-w-0 shadow-xs select-none">
                 <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
-                    <button onClick={backToList} className="p-1.5 hover:bg-white/10 rounded-full transition-colors shrink-0 active:scale-95" aria-label="Voltar à lista">
-                        <ArrowLeft size={19} />
+                    <button 
+                        type="button"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            backToList();
+                            onClose();
+                        }} 
+                        className="p-2 -ml-1 hover:bg-white/10 rounded-full transition-colors shrink-0 active:scale-95 cursor-pointer touch-manipulation" 
+                        aria-label="Voltar à lista"
+                    >
+                        <ArrowLeft size={20} />
                     </button>
                     <div className="relative shrink-0">
                         <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center overflow-hidden border border-white/30">
@@ -244,8 +253,9 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
                 <div className="flex items-center gap-1 shrink-0">
                     {onShowCRM && isDashboardMessages && (
                         <button 
+                            type="button"
                             onClick={onShowCRM} 
-                            className="md:hidden p-2 hover:bg-white/10 rounded-full transition-colors active:scale-95"
+                            className="md:hidden p-2 hover:bg-white/10 rounded-full transition-colors active:scale-95 cursor-pointer"
                             title="Ver Detalhes do Lead"
                             aria-label="Ver detalhes do lead"
                         >
@@ -254,19 +264,30 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
                     )}
                     {!isDashboardMessages && (
                         <button 
+                            type="button"
                             onClick={() => {
                                 onClose();
                                 window.location.href = `/dashboard?tab=messages&conv=${activeConversationId}`;
                             }}
-                            className="p-1.5 hover:bg-white/10 rounded-md transition-colors"
+                            className="p-1.5 hover:bg-white/10 rounded-md transition-colors cursor-pointer"
                             title="Expandir para o Dashboard"
                             aria-label="Expandir para o dashboard"
                         >
                             <MessageSquare size={19} />
                         </button>
                     )}
-                    <button onClick={onClose} className="p-1.5 hover:bg-white/10 rounded-full transition-colors active:scale-95" aria-label="Fechar">
-                        <X size={19} />
+                    <button 
+                        type="button"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            backToList();
+                            onClose();
+                        }} 
+                        className="p-2 hover:bg-white/10 rounded-full transition-colors active:scale-95 cursor-pointer touch-manipulation" 
+                        aria-label="Fechar"
+                    >
+                        <X size={20} />
                     </button>
                 </div>
             </div>
@@ -308,7 +329,7 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
                     propertyContext={(currentConversation as any)?.property_details || undefined}
                     onSelectReply={(text) => {
                         setInputValue(text);
-                        inputRef.current?.focus();
+                        inputRef.current?.focus({ preventScroll: true });
                     }}
                 />
             )}
