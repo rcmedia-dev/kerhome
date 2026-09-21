@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { MapPin, BedDouble, Ruler, Tag, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { formatPriceWithDots } from '@/lib/format-price';
 
 export type PropertyCardBaseProps = {
   property: any; // Accept varied property shapes during refactoring
@@ -165,7 +166,7 @@ export function PropertyCardBase({
         <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-4">
           <Tag className="w-4 h-4 sm:w-5 sm:h-5 text-[#F97316] -rotate-90" />
           <span className="text-lg sm:text-2xl font-bold text-[#F97316]">
-            {priceParsed.toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {property.unidade_preco === 'dolar' ? '$' : property.unidade_preco === 'euro' ? '€' : 'Kz'}
+            {formatPriceWithDots(priceParsed)} {property.unidade_preco === 'dolar' ? '$' : property.unidade_preco === 'euro' ? '€' : 'Kz'}
           </span>
         </div>
 

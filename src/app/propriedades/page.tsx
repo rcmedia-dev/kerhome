@@ -30,6 +30,7 @@ import { RecentlyViewedProperties } from '@/components/recently-viewed-propertie
 import { QuickViewModal } from '@/components/quick-view-modal';
 import { PropertyAiChat } from '@/components/property-ai-chat';
 import { useSavedSearches } from '@/hooks/use-saved-searches';
+import { formatPriceWithDots } from '@/lib/format-price';
 
 // Hook personalizado para debounce (sem bibliotecas externas)
 const useDebouncedCallback = (fn: (...args: any[]) => void, wait = 350) => {
@@ -52,10 +53,7 @@ const formatCurrencyInput = (value: string): string => {
   if (!numbersOnly) return '';
 
   // Formata com separador de milhar
-  return new Intl.NumberFormat('pt-AO', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(Number(numbersOnly));
+  return formatPriceWithDots(Number(numbersOnly)).replace(/\.00$/, '');
 };
 
 // Função para remover a formatação e retornar apenas números
@@ -347,7 +345,7 @@ const PropertyListing = () => {
     if (tipo) parts.push(tipo);
     if (quartos) parts.push(`T${quartos}`);
     if (cidade) parts.push(`em ${cidade}`);
-    if (preco_max) parts.push(`até Kz ${Number(preco_max).toLocaleString()}`);
+    if (preco_max) parts.push(`até Kz ${formatPriceWithDots(Number(preco_max)).replace(/\.00$/, '')}`);
     if (parts.length > 0) setSearchBanner(parts.join(' '));
   }, [searchParamsStr]);
 
@@ -672,12 +670,12 @@ const PropertyListing = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowFilterModal(true)}
-            className="fixed right-6 top-1/2 -translate-y-1/2 z-40 p-4 bg-orange-600 text-white rounded-2xl shadow-2xl backdrop-blur-md hover:bg-orange-700 transition-all flex flex-col items-center gap-2 cursor-pointer border border-white/20"
+            className="fixed right-6 top-1/2 -translate-y-1/2 z-40 p-3 bg-orange-600 text-white rounded-xl shadow-xl backdrop-blur-md hover:bg-orange-700 transition-all flex flex-col items-center gap-1.5 cursor-pointer border border-white/20"
           >
-            <SlidersHorizontal size={24} />
-            <span className="text-[10px] font-bold uppercase tracking-wider writing-mode-vertical">Filtros</span>
+            <SlidersHorizontal size={20} />
+            <span className="text-[9px] font-bold uppercase tracking-wider writing-mode-vertical">Filtros</span>
             {sortedProperties?.length > 0 && (
-              <span className="absolute -top-2 -left-2 bg-purple-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2 border-white">
+              <span className="absolute -top-1.5 -left-1.5 bg-purple-500 text-white min-w-5 h-5 px-1 rounded-full flex items-center justify-center text-[10px] font-bold border-2 border-white">
                 {sortedProperties?.length}
               </span>
             )}
@@ -688,15 +686,26 @@ const PropertyListing = () => {
       {/* PAINEL LATERAL DE FILTROS (SEM OVERLAY) */}
       <AnimatePresence>
         {showFilterModal && (
-          <motion.div
-            initial={{ x: 100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 100, opacity: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed right-6 top-1/2 -translate-y-1/2 z-50 bg-white/90 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl w-[320px] max-h-[85vh] flex flex-col overflow-hidden"
-          >
+          <>
+            <motion.button
+              type="button"
+              aria-label="Fechar filtros"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowFilterModal(false)}
+              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] md:hidden"
+            />
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-x-0 bottom-0 z-50 bg-white border-t border-gray-100 rounded-t-3xl shadow-2xl w-full max-h-[88vh] flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)] md:inset-x-auto md:right-6 md:top-1/2 md:bottom-auto md:-translate-y-1/2 md:w-[320px] md:max-h-[85vh] md:rounded-3xl md:bg-white/90 md:backdrop-blur-xl md:border-white/20"
+            >
+              <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-gray-200 md:hidden" />
             {/* Header do Painel */}
-            <div className="flex items-center justify-between p-5 border-b border-gray-100/50 bg-white/50">
+            <div className="flex items-center justify-between p-5 border-b border-gray-100/50 bg-white/80 md:bg-white/50">
               <div className="flex items-center gap-2 font-bold text-gray-800">
                 <div className="p-1.5 bg-orange-100 rounded-lg text-orange-600">
                   <SlidersHorizontal size={18} />
@@ -783,7 +792,8 @@ const PropertyListing = () => {
                 </div>
               </div>
             </div>
-          </motion.div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
 

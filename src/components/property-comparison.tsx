@@ -227,6 +227,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
   const [aiLoading, setAiLoading] = useState(false);
   const [aiSummary, setAiSummary] = useState('');
   const [activeTab, setActiveTab] = useState('resumo');
+  const [showMobileActions, setShowMobileActions] = useState(false);
 
 
 
@@ -313,6 +314,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
     setAiSummary('');
     setAiLoading(false);
     setActiveTab('resumo');
+    setShowMobileActions(false);
   }, []);
 
   const getPropertyImages = useCallback((p: any): string[] => {
@@ -413,7 +415,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
               }}
             >
               {/* Header */}
-              <div className="w-full max-w-6xl flex justify-between items-center mb-8 shrink-0">
+              <div className="order-1 w-full max-w-6xl flex justify-between items-center mb-8 shrink-0">
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-[#820AD1] bg-[#F3E8FF] px-3.5 py-1 rounded-button uppercase tracking-wider w-fit mb-2 border border-purple-105 select-none">
                     Compare e Escolha
@@ -428,7 +430,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
               </div>
 
               {/* Tabs */}
-              <div className="w-full max-w-6xl flex items-center gap-2 mb-6 overflow-x-auto scrollbar-none">
+              <div className="order-2 w-full max-w-6xl flex items-center gap-2 mb-6 overflow-x-auto scrollbar-none">
                 {[
                   { id: 'resumo', label: 'Resumo MYWAI', icon: <Sparkles size={14} /> },
                   { id: 'preco', label: 'Preço', icon: <Ruler size={14} /> },
@@ -451,7 +453,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
               </div>
 
               {/* Versus Grid with Tabbed Content */}
-              <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 relative">
+              <div className="order-4 w-full max-w-6xl grid grid-cols-2 gap-2 md:gap-8 relative">
                 {selectedProperties.slice(0, 2).map((prop, index) => {
                   const images = getPropertyImages(prop);
                   const otherProp = selectedProperties[index === 0 ? 1 : 0];
@@ -544,9 +546,9 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
                       className="bg-white rounded-card shadow-sm border border-gray-100 overflow-hidden"
                     >
                       <PropertyGallery images={images} title={String(prop.title || '')} aspectClassName="aspect-[16/9]" />
-                      <div className="p-3">
-                        <h3 className="text-xs font-bold text-gray-800 mb-2">{String(prop.title || '')}</h3>
-                        <div className="flex flex-col gap-2">
+                      <div className="p-2 sm:p-3">
+                        <h3 className="text-[11px] sm:text-xs font-bold text-gray-800 mb-2 line-clamp-2">{String(prop.title || '')}</h3>
+                        <div className="flex flex-col gap-1.5 sm:gap-2">
                           {specs.map(s => (
                             <SimpleSpec
                               key={s.label}
@@ -574,7 +576,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
 
               {/* Resumo MYWAI Full Width */}
               {activeTab === 'resumo' && (
-                <div className="w-full max-w-6xl mt-6">
+                <div className="order-3 w-full max-w-6xl mt-4 md:mt-6">
                   <div className="bg-white rounded-card border border-purple-100 shadow-sm overflow-hidden">
                     <div className="p-6">
                       <div className="flex items-center gap-2 mb-4">
@@ -707,6 +709,82 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
                   </div>
                 </div>
               )}
+
+              <div className="fixed bottom-4 left-4 right-4 z-20 md:hidden">
+                <button
+                  type="button"
+                  onClick={() => setShowMobileActions(true)}
+                  className="w-full min-h-11 rounded-xl bg-[#820AD1] px-4 text-sm font-extrabold text-white shadow-lg shadow-purple-900/20"
+                >
+                  Ações
+                </button>
+              </div>
+
+              <AnimatePresence>
+                {showMobileActions && (
+                  <>
+                    <motion.button
+                      type="button"
+                      aria-label="Fechar ações"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onClick={() => setShowMobileActions(false)}
+                      className="fixed inset-0 z-30 bg-black/40 md:hidden"
+                    />
+                    <motion.div
+                      initial={{ y: '100%' }}
+                      animate={{ y: 0 }}
+                      exit={{ y: '100%' }}
+                      transition={{ type: 'spring', damping: 28, stiffness: 260 }}
+                      className="fixed inset-x-0 bottom-0 z-40 rounded-t-3xl bg-white p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl md:hidden"
+                    >
+                      <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-gray-200" />
+                      <div className="mb-4 flex items-center justify-between">
+                        <div>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-[#820AD1]">Compare e Escolha</span>
+                          <h3 className="mt-1 text-lg font-extrabold text-gray-900">O que deseja fazer?</h3>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setShowMobileActions(false)}
+                          className="rounded-full bg-gray-100 p-2 text-gray-500"
+                          aria-label="Fechar ações"
+                        >
+                          <X size={18} />
+                        </button>
+                      </div>
+                      <div className="grid gap-2">
+                        <Link
+                          href={selectedProperties[0]?.slug ? `/propriedades/${selectedProperties[0].slug}` : `/propriedades/${selectedProperties[0]?.id}`}
+                          onClick={() => setShowMobileActions(false)}
+                          className="flex min-h-11 items-center justify-center rounded-xl bg-[#820AD1] px-4 text-sm font-extrabold text-white"
+                        >
+                          Ver detalhes do Imóvel A
+                        </Link>
+                        <Link
+                          href={selectedProperties[1]?.slug ? `/propriedades/${selectedProperties[1].slug}` : `/propriedades/${selectedProperties[1]?.id}`}
+                          onClick={() => setShowMobileActions(false)}
+                          className="flex min-h-11 items-center justify-center rounded-xl border border-gray-200 bg-white px-4 text-sm font-extrabold text-gray-800"
+                        >
+                          Ver detalhes do Imóvel B
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowMobileActions(false);
+                            handleClose();
+                            setSelectionMode(true);
+                          }}
+                          className="min-h-11 rounded-xl bg-purple-50 px-4 text-sm font-extrabold text-[#820AD1]"
+                        >
+                          Comparar novamente
+                        </button>
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
             </motion.div>
           ) : (
             // ============================================

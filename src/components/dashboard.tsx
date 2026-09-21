@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { Home, Heart, BarChart3, Eye, User } from 'lucide-react';
+import { Home, Heart, BarChart3, Eye, User, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUserStore } from '@/lib/store/user-store';
 import { useChatStore } from '@/lib/store/chat-store';
@@ -78,6 +80,15 @@ function DashboardInner() {
       window.history.pushState(null, '', `?${params.toString()}`);
     }
   }, [activeTab]);
+
+  // Reset scroll position on mobile when tab or active conversation changes
+  useEffect(() => {
+    const el = document.querySelector('.mobile-scroll-container');
+    if (el) {
+      el.scrollTop = 0;
+    }
+  }, [activeTab, activeConversationId]);
+
 
   const {
     userProperties,
@@ -224,18 +235,35 @@ function DashboardInner() {
           "lg:hidden sticky top-0 z-30 shrink-0",
           isInChatView && "hidden"
         )}>
-          <div className="safe-area-top bg-white/95 backdrop-blur-xl border-b border-slate-100/90 shadow-2xs">
-            <div className="px-3.5 py-2.5 flex items-center justify-between">
-              {/* Left: Hamburger Menu */}
-              <button
-                onClick={() => setShowMobileSidebar(true)}
-                className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 flex items-center justify-center active:scale-95 transition-all shrink-0"
-                aria-label="Abrir Menu"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M4 6h16M4 12h16M4 18h10" />
-                </svg>
-              </button>
+          <div className="safe-area-top bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-xs supports-backdrop-filter:bg-white/60">
+            <div className="py-2.5 px-3.5 flex items-center justify-between">
+              {/* Lado Esquerdo: Menu Hamburguer + Logo KerHome */}
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => setShowMobileSidebar(!showMobileSidebar)}
+                  className="p-2 -ml-1 rounded-xl text-purple-700 hover:bg-purple-50 transition-colors cursor-pointer active:scale-95"
+                  aria-label={showMobileSidebar ? "Fechar menu" : "Abrir menu"}
+                  aria-expanded={showMobileSidebar}
+                >
+                  {showMobileSidebar ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                </button>
+
+                <Link href="/" aria-label="Página inicial" className="flex items-center gap-1.5 shrink-0">
+                  <div className="w-26 sm:w-30">
+                    <Image
+                      src="/kercasa_logo.png"
+                      alt="kerhome logo"
+                      width={120}
+                      height={30}
+                      style={{ width: 'auto', height: 'auto' }}
+                      priority
+                    />
+                  </div>
+                  <span className="hidden xs:inline-flex text-[9.5px] font-extrabold text-purple-700 bg-purple-50 border border-purple-200/60 px-1.5 py-0.5 rounded-full">
+                    Painel
+                  </span>
+                </Link>
+              </div>
 
               {/* Right: Notifications Panel + Avatar */}
               <div className="flex items-center gap-2 shrink-0">
@@ -264,14 +292,15 @@ function DashboardInner() {
         </div>
 
         {/* ── Scrollable Content ── */}
-        <div className="mobile-scroll-container flex-1 overflow-y-auto lg:overflow-hidden flex flex-col">
+        <div className={cn(
+          "mobile-scroll-container flex-1 flex flex-col",
+          activeTab === 'messages' ? "overflow-hidden" : "overflow-y-auto lg:overflow-hidden"
+        )}>
           <div className={cn(
             "w-full lg:pb-4",
-            isInChatView
-              ? 'h-full p-0'
-              : activeTab === 'messages'
-                ? 'h-full p-3 sm:p-4'
-                : 'flex-1 pb-24 lg:p-4 lg:h-full',
+            activeTab === 'messages'
+              ? (isInChatView ? 'h-full p-0 md:p-4' : 'h-full p-2.5 sm:p-4')
+              : 'flex-1 pb-28 lg:p-4 lg:h-full',
             "grid grid-cols-1 lg:grid-cols-12 gap-0 sm:gap-4 lg:gap-6"
           )}>
 

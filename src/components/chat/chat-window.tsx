@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
-import { Send, X, Smile, Paperclip, ArrowLeft, UserCircle, Info, MessageSquare } from 'lucide-react';
+import { Send, X, Smile, Paperclip, ArrowLeft, UserCircle, Info, MessageSquare, Loader2 } from 'lucide-react';
 import { useChatStore } from '@/lib/store/chat-store';
 import { useUserStore } from '@/lib/store/user-store';
 
 import { MessageBubble } from './message-bubble';
+import { AiReplySuggestions } from '@/components/dashboard/ai-reply-suggestions';
 import { toast } from 'sonner';
 
 interface ChatWindowProps {
@@ -24,18 +25,38 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
         markAsRead,
         setTyping,
         typingUsers,
-        isDashboardMessages
+        isDashboardMessages,
+        isLoading
     } = useChatStore();
     const { user } = useUserStore();
     const [inputValue, setInputValue] = useState('');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const emojiPickerRef = useRef<HTMLDivElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const messagesContainerRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
-    // Auto-scroll to bottom
+    // Auto-scroll to bottom safely within messages container
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (messagesContainerRef.current) {
+            messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+        } else {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
     };
+
+    // Listen for insert-ai-reply custom events
+    useEffect(() => {
+        const handleInsertReply = (e: any) => {
+            const text = e.detail;
+            if (typeof text === 'string') {
+                setInputValue(text);
+                inputRef.current?.focus();
+            }
+        };
+        window.addEventListener('insert-ai-reply', handleInsertReply as EventListener);
+        return () => window.removeEventListener('insert-ai-reply', handleInsertReply as EventListener);
+    }, []);
 
     useEffect(() => {
         scrollToBottom();
@@ -183,7 +204,7 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
     };
 
     return (
-        <div className="grid grid-rows-[auto_1fr_auto] h-full max-h-full overflow-hidden bg-white min-h-0 w-full">
+        <div className="flex flex-col h-full max-h-full overflow-hidden bg-white min-h-0 w-full md:rounded-card md:border md:border-gray-100 shadow-xs">
             <input
                 type="file"
                 ref={fileInputRef}
@@ -191,14 +212,14 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
                 onChange={handleFileUpload}
             />
 
-            {/* Header */}
-            <div className="bg-gradient-to-r from-purple-700 to-purple-600 p-3 flex items-center justify-between text-white shrink-0 min-w-0">
-                <div className="flex items-center space-x-3 min-w-0">
-                    <button onClick={backToList} className="p-1 hover:bg-white/10 rounded-full transition-colors mr-1 shrink-0">
-                        <ArrowLeft size={20} />
+            {/* Header with safe-area-top for mobile status bar */}
+            <div className="safe-area-top bg-gradient-to-r from-purple-700 to-purple-600 p-2.5 sm:p-3 flex items-center justify-between text-white shrink-0 min-w-0 shadow-xs z-10">
+                <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
+                    <button onClick={backToList} className="p-1.5 hover:bg-white/10 rounded-full transition-colors shrink-0 active:scale-95" aria-label="Voltar à lista">
+                        <ArrowLeft size={19} />
                     </button>
                     <div className="relative shrink-0">
-                        <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center overflow-hidden border border-white/30">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center overflow-hidden border border-white/30">
                             {isAgencyChat && currentConversation?.agency_details?.logo ? (
                                 <img src={currentConversation.agency_details.logo} alt="Agency" className="w-full h-full object-cover" />
                             ) : activeProfile?.avatar_url ? (
@@ -207,15 +228,15 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
                                 <UserCircle className="w-6 h-6 text-white" />
                             )}
                         </div>
-                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-purple-700 rounded-full"></span>
+                        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-purple-700 rounded-full"></span>
                     </div>
                     <div className="min-w-0">
-                        <h3 className="font-semibold text-sm truncate">
+                        <h3 className="font-bold text-sm truncate leading-tight">
                             {isAgencyChat && currentConversation?.agency_details?.nome 
                                 ? currentConversation.agency_details.nome 
                                 : activeProfile ? `${activeProfile.primeiro_nome} ${activeProfile.ultimo_nome}` : 'Conversa'}
                         </h3>
-                        <span className="text-xs text-purple-200">
+                        <span className="text-[11px] text-purple-200 font-medium">
                             Online agora
                         </span>
                     </div>
@@ -224,10 +245,11 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
                     {onShowCRM && isDashboardMessages && (
                         <button 
                             onClick={onShowCRM} 
-                            className="md:hidden p-2 hover:bg-white/10 rounded-full transition-colors"
+                            className="md:hidden p-2 hover:bg-white/10 rounded-full transition-colors active:scale-95"
                             title="Ver Detalhes do Lead"
+                            aria-label="Ver detalhes do lead"
                         >
-                            <Info size={20} />
+                            <Info size={19} />
                         </button>
                     )}
                     {!isDashboardMessages && (
@@ -238,22 +260,31 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
                             }}
                             className="p-1.5 hover:bg-white/10 rounded-md transition-colors"
                             title="Expandir para o Dashboard"
+                            aria-label="Expandir para o dashboard"
                         >
-                            <MessageSquare size={20} />
+                            <MessageSquare size={19} />
                         </button>
                     )}
-                    <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-full transition-colors">
-                        <X size={20} />
+                    <button onClick={onClose} className="p-1.5 hover:bg-white/10 rounded-full transition-colors active:scale-95" aria-label="Fechar">
+                        <X size={19} />
                     </button>
                 </div>
             </div>
 
             {/* Messages Area */}
-            <div className="overflow-y-auto p-4 bg-white space-y-4 custom-scrollbar min-h-0">
-                {messages.length === 0 ? (
+            <div 
+                ref={messagesContainerRef}
+                className="flex-1 overflow-y-auto p-3 sm:p-4 bg-gray-50/30 space-y-3 sm:space-y-4 custom-scrollbar min-h-0"
+            >
+                {isLoading && messages.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center space-y-3 text-purple-600">
+                        <Loader2 className="w-6 h-6 animate-spin text-purple-600" />
+                        <span className="text-xs font-medium text-gray-400">A carregar mensagens...</span>
+                    </div>
+                ) : messages.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-gray-400 text-sm">
-                        <p>Nenhuma mensagem ainda.</p>
-                        <p>Comece a conversa!</p>
+                        <p className="font-medium">Nenhuma mensagem ainda.</p>
+                        <p className="text-xs text-gray-400/80 mt-1">Comece a conversa!</p>
                     </div>
                 ) : (
                     messages.map(msg => (
@@ -267,17 +298,40 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
                 <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Area */}
-            <form onSubmit={handleSendMessage} className="p-3 bg-white border-t border-gray-100 flex items-center gap-2 shrink-0 relative">
+            {/* AI Reply Suggestions: Placed directly above the input form, shown only when messages exist and loaded */}
+            {isDashboardMessages && !isLoading && messages.length > 0 && (
+                <AiReplySuggestions
+                    messages={messages.map(m => ({
+                        role: m.sender_id === user?.id ? 'assistant' : 'user',
+                        content: m.content
+                    }))}
+                    propertyContext={(currentConversation as any)?.property_details || undefined}
+                    onSelectReply={(text) => {
+                        setInputValue(text);
+                        inputRef.current?.focus();
+                    }}
+                />
+            )}
+
+            {/* Input Area with safe-area at the bottom */}
+            <form 
+                onSubmit={handleSendMessage} 
+                style={{ paddingBottom: 'max(calc(env(safe-area-inset-bottom, 0px) + 10px), 18px)' }}
+                className="px-3 pt-2.5 sm:px-4 sm:py-3 bg-white border-t border-gray-100 flex items-center gap-1.5 sm:gap-2 shrink-0 relative z-10 shadow-xs"
+            >
                 {/* Emoji Picker Popover */}
                 {showEmojiPicker && (
-                    <div className="absolute bottom-16 left-4 z-50 shadow-2xl rounded-2xl" ref={emojiPickerRef}>
+                    <div 
+                        style={{ bottom: 'max(calc(env(safe-area-inset-bottom, 0px) + 64px), 72px)' }}
+                        className="absolute left-2 sm:left-4 z-50 shadow-2xl rounded-2xl max-w-[calc(100vw-32px)]" 
+                        ref={emojiPickerRef}
+                    >
                         <EmojiPicker
                             onEmojiClick={onEmojiClick}
                             theme={Theme.LIGHT}
                             lazyLoadEmojis={true}
-                            width={300}
-                            height={400}
+                            width={280}
+                            height={360}
                             searchDisabled={false}
                         />
                     </div>
@@ -286,37 +340,44 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
                 <button
                     type="button"
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                    className={`p-2 transition-colors ${showEmojiPicker ? 'text-purple-600' : 'text-gray-400 hover:text-purple-600'}`}
+                    className={`p-1.5 sm:p-2 transition-colors active:scale-95 ${showEmojiPicker ? 'text-purple-600' : 'text-gray-400 hover:text-purple-600'}`}
+                    aria-label="Selecionar emoji"
                 >
-                    <Smile size={24} />
+                    <Smile size={22} />
                 </button>
                 <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="p-2 text-gray-400 hover:text-purple-600 transition-colors"
+                    className="p-1.5 sm:p-2 text-gray-400 hover:text-purple-600 transition-colors active:scale-95"
+                    aria-label="Anexar arquivo"
                 >
-                    <Paperclip size={24} />
+                    <Paperclip size={22} />
                 </button>
                 <input
+                    ref={inputRef}
                     type="text"
                     value={inputValue}
                     onChange={handleInputChange}
                     onClick={() => setShowEmojiPicker(false)}
                     placeholder="Digite uma mensagem..."
-                    className="flex-1 py-2 px-4 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-100 text-sm"
+                    className="flex-1 py-2 px-3.5 bg-gray-100/80 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-200 focus:bg-white text-sm transition-all"
                 />
                 <button
                     type="submit"
                     disabled={!inputValue.trim()}
-                    className="p-3 bg-purple-600 text-white rounded-full hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform active:scale-95 shadow-md flex items-center justify-center"
+                    className="p-2.5 sm:p-3 bg-purple-600 text-white rounded-full hover:bg-purple-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all transform active:scale-95 shadow-xs flex items-center justify-center shrink-0"
+                    aria-label="Enviar mensagem"
                 >
-                    <Send size={18} className={inputValue.trim() ? "ml-0.5" : ""} />
+                    <Send size={16} className={inputValue.trim() ? "ml-0.5" : ""} />
                 </button>
             </form>
             
             {/* Typing Indicator Overlay */}
             {othersTyping.length > 0 && (
-                <div className="absolute bottom-16 left-4 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full border border-gray-100 shadow-sm flex items-center gap-2 animate-bounce">
+                <div 
+                    style={{ bottom: 'max(calc(env(safe-area-inset-bottom, 0px) + 64px), 72px)' }}
+                    className="absolute left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full border border-gray-100 shadow-sm flex items-center gap-2 animate-bounce z-20"
+                >
                     <div className="flex gap-1">
                         <span className="w-1 h-1 bg-purple-600 rounded-full animate-pulse" />
                         <span className="w-1 h-1 bg-purple-600 rounded-full animate-pulse delay-75" />

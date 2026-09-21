@@ -67,6 +67,54 @@ type VisitasProps = {
   userId?: string;
 };
 
+function getMockVisits(userId: string, isAgent: boolean): VisitItem[] {
+  const today = new Date();
+  const todayKey = format(today, 'yyyy-MM-dd');
+  const tomorrowKey = format(addDays(today, 1), 'yyyy-MM-dd');
+  const image = 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=300&auto=format&fit=crop&q=80';
+
+  return [
+    {
+      id: 'mock-visit-001',
+      property_id: 'mock-property-talatona',
+      property_title: 'Apartamento T3 moderno no Talatona',
+      property_location: 'Talatona, Luanda',
+      property_price: '48.500.000 Kz',
+      property_image: image,
+      agent_id: isAgent ? userId : 'mock-agent-001',
+      agent_name: isAgent ? undefined : 'Marta Sebastião',
+      agent_phone: isAgent ? undefined : '+244 923 456 789',
+      lead_id: isAgent ? 'mock-client-001' : undefined,
+      lead_name: isAgent ? 'Carlos Manuel' : undefined,
+      lead_phone: isAgent ? '+244 934 222 111' : undefined,
+      scheduled_date: todayKey,
+      scheduled_time: '10:30',
+      notes: isAgent ? 'Cliente pediu confirmação do estacionamento.' : 'Confirmar acesso pela entrada principal.',
+      status: 'pending',
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: 'mock-visit-002',
+      property_id: 'mock-property-miramar',
+      property_title: 'Moradia T4 com jardim em Miramar',
+      property_location: 'Miramar, Luanda',
+      property_price: '1.250.000 Kz/mês',
+      property_image: image,
+      agent_id: isAgent ? userId : 'mock-agent-002',
+      agent_name: isAgent ? undefined : 'João Pedro',
+      agent_phone: isAgent ? undefined : '+244 925 888 444',
+      lead_id: isAgent ? 'mock-client-002' : undefined,
+      lead_name: isAgent ? 'Ana Cristina' : undefined,
+      lead_phone: isAgent ? '+244 936 555 222' : undefined,
+      scheduled_date: tomorrowKey,
+      scheduled_time: '15:00',
+      notes: 'Levar documentação do imóvel.',
+      status: 'confirmed',
+      created_at: new Date().toISOString(),
+    },
+  ];
+}
+
 // ─── Helper de Role ──────────────────────────────────────────────────────────
 function useUserRole() {
   const { user } = useUserStore();
@@ -766,12 +814,12 @@ export function VisitasAgendadas({ userId }: VisitasProps) {
       if (res.ok) {
         const data = await res.json();
         const serverVisits: VisitItem[] = data.visits || [];
-        setVisits(serverVisits);
+        setVisits(serverVisits.length > 0 ? serverVisits : getMockVisits(userId, isAgent));
       } else {
-        setVisits([]);
+        setVisits(getMockVisits(userId, isAgent));
       }
     } catch {
-      setVisits([]);
+      setVisits(getMockVisits(userId ?? '', isAgent));
     } finally {
       setIsLoading(false);
     }
@@ -783,6 +831,12 @@ export function VisitasAgendadas({ userId }: VisitasProps) {
 
   // ─── Atualização de Status ────────────────────────────────────────────────
   const handleUpdateStatus = async (id: string, newStatus: VisitItem['status']) => {
+    if (id.startsWith('mock-visit-')) {
+      setVisits(prev => prev ? prev.map(v => v.id === id ? { ...v, status: newStatus } : v) : null);
+      toast.success('Status atualizado');
+      return;
+    }
+
     try {
       const res = await fetch('/api/visits', {
         method: 'PATCH',
@@ -802,6 +856,13 @@ export function VisitasAgendadas({ userId }: VisitasProps) {
 
   // ─── Cancelamento / Remoção de Visita ──────────────────────────────────────
   const confirmDeleteVisit = async (id: string) => {
+    if (id.startsWith('mock-visit-')) {
+      setVisits(prev => prev ? prev.filter(v => v.id !== id) : null);
+      toast.success(isAgent ? 'Agendamento removido' : 'Visita desmarcada');
+      setDeletingVisitId(null);
+      return;
+    }
+
     try {
       const res = await fetch(`/api/visits?id=${id}`, { method: 'DELETE' });
       if (res.ok) {

@@ -220,6 +220,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
                 activeProfile: targetProfile,
                 view: 'chat',
                 messages: [],
+                isLoading: true,
                 isOpen: !get().isDashboardMessages // Only open popup if NOT in dashboard messages tab
             };
         });

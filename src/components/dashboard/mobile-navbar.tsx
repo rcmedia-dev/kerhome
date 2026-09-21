@@ -91,14 +91,15 @@ export function MobileNavbar({
         }
     };
 
-    // Abas principais do Floating Dock
-    const dockTabs = [
-        { id: 'properties', label: 'Imóveis', icon: Home, badge: propertyCount > 0 ? propertyCount : undefined },
-        { id: 'favorites', label: 'Salvos', icon: Heart, badge: favoriteCount > 0 ? favoriteCount : undefined },
-        // Botão central FAB (Adicionar/Criar) inserido entre as abas
-        { id: 'messages', label: 'Chat', icon: MessageCircle, badge: !isAgent && totalUnreadCount > 0 ? totalUnreadCount : undefined },
-        { id: 'visits', label: 'Visitas', icon: Calendar, badge: visitCount > 0 ? visitCount : undefined }
-    ];
+    // Mapeamento das 5 posições da navbar inferior (estilo MobileMenu)
+    const tabIndexMap: Record<string, number> = {
+        properties: 0,
+        favorites: 1,
+        // índice 2 é o FAB central (+ Novo Imóvel)
+        messages: 3,
+        visits: 4
+    };
+    const activeIndex = tabIndexMap[activeTab] ?? -1;
 
     // Cálculo da porcentagem de cota usada
     const publishedCount = Math.max(0, propertyCount);
@@ -108,122 +109,207 @@ export function MobileNavbar({
     return (
         <>
             {/* ═════════════════════════════════════════════════════════════════
-                NAVBAR — FLOATING DOCK ARREDONDADO (VARIAÇÃO 1: FINTECH DOCK)
+                NAVBAR INFERIOR ESTILO MOBILE-MENU COM PALETA ROXA DO DASHBOARD
             ═════════════════════════════════════════════════════════════════ */}
             <nav
-                className="lg:hidden fixed bottom-3 left-3 right-3 z-50 bg-white/95 backdrop-blur-2xl rounded-[26px] border border-slate-200/90 shadow-[0_12px_32px_-6px_rgba(0,0,0,0.15)] flex items-center justify-around px-2 pt-1 select-none safe-area-bottom"
+                className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-slate-200/80 z-50 p-2.5 pb-3 shadow-2xl shadow-black/20 select-none safe-area-bottom"
             >
-                {/* Aba 1: Imóveis */}
-                <button
-                    onClick={() => { setActiveTab('properties'); setShowSidebar(false); }}
-                    className="flex-1 flex flex-col items-center justify-center py-1.5 transition-transform active:scale-90 outline-none group"
-                    aria-label="Imóveis"
-                >
-                    <div className={cn(
-                        'w-10 h-7 rounded-full flex items-center justify-center transition-all duration-200 relative',
-                        activeTab === 'properties' && !showSidebar
-                            ? 'bg-purple-100 text-purple-700 shadow-2xs'
-                            : 'text-slate-400 group-hover:text-slate-600'
-                    )}>
-                        <Home className="w-4.5 h-4.5" />
-                    </div>
-                    <span className={cn(
-                        'text-[9.5px] font-bold mt-0.5 leading-none transition-colors',
-                        activeTab === 'properties' && !showSidebar ? 'text-purple-700 font-extrabold' : 'text-slate-400'
-                    )}>
-                        Imóveis
-                    </span>
-                </button>
+                {/* Indicador superior de posição ativa com gradiente roxo */}
+                {activeIndex !== -1 && !showSidebar && (
+                    <div
+                        className="absolute top-0 left-0 h-1 bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-600 transition-all duration-300 ease-out"
+                        style={{
+                            width: '20%',
+                            transform: `translateX(${activeIndex * 100}%)`
+                        }}
+                    />
+                )}
 
-                {/* Aba 2: Favoritos */}
-                <button
-                    onClick={() => { setActiveTab('favorites'); setShowSidebar(false); }}
-                    className="flex-1 flex flex-col items-center justify-center py-1.5 transition-transform active:scale-90 outline-none relative group"
-                    aria-label="Salvos"
-                >
-                    <div className={cn(
-                        'w-10 h-7 rounded-full flex items-center justify-center transition-all duration-200 relative',
-                        activeTab === 'favorites' && !showSidebar
-                            ? 'bg-purple-100 text-purple-700 shadow-2xs'
-                            : 'text-slate-400 group-hover:text-slate-600'
-                    )}>
-                        <Heart className="w-4.5 h-4.5" />
-                        {favoriteCount > 0 && (
-                            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white" />
+                <div className="flex justify-around items-center relative">
+                    {/* Aba 1: Imóveis */}
+                    <button
+                        onClick={() => { setActiveTab('properties'); setShowSidebar(false); }}
+                        className={cn(
+                            "relative flex flex-col items-center text-xs p-1.5 transition-all duration-300 ease-out group outline-none cursor-pointer flex-1",
+                            activeTab === 'properties' && !showSidebar
+                                ? "text-purple-700 transform scale-105"
+                                : "text-slate-400 hover:text-slate-600"
                         )}
-                    </div>
-                    <span className={cn(
-                        'text-[9.5px] font-bold mt-0.5 leading-none transition-colors',
-                        activeTab === 'favorites' && !showSidebar ? 'text-purple-700 font-extrabold' : 'text-slate-400'
-                    )}>
-                        Salvos
-                    </span>
-                </button>
-
-                {/* BOTÃO CENTRAL ELEVADO (+ NOVO IMÓVEL) */}
-                <Link
-                    href="/dashboard/cadastrar-imovel"
-                    className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 via-purple-700 to-orange-500 text-white shadow-lg shadow-purple-600/35 -translate-y-3 flex items-center justify-center active:scale-90 transition-transform outline-none shrink-0"
-                    title="Novo Imóvel"
-                    aria-label="Cadastrar Novo Imóvel"
-                    onClick={() => setShowSidebar(false)}
-                >
-                    <Plus className="w-6 h-6 stroke-[2.8]" />
-                </Link>
-
-                {/* Aba 3: Chat com Leads */}
-                <button
-                    onClick={() => { setActiveTab('messages'); setShowSidebar(false); }}
-                    className="flex-1 flex flex-col items-center justify-center py-1.5 transition-transform active:scale-90 outline-none relative group"
-                    aria-label="Chat"
-                >
-                    <div className={cn(
-                        'w-10 h-7 rounded-full flex items-center justify-center transition-all duration-200 relative',
-                        activeTab === 'messages' && !showSidebar
-                            ? 'bg-purple-100 text-purple-700 shadow-2xs'
-                            : 'text-slate-400 group-hover:text-slate-600'
-                    )}>
-                        <MessageCircle className="w-4.5 h-4.5" />
-                        {!isAgent && totalUnreadCount > 0 && (
-                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full ring-2 ring-white">
-                                {totalUnreadCount > 9 ? '9+' : totalUnreadCount}
-                            </span>
+                        aria-label="Imóveis"
+                    >
+                        {/* Efeito de fundo ativo em roxo */}
+                        {activeTab === 'properties' && !showSidebar && (
+                            <div className="absolute inset-0 bg-purple-100/80 rounded-2xl -z-10 scale-105" />
                         )}
-                    </div>
-                    <span className={cn(
-                        'text-[9.5px] font-bold mt-0.5 leading-none transition-colors',
-                        activeTab === 'messages' && !showSidebar ? 'text-purple-700 font-extrabold' : 'text-slate-400'
-                    )}>
-                        Chat
-                    </span>
-                </button>
+                        <div className="absolute inset-0 bg-slate-100 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 -z-10" />
 
-                {/* Aba 4: Visitas */}
-                <button
-                    onClick={() => { setActiveTab('visits'); setShowSidebar(false); }}
-                    className="flex-1 flex flex-col items-center justify-center py-1.5 transition-transform active:scale-90 outline-none group"
-                    aria-label="Visitas"
-                >
-                    <div className={cn(
-                        'w-10 h-7 rounded-full flex items-center justify-center transition-all duration-200 relative',
-                        activeTab === 'visits' && !showSidebar
-                            ? 'bg-purple-100 text-purple-700 shadow-2xs'
-                            : 'text-slate-400 group-hover:text-slate-600'
-                    )}>
-                        <Calendar className="w-4.5 h-4.5" />
-                        {visitCount > 0 && (
-                            <span className="absolute top-0 right-0 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full ring-2 ring-white">
-                                {visitCount > 9 ? '9+' : visitCount}
-                            </span>
+                        <div className={cn(
+                            "relative transition-all duration-300",
+                            activeTab === 'properties' && !showSidebar ? "text-purple-700" : "text-slate-400 group-hover:text-slate-600"
+                        )}>
+                            <Home className="w-5 h-5" />
+                            {activeTab === 'properties' && !showSidebar && (
+                                <div className="absolute -top-1 -right-1 w-2 h-2 bg-purple-600 rounded-full animate-ping" />
+                            )}
+                            {propertyCount > 0 && (
+                                <span className="absolute -top-1.5 -right-2 bg-purple-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full ring-2 ring-white">
+                                    {propertyCount > 99 ? '99+' : propertyCount}
+                                </span>
+                            )}
+                        </div>
+                        <span className={cn(
+                            "mt-1 font-medium transition-all duration-300 text-[10px]",
+                            activeTab === 'properties' && !showSidebar
+                                ? "text-purple-700 opacity-100 translate-y-0 font-extrabold"
+                                : "text-slate-400 opacity-90 group-hover:opacity-100"
+                        )}>
+                            Imóveis
+                        </span>
+                    </button>
+
+                    {/* Aba 2: Salvos */}
+                    <button
+                        onClick={() => { setActiveTab('favorites'); setShowSidebar(false); }}
+                        className={cn(
+                            "relative flex flex-col items-center text-xs p-1.5 transition-all duration-300 ease-out group outline-none cursor-pointer flex-1",
+                            activeTab === 'favorites' && !showSidebar
+                                ? "text-purple-700 transform scale-105"
+                                : "text-slate-400 hover:text-slate-600"
                         )}
-                    </div>
-                    <span className={cn(
-                        'text-[9.5px] font-bold mt-0.5 leading-none transition-colors',
-                        activeTab === 'visits' && !showSidebar ? 'text-purple-700 font-extrabold' : 'text-slate-400'
-                    )}>
-                        Visitas
-                    </span>
-                </button>
+                        aria-label="Salvos"
+                    >
+                        {activeTab === 'favorites' && !showSidebar && (
+                            <div className="absolute inset-0 bg-purple-100/80 rounded-2xl -z-10 scale-105" />
+                        )}
+                        <div className="absolute inset-0 bg-slate-100 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 -z-10" />
+
+                        <div className={cn(
+                            "relative transition-all duration-300",
+                            activeTab === 'favorites' && !showSidebar ? "text-purple-700" : "text-slate-400 group-hover:text-slate-600"
+                        )}>
+                            <Heart className="w-5 h-5" />
+                            {activeTab === 'favorites' && !showSidebar && (
+                                <div className="absolute -top-1 -right-1 w-2 h-2 bg-purple-600 rounded-full animate-ping" />
+                            )}
+                            {favoriteCount > 0 && (
+                                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-white" />
+                            )}
+                        </div>
+                        <span className={cn(
+                            "mt-1 font-medium transition-all duration-300 text-[10px]",
+                            activeTab === 'favorites' && !showSidebar
+                                ? "text-purple-700 opacity-100 translate-y-0 font-extrabold"
+                                : "text-slate-400 opacity-90 group-hover:opacity-100"
+                        )}>
+                            Salvos
+                        </span>
+                    </button>
+
+                    {/* Botão Central FAB Flutuante (+ Novo Imóvel) */}
+                    <Link
+                        href="/dashboard/cadastrar-imovel"
+                        className="relative -top-6 flex flex-col items-center group outline-none cursor-pointer shrink-0"
+                        onClick={() => setShowSidebar(false)}
+                        title="Cadastrar Novo Imóvel"
+                        aria-label="Cadastrar Novo Imóvel"
+                    >
+                        <div className="relative">
+                            {/* Efeito de brilho/aura em roxo */}
+                            <div className="absolute inset-0 bg-purple-600 rounded-full blur-xl opacity-40 group-hover:opacity-70 transition-opacity duration-300" />
+
+                            {/* Botão Principal com gradiente roxo/laranja original */}
+                            <div className="relative bg-gradient-to-br from-purple-600 via-purple-700 to-orange-500 p-3.5 rounded-full text-white shadow-xl shadow-purple-600/35 border-4 border-white transform transition-all duration-300 group-hover:scale-110 group-active:scale-95 group-hover:-translate-y-1 flex items-center justify-center">
+                                <Plus className="w-6 h-6 stroke-[3]" />
+                            </div>
+                        </div>
+                        <span className="mt-1 text-[10px] font-bold text-purple-700 uppercase tracking-tighter">
+                            Novo
+                        </span>
+                    </Link>
+
+                    {/* Aba 3: Chat com Leads */}
+                    <button
+                        onClick={() => { setActiveTab('messages'); setShowSidebar(false); }}
+                        className={cn(
+                            "relative flex flex-col items-center text-xs p-1.5 transition-all duration-300 ease-out group outline-none cursor-pointer flex-1",
+                            activeTab === 'messages' && !showSidebar
+                                ? "text-purple-700 transform scale-105"
+                                : "text-slate-400 hover:text-slate-600"
+                        )}
+                        aria-label="Chat"
+                    >
+                        {activeTab === 'messages' && !showSidebar && (
+                            <div className="absolute inset-0 bg-purple-100/80 rounded-2xl -z-10 scale-105" />
+                        )}
+                        <div className="absolute inset-0 bg-slate-100 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 -z-10" />
+
+                        <div className={cn(
+                            "relative transition-all duration-300",
+                            activeTab === 'messages' && !showSidebar ? "text-purple-700" : "text-slate-400 group-hover:text-slate-600"
+                        )}>
+                            <MessageCircle className="w-5 h-5" />
+                            {activeTab === 'messages' && !showSidebar && (
+                                <div className="absolute -top-1 -right-1 w-2 h-2 bg-purple-600 rounded-full animate-ping" />
+                            )}
+                            {!isAgent && totalUnreadCount > 0 && (
+                                <span className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full ring-2 ring-white">
+                                    {totalUnreadCount > 9 ? '9+' : totalUnreadCount}
+                                </span>
+                            )}
+                        </div>
+                        <span className={cn(
+                            "mt-1 font-medium transition-all duration-300 text-[10px]",
+                            activeTab === 'messages' && !showSidebar
+                                ? "text-purple-700 opacity-100 translate-y-0 font-extrabold"
+                                : "text-slate-400 opacity-90 group-hover:opacity-100"
+                        )}>
+                            Chat
+                        </span>
+                    </button>
+
+                    {/* Aba 4: Visitas */}
+                    <button
+                        onClick={() => { setActiveTab('visits'); setShowSidebar(false); }}
+                        className={cn(
+                            "relative flex flex-col items-center text-xs p-1.5 transition-all duration-300 ease-out group outline-none cursor-pointer flex-1",
+                            activeTab === 'visits' && !showSidebar
+                                ? "text-purple-700 transform scale-105"
+                                : "text-slate-400 hover:text-slate-600"
+                        )}
+                        aria-label="Visitas"
+                    >
+                        {activeTab === 'visits' && !showSidebar && (
+                            <div className="absolute inset-0 bg-purple-100/80 rounded-2xl -z-10 scale-105" />
+                        )}
+                        <div className="absolute inset-0 bg-slate-100 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 -z-10" />
+
+                        <div className={cn(
+                            "relative transition-all duration-300",
+                            activeTab === 'visits' && !showSidebar ? "text-purple-700" : "text-slate-400 group-hover:text-slate-600"
+                        )}>
+                            <Calendar className="w-5 h-5" />
+                            {activeTab === 'visits' && !showSidebar && (
+                                <div className="absolute -top-1 -right-1 w-2 h-2 bg-purple-600 rounded-full animate-ping" />
+                            )}
+                            {visitCount > 0 && (
+                                <span className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full ring-2 ring-white">
+                                    {visitCount > 9 ? '9+' : visitCount}
+                                </span>
+                            )}
+                        </div>
+                        <span className={cn(
+                            "mt-1 font-medium transition-all duration-300 text-[10px]",
+                            activeTab === 'visits' && !showSidebar
+                                ? "text-purple-700 opacity-100 translate-y-0 font-extrabold"
+                                : "text-slate-400 opacity-90 group-hover:opacity-100"
+                        )}>
+                            Visitas
+                        </span>
+                    </button>
+                </div>
+
+                {/* Barra decorativa inferior */}
+                <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-slate-300 to-transparent rounded-full pointer-events-none" />
             </nav>
 
             {/* ═════════════════════════════════════════════════════════════════

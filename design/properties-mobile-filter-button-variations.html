@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="pt-AO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Pagina de Imoveis - Variacoes do Botao de Filtros</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #718096;
+      --line: #e5e9f0;
+      --paper: #fff;
+      --canvas: #eef1f6;
+      --purple: #7028d8;
+      --purple-dark: #4c1d95;
+      --purple-soft: #f2ebff;
+      --orange: #f97316;
+      --green: #059669;
+      --shadow: 0 18px 45px rgba(29, 37, 55, .15);
+    }
+
+    * { box-sizing: border-box; }
+    html { background: #dfe4ec; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background: radial-gradient(circle at 20% 0%, #fff 0 18%, transparent 45%), var(--canvas);
+      font-family: "DM Sans", sans-serif;
+    }
+    button { font: inherit; }
+    .stage { min-height: 100svh; padding: 20px 14px 32px; display: grid; place-items: center; }
+    .preview { width: min(100%, 460px); }
+    .phone {
+      min-height: min(850px, calc(100svh - 100px));
+      position: relative;
+      overflow: hidden;
+      background: #f8f9fc;
+      border: 7px solid #202632;
+      border-radius: 36px;
+      box-shadow: 0 28px 70px rgba(25, 34, 49, .26);
+    }
+    .notch { position: absolute; z-index: 8; top: 0; left: 50%; width: 112px; height: 22px; transform: translateX(-50%); border-radius: 0 0 14px 14px; background: #202632; }
+    .variation { display: none; min-height: min(836px, calc(100svh - 114px)); }
+    .variation.active { display: block; }
+    .appbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 34px 16px 12px; background: rgba(255, 255, 255, .95); border-bottom: 1px solid var(--line); }
+    .brand { min-width: 0; }
+    .eyebrow { color: var(--purple); font-size: 10px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+    .appbar h1 { margin: 2px 0 0; font: 800 21px/1.05 Manrope, sans-serif; letter-spacing: -.02em; }
+    .avatar { width: 36px; height: 36px; flex: 0 0 auto; display: grid; place-items: center; border: 0; border-radius: 50%; color: white; background: linear-gradient(135deg, var(--purple), var(--orange)); font-weight: 800; }
+    .toolbar { display: flex; gap: 8px; padding: 12px 16px 0; background: white; }
+    .search { min-width: 0; flex: 1; display: flex; align-items: center; gap: 8px; padding: 0 12px; height: 42px; border: 1px solid var(--line); border-radius: 13px; color: var(--muted); background: #f7f8fb; font-size: 12px; }
+    .search strong { overflow: hidden; color: var(--ink); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .sort { width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 13px; color: var(--ink); background: white; font-size: 17px; }
+    .summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 16px 11px; background: white; }
+    .summary strong { font-size: 13px; }
+    .summary span { color: var(--muted); font-size: 11px; }
+    .chips { display: flex; gap: 7px; overflow-x: auto; padding: 0 16px 13px; scrollbar-width: none; background: white; }
+    .chips::-webkit-scrollbar { display: none; }
+    .chip { flex: 0 0 auto; padding: 7px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: #fff; font-size: 10px; font-weight: 700; }
+    .chip.selected { border-color: #d6bfff; color: var(--purple-dark); background: var(--purple-soft); }
+    .feed { display: grid; gap: 11px; padding: 13px 16px 112px; }
+    .property { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 11px; padding: 8px; border: 1px solid var(--line); border-radius: 18px; background: var(--paper); box-shadow: 0 5px 16px rgba(35, 45, 64, .06); }
+    .property img { width: 112px; height: 116px; border-radius: 13px; object-fit: cover; }
+    .property-copy { min-width: 0; padding: 2px 2px 2px 0; }
+    .tag { display: inline-flex; padding: 4px 7px; border-radius: 6px; color: var(--green); background: #e8faf2; font-size: 9px; font-weight: 800; text-transform: uppercase; }
+    .property h2 { margin: 6px 0 3px; overflow: hidden; font: 800 13px/1.2 Manrope, sans-serif; text-overflow: ellipsis; white-space: nowrap; }
+    .property p { margin: 0; overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+    .price { margin-top: 9px !important; color: var(--orange) !important; font-size: 14px !important; font-weight: 800; }
+    .meta { display: flex; gap: 9px; margin-top: 7px; color: var(--muted); font-size: 9px; }
+    .filter-button { position: absolute; z-index: 5; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; color: white; background: var(--ink); box-shadow: 0 9px 22px rgba(23, 32, 51, .25); cursor: pointer; transition: transform .18s, box-shadow .18s; }
+    .filter-button:active { transform: scale(.96); }
+    .filter-button:hover { box-shadow: 0 12px 26px rgba(23, 32, 51, .32); }
+    .filter-button .filter-icon { font-size: 17px; line-height: 1; }
+    .filter-button small { display: block; color: #cbd5e1; font-size: 9px; font-weight: 600; }
+
+    /* 1. Pill compacta: texto suficiente, largura controlada. */
+    .v1 .filter-button { right: 16px; bottom: 21px; min-width: 126px; min-height: 45px; padding: 8px 15px; border-radius: 16px; }
+    .v1 .filter-button .filter-icon { font-size: 15px; }
+    /* 2. Acao circular: maximiza espaco na lista e usa contador como badge. */
+    .v2 .filter-button { right: 18px; bottom: 22px; width: 52px; height: 52px; border-radius: 50%; }
+    .v2 .filter-button .filter-label { position: absolute; right: 44px; padding: 6px 9px; border-radius: 8px; color: var(--ink); background: white; box-shadow: var(--shadow); font-size: 10px; font-weight: 800; white-space: nowrap; }
+    .v2 .filter-count { position: absolute; top: -2px; right: -1px; width: 18px; height: 18px; display: grid; place-items: center; border: 2px solid white; border-radius: 50%; color: white; background: var(--orange); font-size: 9px; font-weight: 800; }
+    /* 3. Dock inferior: alvo grande e estavel, sem cobrir cards. */
+    .v3 .filter-button { right: 12px; bottom: 12px; left: 12px; min-height: 47px; border-radius: 14px; background: linear-gradient(110deg, var(--purple-dark), var(--purple)); }
+    .v3 .filter-button small { color: #eadcff; }
+    /* 4. Aba lateral: fica fora do fluxo e reduz a interferencia visual. */
+    .v4 .filter-button { top: 52%; right: 0; min-width: 43px; min-height: 108px; padding: 10px 7px; border-radius: 14px 0 0 14px; writing-mode: vertical-rl; }
+    .v4 .filter-button .filter-icon { margin-bottom: 5px; }
+    .v4 .filter-button .filter-label { font-size: 10px; font-weight: 800; }
+    /* 5. Mini barra contextual: combina contador e acao sem um botao flutuante pesado. */
+    .v5 .filter-button { right: 16px; bottom: 22px; min-height: 43px; padding: 7px 12px; border: 1px solid #eadfff; border-radius: 13px; color: var(--purple-dark); background: white; box-shadow: 0 8px 20px rgba(80, 37, 137, .15); }
+    .v5 .filter-button small { color: var(--muted); }
+    .v5 .filter-button .filter-icon { color: var(--purple); }
+
+    .variation-label { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; color: white; background: #202632; font-size: 10px; font-weight: 700; }
+    .variation-label span:last-child { color: #c4b5fd; font-size: 9px; }
+    .controls { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 16px; }
+    .next { min-width: 108px; padding: 11px 18px; border: 0; border-radius: 12px; color: white; background: var(--ink); font-size: 12px; font-weight: 800; cursor: pointer; }
+    .next:active { transform: scale(.97); }
+    .dots { display: flex; align-items: center; gap: 6px; }
+    .dot { width: 7px; height: 7px; border: 0; border-radius: 50%; background: #bfc7d4; }
+    .dot.active { width: 20px; border-radius: 5px; background: var(--purple); }
+    .hint { margin: 10px auto 0; color: #6e788a; font-size: 11px; text-align: center; }
+
+    .filter-sheet { position: fixed; inset: 0; z-index: 20; display: none; align-items: flex-end; background: rgba(16, 24, 40, .42); }
+    .filter-sheet.open { display: flex; }
+    .sheet-content { width: min(100%, 460px); margin: 0 auto; padding: 18px 18px calc(18px + env(safe-area-inset-bottom)); border-radius: 24px 24px 0 0; background: white; box-shadow: 0 -18px 45px rgba(23, 32, 51, .2); }
+    .sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
+    .sheet-head h2 { margin: 0; font: 800 18px Manrope, sans-serif; }
+    .close { width: 34px; height: 34px; border: 0; border-radius: 50%; color: var(--muted); background: #f1f3f7; font-size: 19px; cursor: pointer; }
+    .filter-options { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .filter-option { padding: 12px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); background: #fff; text-align: left; font-size: 11px; font-weight: 700; }
+    .filter-option.selected { border-color: #cfb5ff; color: var(--purple-dark); background: var(--purple-soft); }
+    .apply { width: 100%; margin-top: 14px; min-height: 45px; border: 0; border-radius: 13px; color: white; background: linear-gradient(110deg, var(--purple), var(--orange)); font-size: 12px; font-weight: 800; }
+
+    @media (max-width: 380px) {
+      .stage { padding: 8px 6px 22px; }
+      .phone { border-width: 5px; border-radius: 28px; }
+      .property { grid-template-columns: 96px minmax(0, 1fr); gap: 8px; }
+      .property img { width: 96px; height: 108px; }
+      .property h2 { font-size: 12px; }
+      .price { font-size: 13px !important; }
+      .v1 .filter-button { right: 12px; min-width: 116px; }
+    }
+    @media (min-width: 700px) {
+      .stage { padding-top: 34px; }
+      .preview { width: 420px; }
+      .phone { min-height: 830px; }
+      .variation { min-height: 816px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <section class="preview" aria-label="Prototipo de cinco botoes de filtros para a pagina publica de imoveis">
+      <div class="phone">
+        <div class="notch" aria-hidden="true"></div>
+        <div class="variation-label"><span id="variationTitle">Variacao 1 · Pill compacta</span><span id="variationPurpose">Acao principal</span></div>
+
+        <article class="variation v1 active">
+          <header class="appbar"><div class="brand"><span class="eyebrow">KerHome</span><h1>Imoveis para si</h1></div><button class="avatar" aria-label="Abrir perfil">M</button></header>
+          <div class="toolbar"><div class="search"><span>⌕</span><strong>Talatona, Luanda</strong></div><button class="sort" aria-label="Ordenar resultados">↕</button></div>
+          <div class="summary"><strong>248 imoveis encontrados</strong><span>Mais recentes</span></div>
+          <div class="chips"><button class="chip selected">Comprar</button><button class="chip">T2 ou mais</button><button class="chip">Ate 50M Kz</button></div>
+          <div class="feed property-list"></div>
+          <FilterButton text="Filtros" sub="3 selecionados" />
+        </article>
+
+        <article class="variation v2">
+          <header class="appbar"><div class="brand"><span class="eyebrow">Explorar</span><h1>Imoveis em Luanda</h1></div><button class="avatar" aria-label="Abrir perfil">M</button></header>
+          <div class="toolbar"><div class="search"><span>⌕</span><strong>Pesquisar bairro ou cidade</strong></div><button class="sort" aria-label="Ordenar resultados">↕</button></div>
+          <div class="summary"><strong>248 resultados</strong><span>Mapa</span></div>
+          <div class="chips"><button class="chip selected">Todos</button><button class="chip">Venda</button><button class="chip">Arrendamento</button></div>
+          <div class="feed property-list"></div>
+          <FilterButton text="" sub="" count="3" />
+        </article>
+
+        <article class="variation v3">
+          <header class="appbar"><div class="brand"><span class="eyebrow">Pesquisa guardada</span><h1>Casas selecionadas</h1></div><button class="avatar" aria-label="Abrir perfil">M</button></header>
+          <div class="toolbar"><div class="search"><span>⌕</span><strong>Apartamentos em Talatona</strong></div><button class="sort" aria-label="Ordenar resultados">↕</button></div>
+          <div class="summary"><strong>18 imoveis compativeis</strong><span>Atualizar</span></div>
+          <div class="chips"><button class="chip selected">Filtros ativos</button><button class="chip">Ordenar</button></div>
+          <div class="feed property-list"></div>
+          <FilterButton text="Abrir filtros" sub="Preco, quartos e mais" />
+        </article>
+
+        <article class="variation v4">
+          <header class="appbar"><div class="brand"><span class="eyebrow">Resultados</span><h1>Encontrar casa</h1></div><button class="avatar" aria-label="Abrir perfil">M</button></header>
+          <div class="toolbar"><div class="search"><span>⌕</span><strong>Onde quer morar?</strong></div><button class="sort" aria-label="Ordenar resultados">↕</button></div>
+          <div class="summary"><strong>248 imoveis</strong><span>Lista</span></div>
+          <div class="chips"><button class="chip selected">Luanda</button><button class="chip">Venda</button><button class="chip">Recentes</button></div>
+          <div class="feed property-list"></div>
+          <FilterButton text="Filtros" sub="" />
+        </article>
+
+        <article class="variation v5">
+          <header class="appbar"><div class="brand"><span class="eyebrow">Descobrir</span><h1>O seu proximo lar</h1></div><button class="avatar" aria-label="Abrir perfil">M</button></header>
+          <div class="toolbar"><div class="search"><span>⌕</span><strong>Talatona, Luanda</strong></div><button class="sort" aria-label="Ordenar resultados">↕</button></div>
+          <div class="summary"><strong>248 resultados</strong><span>Mais recentes</span></div>
+          <div class="chips"><button class="chip selected">Venda</button><button class="chip">T3</button><button class="chip">Garagem</button></div>
+          <div class="feed property-list"></div>
+          <FilterButton text="Filtros" sub="3" />
+        </article>
+      </div>
+      <div class="controls"><div class="dots" aria-label="Variacao atual"><button class="dot active" aria-label="Variacao 1"></button><button class="dot" aria-label="Variacao 2"></button><button class="dot" aria-label="Variacao 3"></button><button class="dot" aria-label="Variacao 4"></button><button class="dot" aria-label="Variacao 5"></button></div><button class="next" id="nextButton">Next →</button></div>
+      <p class="hint">Use Next, as setas do teclado ou toque nos pontos para comparar.</p>
+    </section>
+  </main>
+
+  <div class="filter-sheet" id="filterSheet" role="dialog" aria-modal="true" aria-labelledby="filterTitle">
+    <div class="sheet-content">
+      <div class="sheet-head"><h2 id="filterTitle">Filtrar imoveis</h2><button class="close" id="closeSheet" aria-label="Fechar filtros">×</button></div>
+      <div class="filter-options"><button class="filter-option selected">Venda</button><button class="filter-option">Arrendamento</button><button class="filter-option selected">Talatona</button><button class="filter-option">T3 ou mais</button><button class="filter-option">Com garagem</button><button class="filter-option">Ate 50M Kz</button></div>
+      <button class="apply" id="applyFilters">Aplicar filtros</button>
+    </div>
+  </div>
+
+  <template id="propertyTemplate">
+    <div class="property"><img src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=400&q=82" alt="Apartamento moderno"><div class="property-copy"><span class="tag">Verificado</span><h2>Apartamento T3 moderno</h2><p>Talatona · Luanda</p><p class="price">45.000.000.00 Kz</p><div class="meta"><span>3 quartos</span><span>2 WC</span></div></div></div>
+  </template>
+
+  <script>
+    const variations = [...document.querySelectorAll('.variation')];
+    const dots = [...document.querySelectorAll('.dot')];
+    const title = document.getElementById('variationTitle');
+    const purpose = document.getElementById('variationPurpose');
+    const next = document.getElementById('nextButton');
+    const sheet = document.getElementById('filterSheet');
+    const names = ['Pill compacta', 'Acao circular', 'Dock inferior', 'Aba lateral', 'Barra contextual'];
+    const purposes = ['Acao principal', 'Maximo espaco', 'Acao persistente', 'Baixa interferencia', 'Contador visivel'];
+    const propertyTemplate = document.getElementById('propertyTemplate');
+    let current = 0;
+
+    document.querySelectorAll('.property-list').forEach(list => {
+      for (let i = 0; i < 3; i += 1) {
+        list.appendChild(propertyTemplate.content.cloneNode(true));
+      }
+    });
+
+    function show(index) {
+      current = (index + variations.length) % variations.length;
+      variations.forEach((item, i) => item.classList.toggle('active', i === current));
+      dots.forEach((dot, i) => dot.classList.toggle('active', i === current));
+      title.textContent = `Variacao ${current + 1} · ${names[current]}`;
+      purpose.textContent = purposes[current];
+      next.textContent = current === variations.length - 1 ? 'Recomecar ↻' : 'Next →';
+    }
+
+    function openSheet() { sheet.classList.add('open'); }
+    function closeSheet() { sheet.classList.remove('open'); }
+
+    document.querySelectorAll('.filter-button').forEach(button => button.addEventListener('click', openSheet));
+    document.getElementById('closeSheet').addEventListener('click', closeSheet);
+    document.getElementById('applyFilters').addEventListener('click', closeSheet);
+    sheet.addEventListener('click', event => { if (event.target === sheet) closeSheet(); });
+    next.addEventListener('click', () => show(current + 1));
+    dots.forEach((dot, i) => dot.addEventListener('click', () => show(i)));
+    document.addEventListener('keydown', event => {
+      if (event.key === 'ArrowRight' || event.key === 'Enter') show(current + 1);
+      if (event.key === 'Escape') closeSheet();
+    });
+  </script>
+</body>
+</html>

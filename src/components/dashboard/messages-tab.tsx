@@ -37,7 +37,6 @@ import { cn } from '@/lib/utils';
 import { Calendar as CalendarUI } from '@/components/ui/calendar';
 import { toast } from 'sonner';
 import { getSupabaseUserProperties } from '@/lib/functions/get-properties';
-import { AiReplySuggestions } from './ai-reply-suggestions';
 import { AiLeadCoach } from '@/components/ai-lead-coach';
 
 type LeadTemperature = 'hot' | 'warm' | 'cold' | 'none';
@@ -140,9 +139,15 @@ export function MessagesTab() {
 
   const currentTemp = activeConversation?.lead_temperature || 'none';
   const property = (activeConversation as any)?.property_details;
-
-  const showTemplates = view === 'chat' && activeConversationId && messages.length === 0;
-  const showAiSuggestions = view === 'chat' && activeConversationId && messages.length > 0;
+  const hasMessageHistory = Boolean(
+    activeConversation?.last_message?.content || 
+    (activeConversation as any)?.messages_count > 0
+  );
+  const showTemplates = view === 'chat' && 
+    Boolean(activeConversationId) && 
+    !isLoading && 
+    messages.length === 0 && 
+    !hasMessageHistory;
 
   // Update local note when conversation changes
   useEffect(() => {
@@ -564,6 +569,10 @@ export function MessagesTab() {
                        {QUICK_REPLIES.map((text, i) => (
                          <button 
                            key={i} 
+                           onClick={() => {
+                             const event = new CustomEvent('insert-ai-reply', { detail: text });
+                             window.dispatchEvent(event);
+                           }}
                            className="lg:px-4 lg:py-2 px-3 py-2 bg-white shadow-md border border-purple-100 rounded-full lg:text-[10px] text-xs font-bold text-purple-700 active:bg-purple-600 active:text-white active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
                          >
                            <Zap className="w-3.5 h-3.5" />
@@ -572,18 +581,6 @@ export function MessagesTab() {
                        ))}
                     </div>
                   </motion.div>
-                )}
-                {showAiSuggestions && (
-                  <div className="border-t border-gray-50 bg-white">
-                    <AiReplySuggestions
-                      messages={messages.map(m => ({ role: m.sender_id === user?.id ? 'assistant' : 'user', content: m.content }))}
-                      propertyContext={property || undefined}
-                      onSelectReply={(text) => {
-                        const event = new CustomEvent('insert-ai-reply', { detail: text });
-                        window.dispatchEvent(event);
-                      }}
-                    />
-                  </div>
                 )}
               </AnimatePresence>
             </div>

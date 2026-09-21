@@ -44,12 +44,12 @@ export function MessageBubble({ message, isMe }: MessageBubbleProps) {
 
     return (
         <div className={cn(
-            "flex w-full mt-2 space-x-3 max-w-xs group relative", // Added group for hover effects if needed
-            isMe ? "ml-auto justify-end" : ""
+            "flex w-full mt-1.5 gap-2.5 max-w-[85%] sm:max-w-md group relative",
+            isMe ? "ml-auto justify-end" : "mr-auto justify-start"
         )}>
             {/* Avatar for other user / Agency */}
             {!isMe && (
-                <div className="flex-shrink-0 h-8 w-8 rounded-badge bg-gray-200 overflow-hidden border border-border">
+                <div className="shrink-0 h-8 w-8 rounded-full bg-gray-100 overflow-hidden border border-gray-200/80 mt-0.5">
                     {message.sender_type === 'agency' ? (
                         message.agency?.logo ? (
                             <img src={message.agency.logo} alt="Agency" className="h-full w-full object-cover" />
@@ -61,16 +61,16 @@ export function MessageBubble({ message, isMe }: MessageBubbleProps) {
                     ) : message.profiles?.avatar_url ? (
                         <img src={message.profiles.avatar_url} alt="Profile" className="h-full w-full object-cover" />
                     ) : (
-                        <UserCircle className="h-full w-full text-gray-500 p-1" />
+                        <UserCircle className="h-full w-full text-gray-400 p-1" />
                     )}
                 </div>
             )}
 
             <div className={cn(
-                "relative px-4 py-2 shadow-card rounded-card flex flex-col gap-1",
+                "relative px-3.5 py-2.5 shadow-xs rounded-2xl flex flex-col gap-1",
                 isMe
-                    ? "bg-gradient-to-r from-purple-600 to-purple-500 text-white rounded-br-none"
-                    : "bg-white border border-border text-gray-800 rounded-bl-none"
+                    ? "bg-gradient-to-r from-purple-600 to-purple-500 text-white rounded-br-xs"
+                    : "bg-white border border-gray-100/90 text-gray-800 rounded-bl-xs shadow-xs"
             )}>
                 {/* 3-dots Menu */}
                 <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
