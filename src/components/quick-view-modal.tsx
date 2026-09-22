@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, BedDouble, Bath, Ruler, MapPin, ArrowRight, ChevronLeft, ChevronRight, Tag } from 'lucide-react';
+import { formatPriceWithDots } from '@/lib/format-price';
 
 export function QuickViewModal({
   property,
@@ -108,7 +109,7 @@ export function QuickViewModal({
             <div className="flex items-center gap-1.5">
               <Tag className="w-5 h-5 text-orange-500 -rotate-90" />
               <span className="text-2xl font-bold text-orange-600">
-                {priceParsed.toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {property.unidade_preco === 'dolar' ? '$' : property.unidade_preco === 'euro' ? '€' : 'Kz'}
+                {formatPriceWithDots(priceParsed)} {property.unidade_preco === 'dolar' ? '$' : property.unidade_preco === 'euro' ? '€' : 'Kz'}
               </span>
             </div>
 

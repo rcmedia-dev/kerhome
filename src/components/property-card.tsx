@@ -76,7 +76,7 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
   }, [property.id, property.slug]);
 
   useEffect(() => {
-    if (!user || property.id === 'preview-id') { 
+    if (!user || !property.id || property.id === 'preview-id' || property.id.startsWith('prop-mock-')) { 
       setFavorito(false); 
       return; 
     }
@@ -88,14 +88,14 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
           setFavorito(favoritos.some(fav => fav.id === property.id));
         }
       } catch (e) {
-        console.error("Error in PropertyCard favorito useEffect:", e);
+        // Silencioso para não poluir console
       }
     })();
     return () => { cancelled = true; };
   }, [user, property.id]);
 
   useEffect(() => {
-    if (property.id === 'preview-id') return;
+    if (!property.id || property.id === 'preview-id' || property.id.startsWith('prop-mock-')) return;
     let cancelled = false;
     (async () => {
       try {
@@ -105,7 +105,7 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
           .eq('property_id', property.id)
           .maybeSingle();
 
-        if (error) throw error;
+        if (error) return;
 
         if (data) {
           let isExpired = false;
@@ -119,9 +119,7 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
               .eq('id', data.plan_id)
               .maybeSingle();
             
-            if (planError) {
-              console.error("Error fetching boost plan details:", planError);
-            } else if (planData?.dias) {
+            if (!planError && planData?.dias) {
               const expiresAt = new Date(new Date(data.created_at).setDate(new Date(data.created_at).getDate() + planData.dias));
               isExpired = new Date() > expiresAt;
             }
@@ -138,7 +136,7 @@ export function PropertyCard({ property, canBoost = true, isClickable = true, on
           }
         }
       } catch (e) {
-        console.error("Error in PropertyCard boosted status useEffect:", e);
+        // Silencioso para não poluir console
       }
     })();
     return () => { cancelled = true; };

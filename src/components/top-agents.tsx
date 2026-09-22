@@ -318,8 +318,8 @@ export default function TopAgentsSection({ agents, className }: TopAgentsSection
                     className="relative bg-white rounded-card border border-border p-6 shadow-card hover:shadow-card-hover transition-all duration-500 h-full flex flex-col overflow-hidden"
                   >
                     {/* Avatar */}
-                    <div className="relative z-10 ml-0 mb-4 -mt-4">
-                      <div className="relative">
+                    <div className="relative z-10 flex flex-col items-center mb-4 -mt-4">
+                      <div className="relative inline-block">
                         <motion.div
                           variants={avatarHoverVariants}
                           className="relative w-20 h-20 rounded-badge overflow-hidden border-4 border-white shadow-card flex items-center justify-center bg-gray-100"
@@ -340,22 +340,22 @@ export default function TopAgentsSection({ agents, className }: TopAgentsSection
                             </div>
                           )}
                         </motion.div>
+                        <motion.div
+                          whileHover={{ scale: 1.2, rotate: 10 }}
+                          className="absolute bottom-0 right-0 bg-white p-1 rounded-badge shadow-card border z-20"
+                        >
+                          <VerifiedIcon className="w-4 h-4 text-[#6D28D9]" />
+                        </motion.div>
                       </div>
-                      <motion.div
-                        whileHover={{ scale: 1.2, rotate: 10 }}
-                        className="absolute -bottom-1 -right-1 bg-white p-1 rounded-badge shadow-card border"
-                      >
-                        <VerifiedIcon className="w-4 h-4 text-[#6D28D9]" />
-                      </motion.div>
                     </div>
 
                     {/* Conteúdo */}
-                    <div className="text-left flex-1 relative z-10 flex flex-col items-start justify-center">
+                    <div className="text-center flex-1 relative z-10 flex flex-col items-center justify-center">
                       <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-[#6D28D9] transition-colors line-clamp-1">
                         {agent.primeiro_nome} {agent.ultimo_nome}
                       </h3>
                       {agent.email && (
-                        <div className="flex items-center justify-start gap-2 text-gray-500 mb-6 p-2 bg-gray-50 rounded-button w-full text-xs truncate">
+                        <div className="flex items-center justify-center gap-2 text-gray-500 mb-6 p-2 bg-gray-50 rounded-button w-full text-xs truncate">
                           <Mail className="w-3 h-3 shrink-0" />
                           <span className="truncate">{agent.email}</span>
                         </div>

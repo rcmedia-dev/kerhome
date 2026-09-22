@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="pt-AO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Kercasa PWA Install Banner - 5 Variacoes</title>
+  <style>
+    :root {
+      --ink: #182033;
+      --muted: #69748a;
+      --line: #e4e8ef;
+      --paper: #eef1f6;
+      --white: #fff;
+      --purple: #6d35d4;
+      --purple-dark: #28144b;
+      --orange: #f07b3f;
+      --green: #138a68;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; color: var(--ink); background: #dfe3ea; }
+    button { font: inherit; }
+    .page { min-height: 100vh; padding: 28px 18px 44px; }
+    .intro { max-width: 1040px; margin: 0 auto 24px; display: flex; justify-content: space-between; align-items: end; gap: 20px; }
+    .eyebrow { margin: 0 0 8px; color: var(--purple); font-size: 11px; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(25px, 4vw, 42px); letter-spacing: -.045em; line-height: 1; }
+    .lead { max-width: 480px; margin: 10px 0 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+    .counter { color: var(--muted); font-size: 12px; font-weight: 800; white-space: nowrap; }
+    .stage { max-width: 1040px; margin: auto; display: grid; grid-template-columns: minmax(310px, 430px) minmax(260px, 1fr); gap: clamp(30px, 8vw, 110px); align-items: center; }
+    .phone { width: min(100%, 390px); min-height: 690px; justify-self: center; padding: 10px; border-radius: 40px; background: #171923; box-shadow: 0 28px 70px rgba(24, 25, 38, .27); }
+    .screen { position: relative; min-height: 670px; overflow: hidden; border-radius: 31px; background: #f8f9fc; }
+    .fake-header { height: 64px; padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; background: #fff; border-bottom: 1px solid #edf0f4; }
+    .fake-logo { width: 94px; height: 12px; border-radius: 5px; background: #aab2c0; }
+    .fake-avatar { width: 30px; height: 30px; border-radius: 50%; background: #dfe3ea; }
+    .fake-content { padding: 24px 18px; }
+    .fake-title { width: 170px; height: 14px; margin-bottom: 20px; border-radius: 6px; background: #c6ccd6; }
+    .fake-card { height: 148px; margin-bottom: 14px; border-radius: 20px; background: #fff; }
+    .fake-row { height: 70px; margin-bottom: 12px; border-radius: 16px; background: #fff; }
+    .backdrop { position: absolute; inset: 0; background: rgba(24, 27, 38, .08); }
+    .banner { position: absolute; left: 12px; right: 12px; bottom: 18px; z-index: 2; }
+    .banner-card { position: relative; color: var(--ink); background: var(--white); border: 1px solid var(--line); box-shadow: 0 16px 35px rgba(31, 35, 50, .17); }
+    .close { position: absolute; top: 10px; right: 10px; width: 27px; height: 27px; border: 0; border-radius: 50%; color: #718096; background: #f0f2f6; cursor: pointer; line-height: 1; }
+    .icon { display: grid; place-items: center; width: 42px; height: 42px; overflow: hidden; color: #fff; background: linear-gradient(135deg, var(--purple), var(--orange)); font-size: 20px; font-weight: 900; }
+    .brand-mark { position: relative; width: 22px; height: 18px; margin-top: 5px; border: 3px solid currentColor; border-top: 0; border-radius: 2px 2px 4px 4px; }
+    .brand-mark::before { content: ""; position: absolute; width: 15px; height: 15px; top: -9px; left: 0; border-top: 3px solid currentColor; border-left: 3px solid currentColor; transform: rotate(45deg); border-radius: 2px; }
+    .brand-mark::after { content: ""; position: absolute; width: 5px; height: 9px; left: 6px; bottom: 0; border: 2px solid currentColor; border-bottom: 0; border-radius: 2px 2px 0 0; }
+    .title { margin: 0; color: var(--ink); font-size: 15px; line-height: 1.15; font-weight: 900; }
+    .copy { margin: 5px 0 0; color: var(--muted); font-size: 11px; line-height: 1.4; }
+    .primary { border: 0; color: #fff; background: var(--purple); cursor: pointer; font-size: 11px; font-weight: 900; }
+    .secondary { border: 0; color: #667085; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; }
+
+    /* 1: horizontal compact */
+    .v1 .banner-card { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 18px; }
+    .v1 .icon { flex: 0 0 auto; border-radius: 12px; }
+    .v1 .copy-wrap { min-width: 0; flex: 1; padding-right: 4px; }
+    .v1 .primary { flex: 0 0 auto; padding: 9px 11px; border-radius: 10px; }
+
+    /* 2: action-first */
+    .v2 .banner-card { padding: 17px; border-radius: 22px; }
+    .v2 .top { display: flex; align-items: center; gap: 11px; padding-right: 24px; }
+    .v2 .icon { border-radius: 50%; }
+    .v2 .primary { width: 100%; margin-top: 15px; padding: 11px; border-radius: 12px; }
+    .v2 .secondary { display: block; width: 100%; margin-top: 9px; padding: 4px; }
+
+    /* 3: dark branded */
+    .v3 .banner-card { padding: 17px; color: #fff; background: linear-gradient(135deg, #241343, #46206a); border: 0; border-radius: 22px; }
+    .v3 .top { display: flex; align-items: center; gap: 11px; padding-right: 24px; }
+    .v3 .icon { border-radius: 13px; background: rgba(255,255,255,.16); }
+    .v3 .title { color: #fff; }
+    .v3 .copy { color: rgba(255,255,255,.7); }
+    .v3 .primary { margin-top: 14px; padding: 10px 14px; border-radius: 11px; background: #f07b3f; }
+    .v3 .secondary { margin-left: 8px; color: rgba(255,255,255,.7); }
+
+    /* 4: benefit and install */
+    .v4 .banner-card { padding: 16px; border-radius: 20px; border-color: #d9cdf7; background: #fbf9ff; }
+    .v4 .top { display: flex; align-items: flex-start; gap: 11px; padding-right: 22px; }
+    .v4 .icon { border-radius: 12px; background: #eadfff; color: var(--purple); }
+    .v4 .benefit { display: flex; gap: 7px; margin: 13px 0 14px; color: #526075; font-size: 10px; font-weight: 700; }
+    .v4 .benefit span { display: inline-flex; align-items: center; gap: 4px; padding: 6px 7px; border-radius: 8px; background: #f0ebff; }
+    .v4 .primary { width: 100%; padding: 10px; border-radius: 11px; }
+
+    /* 5: bottom sheet inspired */
+    .v5 .banner-card { padding: 20px 17px 15px; border-radius: 24px 24px 15px 15px; }
+    .v5 .handle { width: 34px; height: 4px; margin: -7px auto 15px; border-radius: 99px; background: #d9dee8; }
+    .v5 .top { display: flex; align-items: center; gap: 11px; padding-right: 22px; }
+    .v5 .icon { border-radius: 12px; }
+    .v5 .actions { display: flex; align-items: center; gap: 10px; margin-top: 16px; }
+    .v5 .primary { flex: 1; padding: 10px; border-radius: 11px; }
+
+    .details { max-width: 500px; }
+    .variant-label { margin: 0 0 9px; color: var(--purple); font-size: 13px; font-weight: 900; }
+    .variant-title { margin: 0; font-size: clamp(27px, 4vw, 44px); line-height: 1.02; letter-spacing: -.05em; }
+    .variant-copy { margin: 14px 0 25px; color: var(--muted); font-size: 15px; line-height: 1.6; }
+    .points { display: grid; gap: 10px; margin: 0 0 28px; padding: 0; list-style: none; }
+    .points li { display: flex; gap: 9px; color: #4d596d; font-size: 13px; line-height: 1.4; }
+    .points li::before { content: ""; flex: 0 0 7px; width: 7px; height: 7px; margin-top: 5px; border-radius: 50%; background: var(--orange); }
+    .controls { display: flex; align-items: center; gap: 10px; }
+    .next, .back { border: 0; border-radius: 12px; cursor: pointer; font-size: 12px; font-weight: 900; transition: transform .18s; }
+    .next { padding: 13px 18px; color: #fff; background: var(--purple); box-shadow: 0 8px 18px rgba(109,53,212,.22); }
+    .back { padding: 13px 14px; color: #566176; background: #edf0f4; }
+    .next:hover, .back:hover { transform: translateY(-2px); }
+    .dots { display: flex; gap: 7px; margin-left: auto; }
+    .dot { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 99px; background: #c3c8d2; cursor: pointer; }
+    .dot.active { width: 23px; background: var(--purple); }
+    @media (max-width: 760px) {
+      .page { padding: 20px 14px 32px; }
+      .intro { display: block; }
+      .counter { display: block; margin-top: 14px; }
+      .stage { grid-template-columns: 1fr; gap: 28px; }
+      .phone { min-height: 600px; }
+      .screen { min-height: 580px; }
+      .details { max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="intro">
+      <div>
+        <p class="eyebrow">PWA install banner / mobile-first study</p>
+        <h1>Instalar Kercasa sem interromper</h1>
+        <p class="lead">Cinco alternativas para apresentar a instalação com clareza, contexto e uma ação simples.</p>
+      </div>
+      <div class="counter" id="counter">Variação 1 de 5</div>
+    </header>
+
+    <section class="stage">
+      <div class="phone" aria-label="Pré-visualização do banner em um telemóvel">
+        <div class="screen">
+          <div class="fake-header"><span class="fake-logo"></span><span class="fake-avatar"></span></div>
+          <div class="fake-content"><div class="fake-title"></div><div class="fake-card"></div><div class="fake-row"></div><div class="fake-row"></div></div>
+          <div class="backdrop"></div>
+          <div class="banner" id="banner"></div>
+        </div>
+      </div>
+
+      <div class="details">
+        <p class="variant-label" id="variantLabel">Variação 01</p>
+        <h2 class="variant-title" id="variantTitle">Compacto e direto</h2>
+        <p class="variant-copy" id="variantCopy"></p>
+        <ul class="points" id="points"></ul>
+        <div class="controls">
+          <button class="back" id="back" type="button">Back</button>
+          <button class="next" id="next" type="button">Next <span aria-hidden="true">→</span></button>
+          <div class="dots" id="dots" aria-label="Selecionar variação"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const variations = [
+      {
+        className: 'v1', title: 'Compacto e direto',
+        copy: 'Ideal para aparecer no dashboard sem esconder conteúdo nem interromper a tarefa principal.',
+        points: ['Mensagem curta e leitura em uma linha visual.', 'Botão Instalar fica imediatamente disponível.', 'Fecho discreto, sem competir com a ação.'],
+        html: `<div class="banner-card"><button class="close" aria-label="Fechar">×</button><div class="icon" aria-label="Logo Kercasa"><span class="brand-mark"></span></div><div class="copy-wrap"><h3 class="title">Instalar Kercasa</h3><p class="copy">Acesse o seu painel como uma aplicação.</p></div><button class="primary">Instalar</button></div>`
+      },
+      {
+        className: 'v2', title: 'Ação em primeiro plano',
+        copy: 'Uma opção mais visível para aumentar a conversão de instalação quando o utilizador já conhece o produto.',
+        points: ['Área de toque ampla e confortável.', 'Benefício explicado antes do botão.', 'Permite recusar sem transformar o “não” em erro.'],
+        html: `<div class="banner-card"><button class="close" aria-label="Fechar">×</button><div class="top"><div class="icon" aria-label="Logo Kercasa"><span class="brand-mark"></span></div><div><h3 class="title">Leve a Kercasa consigo</h3><p class="copy">Abra imóveis e mensagens mais rapidamente.</p></div></div><button class="primary">Instalar agora</button><button class="secondary">Agora não</button></div>`
+      },
+      {
+        className: 'v3', title: 'Branded e expressivo',
+        copy: 'Usa a cor da marca para destacar o convite, preservando uma hierarquia simples e uma ação clara.',
+        points: ['Contraste forte no ambiente do dashboard.', 'Texto branco reduz ruído visual.', 'Instalar e dispensar continuam distintos.'],
+        html: `<div class="banner-card"><button class="close" aria-label="Fechar">×</button><div class="top"><div class="icon" aria-label="Logo Kercasa"><span class="brand-mark"></span></div><div><h3 class="title">A Kercasa no seu ecrã</h3><p class="copy">Tenha o seu espaço imobiliário sempre à mão.</p></div></div><button class="primary">Instalar aplicação</button><button class="secondary">Depois</button></div>`
+      },
+      {
+        className: 'v4', title: 'Benefícios visíveis',
+        copy: 'Expõe rapidamente o valor da instalação para utilizadores que precisam de uma razão antes de aceitar.',
+        points: ['Benefícios escaneáveis em chips curtos.', 'A ação vem depois da compreensão.', 'Boa alternativa para primeira visita ao dashboard.'],
+        html: `<div class="banner-card"><button class="close" aria-label="Fechar">×</button><div class="top"><div class="icon" aria-label="Logo Kercasa"><span class="brand-mark"></span></div><div><h3 class="title">Instale a Kercasa</h3><p class="copy">Mais rapidez para gerir os seus imóveis.</p></div></div><div class="benefit"><span>⚡ Acesso rápido</span><span>⌂ Como app</span></div><button class="primary">Instalar agora</button></div>`
+      },
+      {
+        className: 'v5', title: 'Mini bottom sheet',
+        copy: 'Uma composição mais calma e espaçada, apropriada para mobile quando a instalação é uma decisão importante.',
+        points: ['Handle cria linguagem de superfície móvel.', 'Ações ficam confortáveis para o polegar.', 'O conteúdo pode crescer sem apertar o layout.'],
+        html: `<div class="banner-card"><div class="handle"></div><button class="close" aria-label="Fechar">×</button><div class="top"><div class="icon" aria-label="Logo Kercasa"><span class="brand-mark"></span></div><div><h3 class="title">Instalar Kercasa</h3><p class="copy">Tenha uma experiência mais rápida e confortável.</p></div></div><div class="actions"><button class="primary">Instalar</button><button class="secondary">Agora não</button></div></div>`
+      }
+    ];
+
+    let current = 0;
+    const banner = document.getElementById('banner');
+    const counter = document.getElementById('counter');
+    const label = document.getElementById('variantLabel');
+    const title = document.getElementById('variantTitle');
+    const copy = document.getElementById('variantCopy');
+    const points = document.getElementById('points');
+    const dots = document.getElementById('dots');
+
+    variations.forEach((_, index) => {
+      const dot = document.createElement('button');
+      dot.className = 'dot';
+      dot.type = 'button';
+      dot.setAttribute('aria-label', `Ver variação ${index + 1}`);
+      dot.addEventListener('click', () => render(index));
+      dots.appendChild(dot);
+    });
+
+    function render(index) {
+      current = (index + variations.length) % variations.length;
+      const item = variations[current];
+      banner.className = `banner ${item.className}`;
+      banner.innerHTML = item.html;
+      counter.textContent = `Variação ${current + 1} de ${variations.length}`;
+      label.textContent = `Variação ${String(current + 1).padStart(2, '0')}`;
+      title.textContent = item.title;
+      copy.textContent = item.copy;
+      points.innerHTML = item.points.map(point => `<li>${point}</li>`).join('');
+      [...dots.children].forEach((dot, dotIndex) => dot.classList.toggle('active', dotIndex === current));
+    }
+
+    document.getElementById('next').addEventListener('click', () => render(current + 1));
+    document.getElementById('back').addEventListener('click', () => render(current - 1));
+    document.addEventListener('keydown', event => {
+      if (event.key === 'ArrowRight') render(current + 1);
+      if (event.key === 'ArrowLeft') render(current - 1);
+    });
+    render(0);
+  </script>
+</body>
+</html>

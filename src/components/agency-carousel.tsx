@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation, Pagination } from 'swiper/modules';
-import { CheckCircle2, ChevronLeft, ChevronRight, ArrowRight, VerifiedIcon, Sparkles } from 'lucide-react';
+import { CheckCircle2, ChevronLeft, ChevronRight, ArrowRight, VerifiedIcon, Sparkles, MapPin } from 'lucide-react';
 import { Imobiliaria } from '@/lib/types/imobiliaria';
 import { motion, Variants, Transition } from 'framer-motion';
 
@@ -208,8 +208,8 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
                     <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-r from-purple-50 to-purple-100 opacity-60"></div>
 
                     {/* Logo (Avatar Style) */}
-                    <div className="relative z-10 mx-auto mb-4 -mt-4">
-                      <div className="relative">
+                    <div className="relative z-10 flex flex-col items-center mb-4 -mt-4">
+                      <div className="relative inline-block">
                         <motion.div
                           variants={logoHoverVariants}
                           className="relative w-20 h-20 bg-white rounded-button overflow-hidden border-4 border-white shadow-card p-3"
@@ -222,15 +222,15 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
                             unoptimized={true}
                           />
                         </motion.div>
+                        {agency.verificada && (
+                          <motion.div
+                            whileHover={{ scale: 1.2, rotate: 10 }}
+                            className="absolute bottom-0 right-0 bg-white p-1 rounded-badge shadow-card border z-20"
+                          >
+                            <VerifiedIcon className="w-4 h-4 text-[#6D28D9]" />
+                          </motion.div>
+                        )}
                       </div>
-                      {agency.verificada && (
-                        <motion.div
-                          whileHover={{ scale: 1.2, rotate: 10 }}
-                          className="absolute -bottom-1 -right-1 bg-white p-1 rounded-badge shadow-card border"
-                        >
-                          <CheckCircle2 className="w-4 h-4 text-[#6D28D9] fill-[#6D28D9] text-white" />
-                        </motion.div>
-                      )}
                     </div>
 
                     {/* Conteúdo Centralizado (Unificação) */}
@@ -238,7 +238,8 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
                       <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-[#6D28D9] transition-colors leading-tight line-clamp-2 h-[48px] flex items-center justify-center">
                         {agency.nome}
                       </h3>
-                      <div className="flex items-center justify-center gap-2 text-gray-500 mb-6 p-2 bg-gray-50 rounded-button w-full text-xs font-black uppercase tracking-widest">
+                      <div className="flex items-center justify-center gap-1.5 text-gray-500 mb-6 text-xs">
+                        <MapPin className="w-3.5 h-3.5 shrink-0" />
                         <span>{agency.cidade}</span>
                       </div>
                     </div>
@@ -249,9 +250,8 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
                         <motion.button
                           whileHover={{ scale: 1.05, x: 2 }}
                           whileTap={{ scale: 0.95 }}
-                          className="w-full py-2.5 px-4 bg-[#6D28D9] text-white font-semibold rounded-button hover:bg-purple-800 transition-all duration-300 flex items-center justify-center gap-2 text-sm shadow-card"
+                          className="w-full py-2.5 px-4 bg-[#6D28D9] text-white font-semibold rounded-button hover:bg-purple-800 transition-all duration-300 flex items-center justify-center text-sm shadow-card"
                         >
-                          <Sparkles className="w-4 h-4" />
                           Ver Perfil
                         </motion.button>
                       </Link>

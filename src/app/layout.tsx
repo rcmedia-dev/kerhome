@@ -15,6 +15,7 @@ import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/json-ld";
 import { Toaster } from "@/components/ui/sonner";
 import { PageTransition } from "@/components/page-transition";
 import { SplashScreenClient } from "@/components/splash-screen-client";
+import { PwaInstallBanner } from "@/components/pwa-install-banner";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
 
@@ -61,6 +62,8 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
+  themeColor: '#6d35d4',
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({
@@ -76,6 +79,7 @@ export default function RootLayout({
           <LoaderProviders>
             <div id="global-layout-root" className="flex flex-col min-h-screen">
               <ChatWidget />
+              <PwaInstallBanner />
               {/* Desktop: TopBar + Header stacked */}
               <div className="hidden md:flex sticky top-0 z-50 w-full flex-col [&_header]:top-10 shrink-0">
                 <TopBar />

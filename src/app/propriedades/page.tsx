@@ -30,6 +30,7 @@ import { RecentlyViewedProperties } from '@/components/recently-viewed-propertie
 import { QuickViewModal } from '@/components/quick-view-modal';
 import { PropertyAiChat } from '@/components/property-ai-chat';
 import { useSavedSearches } from '@/hooks/use-saved-searches';
+import { formatPriceWithDots } from '@/lib/format-price';
 
 // Hook personalizado para debounce (sem bibliotecas externas)
 const useDebouncedCallback = (fn: (...args: any[]) => void, wait = 350) => {
@@ -52,10 +53,7 @@ const formatCurrencyInput = (value: string): string => {
   if (!numbersOnly) return '';
 
   // Formata com separador de milhar
-  return new Intl.NumberFormat('pt-AO', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(Number(numbersOnly));
+  return formatPriceWithDots(Number(numbersOnly)).replace(/\.00$/, '');
 };
 
 // Função para remover a formatação e retornar apenas números
@@ -278,6 +276,8 @@ const PropertyListing = () => {
   const [formattedMaxPrice, setFormattedMaxPrice] = useState('');
 
   const [isSticky, setIsSticky] = useState(false);
+  const [isFilterBtnVisible, setIsFilterBtnVisible] = useState(false);
+  const lastScrollY = useRef(0);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [quickViewProperty, setQuickViewProperty] = useState<any>(null);
   const [visibleCount, setVisibleCount] = useState(9);
@@ -303,11 +303,29 @@ const PropertyListing = () => {
     }
   }, [filters.location, filters.minPrice, filters.maxPrice]);
 
+  // Comportamento de rolagem do botão mobile:
+  // - Aparece quando se faz scroll para baixo
+  // - Desaparece quando se faz scroll para cima
   useEffect(() => {
     const handleScroll = () => {
-      setIsSticky(window.scrollY > 50);
+      const currentScrollY = window.scrollY;
+      setIsSticky(currentScrollY > 50);
+
+      if (currentScrollY <= 30) {
+        // No topo absoluto da página -> fica oculto
+        setIsFilterBtnVisible(false);
+      } else if (currentScrollY > lastScrollY.current + 6) {
+        // Rolar para baixo -> aparece
+        setIsFilterBtnVisible(true);
+      } else if (currentScrollY < lastScrollY.current - 6) {
+        // Rolar para cima -> desaparece
+        setIsFilterBtnVisible(false);
+      }
+
+      lastScrollY.current = currentScrollY;
     };
-    window.addEventListener('scroll', handleScroll);
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -347,7 +365,7 @@ const PropertyListing = () => {
     if (tipo) parts.push(tipo);
     if (quartos) parts.push(`T${quartos}`);
     if (cidade) parts.push(`em ${cidade}`);
-    if (preco_max) parts.push(`até Kz ${Number(preco_max).toLocaleString()}`);
+    if (preco_max) parts.push(`até Kz ${formatPriceWithDots(Number(preco_max)).replace(/\.00$/, '')}`);
     if (parts.length > 0) setSearchBanner(parts.join(' '));
   }, [searchParamsStr]);
 
@@ -368,6 +386,12 @@ const PropertyListing = () => {
   };
 
   const hasActiveFilters = Object.values(filters).some(value => value !== '' && value !== 'recent');
+  const activeFiltersCount = React.useMemo(() => {
+    return Object.entries(filters).filter(([key, val]) => {
+      if (key === 'sortBy') return false;
+      return Boolean(val);
+    }).length;
+  }, [filters]);
 
   // Properties from supabase
   const properties = useQuery({
@@ -476,22 +500,60 @@ const PropertyListing = () => {
       q,
     } = filters;
 
-    const matchesStatus = !status || property.status === status;
-    const matchesTipo = !tipo || property.tipo?.toLowerCase() === tipo.toLowerCase();
-    const matchesLocation = !location || (
-      property.endereco?.toLowerCase().includes(location.toLowerCase()) ||
-      property.cidade?.toLowerCase().includes(location.toLowerCase())
-    );
-    const matchesBedrooms = !bedrooms || property.bedrooms >= Number(bedrooms);
-    const matchesBathrooms = !bathrooms || property.bathrooms >= Number(bathrooms);
-    const matchesGaragens = !garagens || property.garagens >= Number(garagens);
-    const matchesMinPrice = !minPrice || property.price >= Number(minPrice);
-    const matchesMaxPrice = !maxPrice || property.price <= Number(maxPrice);
+    // Status: flexível com variações comuns (comprar/venda, arrendar/alugar)
+    const matchesStatus = !status || (() => {
+      const pStatus = (property.status || '').toLowerCase().trim();
+      const s = status.toLowerCase().trim();
+      if (s === 'comprar' || s === 'venda') {
+        return pStatus.includes('comprar') || pStatus.includes('venda');
+      }
+      if (s === 'arrendar' || s === 'alugar' || s === 'arrendamento' || s === 'aluguel') {
+        return pStatus.includes('arrend') || pStatus.includes('alug');
+      }
+      return pStatus === s || pStatus.includes(s) || s.includes(pStatus);
+    })();
+
+    // Tipo: flexível (casa abrange vivenda e moradia; apartamento abrange studio/flat/t1..t4)
+    const matchesTipo = !tipo || (() => {
+      const pTipo = (property.tipo || '').toLowerCase().trim();
+      const t = tipo.toLowerCase().trim();
+      if (t === 'casa') {
+        return pTipo.includes('casa') || pTipo.includes('vivenda') || pTipo.includes('moradia');
+      }
+      if (t === 'apartamento') {
+        return pTipo.includes('apart') || pTipo.startsWith('t') || pTipo.includes('flat') || pTipo.includes('duplex');
+      }
+      return pTipo.includes(t) || t.includes(pTipo);
+    })();
+
+    // Localização: busca em endereço, bairro, cidade, município e província
+    const matchesLocation = !location || (() => {
+      const loc = location.toLowerCase().trim();
+      const fullLoc = [
+        property.endereco,
+        property.bairro,
+        property.cidade,
+        property.municipio,
+        property.provincia,
+        property.pais,
+        property.localizacao
+      ].filter(Boolean).join(' ').toLowerCase();
+      return fullLoc.includes(loc);
+    })();
+
+    const matchesBedrooms = !bedrooms || Number(property.bedrooms || 0) >= Number(bedrooms);
+    const matchesBathrooms = !bathrooms || Number(property.bathrooms || 0) >= Number(bathrooms);
+    const matchesGaragens = !garagens || Number(property.garagens || 0) >= Number(garagens);
+
+    const propPrice = property.price != null ? Number(property.price) : 0;
+    const matchesMinPrice = !minPrice || propPrice >= Number(minPrice);
+    const matchesMaxPrice = !maxPrice || (propPrice > 0 && propPrice <= Number(maxPrice));
+
     const matchesQ = !q || (() => {
       const keywords = q.toLowerCase().split(/\s+/).filter(Boolean);
       if (keywords.length === 0) return true;
-      const text = `${property.title?.toLowerCase() || ''} ${property.description?.toLowerCase() || ''}`;
-      return keywords.some(kw => text.includes(kw));
+      const text = `${property.title || ''} ${property.description || ''} ${property.tipo || ''} ${property.bairro || ''} ${property.cidade || ''}`.toLowerCase();
+      return keywords.every(kw => text.includes(kw));
     })();
 
     return (
@@ -543,9 +605,11 @@ const PropertyListing = () => {
       />
 
       <FilterSelect Icon={Building} value={filters.tipo} onChange={handleTipoChange} className="bg-gray-50 border-gray-100">
-        <option value="">Tipo de Imóvel</option>
-        <option value="casa">Casa</option>
+        <option value="">Tipo de Imóvel (Todos)</option>
+        <option value="casa">Casa / Vivenda</option>
         <option value="apartamento">Apartamento</option>
+        <option value="terreno">Terreno</option>
+        <option value="escritorio">Escritório</option>
         <option value="studio">Studio</option>
       </FilterSelect>
 
@@ -662,9 +726,9 @@ const PropertyListing = () => {
         </AnimatePresence>
       </motion.div>
 
-      {/* Botão Flutuante (Abre o Painel) */}
+      {/* Botão Flutuante Desktop (Restaurado exatamente conforme o original) */}
       <AnimatePresence>
-        {(isSticky || (typeof window !== 'undefined' && window.innerWidth < 768)) && !showFilterModal && (
+        {isSticky && !showFilterModal && (
           <motion.button
             initial={{ x: 100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
@@ -672,13 +736,47 @@ const PropertyListing = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowFilterModal(true)}
-            className="fixed right-6 top-1/2 -translate-y-1/2 z-40 p-4 bg-orange-600 text-white rounded-2xl shadow-2xl backdrop-blur-md hover:bg-orange-700 transition-all flex flex-col items-center gap-2 cursor-pointer border border-white/20"
+            className="hidden md:flex fixed right-6 top-1/2 -translate-y-1/2 z-40 p-3 bg-orange-600 text-white rounded-xl shadow-xl backdrop-blur-md hover:bg-orange-700 transition-all flex-col items-center gap-1.5 cursor-pointer border border-white/20"
           >
-            <SlidersHorizontal size={24} />
-            <span className="text-[10px] font-bold uppercase tracking-wider writing-mode-vertical">Filtros</span>
+            <SlidersHorizontal size={20} />
+            <span className="text-[9px] font-bold uppercase tracking-wider">Filtros</span>
             {sortedProperties?.length > 0 && (
-              <span className="absolute -top-2 -left-2 bg-purple-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2 border-white">
+              <span className="absolute -top-1.5 -left-1.5 bg-purple-500 text-white min-w-5 h-5 px-1 rounded-full flex items-center justify-center text-[10px] font-bold border-2 border-white">
                 {sortedProperties?.length}
+              </span>
+            )}
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Botão Flutuante Mobile (Exclusivo para Mobile: Compacto, Docked e com Smart-Hide) */}
+      <AnimatePresence>
+        {isFilterBtnVisible && !showFilterModal && (
+          <motion.button
+            initial={{ x: 70, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 70, opacity: 0 }}
+            whileHover={{ x: -2, scale: 1.02 }}
+            whileTap={{ scale: 0.94 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+            onClick={() => setShowFilterModal(true)}
+            aria-label={`Abrir filtros de busca (${sortedProperties?.length || 0} imóveis)`}
+            className="md:hidden fixed right-0 top-1/2 -translate-y-1/2 z-40 pl-2 pr-1.5 py-2 bg-gradient-to-b from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-l-xl shadow-[-2px_3px_15px_rgba(234,88,12,0.35)] backdrop-blur-md transition-all flex flex-col items-center gap-1 cursor-pointer border-y border-l border-white/30 active:scale-95 group"
+          >
+            <div className="relative flex items-center justify-center">
+              <SlidersHorizontal size={15} className="transition-transform group-hover:rotate-12" />
+              {activeFiltersCount > 0 && (
+                <span className="absolute -top-1 -left-1.5 bg-gray-900 text-white min-w-[15px] h-[15px] px-0.5 rounded-full flex items-center justify-center text-[8px] font-black border border-white shadow-sm ring-1 ring-orange-400">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </div>
+            <span className="text-[8.5px] font-black uppercase tracking-wider [writing-mode:vertical-rl] select-none text-white drop-shadow-xs">
+              Filtros
+            </span>
+            {sortedProperties?.length > 0 && (
+              <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-black/25 text-white border border-white/20">
+                {sortedProperties.length}
               </span>
             )}
           </motion.button>
@@ -688,20 +786,36 @@ const PropertyListing = () => {
       {/* PAINEL LATERAL DE FILTROS (SEM OVERLAY) */}
       <AnimatePresence>
         {showFilterModal && (
-          <motion.div
-            initial={{ x: 100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 100, opacity: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed right-6 top-1/2 -translate-y-1/2 z-50 bg-white/90 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl w-[320px] max-h-[85vh] flex flex-col overflow-hidden"
-          >
+          <>
+            <motion.button
+              type="button"
+              aria-label="Fechar filtros"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowFilterModal(false)}
+              className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-[2px] md:hidden"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 40 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-x-0 bottom-0 z-[70] bg-white border-t border-gray-100 rounded-t-3xl shadow-2xl w-full max-h-[88vh] flex flex-col overflow-hidden pb-[max(1rem,env(safe-area-inset-bottom))] md:inset-x-auto md:right-6 md:top-1/2 md:bottom-auto md:-translate-y-1/2 md:w-[340px] md:max-h-[85vh] md:rounded-3xl md:bg-white/95 md:backdrop-blur-xl md:border md:border-orange-100 md:shadow-2xl"
+            >
+              <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-gray-200 md:hidden" />
             {/* Header do Painel */}
-            <div className="flex items-center justify-between p-5 border-b border-gray-100/50 bg-white/50">
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100/50 bg-white/80 md:bg-white/50">
               <div className="flex items-center gap-2 font-bold text-gray-800">
                 <div className="p-1.5 bg-orange-100 rounded-lg text-orange-600">
                   <SlidersHorizontal size={18} />
                 </div>
                 <span>Filtros</span>
+                {activeFiltersCount > 0 && (
+                  <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-semibold">
+                    {activeFiltersCount} ativo{activeFiltersCount > 1 ? 's' : ''}
+                  </span>
+                )}
               </div>
               <button
                 onClick={() => setShowFilterModal(false)}
@@ -719,13 +833,13 @@ const PropertyListing = () => {
                   <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Pesquisas Salvas</h4>
                   <div className="space-y-1">
                     {savedSearches.map(s => (
-                      <div key={s.id} className="flex items-center justify-between bg-purple-50 rounded-lg px-3 py-2">
+                      <div key={s.id} className="flex items-center justify-between bg-orange-50/60 rounded-lg px-3 py-2">
                         <button
                           onClick={() => {
                             setFilters(prev => ({ ...prev, ...s.filters }));
                             setShowFilterModal(false);
                           }}
-                          className="text-xs font-medium text-purple-700 hover:text-purple-900 text-left"
+                          className="text-xs font-medium text-orange-700 hover:text-orange-900 text-left"
                         >
                           {s.name}
                         </button>
@@ -744,8 +858,17 @@ const PropertyListing = () => {
               <FilterGrid isModal={true} />
             </div>
 
-            {/* Footer Compacto */}
-            <div className="p-4 border-t border-gray-100/50 bg-gray-50/50 flex flex-col gap-3">
+            {/* Footer Compacto com Botão de Ação */}
+            <div className="p-4 border-t border-gray-100 bg-gray-50/80 flex flex-col gap-2.5">
+              {/* Botão Principal para Aplicar/Ver Resultados */}
+              <button
+                onClick={() => setShowFilterModal(false)}
+                className="w-full py-3 px-4 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white rounded-xl font-bold text-sm shadow-md shadow-orange-600/25 transition-all flex items-center justify-center gap-2"
+              >
+                <SlidersHorizontal size={16} />
+                <span>Ver {sortedProperties?.length || 0} {sortedProperties?.length === 1 ? 'imóvel' : 'imóveis'}</span>
+              </button>
+
               <div className="flex items-center gap-2">
                 <input
                   type="text"
@@ -771,19 +894,21 @@ const PropertyListing = () => {
                   Salvar
                 </button>
               </div>
-              <div className="flex justify-between items-center">
+
+              <div className="flex justify-between items-center pt-1">
                 <button
                   onClick={clearFilters}
-                  className="text-xs font-semibold text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors"
+                  className="text-xs font-semibold text-red-500 hover:bg-red-50 px-2.5 py-1.5 rounded-lg transition-colors"
                 >
-                  Limpar
+                  Limpar filtros
                 </button>
                 <div className="text-xs font-medium text-gray-500">
-                  <strong className="text-gray-900 text-sm">{sortedProperties?.length}</strong> imóveis
+                  <strong className="text-gray-900 text-sm">{sortedProperties?.length}</strong> imóveis encontrados
                 </div>
               </div>
             </div>
-          </motion.div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
 

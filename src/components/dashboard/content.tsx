@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, AnimatePresence, Variants, Easing } from 'framer-motion';
+import { motion, AnimatePresence, MotionConfig, Variants, Easing } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { MinhasPropriedades, Favoritas, Faturas, PropriedadesMaisVisualizadas, VisitasAgendadas } from '@/components/dashboard-tabs-content';
 import { AgencyManagement } from './agency-management';
@@ -8,6 +8,7 @@ import { StatsTab } from './stats-tab';
 import { MessagesTab } from './messages-tab';
 import PropriedadesImpulsionadasDashboard from '@/components/boosted-properties';
 import { ConfiguracoesConta } from '@/components/account-setting';
+import { DashboardMobileSkeleton, type DashboardSkeletonVariant } from './shared-ui';
 import type { Fatura, TPropertyResponseSchema } from '@/lib/types/property';
 import type { TMyPropertiesWithViews } from '@/lib/functions/supabase-actions/property-views-actions';
 
@@ -42,6 +43,20 @@ export function DashboardContent({
 }: DashboardContentProps) {
     const personalProperties = userProperties;
     const agencyProperties = userProperties ? userProperties.filter(p => p.imobiliaria_id === userAgency?.id) : null;
+    const skeletonVariant: DashboardSkeletonVariant = activeTab === 'agency' ? 'settings' : activeTab as DashboardSkeletonVariant;
+
+    const tabContent = (
+        <>
+            {activeTab === 'properties' && <MinhasPropriedades userProperties={personalProperties} />}
+            {activeTab === 'favorites' && <Favoritas userFavoriteProperties={userFavoriteProperties} />}
+            {activeTab === 'invoices' && <Faturas invoices={userInvoices} />}
+            {activeTab === 'stats' && <StatsTab user={user} ownerId={user?.id} mostViewedProperties={mostViewed} />}
+            {activeTab === 'agency' && <AgencyManagement agency={userAgency} agencyProperties={agencyProperties} />}
+            {activeTab === 'settings' && <ConfiguracoesConta profile={user} />}
+            {activeTab === 'messages' && <MessagesTab />}
+            {activeTab === 'visits' && <VisitasAgendadas userId={user?.id} />}
+        </>
+    );
 
     return (
         // On mobile: full width, natural height (scrolled by parent).
@@ -51,6 +66,7 @@ export function DashboardContent({
             activeTab === 'messages' ? 'h-full lg:h-full' : 'flex-1 lg:h-full',
             'flex flex-col min-h-0'
         )}>
+            <MotionConfig reducedMotion="user">
             <AnimatePresence mode="wait">
                 <motion.div
                     key={activeTab}
@@ -65,16 +81,15 @@ export function DashboardContent({
                             : 'bg-white rounded-3xl p-3 sm:p-5 lg:p-6 shadow-card border border-border lg:h-full lg:overflow-y-auto custom-scrollbar'
                     )}
                 >
-                    {activeTab === 'properties' && <MinhasPropriedades userProperties={personalProperties} />}
-                    {activeTab === 'favorites' && <Favoritas userFavoriteProperties={userFavoriteProperties} />}
-                    {activeTab === 'invoices' && <Faturas invoices={userInvoices} />}
-                    {activeTab === 'stats' && <StatsTab user={user} ownerId={user?.id} mostViewedProperties={mostViewed} />}
-                    {activeTab === 'agency' && <AgencyManagement agency={userAgency} agencyProperties={agencyProperties} />}
-                    {activeTab === 'settings' && <ConfiguracoesConta profile={user} />}
-                    {activeTab === 'messages' && <MessagesTab />}
-                    {activeTab === 'visits' && <VisitasAgendadas userId={user?.id} />}
+                    {isLoading && activeTab !== 'visits' ? (
+                        <>
+                            <DashboardMobileSkeleton variant={skeletonVariant} />
+                            <div className="hidden lg:block">{tabContent}</div>
+                        </>
+                    ) : tabContent}
                 </motion.div>
             </AnimatePresence>
+            </MotionConfig>
         </div>
     );
 }

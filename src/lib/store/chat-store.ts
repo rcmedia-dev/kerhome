@@ -7,6 +7,7 @@ export interface Profile {
     ultimo_nome: string | null;
     email: string | null;
     avatar_url: string | null;
+    online_status?: 'online' | 'offline' | string | null;
 }
 
 export interface Message {
@@ -219,6 +220,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
                 activeProfile: targetProfile,
                 view: 'chat',
                 messages: [],
+                isLoading: true,
                 isOpen: !get().isDashboardMessages // Only open popup if NOT in dashboard messages tab
             };
         });

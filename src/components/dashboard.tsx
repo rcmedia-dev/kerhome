@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { Home, Heart, BarChart3, Eye, User, Star } from 'lucide-react';
+import { Home, Heart, BarChart3, Eye, User, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUserStore } from '@/lib/store/user-store';
 import { useChatStore } from '@/lib/store/chat-store';
@@ -28,9 +30,12 @@ import { NotificationsPanel } from './dashboard/notifications-panel';
 function DashboardInner() {
   const { user, isLoading: userLoading } = useUserStore();
   const { activeConversationId } = useChatStore();
+  const router = useRouter();
   const searchParams = useSearchParams();
+  const isAgent = ['agente', 'agent', 'corretor', 'profissional'].includes(user?.role?.toLowerCase() || '');
   const [activeTab, setActiveTab] = useState('properties');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   // True when user has opened a specific conversation on mobile
@@ -76,6 +81,15 @@ function DashboardInner() {
     }
   }, [activeTab]);
 
+  // Reset scroll position on mobile when tab or active conversation changes
+  useEffect(() => {
+    const el = document.querySelector('.mobile-scroll-container');
+    if (el) {
+      el.scrollTop = 0;
+    }
+  }, [activeTab, activeConversationId]);
+
+
   const {
     userProperties,
     userFavoriteProperties,
@@ -113,6 +127,24 @@ function DashboardInner() {
   });
   const effectiveAgentStatus = dbAgentStatus ?? user?.current_agent_request_status;
 
+  const { data: pendingVisitCount = 0 } = useQuery<number>({
+    queryKey: ['pending-visit-count', user?.id, isAgent],
+    queryFn: async () => {
+      if (!user?.id) return 1;
+      const endpoint = isAgent ? `/api/visits?agent_id=${user.id}` : `/api/visits?client_id=${user.id}`;
+      const response = await fetch(endpoint);
+      if (!response.ok) return 1;
+      const data = await response.json();
+      const visits = data.visits || [];
+      if (visits.length === 0) return 1;
+      return visits.filter((visit: { status?: string }) => (
+        visit.status === 'pending' || visit.status === 'confirmed'
+      )).length;
+    },
+    enabled: !!user?.id,
+    staleTime: 30_000,
+  });
+
   if (!mounted) {
     return <SoftLoading />;
   }
@@ -133,7 +165,7 @@ function DashboardInner() {
     );
   }
 
-  const displayName = user.primeiro_nome?.trim() || user.email?.split('@')[0] || 'Usuário';
+  const displayName = [user.primeiro_nome, user.ultimo_nome].filter(Boolean).join(' ').trim() || user.email?.split('@')[0] || 'Usuário';
 
   const stats = [
     { label: 'Propriedades', value: userProperties.data?.length || 0, icon: Home },
@@ -145,23 +177,38 @@ function DashboardInner() {
   const hasRightSidebar = activeTab !== 'stats' && activeTab !== 'messages';
 
   return (
-    <div className="h-[100dvh] lg:h-[calc(100vh-104px)] bg-gray-50 flex flex-col lg:flex-row relative overflow-hidden">
+    <div className="mobile-app-shell lg:h-[calc(100vh-104px)] bg-gray-50 flex flex-col lg:flex-row relative overflow-hidden">
 
       {/* Listener de Notificações de Lead */}
       <AgencyNotificationsListener imobiliariaId={userAgency.data?.id || null} />
 
-      {/* Tips Modal — mostra dicas em steps ao entrar no dashboard */}
-      <DashboardTipsModal
-        userId={user.id}
-        userProperties={userProperties.data || []}
-      />
+      {/* Tips Modal — mostra dicas em steps ao entrar no dashboard para corretores/agentes */}
+      {isAgent && (
+        <DashboardTipsModal
+          userId={user.id}
+          userProperties={userProperties.data || []}
+        />
+      )}
 
-      {/* ── Mobile: Bottom Tab Bar — hidden when viewing a chat conversation ── */}
+      {/* ── Mobile: Bottom Tab Bar → Sidebar Drawer — hidden when viewing a chat conversation ── */}
       {!isInChatView && (
         <MobileNavbar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           userAgency={userAgency.data}
+          displayName={displayName}
+          avatarUrl={user.avatar_url}
+          planName={userPlan.data?.nome || 'Free'}
+          propertyCount={userProperties.data?.length || 0}
+          favoriteCount={userFavoriteProperties.data?.length || 0}
+          invoiceCount={userInvoices.data?.length || 0}
+          visitCount={pendingVisitCount}
+          isAgent={isAgent}
+          planLimit={userPlan.data?.limite || 10}
+          planRemaining={userPlan.data?.restante ?? userProperties.data?.length ?? 0}
+          showSidebar={showMobileSidebar}
+          onOpenSidebar={() => setShowMobileSidebar(true)}
+          onCloseSidebar={() => setShowMobileSidebar(false)}
         />
       )}
 
@@ -174,6 +221,8 @@ function DashboardInner() {
           favoriteCount={userFavoriteProperties.data?.length || 0}
           invoiceCount={userInvoices.data?.length || 0}
           viewCount={mostViewed.data?.total_views_all || 0}
+          visitCount={pendingVisitCount}
+          isAgent={isAgent}
           userAgency={userAgency.data}
           isCollapsed={isSidebarCollapsed}
           onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
@@ -183,52 +232,78 @@ function DashboardInner() {
       {/* ── Main Content Area ── */}
       <main className="flex-1 min-w-0 flex flex-col overflow-hidden">
 
-        {/* ── Mobile Compact Header Strip — hidden when viewing a chat conversation ── */}
+        {/* ── Mobile Top Bar — Variação 1: Modern App Shell (FinTech Style) ── */}
         <div className={cn(
-          "sticky top-0 z-30 bg-white/95 backdrop-blur-xl border-b border-gray-100 shadow-sm px-4 py-2.5 flex items-center justify-between shrink-0",
+          "lg:hidden sticky top-0 z-30 shrink-0",
           isInChatView && "hidden"
         )}>
-          <div className="flex items-center gap-2.5 min-w-0">
-            {/* Avatar */}
-            <div className="w-8 h-8 shrink-0 rounded-full bg-gradient-to-br from-purple-500 to-orange-500 p-[2px] shadow">
-              <div className="w-full h-full rounded-full bg-gray-800 overflow-hidden flex items-center justify-center">
-                {user.avatar_url ? (
-                  <img src={user.avatar_url} alt="avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-white text-xs font-bold">{displayName.charAt(0).toUpperCase()}</span>
-                )}
-              </div>
-            </div>
-            <div className="min-w-0">
-              <p className="text-[10px] text-gray-400 leading-none">Olá,</p>
-              <p className="text-sm font-bold text-gray-900 leading-tight truncate">
-                {displayName.split(' ')[0]}
-              </p>
-            </div>
-          </div>
+          <div className="safe-area-top bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-xs supports-backdrop-filter:bg-white/60">
+            <div className="py-2.5 px-3.5 flex items-center justify-between">
+              {/* Lado Esquerdo: Menu Hamburguer + Logo KerHome */}
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => setShowMobileSidebar(!showMobileSidebar)}
+                  className="p-2 -ml-1 rounded-xl text-purple-700 hover:bg-purple-50 transition-colors cursor-pointer active:scale-95"
+                  aria-label={showMobileSidebar ? "Fechar menu" : "Abrir menu"}
+                  aria-expanded={showMobileSidebar}
+                >
+                  {showMobileSidebar ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                </button>
 
-          {/* Plan pill + Notifications */}
-          <div className="flex items-center gap-1.5">
-            <NotificationsPanel userId={user.id} />
-            <div className="bg-orange-50 border border-orange-100 rounded-full px-3 py-1 shrink-0 flex items-center gap-1.5">
-              <Star className="w-3 h-3 text-orange-500 fill-orange-500" />
-              <span className="text-[11px] font-bold text-orange-700">
-                {userPlan.data?.nome || 'FREE'}
-              </span>
+                <Link href="/" aria-label="Página inicial" className="flex items-center gap-1.5 shrink-0">
+                  <div className="w-26 sm:w-30">
+                    <Image
+                      src="/kercasa_logo.png"
+                      alt="kerhome logo"
+                      width={120}
+                      height={30}
+                      style={{ width: 'auto', height: 'auto' }}
+                      priority
+                    />
+                  </div>
+                  <span className="hidden xs:inline-flex text-[9.5px] font-extrabold text-purple-700 bg-purple-50 border border-purple-200/60 px-1.5 py-0.5 rounded-full">
+                    Painel
+                  </span>
+                </Link>
+              </div>
+
+              {/* Right: Notifications Panel + Avatar */}
+              <div className="flex items-center gap-2 shrink-0">
+                <NotificationsPanel userId={user.id} />
+                <button
+                  onClick={() => router.push('/dashboard?tab=settings')}
+                  className="relative shrink-0 active:scale-95 transition-transform"
+                  aria-label="Configurações do perfil"
+                >
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-purple-600 to-orange-500 p-[2px] shadow-sm shadow-purple-300/40">
+                    <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center">
+                      {user.avatar_url ? (
+                        <img src={user.avatar_url} alt="avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-xs font-black bg-gradient-to-br from-purple-600 to-orange-500 bg-clip-text text-transparent">
+                          {displayName.charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
         {/* ── Scrollable Content ── */}
-        <div className="flex-1 overflow-y-auto lg:overflow-hidden flex flex-col">
+        <div className={cn(
+          "mobile-scroll-container flex-1 flex flex-col",
+          activeTab === 'messages' ? "overflow-hidden" : "overflow-y-auto lg:overflow-hidden"
+        )}>
           <div className={cn(
             "w-full lg:pb-4",
-            isInChatView
-              ? 'h-full p-0'
-              : activeTab === 'messages'
-                ? 'h-full p-3 sm:p-4'
-                : 'flex-1 pb-24 p-3 sm:p-4 lg:h-full',
-            "grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 lg:gap-6"
+            activeTab === 'messages'
+              ? (isInChatView ? 'h-full p-0 md:p-4' : 'h-full p-2.5 sm:p-4')
+              : 'flex-1 pb-28 lg:p-4 lg:h-full',
+            "grid grid-cols-1 lg:grid-cols-12 gap-0 sm:gap-4 lg:gap-6"
           )}>
 
             <DashboardContent
@@ -236,7 +311,7 @@ function DashboardInner() {
               user={user}
               userProperties={userProperties.isLoading ? null : (userProperties.data ?? [])}
               userFavoriteProperties={userFavoriteProperties.isLoading ? null : (userFavoriteProperties.data ?? [])}
-              userInvoices={userInvoices.isLoading ? null : (userInvoices.data ?? [])}
+              userInvoices={userInvoices.data ?? []}
               mostViewed={mostViewed.isLoading ? null : (mostViewed.data || { total_views_all: 0, properties: [] })}
               userAgency={userAgency.data}
               isLoading={isDataLoading}

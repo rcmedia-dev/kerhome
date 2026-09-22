@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Drawer Header - Mobile Variations</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #778096;
+      --line: #e7eaf0;
+      --paper: #f5f6f8;
+      --white: #fff;
+      --purple: #6d35d4;
+      --purple-dark: #261342;
+      --orange: #f07b3f;
+      --green: #15956b;
+      --shadow: 0 22px 70px rgba(29, 24, 45, .16);
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: #dfe2e8; }
+    button { font: inherit; }
+    .prototype { min-height: 100vh; padding: 28px 18px 42px; }
+    .toolbar { max-width: 1080px; margin: 0 auto 24px; display: flex; justify-content: space-between; align-items: end; gap: 18px; }
+    .eyebrow { margin: 0 0 7px; color: var(--purple); font-size: 11px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(24px, 4vw, 38px); letter-spacing: -.04em; }
+    .intro { max-width: 490px; margin: 8px 0 0; color: #667085; line-height: 1.5; font-size: 14px; }
+    .counter { color: #667085; font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .stage { max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: minmax(300px, 360px) minmax(260px, 1fr); align-items: center; gap: clamp(28px, 7vw, 92px); }
+    .phone { width: min(100%, 360px); min-height: 650px; padding: 10px; border-radius: 38px; background: #171923; box-shadow: var(--shadow); justify-self: center; }
+    .screen { position: relative; min-height: 630px; overflow: hidden; border-radius: 30px; background: linear-gradient(145deg, #f8f9fb 0%, #eceef4 100%); }
+    .fake-content { padding: 34px 20px; opacity: .52; }
+    .fake-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+    .fake-title { width: 118px; height: 12px; border-radius: 5px; background: #aeb5c2; }
+    .fake-icon { width: 30px; height: 30px; border-radius: 10px; background: #d9dce5; }
+    .fake-block { height: 120px; border-radius: 22px; background: #fff; margin-bottom: 14px; }
+    .fake-row { height: 78px; border-radius: 18px; background: #fff; margin-bottom: 12px; }
+    .drawer { position: absolute; inset: 0 auto 0 0; width: 100%; max-width: 316px; display: flex; flex-direction: column; background: var(--white); box-shadow: 14px 0 34px rgba(20, 22, 35, .17); }
+    .drawer-header { color: #fff; padding: 18px 18px 20px; }
+    .drawer-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: rgba(255,255,255,.7); font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .close { width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; color: inherit; background: rgba(255,255,255,.14); cursor: pointer; font-size: 21px; line-height: 1; }
+    .avatar { flex: 0 0 auto; width: 50px; height: 50px; display: grid; place-items: center; border: 2px solid rgba(255,255,255,.55); border-radius: 50%; color: #fff; background: linear-gradient(135deg, #e98a4b, #7543dc); font-size: 17px; font-weight: 800; }
+    .identity-copy { min-width: 0; flex: 1; }
+    .name { margin: 0; overflow: hidden; color: #fff; font-size: 16px; line-height: 1.15; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+    .agency { margin: 5px 0 0; color: rgba(255,255,255,.67); font-size: 11px; }
+    .plan { display: inline-flex; align-items: center; gap: 5px; width: fit-content; max-width: 100%; padding: 5px 9px; border-radius: 999px; color: #ffd68c; background: rgba(255,255,255,.12); font-size: 10px; font-weight: 800; line-height: 1; white-space: nowrap; }
+    .quota { margin-top: 17px; }
+    .quota-line { display: flex; justify-content: space-between; margin-bottom: 7px; color: rgba(255,255,255,.75); font-size: 10px; font-weight: 700; }
+    .quota-line strong { color: #fff; }
+    .meter { height: 7px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.18); }
+    .meter span { display: block; width: 40%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #b084ff, #ff9c62); }
+    .header-1 { background: linear-gradient(140deg, #201841, #44205a); }
+    .header-1 .identity { display: flex; align-items: center; gap: 12px; }
+    .header-1 .identity-copy { min-width: 0; flex: 1; }
+    .header-1 .plan { margin-top: 8px; }
+    .header-2 { background: #231640; }
+    .header-2 .identity { display: grid; grid-template-columns: 50px minmax(0, 1fr); align-items: center; gap: 11px; }
+    .header-2 .plan { margin-top: 8px; }
+    .header-2 .quota { padding: 11px 12px; border: 1px solid rgba(255,255,255,.13); border-radius: 14px; background: rgba(255,255,255,.08); }
+    .header-3 { color: var(--ink); background: #fff; border-bottom: 1px solid var(--line); }
+    .header-3 .drawer-label { color: #9199aa; }
+    .header-3 .close { color: #667085; background: #f1f2f5; }
+    .header-3 .identity { display: flex; align-items: flex-start; gap: 12px; }
+    .header-3 .avatar { border: 0; }
+    .header-3 .name { color: var(--ink); }
+    .header-3 .agency { color: var(--muted); }
+    .header-3 .plan { color: #6141ad; background: #f0eaff; }
+    .header-3 .quota-line { color: var(--muted); }
+    .header-3 .quota-line strong { color: var(--ink); }
+    .header-3 .meter { background: #ececf1; }
+    .header-3 .meter span { background: linear-gradient(90deg, #7040d3, #f07b3f); }
+    .header-4 { padding: 18px; color: var(--ink); background: #f6f2ff; border-bottom: 1px solid #e9defd; }
+    .header-4 .drawer-label { color: #8067b0; }
+    .header-4 .close { color: #6f51a5; background: #e8dcfb; }
+    .header-4 .identity { display: flex; align-items: center; gap: 12px; }
+    .header-4 .avatar { border: 0; }
+    .header-4 .name { color: var(--ink); }
+    .header-4 .agency { color: #776b8e; }
+    .header-4 .plan { color: #6940b7; background: #e8dcfb; }
+    .header-4 .quota { padding: 12px; border-radius: 16px; background: #fff; }
+    .header-4 .quota-line { color: var(--muted); }
+    .header-4 .quota-line strong { color: var(--ink); }
+    .header-4 .meter { background: #eeeaf6; }
+    .header-4 .meter span { background: #6d35d4; }
+    .header-5 { background: linear-gradient(135deg, #0d554b, #123f4c); }
+    .header-5 .identity { display: flex; align-items: center; gap: 12px; }
+    .header-5 .avatar { border-color: rgba(255,255,255,.55); }
+    .header-5 .plan { color: #aef0ce; background: rgba(155,245,204,.14); }
+    .header-5 .quota { display: grid; grid-template-columns: 1fr 60px; gap: 12px; align-items: center; }
+    .header-5 .quota-line { display: block; margin: 0 0 6px; }
+    .header-5 .quota-line strong { display: block; margin-top: 4px; font-size: 17px; }
+    .donut { width: 54px; height: 54px; display: grid; place-items: center; border-radius: 50%; background: conic-gradient(#8de1bc 0 40%, rgba(255,255,255,.15) 40%); }
+    .donut::after { content: ""; width: 40px; height: 40px; border-radius: 50%; background: #164950; }
+    .drawer-body { flex: 1; padding: 19px 18px; overflow: hidden; }
+    .section-line { width: 86px; height: 8px; margin: 0 0 12px; border-radius: 5px; background: #d6dae3; }
+    .menu-line { height: 42px; margin: 9px 0; border-radius: 12px; background: #f5f6f8; }
+    .menu-line.active { background: #f0eaff; }
+    .drawer-footer { padding: 14px 18px 18px; border-top: 1px solid var(--line); background: #fbfbfc; }
+    .footer-line { height: 34px; border-radius: 10px; background: #f0f1f4; }
+    .details { max-width: 500px; }
+    .variation-number { margin: 0 0 9px; color: var(--purple); font-size: 13px; font-weight: 800; }
+    .variation-title { margin: 0; font-size: clamp(26px, 4vw, 42px); letter-spacing: -.045em; line-height: 1.02; }
+    .variation-copy { margin: 14px 0 24px; color: #667085; line-height: 1.6; font-size: 15px; }
+    .principles { display: grid; gap: 10px; margin: 0 0 28px; padding: 0; list-style: none; }
+    .principles li { display: flex; gap: 10px; align-items: baseline; color: #4c566c; font-size: 13px; line-height: 1.4; }
+    .principles li::before { content: ""; flex: 0 0 7px; width: 7px; height: 7px; margin-top: 5px; border-radius: 50%; background: var(--orange); }
+    .controls { display: flex; align-items: center; gap: 12px; }
+    .next, .prev { border: 0; border-radius: 12px; cursor: pointer; font-weight: 800; transition: transform .18s, box-shadow .18s; }
+    .next { padding: 13px 18px; color: #fff; background: var(--purple); box-shadow: 0 8px 16px rgba(109,53,212,.2); }
+    .prev { padding: 13px 14px; color: #536076; background: #eef0f4; }
+    .next:hover, .prev:hover { transform: translateY(-2px); }
+    .dots { display: flex; gap: 7px; margin-left: auto; }
+    .dot { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 50%; background: #c4c8d1; cursor: pointer; }
+    .dot.active { width: 24px; border-radius: 8px; background: var(--purple); }
+    @media (max-width: 760px) {
+      .prototype { padding: 20px 14px 30px; }
+      .toolbar { display: block; }
+      .counter { display: block; margin-top: 14px; }
+      .stage { grid-template-columns: 1fr; gap: 28px; }
+      .phone { min-height: 610px; }
+      .screen { min-height: 590px; }
+      .details { max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="prototype">
+    <header class="toolbar">
+      <div>
+        <p class="eyebrow">Mobile drawer / header study</p>
+        <h1>Cinco formas de organizar o topo</h1>
+        <p class="intro">Protótipo focado na leitura imediata do perfil, plano e cota do agente.</p>
+      </div>
+      <div class="counter" id="counter">Variação 1 de 5</div>
+    </header>
+
+    <section class="stage">
+      <div class="phone" aria-label="Pré-visualização em telemóvel">
+        <div class="screen">
+          <div class="fake-content">
+            <div class="fake-top"><span class="fake-title"></span><span class="fake-icon"></span></div>
+            <div class="fake-block"></div><div class="fake-row"></div><div class="fake-row"></div>
+          </div>
+          <aside class="drawer">
+            <div id="drawerHeader" class="drawer-header header-1"></div>
+            <div class="drawer-body"><div class="section-line"></div><div class="menu-line active"></div><div class="menu-line"></div><div class="menu-line"></div><div class="section-line" style="margin-top:24px"></div><div class="menu-line"></div><div class="menu-line"></div></div>
+            <div class="drawer-footer"><div class="footer-line"></div></div>
+          </aside>
+        </div>
+      </div>
+
+      <div class="details">
+        <p class="variation-number" id="variationNumber">Variação 01</p>
+        <h2 class="variation-title" id="variationTitle">Identidade primeiro</h2>
+        <p class="variation-copy" id="variationCopy"></p>
+        <ul class="principles" id="principles"></ul>
+        <div class="controls">
+          <button class="prev" id="prevButton" type="button" aria-label="Ver variação anterior">Back</button>
+          <button class="next" id="nextButton" type="button">Next <span aria-hidden="true">→</span></button>
+          <div class="dots" id="dots" aria-label="Selecionar variação"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const variations = [
+      {
+        title: 'Badge abaixo do perfil',
+        copy: 'A opção mais natural: o avatar ancora a identidade e o badge Free fica imediatamente associado ao nome.',
+        points: ['Avatar e nome formam o primeiro bloco visual.', 'Free ocupa uma linha própria e nunca encosta ao nome.', 'A cota fica abaixo, sem competir com a identidade.'],
+        header: `<div class="drawer-label"><span>Minha conta</span><button class="close" type="button" aria-label="Fechar">×</button></div><div class="identity"><div class="avatar">AS</div><div class="identity-copy"><p class="name">Ana Silva</p><p class="agency">Kercasa Premium</p><span class="plan">★ Free</span></div></div><div class="quota"><div class="quota-line"><span>Cota de imóveis</span><strong>4 de 10</strong></div><div class="meter"><span></span></div></div>`
+      },
+      {
+        title: 'Badge dentro da coluna do perfil',
+        copy: 'Mantém o avatar alinhado à esquerda e reserva uma segunda linha ao badge, evitando competição com o nome.',
+        points: ['O badge Free nunca invade a área do avatar.', 'A coluna textual usa largura flexível e suporta nomes longos.', 'A cota vira um bloco separado e fácil de escanear.'],
+        header: `<div class="drawer-label"><span>Painel do agente</span><button class="close" type="button" aria-label="Fechar">×</button></div><div class="identity"><div class="avatar">AS</div><div class="identity-copy"><p class="name">Ana Silva</p><p class="agency">Kercasa Premium</p><span class="plan">★ Free</span></div></div><div class="quota"><div class="quota-line"><span>Cota publicada</span><strong>4 de 10 imóveis</strong></div><div class="meter"><span></span></div></div>`
+      },
+      {
+        title: 'Badge no topo da coluna',
+        copy: 'Coloca o Free junto ao nome, mas acima da agência, criando uma leitura de status antes do contexto.',
+        points: ['Avatar permanece visualmente estável à esquerda.', 'O plano é percebido antes do nome da agência.', 'O cabeçalho claro favorece contraste e escaneabilidade.'],
+        header: `<div class="drawer-label"><span>Perfil profissional</span><button class="close" type="button" aria-label="Fechar">×</button></div><div class="identity"><div class="avatar">AS</div><div class="identity-copy"><span class="plan">★ Free</span><p class="name" style="margin-top:7px">Ana Silva</p><p class="agency">Kercasa Premium</p></div></div><div class="quota"><div class="quota-line"><span>Cota de imóveis</span><strong>4 de 10</strong></div><div class="meter"><span></span></div></div>`
+      },
+      {
+        title: 'Avatar com badge lateral',
+        copy: 'Une avatar e Free no mesmo eixo, mantendo o nome em uma linha própria para leitura mais rápida.',
+        points: ['O badge funciona como status associado ao avatar.', 'O nome não precisa dividir espaço com o plano.', 'A superfície clara deixa o bloco leve e profissional.'],
+        header: `<div class="drawer-label"><span>Espaço do agente</span><button class="close" type="button" aria-label="Fechar">×</button></div><div class="identity"><div class="avatar">AS</div><div class="identity-copy"><p class="name">Ana Silva</p><p class="agency">Kercasa Premium</p></div><span class="plan">★ Free</span></div><div class="quota"><div class="quota-line"><span>Cota usada</span><strong>4 de 10</strong></div><div class="meter"><span></span></div></div>`
+      },
+      {
+        title: 'Badge lateral + cota visual',
+        copy: 'A versão mais orientada à operação: Free fica ao lado do perfil e o progresso da carteira ganha o foco seguinte.',
+        points: ['Avatar, nome e badge são lidos como um único grupo.', 'O donut comunica a cota em menos de um segundo.', 'Boa opção para agentes que acompanham publicação diariamente.'],
+        header: `<div class="drawer-label"><span>Visão geral</span><button class="close" type="button" aria-label="Fechar">×</button></div><div class="identity"><div class="avatar">AS</div><div class="identity-copy"><p class="name">Ana Silva</p><p class="agency">Kercasa Premium</p></div><span class="plan">★ Free</span></div><div class="quota"><div><div class="quota-line"><span>Imóveis publicados</span><strong>4 de 10</strong></div><div class="meter"><span></span></div></div><div class="donut" aria-label="40 por cento da cota utilizada"></div></div>`
+      }
+    ];
+
+    let current = 0;
+    const header = document.getElementById('drawerHeader');
+    const counter = document.getElementById('counter');
+    const number = document.getElementById('variationNumber');
+    const title = document.getElementById('variationTitle');
+    const copy = document.getElementById('variationCopy');
+    const principles = document.getElementById('principles');
+    const dots = document.getElementById('dots');
+
+    variations.forEach((variation, index) => {
+      const dot = document.createElement('button');
+      dot.className = 'dot';
+      dot.type = 'button';
+      dot.setAttribute('aria-label', `Ver variação ${index + 1}`);
+      dot.addEventListener('click', () => render(index));
+      dots.appendChild(dot);
+    });
+
+    function render(index) {
+      current = (index + variations.length) % variations.length;
+      const variation = variations[current];
+      header.className = `drawer-header header-${current + 1}`;
+      header.innerHTML = variation.header;
+      counter.textContent = `Variação ${current + 1} de ${variations.length}`;
+      number.textContent = `Variação ${String(current + 1).padStart(2, '0')}`;
+      title.textContent = variation.title;
+      copy.textContent = variation.copy;
+      principles.innerHTML = variation.points.map(point => `<li>${point}</li>`).join('');
+      [...dots.children].forEach((dot, dotIndex) => dot.classList.toggle('active', dotIndex === current));
+    }
+
+    document.getElementById('nextButton').addEventListener('click', () => render(current + 1));
+    document.getElementById('prevButton').addEventListener('click', () => render(current - 1));
+    document.addEventListener('keydown', event => {
+      if (event.key === 'ArrowRight') render(current + 1);
+      if (event.key === 'ArrowLeft') render(current - 1);
+    });
+    render(0);
+  </script>
+</body>
+</html>

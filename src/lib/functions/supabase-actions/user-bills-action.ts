@@ -3,28 +3,26 @@
 import { createClient } from '@/lib/supabase/server';
 import { Fatura, faturaSchema } from '@/lib/types/property';
 
-// Buscar faturas do usuário
+// Buscar faturas do utilizador autenticado
 export async function getFaturas(userId: string): Promise<Fatura[]> {
   const supabase = await createClient();
+
   const { data, error } = await supabase
     .from('faturas')
-    .select('*')
+    .select('id, servico, valor, status, created_at')
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
 
-  console.log('faturas:', data)
-
   if (error) {
-    console.error('Erro ao buscar faturas:', error.message);
+    console.error('[getFaturas] Erro ao buscar faturas:', error.message);
     return [];
   }
 
-  if (!data) return [];
+  if (!data || data.length === 0) return [];
 
-  // Valida os dados com Zod
-  const parsed = data.map((f) => faturaSchema.safeParse(f));
-  console.log('parsed faturas:', parsed)
-  return parsed
-    .filter((p) => p.success)
-    .map((p) => (p as any).data);
+  // Valida cada registo com Zod — descarta qualquer linha malformada
+  return data
+    .map(f => faturaSchema.safeParse(f))
+    .filter(r => r.success)
+    .map(r => (r as { success: true; data: Fatura }).data);
 }

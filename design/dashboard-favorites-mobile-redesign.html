@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>KerHome - Imóveis Guardados / Favoritos Mobile Redesign (5 Variações UI/UX)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #820AD1;
+      --primary-hover: #6b07ad;
+      --primary-soft: #f5edfc;
+      --accent: #FF6B00;
+      --accent-soft: #fff3eb;
+      --bg: #0b0d14;
+      --device-bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-elevated: #f1f5f9;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      --border: #e2e8f0;
+      --border-subtle: #f1f5f9;
+      --success: #10b981;
+      --success-soft: #ecfdf5;
+      --warning: #f59e0b;
+      --warning-soft: #fffbeb;
+      --danger: #ef4444;
+      --danger-soft: #fef2f2;
+      --font-display: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --font-body: 'Inter', -apple-system, sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-bottom: 70px;
+    }
+
+    /* ─── Top Control Bar / Header ─── */
+    .app-header {
+      width: 100%;
+      background: rgba(15, 17, 23, 0.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 900;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      font-size: 16px;
+      box-shadow: 0 4px 14px rgba(130, 10, 209, 0.4);
+    }
+
+    .brand-text h2 {
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+      font-family: var(--font-display);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-text span {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .route-pill {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 3px 10px;
+      border-radius: 20px;
+      color: #ec4899;
+      font-size: 11px;
+      font-family: monospace;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-control {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      padding: 7px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-control:hover {
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+    }
+
+    .btn-next-main {
+      background: linear-gradient(135deg, #ec4899, var(--primary));
+      color: white;
+      border: none;
+      box-shadow: 0 4px 14px rgba(236, 72, 153, 0.35);
+    }
+    .btn-next-main:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(236, 72, 153, 0.45);
+      color: #fff;
+    }
+
+    /* ─── Presentation Info Card ─── */
+    .variant-meta-card {
+      width: 100%;
+      max-width: 860px;
+      margin: 14px auto 0;
+      padding: 12px 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: #e2e8f0;
+    }
+
+    .variant-meta-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .variant-badge {
+      background: linear-gradient(135deg, #ec4899, var(--primary));
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .variant-meta-title {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .variant-meta-desc {
+      font-size: 12px;
+      color: #94a3b8;
+      max-width: 520px;
+      line-height: 1.4;
+    }
+
+    .variant-nav-dots {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot-btn {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .dot-btn.active {
+      width: 26px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ec4899, var(--primary));
+    }
+
+    /* ─── Device Container & Frame ─── */
+    .device-wrapper {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 16px 12px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .phone-frame {
+      position: relative;
+      width: 395px;
+      height: 840px;
+      background: var(--device-bg);
+      border-radius: 46px;
+      border: 8px solid #1e2430;
+      box-shadow: 
+        0 0 0 2px rgba(255, 255, 255, 0.08),
+        0 30px 80px -15px rgba(0, 0, 0, 0.75),
+        0 15px 35px rgba(236, 72, 153, 0.2);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: width 0.3s, height 0.3s;
+    }
+
+    .device-wrapper.full-width .phone-frame {
+      width: 100%;
+      max-width: 480px;
+      height: 870px;
+      border-radius: 28px;
+    }
+
+    /* Dynamic Island */
+    .phone-island {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 124px;
+      height: 28px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      pointer-events: none;
+    }
+
+    .island-lens {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+    }
+
+    .island-mic {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #090d16;
+    }
+
+    /* Status Bar */
+    .phone-status-bar {
+      height: 44px;
+      padding: 12px 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 700;
+      color: #0f172a;
+      z-index: 400;
+      background: transparent;
+      user-select: none;
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Phone Screen Scrollable Area */
+    .screen-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+      background: #f8fafc;
+      padding-bottom: 95px;
+      scrollbar-width: none;
+    }
+    .screen-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Fixed Bottom Navbar */
+    .phone-navbar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 68px;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(18px);
+      border-top: 1px solid rgba(226, 232, 240, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 8px 10px;
+      z-index: 300;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      position: relative;
+      padding: 6px 12px;
+      transition: all 0.2s;
+    }
+
+    .nav-item.active {
+      color: #ec4899;
+    }
+
+    .nav-item.active svg {
+      color: #ec4899;
+      transform: translateY(-1px);
+    }
+
+    .nav-indicator {
+      width: 4px;
+      height: 4px;
+      background: #ec4899;
+      border-radius: 50%;
+      position: absolute;
+      bottom: 1px;
+    }
+
+    .home-indicator {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 130px;
+      height: 4px;
+      background: #0f172a;
+      opacity: 0.3;
+      border-radius: 10px;
+      z-index: 450;
+      pointer-events: none;
+    }
+
+    /* ─── Generic Common UI Components in Frame ─── */
+    .mobile-header-bar {
+      padding: 8px 16px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: rgba(248, 250, 252, 0.95);
+      backdrop-filter: blur(14px);
+      z-index: 200;
+      border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+    }
+
+    .mobile-title-wrap h1 {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .mobile-title-wrap p {
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .header-pill-badge {
+      background: #fdf2f8;
+      border: 1px solid #fbcfe8;
+      border-radius: 20px;
+      padding: 5px 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #db2777;
+    }
+
+    /* Floating Toast */
+    .mobile-toast {
+      position: absolute;
+      top: 55px;
+      left: 16px;
+      right: 16px;
+      background: #0f172a;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+      z-index: 800;
+      transform: translateY(-80px);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .mobile-toast.show {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* ─── Universal Bottom Sheet Modal ─── */
+    .sheet-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .sheet-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .sheet-modal {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border-radius: 28px 28px 0 0;
+      padding: 12px 18px 26px;
+      z-index: 650;
+      transform: translateY(100%);
+      transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.18);
+      max-height: 86%;
+      overflow-y: auto;
+    }
+
+    .sheet-modal.active {
+      transform: translateY(0);
+    }
+
+    .sheet-handle {
+      width: 42px;
+      height: 5px;
+      background: #cbd5e1;
+      border-radius: 10px;
+      margin: 0 auto 14px;
+    }
+
+    /* ═════════════════════════════════════════════════════════════════
+       VARIAÇÃO 1: RICH VISUAL CARDS & ACTION BAR (Airbnb Wishlist Style)
+    ═════════════════════════════════════════════════════════════════ */
+    .v1-wrap {
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .v1-card {
+      background: #ffffff;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 18px -4px rgba(0, 0, 0, 0.05);
+      position: relative;
+    }
+
+    .v1-media-box {
+      position: relative;
+      width: 100%;
+      height: 190px;
+    }
+
+    .v1-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .v1-badge-status {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: white;
+      backdrop-filter: blur(8px);
+    }
+    .badge-venda { background: rgba(16, 185, 129, 0.9); }
+    .badge-alugar { background: rgba(59, 130, 246, 0.9); }
+
+    .v1-btn-heart {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      color: #ec4899;
+      transition: transform 0.2s;
+    }
+    .v1-btn-heart:active {
+      transform: scale(0.9);
+    }
+
+    .v1-price-pill {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      background: rgba(15, 23, 42, 0.82);
+      backdrop-filter: blur(10px);
+      color: white;
+      padding: 5px 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 900;
+      font-family: var(--font-display);
+    }
+
+    .v1-body {
+      padding: 14px;
+    }
+
+    .v1-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+
+    .v1-loc {
+      font-size: 11px;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+
+    .v1-specs-bar {
+      display: flex;
+      gap: 12px;
+      background: #f8fafc;
+      padding: 8px 12px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+
+    .v1-spec-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #475569;
+    }
+
+    .v1-actions-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .v1-btn-schedule {
+      background: linear-gradient(135deg, var(--primary), #6366f1);
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .v1-btn-whatsapp {
+      background: #22c55e;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    /* ═════════════════════════════════════════════════════════════════
+       VARIAÇÃO 2: COMPACT LIST & CATEGORY CHIPS (Alta Densidade)
+    ═════════════════════════════════════════════════════════════════ */
+    .v2-chips-row {
+      padding: 10px 16px;
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      background: white;
+      border-bottom: 1px solid var(--border);
+    }
+    .v2-chips-row::-webkit-scrollbar { display: none; }
+
+    .v2-chip {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #f1f5f9;
+      color: #64748b;
+      border: 1px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .v2-chip.active {
+      background: #0f172a;
+      color: #ffffff;
+    }
+
+    .v2-list {
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .v2-row-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 10px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .v2-row-card:active {
+      transform: scale(0.98);
+    }
+
+    .v2-thumb {
+      width: 84px;
+      height: 84px;
+      border-radius: 14px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .v2-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .v2-badge-mini {
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 3px;
+    }
+
+    .v2-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.25;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .v2-loc {
+      font-size: 10px;
+      color: #64748b;
+      margin: 2px 0 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .v2-price {
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--accent);
+      font-family: var(--font-display);
+    }
+
+    .v2-btn-remove {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #fee2e2;
+      color: #ef4444;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* ═════════════════════════════════════════════════════════════════
+       VARIAÇÃO 3: SIDE-BY-SIDE COMPARER & FOLDERS (Comparador)
+    ═════════════════════════════════════════════════════════════════ */
+    .v3-banner {
+      margin: 12px 16px;
+      background: linear-gradient(135deg, #fdf2f8, #f5edfc);
+      border: 1px solid #fbcfe8;
+      border-radius: 18px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .v3-banner h4 {
+      font-size: 12px;
+      font-weight: 800;
+      color: #831843;
+    }
+    .v3-banner p {
+      font-size: 10px;
+      color: #9d174d;
+      margin-top: 1px;
+    }
+
+    .v3-btn-compare-now {
+      background: #db2777;
+      color: white;
+      border: none;
+      padding: 7px 12px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .v3-grid-compare {
+      padding: 0 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .v3-card {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      padding: 8px;
+      position: relative;
+    }
+    .v3-card.selected {
+      border-color: #db2777;
+      background: #fff1f2;
+    }
+
+    .v3-select-checkbox {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      background: white;
+      border: 2px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+      color: white;
+    }
+    .v3-card.selected .v3-select-checkbox {
+      background: #db2777;
+      border-color: #db2777;
+    }
+
+    .v3-img {
+      width: 100%;
+      height: 100px;
+      border-radius: 12px;
+      object-fit: cover;
+      margin-bottom: 6px;
+    }
+
+    /* ═════════════════════════════════════════════════════════════════
+       VARIAÇÃO 4: TINDER-STYLE DISCOVERY DECK & SWIPE (Gestos)
+    ═════════════════════════════════════════════════════════════════ */
+    .v4-deck-container {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .v4-deck-card {
+      width: 100%;
+      background: white;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.14);
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    .v4-hero-media {
+      position: relative;
+      height: 310px;
+      width: 100%;
+    }
+
+    .v4-hero-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .v4-overlay-grad {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(15,23,42,0.9) 0%, transparent 60%);
+    }
+
+    .v4-media-info {
+      position: absolute;
+      bottom: 14px;
+      left: 16px;
+      right: 16px;
+      color: white;
+    }
+
+    .v4-actions-circle-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .v4-btn-action-circle {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 8px 20px -3px rgba(0, 0, 0, 0.15);
+      transition: transform 0.2s;
+    }
+    .v4-btn-action-circle:active {
+      transform: scale(0.9);
+    }
+    .v4-dislike { background: #fee2e2; color: #ef4444; }
+    .v4-calendar { background: #f3e8ff; color: var(--primary); }
+    .v4-whatsapp { background: #dcfce7; color: #16a34a; }
+
+    /* ═════════════════════════════════════════════════════════════════
+       VARIAÇÃO 5: MAP-SPLIT EXPLORER (Mapa Superior + Gaveta)
+    ═════════════════════════════════════════════════════════════════ */
+    .v5-map-box {
+      height: 230px;
+      background: #1e293b;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .v5-map-pattern {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    .v5-price-marker {
+      position: absolute;
+      background: #0f172a;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 800;
+      border: 2px solid white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      cursor: pointer;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .v5-price-marker.active {
+      background: #ec4899;
+      transform: translate(-50%, -50%) scale(1.15);
+      z-index: 10;
+    }
+
+    .v5-drawer-wrap {
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Bottom Sheet Compare Modal Table */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 11px;
+    }
+    .compare-table th {
+      text-align: left;
+      padding: 8px;
+      background: #f8fafc;
+      color: #64748b;
+      font-weight: 800;
+    }
+    .compare-table td {
+      padding: 8px;
+      border-bottom: 1px solid #f1f5f9;
+      font-weight: 700;
+      color: #0f172a;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Top Control Bar / Switcher ─── -->
+  <header class="app-header">
+    <div class="brand-group">
+      <div class="brand-logo">K</div>
+      <div class="brand-text">
+        <h2>KerHome <span class="route-pill">/dashboard?tab=favorites</span></h2>
+        <span>Imóveis Guardados Mobile · 5 Variações UI/UX</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn-control" id="btnPrev" title="Variação Anterior">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+        <span>Anterior</span>
+      </button>
+
+      <div class="variant-nav-dots" id="dotsContainer"></div>
+
+      <button class="btn-control btn-next-main" id="btnNext" title="Próxima Variação">
+        <span>Próximo Redesign</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+
+      <button class="btn-control" id="btnToggleFrame" title="Alternar Moldura">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="3"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ─── Variation Meta / Explicação ─── -->
+  <div class="variant-meta-card">
+    <div class="variant-meta-left">
+      <span class="variant-badge" id="varBadge">VARIAÇÃO 1 DE 5</span>
+      <div>
+        <div class="variant-meta-title" id="varTitle">Feed Visual com Cards Imersivos & Conversão Rápida</div>
+        <div class="variant-meta-desc" id="varDesc">Estilo Airbnb Wishlist com fotos de impacto, métricas claras (Quartos, WC, Área), preço em destaque e botões diretos de "Agendar Visita" e "WhatsApp do Corretor".</div>
+      </div>
+    </div>
+    <div style="font-size: 11px; color: #64748b; display: flex; align-items: center; gap: 4px;">
+      Navegue com <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color:#fff">←</kbd> <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color:#fff">→</kbd> ou use o botão Próximo
+    </div>
+  </div>
+
+  <!-- ─── Phone Container Mockup ─── -->
+  <div class="device-wrapper" id="deviceWrapper">
+    <div class="phone-frame">
+      <!-- Dynamic Island -->
+      <div class="phone-island">
+        <div class="island-lens"></div>
+        <div class="island-mic"></div>
+      </div>
+
+      <!-- Status Bar -->
+      <div class="phone-status-bar">
+        <span>09:41</span>
+        <div class="status-icons">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.28 19.59 10.59 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9z"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+          <svg width="18" height="12" viewBox="0 0 24 14" fill="currentColor"><rect x="1" y="1" width="19" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3" y="3" width="13" height="8" rx="1.5"/><path d="M22 5v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+
+      <!-- Phone Toast Notification -->
+      <div class="mobile-toast" id="mobileToast">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span id="toastMsg">Imóvel removido dos guardados!</span>
+      </div>
+
+      <!-- ─── Interactive Screen Content Area ─── -->
+      <div class="screen-content" id="screenContent">
+        <!-- Injected via JavaScript based on active variation -->
+      </div>
+
+      <!-- ─── Universal Bottom Sheet ─── -->
+      <div class="sheet-overlay" id="sheetOverlay" onclick="closeSheet()"></div>
+      <div class="sheet-modal" id="sheetModal">
+        <div class="sheet-handle"></div>
+        <div id="sheetContent">
+          <!-- Dynamic Content -->
+        </div>
+      </div>
+
+      <!-- ─── Mobile Bottom Navigation ─── -->
+      <div class="phone-navbar">
+        <div class="nav-item" onclick="showToast('Abrindo imóveis...')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          <span>Imóveis</span>
+        </div>
+        <div class="nav-item active" onclick="showToast('Você está em Favoritos')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Favoritos</span>
+          <div class="nav-indicator"></div>
+        </div>
+        <div class="nav-item" onclick="showToast('Abrindo visitas...')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Visitas</span>
+        </div>
+        <div class="nav-item" onclick="showToast('Abrindo faturas...')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span>Faturas</span>
+        </div>
+        <div class="nav-item" onclick="showToast('Abrindo chat...')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Chat</span>
+        </div>
+      </div>
+
+      <!-- Home Indicator -->
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+
+  <script>
+    // ─── Dados Mockados Realistas de Luanda (Angola) ───
+    let favoritesList = [
+      {
+        id: 'fav-01',
+        title: 'Apartamento T3 Vista Mar - Talatona',
+        tipo: 'Apartamento',
+        status: 'comprar',
+        status_label: 'À Venda',
+        price: '180.000.000 Kz',
+        rawPrice: 180000000,
+        endereco: 'Condomínio Dolce Vita, Talatona, Luanda',
+        bedrooms: 3,
+        bathrooms: 2,
+        garagens: 2,
+        size: '185 m²',
+        image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80',
+        agent_phone: '+244923456789',
+        coords: { top: '65%', left: '35%' }
+      },
+      {
+        id: 'fav-02',
+        title: 'Vivenda V4 com Piscina Privativa - Kilamba',
+        tipo: 'Vivenda',
+        status: 'comprar',
+        status_label: 'À Venda',
+        price: '95.000.000 Kz',
+        rawPrice: 95000000,
+        endereco: 'Quarteirão F, Centralidade do Kilamba',
+        bedrooms: 4,
+        bathrooms: 3,
+        garagens: 3,
+        size: '260 m²',
+        image: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=600&q=80',
+        agent_phone: '+244931888222',
+        coords: { top: '80%', left: '60%' }
+      },
+      {
+        id: 'fav-03',
+        title: 'Escritório Comercial 120m² - Ingombota',
+        tipo: 'Comercial',
+        status: 'alugar',
+        status_label: 'Para Arrendar',
+        price: '2.500.000 Kz /mês',
+        rawPrice: 2500000,
+        endereco: 'Torres Kianda, Av. 4 de Fevereiro, Luanda',
+        bedrooms: 1,
+        bathrooms: 2,
+        garagens: 2,
+        size: '120 m²',
+        image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=600&q=80',
+        agent_phone: '+244944111333',
+        coords: { top: '35%', left: '48%' }
+      },
+      {
+        id: 'fav-04',
+        title: 'Cobertura Duplex T4 de Alto Padrão - Miramar',
+        tipo: 'Apartamento',
+        status: 'comprar',
+        status_label: 'À Venda',
+        price: '340.000.000 Kz',
+        rawPrice: 340000000,
+        endereco: 'Bairro Miramar, Luanda Centro',
+        bedrooms: 4,
+        bathrooms: 4,
+        garagens: 3,
+        size: '320 m²',
+        image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80',
+        agent_phone: '+244912777999',
+        coords: { top: '25%', left: '55%' }
+      },
+      {
+        id: 'fav-05',
+        title: 'Vivenda V3 em Condomínio Fechado - Camama',
+        tipo: 'Vivenda',
+        status: 'comprar',
+        status_label: 'À Venda',
+        price: '70.000.000 Kz',
+        rawPrice: 70000000,
+        endereco: 'Condomínio Jardim de Rosas, Camama',
+        bedrooms: 3,
+        bathrooms: 2,
+        garagens: 2,
+        size: '170 m²',
+        image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80',
+        agent_phone: '+244925333444',
+        coords: { top: '70%', left: '72%' }
+      }
+    ];
+
+    // ─── Metadados das 5 Variações ───
+    const variations = [
+      {
+        id: 1,
+        title: "Feed Visual com Cards Imersivos & Conversão Rápida",
+        desc: "Estilo Airbnb Wishlist com fotos de impacto, métricas claras (Quartos, WC, Área), preço em destaque e botões diretos de «Agendar Visita» e «WhatsApp do Corretor».",
+        render: renderVariation1
+      },
+      {
+        id: 2,
+        title: "Lista Compacta de Alta Densidade com Filtros Táteis",
+        desc: "Exibe de 4 a 5 imóveis por tela sem rolagem cansativa, com chips de filtro rápido («À Venda», «Arrendar», «Talatona») e remoção com 1 toque.",
+        render: renderVariation2
+      },
+      {
+        id: 3,
+        title: "Comparador Lado a Lado & Seleção Múltipla",
+        desc: "Permite marcar 2 ou 3 imóveis guardados e abrir uma tabela comparativa com preço por m², quartos, casas de banho e localização para decidir com segurança.",
+        render: renderVariation3
+      },
+      {
+        id: 4,
+        title: "Discovery Deck Interativo (Decisão Rápida por Gestos)",
+        desc: "Interface imersiva em cartas onde o usuário desliza para agendar visita imediatamente ou descartar o imóvel com feedback háptico simulado.",
+        render: renderVariation4
+      },
+      {
+        id: 5,
+        title: "Visualização em Mapa de Luanda com Gaveta Inferior",
+        desc: "Mapa interativo na metade superior com os pins dos preços em Kwanza e gaveta deslizante inferior sincronizada para encontrar o imóvel na localização exata.",
+        render: renderVariation5
+      }
+    ];
+
+    let currentVarIdx = 0;
+
+    function init() {
+      const dotsContainer = document.getElementById('dotsContainer');
+      dotsContainer.innerHTML = '';
+      variations.forEach((_, idx) => {
+        const dot = document.createElement('button');
+        dot.className = `dot-btn ${idx === currentVarIdx ? 'active' : ''}`;
+        dot.onclick = () => setVariation(idx);
+        dotsContainer.appendChild(dot);
+      });
+
+      document.getElementById('btnNext').onclick = nextVariation;
+      document.getElementById('btnPrev').onclick = prevVariation;
+      document.getElementById('btnToggleFrame').onclick = toggleFrameMode;
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') nextVariation();
+        if (e.key === 'ArrowLeft') prevVariation();
+      });
+
+      renderCurrentVariation();
+    }
+
+    function setVariation(idx) {
+      currentVarIdx = idx;
+      updateHeaderInfo();
+      renderCurrentVariation();
+    }
+
+    function nextVariation() {
+      currentVarIdx = (currentVarIdx + 1) % variations.length;
+      updateHeaderInfo();
+      renderCurrentVariation();
+    }
+
+    function prevVariation() {
+      currentVarIdx = (currentVarIdx - 1 + variations.length) % variations.length;
+      updateHeaderInfo();
+      renderCurrentVariation();
+    }
+
+    function updateHeaderInfo() {
+      const v = variations[currentVarIdx];
+      document.getElementById('varBadge').innerText = `VARIAÇÃO ${v.id} DE ${variations.length}`;
+      document.getElementById('varTitle').innerText = v.title;
+      document.getElementById('varDesc').innerText = v.desc;
+
+      const dots = document.querySelectorAll('.dot-btn');
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentVarIdx);
+      });
+    }
+
+    function toggleFrameMode() {
+      document.getElementById('deviceWrapper').classList.toggle('full-width');
+    }
+
+    function renderCurrentVariation() {
+      const container = document.getElementById('screenContent');
+      container.scrollTop = 0;
+      variations[currentVarIdx].render(container);
+    }
+
+    function removeFavorite(id) {
+      favoritesList = favoritesList.filter(item => item.id !== id);
+      showToast('Imóvel removido da lista de guardados!');
+      renderCurrentVariation();
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('mobileToast');
+      document.getElementById('toastMsg').innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    // ─── Bottom Sheet Modal ───
+    function openSheet(htmlContent) {
+      document.getElementById('sheetContent').innerHTML = htmlContent;
+      document.getElementById('sheetOverlay').classList.add('active');
+      document.getElementById('sheetModal').classList.add('active');
+    }
+
+    function closeSheet() {
+      document.getElementById('sheetOverlay').classList.remove('active');
+      document.getElementById('sheetModal').classList.remove('active');
+    }
+
+    function openScheduleSheet(id) {
+      const p = favoritesList.find(x => x.id === id);
+      if (!p) return;
+
+      openSheet(`
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+          <div>
+            <span style="background:#ecfdf5; color:#047857; font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px; text-transform:uppercase;">Agendamento Rápido</span>
+            <h2 style="font-size:16px; font-weight:800; color:#0f172a; margin-top:4px;">${p.title}</h2>
+          </div>
+          <button onclick="closeSheet()" style="background:#f1f5f9; border:none; border-radius:50%; width:30px; height:30px; cursor:pointer;">✕</button>
+        </div>
+
+        <p style="font-size:11px; color:#64748b; margin-bottom:12px;">Escolha o melhor dia para visitar este imóvel em Luanda.</p>
+
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:10px; margin-bottom:12px;">
+          <label style="font-size:11px; font-weight:700; color:#475569; display:block; margin-bottom:4px;">Data Desejada:</label>
+          <input type="date" value="2026-09-17" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid #cbd5e1; font-size:13px; font-weight:bold; color:#0f172a;" />
+        </div>
+
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:10px; margin-bottom:14px;">
+          <label style="font-size:11px; font-weight:700; color:#475569; display:block; margin-bottom:4px;">Horário:</label>
+          <select style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid #cbd5e1; font-size:13px; font-weight:bold; color:#0f172a;">
+            <option>Manhã (10:00 - 12:00)</option>
+            <option selected>Tarde (14:00 - 16:00)</option>
+            <option>Fim de Tarde (16:30 - 18:00)</option>
+          </select>
+        </div>
+
+        <button onclick="closeSheet(); showToast('Visita agendada com sucesso! Veja na aba Visitas.');" style="width:100%; padding:12px; background:linear-gradient(135deg, var(--primary), #6366f1); color:white; font-weight:800; font-size:13px; border-radius:14px; border:none; cursor:pointer;">
+          Confirmar Solicitação de Visita
+        </button>
+      `);
+    }
+
+    // ═════════════════════════════════════════════════════════════════
+    // RENDER: VARIAÇÃO 1 (Feed Visual com Cards Imersivos)
+    // ═════════════════════════════════════════════════════════════════
+    function renderVariation1(el) {
+      let html = `
+        <div class="mobile-header-bar">
+          <div class="mobile-title-wrap">
+            <h1>Imóveis Guardados</h1>
+            <p>${favoritesList.length} propriedades na sua lista de desejos</p>
+          </div>
+          <div class="header-pill-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            ${favoritesList.length} Salvos
+          </div>
+        </div>
+
+        <div class="v1-wrap">
+      `;
+
+      if (favoritesList.length === 0) {
+        html += `
+          <div style="text-align:center; padding:40px 20px; background:white; border-radius:24px; border:1px dashed #cbd5e1;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" style="margin:0 auto 10px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <h3 style="font-size:15px; font-weight:800; color:#334155;">Nenhum imóvel guardado</h3>
+            <p style="font-size:11px; color:#94a3b8; margin-top:4px;">Navegue pelos imóveis e toque no coração para guardar.</p>
+          </div>
+        `;
+      } else {
+        favoritesList.forEach(p => {
+          html += `
+            <div class="v1-card">
+              <div class="v1-media-box">
+                <img src="${p.image}" class="v1-img" alt="${p.title}" />
+                <span class="v1-badge-status ${p.status === 'comprar' ? 'badge-venda' : 'badge-alugar'}">${p.status_label}</span>
+                
+                <button class="v1-btn-heart" onclick="removeFavorite('${p.id}')" title="Remover">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </button>
+
+                <div class="v1-price-pill">${p.price}</div>
+              </div>
+
+              <div class="v1-body">
+                <h3 class="v1-title">${p.title}</h3>
+                <p class="v1-loc">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  ${p.endereco}
+                </p>
+
+                <div class="v1-specs-bar">
+                  <div class="v1-spec-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 20v-8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8"/><path d="M5 10V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4"/></svg>
+                    ${p.bedrooms} Qts
+                  </div>
+                  <div class="v1-spec-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6h6a2 2 0 0 1 2 2v10H7V8a2 2 0 0 1 2-2z"/></svg>
+                    ${p.bathrooms} WC
+                  </div>
+                  <div class="v1-spec-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                    ${p.size}
+                  </div>
+                </div>
+
+                <div class="v1-actions-bar">
+                  <button class="v1-btn-schedule" onclick="openScheduleSheet('${p.id}')">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
+                    Agendar Visita
+                  </button>
+                  <a href="https://wa.me/${p.agent_phone.replace(/\D/g, '')}?text=Ol%C3%A1,%20tenho%20interesse%20no%20im%C3%B3vel%20${encodeURIComponent(p.title)}" target="_blank" class="v1-btn-whatsapp">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.694.073-2.147-.525-1.745-.72-2.87-2.483-2.958-2.599-.086-.118-.707-.94-.707-1.794 0-.853.447-1.274.606-1.448.16-.174.348-.218.464-.218.117 0 .232.002.333.007.108.005.25-.041.391.297.144.348.491 1.201.535 1.288.044.088.073.19.014.306-.058.117-.088.19-.174.291-.087.102-.183.228-.261.306-.088.087-.179.182-.077.357.101.174.45 1.01.968 1.472.666.593 1.229.777 1.403.864.174.087.276.073.377-.044.102-.116.435-.508.55-.683.117-.174.233-.145.393-.087.159.058 1.01.476 1.184.564.174.087.29.131.334.204.043.073.043.422-.101.827z"/></svg>
+                    WhatsApp
+                  </a>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      html += `</div>`;
+      el.innerHTML = html;
+    }
+
+    // ═════════════════════════════════════════════════════════════════
+    // RENDER: VARIAÇÃO 2 (Lista Compacta & Category Chips)
+    // ═════════════════════════════════════════════════════════════════
+    let v2ActiveFilter = 'all';
+
+    function renderVariation2(el) {
+      let filtered = favoritesList;
+      if (v2ActiveFilter === 'venda') filtered = filtered.filter(x => x.status === 'comprar');
+      if (v2ActiveFilter === 'alugar') filtered = filtered.filter(x => x.status === 'alugar');
+      if (v2ActiveFilter === 'talatona') filtered = filtered.filter(x => x.endereco.includes('Talatona'));
+
+      let html = `
+        <div class="mobile-header-bar">
+          <div class="mobile-title-wrap">
+            <h1>Lista Compacta</h1>
+            <p>Visualização rápida e de alta densidade</p>
+          </div>
+          <button class="header-pill-badge" onclick="showToast('Ordenado por Mais Recentes')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M6 12h12m-9 6h6"/></svg>
+            Ordenar
+          </button>
+        </div>
+
+        <div class="v2-chips-row">
+          <button class="v2-chip ${v2ActiveFilter === 'all' ? 'active' : ''}" onclick="setV2Filter('all')">Todos (${favoritesList.length})</button>
+          <button class="v2-chip ${v2ActiveFilter === 'venda' ? 'active' : ''}" onclick="setV2Filter('venda')">À Venda</button>
+          <button class="v2-chip ${v2ActiveFilter === 'alugar' ? 'active' : ''}" onclick="setV2Filter('alugar')">Para Arrendar</button>
+          <button class="v2-chip ${v2ActiveFilter === 'talatona' ? 'active' : ''}" onclick="setV2Filter('talatona')">Talatona</button>
+        </div>
+
+        <div class="v2-list">
+          ${filtered.map(p => `
+            <div class="v2-row-card" onclick="openScheduleSheet('${p.id}')">
+              <img src="${p.image}" class="v2-thumb" alt="${p.title}" />
+              <div class="v2-meta">
+                <span class="v2-badge-mini ${p.status === 'comprar' ? 'badge-venda' : 'badge-alugar'}" style="color:white;">${p.status_label}</span>
+                <h4 class="v2-title">${p.title}</h4>
+                <p class="v2-loc">${p.endereco}</p>
+                <div class="v2-price">${p.price}</div>
+              </div>
+              <button class="v2-btn-remove" onclick="event.stopPropagation(); removeFavorite('${p.id}')" title="Remover">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      el.innerHTML = html;
+    }
+
+    function setV2Filter(f) {
+      v2ActiveFilter = f;
+      renderCurrentVariation();
+    }
+
+    // ═════════════════════════════════════════════════════════════════
+    // RENDER: VARIAÇÃO 3 (Comparador Lado a Lado & Seleção Múltipla)
+    // ═════════════════════════════════════════════════════════════════
+    let selectedForCompare = ['fav-01', 'fav-02'];
+
+    function renderVariation3(el) {
+      let html = `
+        <div class="mobile-header-bar">
+          <div class="mobile-title-wrap">
+            <h1>Comparador de Imóveis</h1>
+            <p>Selecione até 2 para comparar métricas</p>
+          </div>
+          <button class="header-pill-badge" onclick="openCompareSheet()">
+            Ver Tabela (${selectedForCompare.length})
+          </button>
+        </div>
+
+        <div class="v3-banner">
+          <div>
+            <h4>Modo de Comparação Ativo</h4>
+            <p>${selectedForCompare.length} de 2 selecionados</p>
+          </div>
+          <button class="v3-btn-compare-now" onclick="openCompareSheet()">
+            Comparar Agora
+          </button>
+        </div>
+
+        <div class="v3-grid-compare">
+          ${favoritesList.map(p => {
+            const isSel = selectedForCompare.includes(p.id);
+            return `
+              <div class="v3-card ${isSel ? 'selected' : ''}" onclick="toggleCompareSelect('${p.id}')">
+                <div class="v3-select-checkbox">${isSel ? '✓' : ''}</div>
+                <img src="${p.image}" class="v3-img" alt="${p.title}" />
+                <h4 style="font-size:11px; font-weight:800; color:#0f172a; line-height:1.2; margin-bottom:2px; height:26px; overflow:hidden;">${p.title}</h4>
+                <div style="font-size:12px; font-weight:900; color:var(--accent);">${p.price}</div>
+                <div style="font-size:10px; color:#64748b; margin-top:2px;">${p.size} · ${p.bedrooms} Qts</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+
+      el.innerHTML = html;
+    }
+
+    function toggleCompareSelect(id) {
+      if (selectedForCompare.includes(id)) {
+        selectedForCompare = selectedForCompare.filter(x => x !== id);
+      } else {
+        if (selectedForCompare.length >= 2) {
+          selectedForCompare.shift(); // remove o primeiro para dar lugar ao novo
+        }
+        selectedForCompare.push(id);
+      }
+      renderCurrentVariation();
+    }
+
+    function openCompareSheet() {
+      const items = favoritesList.filter(x => selectedForCompare.includes(x.id));
+      if (items.length < 2) {
+        showToast('Selecione pelo menos 2 imóveis para comparar!');
+        return;
+      }
+
+      openSheet(`
+        <h3 style="font-size:16px; font-weight:800; color:#0f172a; margin-bottom:6px;">Comparação Lado a Lado</h3>
+        <p style="font-size:11px; color:#64748b; margin-bottom:12px;">Analise as diferenças técnicas entre as duas opções selecionadas.</p>
+
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Critério</th>
+              <th>${items[0].title.slice(0, 16)}...</th>
+              <th>${items[1].title.slice(0, 16)}...</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Preço</td>
+              <td style="color:var(--accent); font-weight:800;">${items[0].price}</td>
+              <td style="color:var(--accent); font-weight:800;">${items[1].price}</td>
+            </tr>
+            <tr>
+              <td>Área Total</td>
+              <td>${items[0].size}</td>
+              <td>${items[1].size}</td>
+            </tr>
+            <tr>
+              <td>Quartos</td>
+              <td>${items[0].bedrooms} Quartos</td>
+              <td>${items[1].bedrooms} Quartos</td>
+            </tr>
+            <tr>
+              <td>Casas de Banho</td>
+              <td>${items[0].bathrooms} WC</td>
+              <td>${items[1].bathrooms} WC</td>
+            </tr>
+            <tr>
+              <td>Garagens</td>
+              <td>${items[0].garagens} vagas</td>
+              <td>${items[1].garagens} vagas</td>
+            </tr>
+            <tr>
+              <td>Localização</td>
+              <td>${items[0].endereco}</td>
+              <td>${items[1].endereco}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <button onclick="closeSheet(); openScheduleSheet('${items[0].id}');" style="width:100%; margin-top:14px; padding:11px; background:var(--primary); color:white; font-weight:800; border-radius:12px; border:none; font-size:12px; cursor:pointer;">
+          Agendar Visita no Imóvel 1
+        </button>
+      `);
+    }
+
+    // ═════════════════════════════════════════════════════════════════
+    // RENDER: VARIAÇÃO 4 (Tinder-Style Discovery Deck & Gestos)
+    // ═════════════════════════════════════════════════════════════════
+    let v4CardIdx = 0;
+
+    function renderVariation4(el) {
+      const p = favoritesList[v4CardIdx] || favoritesList[0];
+
+      let html = `
+        <div class="mobile-header-bar">
+          <div class="mobile-title-wrap">
+            <h1>Discovery Deck</h1>
+            <p>Decisão ágil por gestos táteis</p>
+          </div>
+          <span class="header-pill-badge">
+            ${v4CardIdx + 1} de ${favoritesList.length}
+          </span>
+        </div>
+
+        <div class="v4-deck-container">
+          <div class="v4-deck-card">
+            <div class="v4-hero-media">
+              <img src="${p.image}" class="v4-hero-img" alt="${p.title}" />
+              <div class="v4-overlay-grad"></div>
+              
+              <span class="v1-badge-status ${p.status === 'comprar' ? 'badge-venda' : 'badge-alugar'}" style="top:14px; left:14px;">${p.status_label}</span>
+
+              <div class="v4-media-info">
+                <div style="font-size:22px; font-weight:900; font-family:var(--font-display); color:#fff; margin-bottom:4px;">${p.price}</div>
+                <h3 style="font-size:16px; font-weight:800; line-height:1.2; margin-bottom:4px;">${p.title}</h3>
+                <p style="font-size:11px; color:#cbd5e1;">${p.endereco}</p>
+                <div style="font-size:11px; font-weight:700; color:#cbd5e1; margin-top:6px;">
+                  ${p.bedrooms} Quartos · ${p.bathrooms} WC · ${p.size} · ${p.garagens} Garagens
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons Deck -->
+          <div class="v4-actions-circle-bar">
+            <button class="v4-btn-action-circle v4-dislike" onclick="removeFavorite('${p.id}'); nextV4Card();" title="Descartar">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+
+            <button class="v4-btn-action-circle v4-calendar" onclick="openScheduleSheet('${p.id}')" title="Agendar Visita">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
+            </button>
+
+            <a href="https://wa.me/${p.agent_phone.replace(/\D/g, '')}" target="_blank" class="v4-btn-action-circle v4-whatsapp" title="WhatsApp">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.694.073-2.147-.525-1.745-.72-2.87-2.483-2.958-2.599-.086-.118-.707-.94-.707-1.794 0-.853.447-1.274.606-1.448.16-.174.348-.218.464-.218.117 0 .232.002.333.007.108.005.25-.041.391.297.144.348.491 1.201.535 1.288.044.088.073.19.014.306-.058.117-.088.19-.174.291-.087.102-.183.228-.261.306-.088.087-.179.182-.077.357.101.174.45 1.01.968 1.472.666.593 1.229.777 1.403.864.174.087.276.073.377-.044.102-.116.435-.508.55-.683.117-.174.233-.145.393-.087.159.058 1.01.476 1.184.564.174.087.29.131.334.204.043.073.043.422-.101.827z"/></svg>
+            </a>
+          </div>
+
+          <p style="font-size:11px; color:#94a3b8; text-align:center; margin-top:14px;">Toque no ícone de calendário para agendar ou no X para remover.</p>
+        </div>
+      `;
+
+      el.innerHTML = html;
+    }
+
+    function nextV4Card() {
+      v4CardIdx = (v4CardIdx + 1) % favoritesList.length;
+      renderCurrentVariation();
+    }
+
+    // ═════════════════════════════════════════════════════════════════
+    // RENDER: VARIAÇÃO 5 (Map-Split Explorer)
+    // ═════════════════════════════════════════════════════════════════
+    let v5SelectedId = 'fav-01';
+
+    function renderVariation5(el) {
+      const activeProp = favoritesList.find(x => x.id === v5SelectedId) || favoritesList[0];
+
+      let html = `
+        <div class="mobile-header-bar">
+          <div class="mobile-title-wrap">
+            <h1>Mapa dos Guardados</h1>
+            <p>Geolocalização em Luanda</p>
+          </div>
+          <span class="header-pill-badge">
+            ${favoritesList.length} Pins
+          </span>
+        </div>
+
+        <div class="v5-map-box">
+          <div class="v5-map-pattern"></div>
+          
+          ${favoritesList.map(p => `
+            <div class="v5-price-marker ${p.id === v5SelectedId ? 'active' : ''}" style="top:${p.coords.top}; left:${p.coords.left};" onclick="selectV5Pin('${p.id}')">
+              ${p.price.split(' ')[0]} Kz
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="v5-drawer-wrap">
+          <div style="font-size:11px; font-weight:800; color:#64748b; text-transform:uppercase;">Imóvel Selecionado no Mapa:</div>
+          
+          <div class="v1-card" style="margin-top:4px;">
+            <div style="display:flex; gap:10px; padding:10px; align-items:center;">
+              <img src="${activeProp.image}" style="width:70px; height:70px; border-radius:12px; object-fit:cover;" />
+              <div style="flex:1; min-width:0;">
+                <h4 style="font-size:13px; font-weight:800; color:#0f172a; line-height:1.2;">${activeProp.title}</h4>
+                <p style="font-size:11px; color:#64748b; margin:2px 0;">${activeProp.endereco}</p>
+                <div style="font-size:13px; font-weight:900; color:var(--accent);">${activeProp.price}</div>
+              </div>
+            </div>
+
+            <div style="padding:0 10px 10px; display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+              <button onclick="openScheduleSheet('${activeProp.id}')" style="background:var(--primary); color:white; border:none; padding:8px; border-radius:10px; font-size:11px; font-weight:800; cursor:pointer;">
+                Agendar Visita
+              </button>
+              <a href="https://wa.me/${activeProp.agent_phone.replace(/\D/g, '')}" target="_blank" style="background:#22c55e; color:white; text-decoration:none; padding:8px; border-radius:10px; font-size:11px; font-weight:800; text-align:center;">
+                WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+      `;
+
+      el.innerHTML = html;
+    }
+
+    function selectV5Pin(id) {
+      v5SelectedId = id;
+      renderCurrentVariation();
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

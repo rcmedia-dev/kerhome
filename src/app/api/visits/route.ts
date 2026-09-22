@@ -6,9 +6,10 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const conversation_id = searchParams.get('conversation_id');
     const agent_id = searchParams.get('agent_id');
+    const client_id = searchParams.get('client_id');
 
-    if (!conversation_id && !agent_id) {
-        return NextResponse.json({ error: "conversation_id or agent_id required" }, { status: 400 });
+    if (!conversation_id && !agent_id && !client_id) {
+        return NextResponse.json({ error: "conversation_id, agent_id or client_id required" }, { status: 400 });
     }
 
     let query = supabase.from('visits').select('*');
@@ -17,6 +18,8 @@ export async function GET(req: Request) {
         query = query.eq('conversation_id', conversation_id);
     } else if (agent_id) {
         query = query.eq('agent_id', agent_id);
+    } else if (client_id) {
+        query = query.eq('lead_id', client_id);
     }
 
     const { data, error } = await query

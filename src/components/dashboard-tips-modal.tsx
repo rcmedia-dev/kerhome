@@ -31,13 +31,18 @@ export function DashboardTipsModal({
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const seen = localStorage.getItem(STORAGE_KEY);
-    if (seen) {
-      const parsed = JSON.parse(seen);
-      if (parsed.date === new Date().toDateString()) {
-        setDismissed(true);
-        return;
+    try {
+      const seen = localStorage.getItem(STORAGE_KEY);
+      if (seen) {
+        const parsed = JSON.parse(seen);
+        // Se escolheu nunca mais mostrar ou se já visualizou hoje
+        if (parsed.never === true || parsed.date === new Date().toDateString()) {
+          setDismissed(true);
+          return;
+        }
       }
+    } catch {
+      // Ignora erro de parse
     }
 
     const load = async () => {
@@ -51,14 +56,21 @@ export function DashboardTipsModal({
       setProfileData(profile);
       setPropertyData(propertyHealth);
       setLoading(false);
-      setTimeout(() => setIsOpen(true), 500);
+      setTimeout(() => setIsOpen(true), 600);
     };
     load();
   }, [userId, userProperties]);
 
-  const handleClose = useCallback(() => {
+  const handleClose = useCallback((never = false) => {
     setIsOpen(false);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: new Date().toDateString() }));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ 
+        date: new Date().toDateString(),
+        never: never
+      }));
+    } catch {
+      // Ignora erro de quota
+    }
   }, []);
 
   const handleStepClick = (index: number) => {
@@ -214,34 +226,47 @@ export function DashboardTipsModal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
-            onClick={handleClose}
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4"
+            onClick={() => handleClose(false)}
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 40 }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
+              className="bg-white rounded-t-[28px] sm:rounded-3xl shadow-2xl w-full sm:max-w-lg max-h-[82vh] flex flex-col overflow-hidden border-t sm:border border-slate-100 safe-area-bottom"
             >
+              {/* Drag Handle no Mobile */}
+              <div className="pt-2.5 pb-1 sm:hidden flex justify-center shrink-0">
+                <div className="w-10 h-1 rounded-full bg-slate-300" />
+              </div>
+
               {/* Header */}
-              <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Sparkles size={18} className="text-purple-200" />
-                  <h2 className="text-white font-bold text-base">Dicas Inteligentes</h2>
+              <div className="bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 px-5 py-3.5 sm:px-6 sm:py-4 flex items-center justify-between shrink-0 shadow-xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-white/15 flex items-center justify-center">
+                    <Sparkles size={16} className="text-purple-200" />
+                  </div>
+                  <div>
+                    <h2 className="text-white font-black text-sm sm:text-base leading-tight">Dicas Inteligentes</h2>
+                    <p className="text-purple-200 text-[10px] font-medium leading-none mt-0.5">
+                      Dica {currentStep + 1} de {totalSteps}
+                    </p>
+                  </div>
                 </div>
                 <button
-                  onClick={handleClose}
-                  className="text-white/60 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10"
+                  onClick={() => handleClose(false)}
+                  className="text-white/70 hover:text-white transition-colors p-1.5 rounded-full hover:bg-white/15 active:scale-95 cursor-pointer"
+                  aria-label="Fechar"
                 >
                   <X size={18} />
                 </button>
               </div>
 
               {/* Step Indicator */}
-              <div className="px-6 pt-4 pb-2">
-                <div className="flex items-center gap-2">
+              <div className="px-5 sm:px-6 pt-3 pb-1 shrink-0">
+                <div className="flex items-center gap-1.5">
                   {steps.map((step, i) => (
                     <button
                       key={i}
@@ -253,29 +278,30 @@ export function DashboardTipsModal({
                             ? 'bg-purple-300'
                             : 'bg-gray-200'
                       }`}
+                      aria-label={`Passo ${i + 1}`}
                     />
                   ))}
                 </div>
               </div>
 
-              {/* Content */}
-              <div className="px-6 py-4 min-h-[250px]">
+              {/* Content com scroll interno e altura controlada */}
+              <div className="px-5 sm:px-6 py-3 overflow-y-auto custom-scrollbar flex-1 min-h-0 overscroll-contain">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentStep}
-                    initial={{ opacity: 0, x: 20 }}
+                    initial={{ opacity: 0, x: 15 }}
                     animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
+                    exit={{ opacity: 0, x: -15 }}
                     transition={{ duration: 0.2 }}
                     className="space-y-3"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center shrink-0">
                         <currentData.icon size={20} className="text-purple-600" />
                       </div>
-                      <div>
-                        <h3 className="text-sm font-bold text-gray-900">{currentData.title}</h3>
-                        <p className="text-xs text-gray-500">{currentData.description}</p>
+                      <div className="min-w-0">
+                        <h3 className="text-sm font-bold text-gray-900 leading-tight">{currentData.title}</h3>
+                        <p className="text-xs text-gray-500 leading-snug mt-0.5 truncate">{currentData.description}</p>
                       </div>
                     </div>
                     {currentData.content}
@@ -283,41 +309,42 @@ export function DashboardTipsModal({
                 </AnimatePresence>
               </div>
 
-              {/* Footer */}
-              <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between gap-3">
+              {/* Footer ergonómico */}
+              <div className="px-5 sm:px-6 py-3 sm:py-3.5 border-t border-gray-100 bg-gray-50/80 flex items-center justify-between gap-2 shrink-0">
                 <button
-                  onClick={handleClose}
-                  className="text-xs text-gray-400 hover:text-gray-600 font-medium transition-colors"
+                  onClick={() => handleClose(true)}
+                  className="text-[11px] text-gray-400 hover:text-gray-600 font-medium transition-colors underline-offset-2 hover:underline cursor-pointer"
+                  title="Não reabrir este pop-up automaticamente"
                 >
-                  Dispensar
+                  Não mostrar mais
                 </button>
 
                 <div className="flex items-center gap-2">
                   {currentStep > 0 && (
                     <button
                       onClick={() => setCurrentStep(prev => prev - 1)}
-                      className="flex items-center gap-1 px-3 py-2 rounded-lg border border-gray-200 text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-all"
+                      className="flex items-center gap-1 px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-gray-600 hover:bg-gray-50 active:scale-95 transition-all cursor-pointer"
                     >
                       <ChevronLeft size={14} />
-                      Anterior
+                      <span className="hidden sm:inline">Anterior</span>
                     </button>
                   )}
 
                   {currentStep < totalSteps - 1 ? (
                     <button
                       onClick={() => setCurrentStep(prev => prev + 1)}
-                      className="flex items-center gap-1 px-4 py-2 rounded-lg bg-purple-600 text-xs font-bold text-white hover:bg-purple-700 transition-all shadow-sm"
+                      className="flex items-center gap-1 px-4 py-2 rounded-xl bg-purple-600 text-xs font-bold text-white hover:bg-purple-700 active:scale-95 transition-all shadow-sm cursor-pointer"
                     >
                       Próximo
                       <ChevronRight size={14} />
                     </button>
                   ) : (
                     <button
-                      onClick={handleClose}
-                      className="flex items-center gap-1 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-orange-500 text-xs font-bold text-white hover:opacity-90 transition-all shadow-sm"
+                      onClick={() => handleClose(false)}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-orange-500 text-xs font-bold text-white hover:opacity-90 active:scale-95 transition-all shadow-sm cursor-pointer"
                     >
                       <CheckCircle2 size={14} />
-                      Começar!
+                      Concluir
                     </button>
                   )}
                 </div>

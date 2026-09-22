@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { CanSeeIt } from '@/components/can';
 import { Pen, Upload, Globe, Facebook, Instagram, Linkedin, Youtube, Building, BadgeCheck } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import imageCompression from "browser-image-compression";
+import { compressAvatar } from '@/lib/utils/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { UserProfile } from '@/lib/store/user-store';
@@ -315,25 +315,24 @@ export function UserCard({ user, displayName, stats, housesRemaining, onAvatarUp
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    event.target.value = '';
     if (!file || !user.id) return;
 
     if (!file.type.startsWith("image/")) {
       alert("Por favor, selecione um arquivo de imagem.");
       return;
     }
+    if (file.size > 10 * 1024 * 1024) {
+      alert("A imagem deve ter no máximo 10MB.");
+      return;
+    }
 
     setIsUploading(true);
 
     try {
-      const options = {
-        maxSizeMB: 2,
-        maxWidthOrHeight: 1024,
-        useWebWorker: true,
-      };
-
-      const compressedFile = await imageCompression(file, options);
-      const fileExt = compressedFile.name.split(".").pop();
-      const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const compressedFile = await compressAvatar(file);
+      const fileExt = (compressedFile.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg');
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
       const filePath = `avatars/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
@@ -341,6 +340,7 @@ export function UserCard({ user, displayName, stats, housesRemaining, onAvatarUp
         .upload(filePath, compressedFile, {
           cacheControl: "3600",
           upsert: true,
+          contentType: compressedFile.type,
         });
 
       if (uploadError) throw uploadError;
@@ -357,9 +357,13 @@ export function UserCard({ user, displayName, stats, housesRemaining, onAvatarUp
       if (updateError) throw updateError;
 
       onAvatarUpdate?.(publicUrl);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao fazer upload:", error);
-      alert("Erro ao fazer upload da imagem. Tente novamente.");
+      if (String(error?.message || '').toLowerCase().includes('maximum allowed size')) {
+        alert("Imagem demasiado grande. Tente uma foto menor.");
+      } else {
+        alert("Erro ao fazer upload da imagem. Tente novamente.");
+      }
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {
