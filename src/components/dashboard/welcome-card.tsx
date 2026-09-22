@@ -48,8 +48,9 @@ export function DashboardWelcomeCard({
                         <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-br from-purple-500 to-orange-500 shadow-xl ring-4 ring-white/10">
                             <div className="w-full h-full rounded-full bg-gray-800 overflow-hidden flex items-center justify-center relative">
                                 {isUploading ? (
-                                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
-                                        <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                    <div className="absolute inset-0 bg-black/55 flex flex-col items-center justify-center z-20 gap-1">
+                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        <span className="text-[9px] font-bold text-white">A processar…</span>
                                     </div>
                                 ) : null}
                                 {avatarUrl ? (

@@ -196,3 +196,65 @@ export async function rejectAgencyInvite(token: string, userId: string, userEmai
         return { success: false, error: error.message };
     }
 }
+
+export async function revokeAgencyInvite(inviteId: string, agencyId: string, userId: string) {
+    try {
+        const supabase = createServiceClient();
+
+        const { data: agency } = await supabase
+            .from('imobiliarias')
+            .select('id, owner_id')
+            .eq('id', agencyId)
+            .single();
+
+        if (!agency || agency.owner_id !== userId) {
+            return { success: false, error: 'Não autorizado: apenas o dono da agência pode remover convites.' };
+        }
+
+        const { data: invite, error: inviteError } = await supabase
+            .from('agency_invites')
+            .select('id, token, status, imobiliaria_id')
+            .eq('id', inviteId)
+            .eq('imobiliaria_id', agencyId)
+            .single();
+
+        if (inviteError || !invite) {
+            return { success: false, error: 'Convite não encontrado.' };
+        }
+
+        if (invite.status !== 'pending') {
+            return { success: false, error: 'Apenas convites pendentes podem ser removidos.' };
+        }
+
+        const { error: deleteError } = await supabase
+            .from('agency_invites')
+            .delete()
+            .eq('id', inviteId)
+            .eq('imobiliaria_id', agencyId);
+
+        if (deleteError) throw deleteError;
+
+        try {
+            const { data: notifications } = await supabase
+                .from('notifications')
+                .select('id')
+                .eq('type', 'agency_invite')
+                .contains('data', { token: invite.token });
+
+            if (notifications?.length) {
+                await supabase
+                    .from('notifications')
+                    .delete()
+                    .in('id', notifications.map(n => n.id));
+            }
+        } catch (notifError) {
+            console.error('Aviso: Falha ao limpar notificações do convite:', notifError);
+        }
+
+        revalidatePath('/dashboard');
+        return { success: true };
+    } catch (error: any) {
+        console.error('Erro ao revogar convite:', error);
+        return { success: false, error: error.message };
+    }
+}

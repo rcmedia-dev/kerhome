@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, AnimatePresence, Variants, Easing } from 'framer-motion';
+import { motion, AnimatePresence, MotionConfig, Variants, Easing } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { MinhasPropriedades, Favoritas, Faturas, PropriedadesMaisVisualizadas, VisitasAgendadas } from '@/components/dashboard-tabs-content';
 import { AgencyManagement } from './agency-management';
@@ -66,6 +66,7 @@ export function DashboardContent({
             activeTab === 'messages' ? 'h-full lg:h-full' : 'flex-1 lg:h-full',
             'flex flex-col min-h-0'
         )}>
+            <MotionConfig reducedMotion="user">
             <AnimatePresence mode="wait">
                 <motion.div
                     key={activeTab}
@@ -88,6 +89,7 @@ export function DashboardContent({
                     ) : tabContent}
                 </motion.div>
             </AnimatePresence>
+            </MotionConfig>
         </div>
     );
 }

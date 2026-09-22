@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { useUserStore } from '@/lib/store/user-store';
 import { X } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
+import { compressAvatar } from '@/lib/utils/image';
 
 function setAgentRequestStatus(status: string | null) {
   useUserStore.setState((state) => {
@@ -21,22 +22,28 @@ export function useDashboardActions() {
 
     const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
+        event.target.value = '';
         if (!file || !user) return;
 
-        if (file.size > 5 * 1024 * 1024) {
-            toast.warning('A imagem deve ter no máximo 5MB.');
+        if (!file.type.startsWith('image/')) {
+            toast.warning('Selecione uma imagem (PNG ou JPG).');
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            toast.warning('A imagem deve ter no máximo 10MB.');
             return;
         }
 
         try {
             setIsUploading(true);
-            const fileExt = file.name.split('.').pop();
+            const compressed = await compressAvatar(file);
+            const fileExt = (compressed.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg');
             const fileName = `${user.id}-${Date.now()}.${fileExt}`;
             const filePath = `avatars/${fileName}`;
 
             const { error: uploadError } = await supabase.storage
                 .from('user-avatars')
-                .upload(filePath, file, { upsert: true });
+                .upload(filePath, compressed, { upsert: true, contentType: compressed.type });
 
             if (uploadError) throw uploadError;
 
@@ -46,9 +53,13 @@ export function useDashboardActions() {
 
             await updateUser({ avatar_url: publicUrl });
             toast.success('Foto de perfil atualizada!');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Erro ao atualizar avatar:', error);
-            toast.error('Erro ao atualizar a foto.');
+            if (String(error?.message || '').toLowerCase().includes('maximum allowed size')) {
+                toast.error('Imagem demasiado grande. Tente uma foto menor.');
+            } else {
+                toast.error('Erro ao atualizar a foto.');
+            }
         } finally {
             setIsUploading(false);
         }
