@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KerHome — Dashboard · Nav esquerda + Ads na coluna direita</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #820AD1;
+      --primary-dark: #6A08AA;
+      --primary-soft: #f3e8ff;
+      --accent: #FF6B00;
+      --bg: #f4f5f9;
+      --elevated: #f1f3f7;
+      --ink: #1a1a2e;
+      --muted: #6b7280;
+      --dim: #9ca3af;
+      --line: #e5e7eb;
+      --red: #ef4444;
+      --shadow-1: 0 2px 10px rgba(23,32,51,.06);
+      --shadow-card: 0 4px 20px rgba(23,32,51,.05);
+      --shadow-brand: 0 6px 22px rgba(130,10,209,.35);
+      --focus: 0 0 0 3px rgba(130,10,209,.35);
+      --hit: 44px;
+    }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: radial-gradient(1400px 700px at 50% -10%, #efe6ff 0%, var(--bg) 55%);
+      color: var(--ink);
+      overflow: hidden;
+    }
+    :focus-visible { outline: none; box-shadow: var(--focus); }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+    .icon { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .icon.sm { width: 15px; height: 15px; }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+    .badge-num {
+      min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
+      font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center;
+      font-variant-numeric: tabular-nums;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px;
+      font-size: 11px; font-weight: 800;
+    }
+    .pill.purple { background: var(--primary-soft); color: var(--primary); }
+
+    .nav-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(255,255,255,.96); backdrop-filter: blur(20px);
+      border-top: 1px solid var(--line);
+      padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .nav-btn {
+      min-height: 44px; padding: 10px 22px; border-radius: 14px;
+      font: 800 13px/1 'Inter', sans-serif; cursor: pointer; transition: background .2s, color .2s, transform .15s;
+      border: none; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .nav-btn.prev { background: var(--elevated); color: var(--muted); }
+    .nav-btn.prev:hover { background: var(--primary); color: #fff; }
+    .nav-btn.next { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; box-shadow: var(--shadow-brand); }
+    .nav-btn.next:hover { transform: translateY(-1px); }
+    .nav-btn:disabled { opacity: .3; cursor: not-allowed; transform: none !important; }
+    .nav-info { text-align: center; flex: 1; min-width: 0; }
+    .nav-info .variant-label { font-size: 10px; font-weight: 900; color: var(--primary); text-transform: uppercase; letter-spacing: .14em; }
+    .nav-info .variant-title { font-size: 14px; font-weight: 800; color: var(--ink); margin-top: 3px; }
+    .nav-info .variant-desc { font-size: 11px; color: var(--muted); margin-top: 2px; max-width: 560px; margin-inline: auto; }
+    .nav-dots { display: flex; gap: 6px; justify-content: center; margin-top: 8px; }
+    .nav-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #d1d5db;
+      transition: all .3s; cursor: pointer; border: none; padding: 0;
+    }
+    .nav-dot:hover { background: #a78bfa; }
+    .nav-dot.active { background: linear-gradient(135deg, var(--primary), var(--accent)); width: 24px; border-radius: 4px; }
+
+    .desktop-frame {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+      width: min(1200px, calc(100vw - 40px));
+      height: calc(100dvh - 110px);
+      border-radius: 16px; border: 1px solid #2a2a3a; overflow: hidden;
+      background: var(--bg); box-shadow: 0 30px 80px rgba(20,20,31,.22);
+      display: flex; flex-direction: column;
+    }
+    .browser-chrome {
+      background: #1e1e2e; padding: 10px 14px; display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    }
+    .browser-dots { display: flex; gap: 6px; }
+    .browser-dots span { width: 10px; height: 10px; border-radius: 50%; }
+    .browser-dots .r { background: #ff5f57; }
+    .browser-dots .y { background: #febc2e; }
+    .browser-dots .g { background: #28c840; }
+    .browser-url {
+      flex: 1; background: #2a2a3d; border-radius: 8px; padding: 6px 14px;
+      font-size: 12px; color: #9ca3af; font-family: ui-monospace, monospace;
+    }
+    .browser-url strong { color: #c4b5fd; font-weight: 600; }
+    .desktop-screen { flex: 1; overflow: hidden; position: relative; background: var(--bg); }
+    .variant { display: none; height: 100%; }
+    .variant.active { display: flex; animation: fadeIn .3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+    .app-shell { display: flex; width: 100%; height: 100%; min-width: 0; background: var(--bg); }
+    .app-main { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+    .app-top {
+      min-height: 52px; flex-shrink: 0; background: rgba(255,255,255,.92);
+      border-bottom: 1px solid var(--line); display: flex; align-items: center;
+      justify-content: space-between; gap: 12px; padding: 10px 18px;
+    }
+    .app-top .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .app-top .mark {
+      width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff;
+      font-weight: 900; font-size: 13px; box-shadow: var(--shadow-brand); flex-shrink: 0;
+    }
+    .app-top h3 { font-size: 14px; font-weight: 800; white-space: nowrap; }
+    .app-top .sub { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .app-top .user { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .avatar {
+      width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff;
+      font-size: 12px; font-weight: 900; border: 2px solid #fff; box-shadow: var(--shadow-1);
+    }
+    .bell {
+      width: 36px; height: 36px; border-radius: 12px; background: var(--elevated); border: 1px solid var(--line);
+      display: grid; place-items: center; color: var(--muted); position: relative; cursor: pointer;
+    }
+    .bell .dot {
+      position: absolute; top: 7px; right: 7px; width: 8px; height: 8px; border-radius: 50%;
+      background: var(--red); border: 2px solid #fff;
+    }
+
+    .app-body { flex: 1; min-height: 0; display: flex; gap: 16px; padding: 16px; overflow: hidden; }
+
+    /* ═══════ Button navigation — ESQUERDA (restaurada) ═══════ */
+    .side {
+      width: 104px; flex-shrink: 0; order: 0;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 14px 0; gap: 6px; overflow: auto;
+      background: linear-gradient(180deg, #faf5ff 0%, var(--bg) 35%);
+      border-right: 1px solid var(--line);
+    }
+    .side-title {
+      font-size: 9px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--dim); margin-bottom: 4px;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 4px; min-width: var(--hit); min-height: var(--hit); width: 88px; padding: 8px 6px;
+      border-radius: 16px; border: 1px solid transparent; background: transparent;
+      color: var(--muted); cursor: pointer; text-align: center;
+      transition: background .15s, color .15s, border-color .15s, transform .1s, box-shadow .15s;
+      position: relative;
+    }
+    .nav-item:active { transform: scale(.97); }
+    .nav-item:focus-visible { box-shadow: var(--focus); }
+    .nav-item .lbl {
+      font-size: 10px; font-weight: 700; line-height: 1.15; max-width: 72px;
+      word-break: break-word;
+    }
+    .nav-item .ic {
+      width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center;
+      background: #f3f4f6; color: #9ca3af; flex-shrink: 0; position: relative;
+    }
+    .nav-item[aria-current="page"] { color: var(--primary); }
+    .nav-item[aria-current="page"] .ic {
+      background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff;
+      box-shadow: var(--shadow-brand);
+    }
+    .nav-item[aria-current="page"] .lbl { color: var(--primary); font-weight: 800; }
+    .nav-item:hover:not([aria-current="page"]) { background: #f9fafb; color: var(--ink); border-color: var(--line); }
+    .nav-item .nb {
+      position: absolute; top: -4px; right: -6px; min-width: 16px; height: 16px; padding: 0 4px;
+      border-radius: 99px; background: var(--red); color: #fff; font-size: 9px; font-weight: 900;
+      display: grid; place-items: center; border: 2px solid #fff;
+      font-variant-numeric: tabular-nums;
+    }
+    .side.wide { width: 240px; align-items: stretch; padding: 16px 12px; }
+    .side.wide .side-title { padding: 0 4px; }
+    .side.wide .stack { display: flex; flex-direction: column; gap: 6px; }
+    .side.wide .group-lbl {
+      font-size: 10px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--dim); padding: 8px 4px 2px;
+    }
+    .nav-item.row {
+      flex-direction: row; justify-content: flex-start; gap: 10px;
+      width: 100%; padding: 8px 10px; text-align: left; border-radius: 14px;
+      background: #fff; border-color: var(--line);
+    }
+    .nav-item.row .lbl { font-size: 13px; font-weight: 700; max-width: none; flex: 1; text-align: left; }
+    .nav-item.row .badge-num { background: #f3f4f6; color: var(--muted); }
+    .nav-item.row[aria-current="page"] {
+      background: linear-gradient(90deg, rgba(130,10,209,.1), rgba(255,107,0,.05));
+      border-color: rgba(130,10,209,.2); box-shadow: inset 3px 0 0 var(--primary);
+      color: var(--primary);
+    }
+    .nav-item.row[aria-current="page"] .badge-num { background: var(--primary); color: #fff; }
+    .nav-item.row[aria-current="page"] .ic { background: #fff; color: var(--primary); box-shadow: 0 2px 8px rgba(130,10,209,.15); }
+    .side .cta {
+      margin-top: auto; width: 88px; border-radius: 14px; padding: 10px 6px;
+      background: linear-gradient(160deg, var(--accent), #c2410c); color: #fff;
+      border: none; cursor: pointer; text-align: center; box-shadow: 0 8px 18px rgba(255,107,0,.3);
+    }
+    .side .cta strong { display: block; font-size: 11px; font-weight: 900; line-height: 1.2; }
+    .side .cta span { display: block; font-size: 9px; opacity: .9; margin-top: 4px; line-height: 1.3; }
+    .side.wide .cta { width: 100%; }
+
+    .content-col {
+      flex: 1; min-width: 0; background: #fff; border: 1px solid var(--line);
+      border-radius: 24px; box-shadow: var(--shadow-card); padding: 18px; overflow: auto;
+    }
+    .widgets-col {
+      width: 260px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px;
+      overflow: auto; padding-right: 2px;
+    }
+    .widget {
+      background: #fff; border: 1px solid var(--line); border-radius: 20px;
+      padding: 14px; box-shadow: var(--shadow-card);
+    }
+    .widget h4 { font-size: 12px; font-weight: 800; margin-bottom: 8px; }
+    .widget .k { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); }
+    .welcome-row { display: flex; align-items: center; gap: 10px; }
+    .welcome-row .avatar { width: 44px; height: 44px; font-size: 15px; }
+    .welcome-row strong { display: block; font-size: 13px; font-weight: 800; }
+    .welcome-row span { font-size: 11px; color: var(--muted); }
+    .plan-bar {
+      height: 8px; border-radius: 99px; background: #f3f4f6; overflow: hidden; margin-top: 8px;
+    }
+    .plan-bar i {
+      display: block; height: 100%; width: 60%; border-radius: 99px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+    .plan-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+    /* Ads — substituem as métricas (Propriedades / Favoritas / Faturas) */
+    .ad-card {
+      border-radius: 20px; padding: 16px; color: #fff; box-shadow: 0 10px 24px rgba(23,32,51,.12);
+      position: relative; overflow: hidden;
+    }
+    .ad-card::after {
+      content: ''; position: absolute; right: -20px; top: -20px; width: 90px; height: 90px;
+      border-radius: 50%; background: rgba(255,255,255,.12); pointer-events: none;
+    }
+    .ad-card.purple { background: linear-gradient(145deg, var(--primary), #4c1d95 75%, #6d28d9); }
+    .ad-card.orange { background: linear-gradient(145deg, var(--accent), #c2410c 80%); }
+    .ad-card .tag {
+      display: inline-block; font-size: 9px; font-weight: 900; letter-spacing: .14em;
+      text-transform: uppercase; opacity: .8; margin-bottom: 8px;
+    }
+    .ad-card h4 { font-size: 14px; font-weight: 900; line-height: 1.25; margin-bottom: 6px; }
+    .ad-card p { font-size: 12px; line-height: 1.45; opacity: .92; }
+    .ad-card button {
+      margin-top: 12px; width: 100%; min-height: 40px; border: none; border-radius: 12px;
+      background: #fff; font: 800 13px 'Inter'; cursor: pointer; transition: transform .15s, box-shadow .15s;
+      box-shadow: 0 4px 12px rgba(0,0,0,.12);
+    }
+    .ad-card.purple button { color: var(--primary); }
+    .ad-card.orange button { color: var(--accent); }
+    .ad-card button:hover { transform: translateY(-1px); }
+    .ad-card button:focus-visible { box-shadow: var(--focus); }
+    .ad-note {
+      font-size: 10px; font-weight: 700; color: var(--dim); text-align: center;
+      text-transform: uppercase; letter-spacing: .08em; margin-top: -4px;
+    }
+
+    .content-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      margin-bottom: 14px; flex-wrap: wrap;
+    }
+    .content-head h2 { font-size: 16px; font-weight: 800; }
+    .content-head p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .prop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .prop {
+      border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: #fff;
+      box-shadow: var(--shadow-1); transition: transform .15s, box-shadow .15s;
+    }
+    .prop:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(23,32,51,.08); }
+    .prop-img { height: 88px; background: linear-gradient(135deg, #ede9fe, #ffedd5); position: relative; }
+    .prop-img .tag {
+      position: absolute; top: 8px; left: 8px; background: #fff; color: var(--primary);
+      font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 999px;
+    }
+    .prop-b { padding: 10px 12px 12px; }
+    .prop-b h4 { font-size: 13px; font-weight: 800; }
+    .prop-b p { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .prop-price { font-size: 13px; font-weight: 900; color: var(--primary); margin-top: 6px; }
+
+    .ux-note {
+      position: absolute; right: 14px; bottom: 14px; z-index: 6;
+      max-width: 290px; background: rgba(255,255,255,.97); border: 1px solid var(--line);
+      border-radius: 14px; padding: 12px 14px; box-shadow: var(--shadow-1);
+      font-size: 11px; color: var(--muted); line-height: 1.45;
+    }
+    .ux-note strong {
+      display: block; color: var(--ink); font-size: 11px; font-weight: 900; margin-bottom: 4px;
+      text-transform: uppercase; letter-spacing: .06em;
+    }
+    .ux-note ul { margin: 0; padding-left: 14px; }
+    .ux-note li { margin: 2px 0; }
+
+    .variant.no-widgets .widgets-col { display: none; }
+    .variant.no-widgets .content-col { }
+
+    @media (max-width: 1024px) {
+      .widgets-col { display: none; }
+      .prop-grid { grid-template-columns: 1fr 1fr; }
+      .ux-note { display: none; }
+    }
+    @media (max-width: 780px) {
+      .prop-grid { grid-template-columns: 1fr; }
+      .side.wide { width: 72px; }
+      .side.wide .side-head, .side.wide .group-lbl, .side.wide .nav-item .lbl, .side.wide .cta { display: none; }
+      .side.wide .nav-item.row { justify-content: center; padding: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="desktop-frame">
+    <div class="browser-chrome">
+      <div class="browser-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+      <div class="browser-url"><strong>kerhome.ao</strong> / dashboard?tab=properties</div>
+    </div>
+    <div class="desktop-screen" id="screen">
+
+      <!-- ═══════ V1 — Nav esq. FAB+label · Ads no sítio das métricas ═══════ -->
+      <div class="variant active" id="v1"
+        data-title="V1 — Nav esquerda + 2 Ads à direita"
+        data-desc="Button nav restaurada à esquerda · coluna direita: boas-vindas, plano e as 2 cards de publicidade (no lugar de Propriedades/Favoritas/Faturas)">
+        <div class="app-shell">
+          <nav class="side" aria-label="Navegação do painel">
+            <div class="side-title">Menu</div>
+            <button type="button" class="nav-item" aria-current="page">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                <span class="nb">12</span>
+              </span>
+              <span class="lbl">Propriedades</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <span class="nb">5</span>
+              </span>
+              <span class="lbl">Favoritas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span class="nb">3</span>
+              </span>
+              <span class="lbl">Mensagens</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              </span>
+              <span class="lbl">Visitas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>
+              </span>
+              <span class="lbl">Faturas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 5-9"/></svg>
+              </span>
+              <span class="lbl">Estatísticas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg>
+              </span>
+              <span class="lbl">Agência</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </span>
+              <span class="lbl">Definições</span>
+            </button>
+          </nav>
+          <div class="app-main">
+            <header class="app-top">
+              <div class="brand">
+                <div class="mark" aria-hidden="true">K</div>
+                <div>
+                  <h3>Minhas Propriedades</h3>
+                  <div class="sub">Nav à esquerda · ads substituem as métricas na coluna direita</div>
+                </div>
+              </div>
+              <div class="user">
+                <span class="pill purple">Plano Free</span>
+                <div class="bell" aria-label="Notificações" role="button" tabindex="0">
+                  <svg class="icon sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                  <span class="dot"></span>
+                </div>
+                <div class="avatar" aria-hidden="true">MA</div>
+              </div>
+            </header>
+            <div class="app-body">
+              <section class="content-col">
+                <div class="content-head">
+                  <div>
+                    <h2>Minhas Propriedades</h2>
+                    <p>8 publicadas · 3 em análise</p>
+                  </div>
+                  <span class="pill purple">12 imóveis</span>
+                </div>
+                <div class="prop-grid">
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Apartamento Talatona</h4><p>3 quartos · 140m²</p><div class="prop-price">Kz 85.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Vila Kilamba</h4><p>2 quartos · 95m²</p><div class="prop-price">Kz 42.500.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Análise</span></div><div class="prop-b"><h4>Condomínio Benfica</h4><p>4 quartos · 210m²</p><div class="prop-price">Kz 150.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Loja Miramar</h4><p>Comercial · 60m²</p><div class="prop-price">Kz 35.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Rascunho</span></div><div class="prop-b"><h4>T3 Camama</h4><p>3 quartos · 120m²</p><div class="prop-price">Kz 48.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Casa Cacuaco</h4><p>4 quartos · 180m²</p><div class="prop-price">Kz 72.000.000</div></div></article>
+                </div>
+              </section>
+              <aside class="widgets-col" aria-label="Coluna direita">
+                <div class="widget">
+                  <div class="welcome-row">
+                    <div class="avatar">MA</div>
+                    <div>
+                      <strong>Olá, Maria</strong>
+                      <span>Agente · perfil 78%</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="widget">
+                  <div class="k">Plano Free</div>
+                  <h4 style="margin-top:6px">6 de 10 imóveis</h4>
+                  <div class="plan-bar" aria-hidden="true"><i></i></div>
+                  <div class="plan-meta"><span>Usados</span><span>4 restantes</span></div>
+                </div>
+                <!-- Antes: métricas Propriedades / Favoritas / Faturas / Visualizações -->
+                <div class="ad-card purple" role="complementary" aria-label="Publicidade: destaque imóvel">
+                  <span class="tag">Publicidade</span>
+                  <h4>Destaque seu imóvel</h4>
+                  <p>Aumente suas visualizações com o impulsionamento da Kercasa.</p>
+                  <button type="button">Saber Mais</button>
+                </div>
+                <div class="ad-card orange" role="complementary" aria-label="Publicidade: torne-se agente">
+                  <span class="tag">Publicidade</span>
+                  <h4>Torne-se Agente</h4>
+                  <p>Cadastre imóveis e gerencie suas vendas na Kercasa.</p>
+                  <button type="button">Ativar Agora</button>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+        <aside class="ux-note">
+          <strong>Mudança representada</strong>
+          <ul>
+            <li>2 ads saem da sidebar → coluna direita</li>
+            <li>Substituem as métricas (Prop/Fav/Faturas)</li>
+            <li>Boas-vindas + plano mantidos no topo</li>
+            <li>Button navigation volta ao lado esquerdo</li>
+          </ul>
+        </aside>
+      </div>
+
+      <!-- ═══════ V2 — Nav esq. pills · Ads no sítio das métricas ═══════ -->
+      <div class="variant" id="v2"
+        data-title="V2 — Nav pills esquerda + 2 Ads"
+        data-desc="Mesmo layout com nav icon+texto completo à esquerda · ads roxos/laranja na direita">
+        <div class="app-shell">
+          <nav class="side wide" aria-label="Navegação do painel (pills)">
+            <div class="side-title">Navegação</div>
+            <div class="stack">
+              <div class="group-lbl" id="g2-menu">Menu</div>
+              <button type="button" class="nav-item row" aria-current="page">
+                <span class="ic" aria-hidden="true"><svg class="icon sm" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>
+                <span class="lbl">Minhas Propriedades</span>
+                <span class="badge-num">12</span>
+              </button>
+              <button type="button" class="nav-item row">
+                <span class="ic" aria-hidden="true"><svg class="icon sm" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+                <span class="lbl">Favoritas</span>
+                <span class="badge-num">5</span>
+              </button>
+              <button type="button" class="nav-item row">
+                <span class="ic" aria-hidden="true"><svg class="icon sm" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+                <span class="lbl">Mensagens</span>
+                <span class="badge-num">3</span>
+              </button>
+              <button type="button" class="nav-item row">
+                <span class="ic" aria-hidden="true"><svg class="icon sm" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+                <span class="lbl">Visitas agendadas</span>
+                <span class="badge-num">2</span>
+              </button>
+              <div class="group-lbl">Conta</div>
+              <button type="button" class="nav-item row">
+                <span class="ic" aria-hidden="true"><svg class="icon sm" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg></span>
+                <span class="lbl">Faturas</span>
+              </button>
+              <button type="button" class="nav-item row">
+                <span class="ic" aria-hidden="true"><svg class="icon sm" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 5-9"/></svg></span>
+                <span class="lbl">Estatísticas</span>
+              </button>
+              <button type="button" class="nav-item row">
+                <span class="ic" aria-hidden="true"><svg class="icon sm" viewBox="0 0 24 24"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg></span>
+                <span class="lbl">Minha Agência</span>
+              </button>
+              <button type="button" class="nav-item row">
+                <span class="ic" aria-hidden="true"><svg class="icon sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+                <span class="lbl">Configurações</span>
+              </button>
+            </div>
+            <div class="cta">
+              <strong>Novo imóvel</strong>
+              <span>publicar anúncio</span>
+            </div>
+          </nav>
+          <div class="app-main">
+            <header class="app-top">
+              <div class="brand">
+                <div class="mark" aria-hidden="true">K</div>
+                <div>
+                  <h3>Minhas Propriedades</h3>
+                  <div class="sub">Pills à esquerda · ads no lugar das métricas</div>
+                </div>
+              </div>
+              <div class="user">
+                <span class="pill purple">Plano Free</span>
+                <div class="bell" aria-label="Notificações" role="button" tabindex="0">
+                  <svg class="icon sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                  <span class="dot"></span>
+                </div>
+                <div class="avatar" aria-hidden="true">MA</div>
+              </div>
+            </header>
+            <div class="app-body">
+              <section class="content-col">
+                <div class="content-head">
+                  <div>
+                    <h2>Minhas Propriedades</h2>
+                    <p>8 publicadas · 3 em análise</p>
+                  </div>
+                  <span class="pill purple">12 imóveis</span>
+                </div>
+                <div class="prop-grid">
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Apartamento Talatona</h4><p>3 quartos · 140m²</p><div class="prop-price">Kz 85.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Vila Kilamba</h4><p>2 quartos · 95m²</p><div class="prop-price">Kz 42.500.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Análise</span></div><div class="prop-b"><h4>Condomínio Benfica</h4><p>4 quartos · 210m²</p><div class="prop-price">Kz 150.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Loja Miramar</h4><p>Comercial · 60m²</p><div class="prop-price">Kz 35.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Rascunho</span></div><div class="prop-b"><h4>T3 Camama</h4><p>3 quartos · 120m²</p><div class="prop-price">Kz 48.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Casa Cacuaco</h4><p>4 quartos · 180m²</p><div class="prop-price">Kz 72.000.000</div></div></article>
+                </div>
+              </section>
+              <aside class="widgets-col" aria-label="Coluna direita">
+                <div class="widget">
+                  <div class="welcome-row">
+                    <div class="avatar">MA</div>
+                    <div>
+                      <strong>Olá, Maria</strong>
+                      <span>Agente · perfil 78%</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="widget">
+                  <div class="k">Plano Free</div>
+                  <h4 style="margin-top:6px">6 de 10 imóveis</h4>
+                  <div class="plan-bar" aria-hidden="true"><i></i></div>
+                  <div class="plan-meta"><span>Usados</span><span>4 restantes</span></div>
+                </div>
+                <div class="ad-card purple" role="complementary" aria-label="Publicidade: destaque imóvel">
+                  <span class="tag">Publicidade</span>
+                  <h4>Destaque seu imóvel</h4>
+                  <p>Aumente suas visualizações com o impulsionamento da Kercasa.</p>
+                  <button type="button">Saber Mais</button>
+                </div>
+                <div class="ad-card orange" role="complementary" aria-label="Publicidade: torne-se agente">
+                  <span class="tag">Publicidade</span>
+                  <h4>Torne-se Agente</h4>
+                  <p>Cadastre imóveis e gerencie suas vendas na Kercasa.</p>
+                  <button type="button">Ativar Agora</button>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+        <aside class="ux-note">
+          <strong>Mudança representada</strong>
+          <ul>
+            <li>Sidebar sem ads (só navegação + CTA)</li>
+            <li>2 cards de publicidade coladas em baixo do plano</li>
+            <li>Métricas removidas da coluna direita</li>
+            <li>Nav pills = labels completos (leigo)</li>
+          </ul>
+        </aside>
+      </div>
+
+      <!-- ═══════ V3 — Nav esq. compacta · Ads + métricas no content (alternativa) ═══════ -->
+      <div class="variant" id="v3"
+        data-title="V3 — Ads no topo da direita"
+        data-desc="Publicidade acima de boas-vindas/plano · métricas saem da coluna · nav FAB+label à esquerda">
+        <div class="app-shell">
+          <nav class="side" aria-label="Navegação do painel">
+            <div class="side-title">Menu</div>
+            <button type="button" class="nav-item" aria-current="page">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                <span class="nb">12</span>
+              </span>
+              <span class="lbl">Propriedades</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <span class="nb">5</span>
+              </span>
+              <span class="lbl">Favoritas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span class="nb">3</span>
+              </span>
+              <span class="lbl">Mensagens</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              </span>
+              <span class="lbl">Visitas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>
+              </span>
+              <span class="lbl">Faturas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 5-9"/></svg>
+              </span>
+              <span class="lbl">Estatísticas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg>
+              </span>
+              <span class="lbl">Agência</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </span>
+              <span class="lbl">Definições</span>
+            </button>
+            <button type="button" class="cta" aria-label="Torne-se agente">
+              <strong>Agente</strong>
+              <span>activar</span>
+            </button>
+          </nav>
+          <div class="app-main">
+            <header class="app-top">
+              <div class="brand">
+                <div class="mark" aria-hidden="true">K</div>
+                <div>
+                  <h3>Minhas Propriedades</h3>
+                  <div class="sub">Ads primeiro na direita · depois perfil e plano</div>
+                </div>
+              </div>
+              <div class="user">
+                <span class="pill purple">Plano Free</span>
+                <div class="bell" aria-label="Notificações" role="button" tabindex="0">
+                  <svg class="icon sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                  <span class="dot"></span>
+                </div>
+                <div class="avatar" aria-hidden="true">MA</div>
+              </div>
+            </header>
+            <div class="app-body">
+              <section class="content-col">
+                <div class="content-head">
+                  <div>
+                    <h2>Minhas Propriedades</h2>
+                    <p>8 publicadas · 3 em análise</p>
+                  </div>
+                  <span class="pill purple">12 imóveis</span>
+                </div>
+                <div class="prop-grid">
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Apartamento Talatona</h4><p>3 quartos · 140m²</p><div class="prop-price">Kz 85.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Vila Kilamba</h4><p>2 quartos · 95m²</p><div class="prop-price">Kz 42.500.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Análise</span></div><div class="prop-b"><h4>Condomínio Benfica</h4><p>4 quartos · 210m²</p><div class="prop-price">Kz 150.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Loja Miramar</h4><p>Comercial · 60m²</p><div class="prop-price">Kz 35.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Rascunho</span></div><div class="prop-b"><h4>T3 Camama</h4><p>3 quartos · 120m²</p><div class="prop-price">Kz 48.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Casa Cacuaco</h4><p>4 quartos · 180m²</p><div class="prop-price">Kz 72.000.000</div></div></article>
+                </div>
+              </section>
+              <aside class="widgets-col" aria-label="Coluna direita">
+                <div class="ad-card purple" role="complementary" aria-label="Publicidade: destaque imóvel">
+                  <span class="tag">Publicidade</span>
+                  <h4>Destaque seu imóvel</h4>
+                  <p>Aumente suas visualizações com o impulsionamento da Kercasa.</p>
+                  <button type="button">Saber Mais</button>
+                </div>
+                <div class="ad-card orange" role="complementary" aria-label="Publicidade: torne-se agente">
+                  <span class="tag">Publicidade</span>
+                  <h4>Torne-se Agente</h4>
+                  <p>Cadastre imóveis e gerencie suas vendas na Kercasa.</p>
+                  <button type="button">Ativar Agora</button>
+                </div>
+                <div class="widget">
+                  <div class="welcome-row">
+                    <div class="avatar">MA</div>
+                    <div>
+                      <strong>Olá, Maria</strong>
+                      <span>Agente · perfil 78%</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="widget">
+                  <div class="k">Plano Free</div>
+                  <h4 style="margin-top:6px">6 de 10 imóveis</h4>
+                  <div class="plan-bar" aria-hidden="true"><i></i></div>
+                  <div class="plan-meta"><span>Usados</span><span>4 restantes</span></div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+        <aside class="ux-note">
+          <strong>Ordem da coluna direita</strong>
+          <ul>
+            <li>Ads no topo (antes era o sítio das métricas)</li>
+            <li>Depois: boas-vindas + plano</li>
+            <li>Sidebar só navegação + 1 CTA</li>
+            <li>Maior visibilidade comercial</li>
+          </ul>
+        </aside>
+      </div>
+
+      <!-- ═══════ V4 — Nav esq. dark · Ads no sítio das métricas ═══════ -->
+      <div class="variant" id="v4"
+        data-title="V4 — Nav dark esquerda + 2 Ads"
+        data-desc="Espírito V4 (círculos + rótulo) à esquerda em rail escuro · ads na direita no lugar das métricas">
+        <div class="app-shell">
+          <nav class="side" aria-label="Navegação do painel (dark)" style="background:linear-gradient(180deg,#0f172a,#1e293b);border-right-color:#1e293b;width:104px">
+            <div class="side-title" style="color:#64748b">Menu</div>
+            <button type="button" class="nav-item" aria-current="page">
+              <span class="ic" aria-hidden="true" style="background:#1e293b;color:#94a3b8;border-radius:50%;width:40px;height:40px">
+                <svg class="icon" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                <span class="nb" style="border-color:#0f172a">12</span>
+              </span>
+              <span class="lbl" style="color:#cbd5e1">Imóveis</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true" style="background:#1e293b;color:#94a3b8;border-radius:50%;width:40px;height:40px">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <span class="nb" style="border-color:#0f172a">5</span>
+              </span>
+              <span class="lbl" style="color:#cbd5e1">Salvos</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true" style="background:#1e293b;color:#94a3b8;border-radius:50%;width:40px;height:40px">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span class="nb" style="border-color:#0f172a">3</span>
+              </span>
+              <span class="lbl" style="color:#cbd5e1">Chat</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true" style="background:#1e293b;color:#94a3b8;border-radius:50%;width:40px;height:40px">
+                <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              </span>
+              <span class="lbl" style="color:#cbd5e1">Visitas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true" style="background:#1e293b;color:#94a3b8;border-radius:50%;width:40px;height:40px">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>
+              </span>
+              <span class="lbl" style="color:#cbd5e1">Faturas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true" style="background:#1e293b;color:#94a3b8;border-radius:50%;width:40px;height:40px">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 5-9"/></svg>
+              </span>
+              <span class="lbl" style="color:#cbd5e1">Dados</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true" style="background:#1e293b;color:#94a3b8;border-radius:50%;width:40px;height:40px">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg>
+              </span>
+              <span class="lbl" style="color:#cbd5e1">Agência</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true" style="background:#1e293b;color:#94a3b8;border-radius:50%;width:40px;height:40px">
+                <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </span>
+              <span class="lbl" style="color:#cbd5e1">Ajustes</span>
+            </button>
+          </nav>
+          <div class="app-main">
+            <header class="app-top">
+              <div class="brand">
+                <div class="mark" aria-hidden="true">K</div>
+                <div>
+                  <h3>Minhas Propriedades</h3>
+                  <div class="sub">Rail dark à esquerda · ads no lugar das métricas</div>
+                </div>
+              </div>
+              <div class="user">
+                <span class="pill purple">Plano Free</span>
+                <div class="bell" aria-label="Notificações" role="button" tabindex="0">
+                  <svg class="icon sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                  <span class="dot"></span>
+                </div>
+                <div class="avatar" aria-hidden="true">MA</div>
+              </div>
+            </header>
+            <div class="app-body">
+              <section class="content-col">
+                <div class="content-head">
+                  <div>
+                    <h2>Minhas Propriedades</h2>
+                    <p>8 publicadas · 3 em análise</p>
+                  </div>
+                  <span class="pill purple">12 imóveis</span>
+                </div>
+                <div class="prop-grid">
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Apartamento Talatona</h4><p>3 quartos · 140m²</p><div class="prop-price">Kz 85.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Vila Kilamba</h4><p>2 quartos · 95m²</p><div class="prop-price">Kz 42.500.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Análise</span></div><div class="prop-b"><h4>Condomínio Benfica</h4><p>4 quartos · 210m²</p><div class="prop-price">Kz 150.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Loja Miramar</h4><p>Comercial · 60m²</p><div class="prop-price">Kz 35.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Rascunho</span></div><div class="prop-b"><h4>T3 Camama</h4><p>3 quartos · 120m²</p><div class="prop-price">Kz 48.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Casa Cacuaco</h4><p>4 quartos · 180m²</p><div class="prop-price">Kz 72.000.000</div></div></article>
+                </div>
+              </section>
+              <aside class="widgets-col" aria-label="Coluna direita">
+                <div class="widget">
+                  <div class="welcome-row">
+                    <div class="avatar">MA</div>
+                    <div>
+                      <strong>Olá, Maria</strong>
+                      <span>Agente · perfil 78%</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="widget">
+                  <div class="k">Plano Free</div>
+                  <h4 style="margin-top:6px">6 de 10 imóveis</h4>
+                  <div class="plan-bar" aria-hidden="true"><i></i></div>
+                  <div class="plan-meta"><span>Usados</span><span>4 restantes</span></div>
+                </div>
+                <div class="ad-card purple" role="complementary" aria-label="Publicidade: destaque imóvel">
+                  <span class="tag">Publicidade</span>
+                  <h4>Destaque seu imóvel</h4>
+                  <p>Aumente suas visualizações com o impulsionamento da Kercasa.</p>
+                  <button type="button">Saber Mais</button>
+                </div>
+                <div class="ad-card orange" role="complementary" aria-label="Publicidade: torne-se agente">
+                  <span class="tag">Publicidade</span>
+                  <h4>Torne-se Agente</h4>
+                  <p>Cadastre imóveis e gerencie suas vendas na Kercasa.</p>
+                  <button type="button">Ativar Agora</button>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+        <aside class="ux-note">
+          <strong>V4 + mudança de layout</strong>
+          <ul>
+            <li>Rail escuro, círculos + rótulo (leigo ok)</li>
+            <li>2 ads = 2º/3º slot da direita</li>
+            <li>Sem card de métricas na coluna</li>
+            <li>Nav sempre no esquerdo</li>
+          </ul>
+        </aside>
+      </div>
+
+      <!-- ═══════ V5 — Nav esq. · Ads + resumo compacto no content (fallback métricas) ═══════ -->
+      <div class="variant" id="v5"
+        data-title="V5 — Ads à direita + métricas no topo do conteúdo"
+        data-desc="Se quiser manter métricas: sobem para o content · coluna direita só boas-vindas, plano e 2 ads">
+        <div class="app-shell">
+          <nav class="side" aria-label="Navegação do painel">
+            <div class="side-title">Menu</div>
+            <button type="button" class="nav-item" aria-current="page">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                <span class="nb">12</span>
+              </span>
+              <span class="lbl">Propriedades</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <span class="nb">5</span>
+              </span>
+              <span class="lbl">Favoritas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span class="nb">3</span>
+              </span>
+              <span class="lbl">Mensagens</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              </span>
+              <span class="lbl">Visitas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>
+              </span>
+              <span class="lbl">Faturas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 5-9"/></svg>
+              </span>
+              <span class="lbl">Estatísticas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg>
+              </span>
+              <span class="lbl">Agência</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09A1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </span>
+              <span class="lbl">Definições</span>
+            </button>
+          </nav>
+          <div class="app-main">
+            <header class="app-top">
+              <div class="brand">
+                <div class="mark" aria-hidden="true">K</div>
+                <div>
+                  <h3>Minhas Propriedades</h3>
+                  <div class="sub">Métricas movidas para o content · ads na direita</div>
+                </div>
+              </div>
+              <div class="user">
+                <span class="pill purple">Plano Free</span>
+                <div class="bell" aria-label="Notificações" role="button" tabindex="0">
+                  <svg class="icon sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                  <span class="dot"></span>
+                </div>
+                <div class="avatar" aria-hidden="true">MA</div>
+              </div>
+            </header>
+            <div class="app-body">
+              <section class="content-col">
+                <div class="content-head">
+                  <div>
+                    <h2>Minhas Propriedades</h2>
+                    <p>8 publicadas · 3 em análise</p>
+                  </div>
+                  <span class="pill purple">12 imóveis</span>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px" aria-label="Métricas (movidas do painel lateral)">
+                  <div class="widget" style="padding:12px;text-align:center;margin:0">
+                    <div class="k">Propriedades</div>
+                    <div style="font-size:20px;font-weight:900;margin-top:4px">12</div>
+                  </div>
+                  <div class="widget" style="padding:12px;text-align:center;margin:0">
+                    <div class="k">Favoritas</div>
+                    <div style="font-size:20px;font-weight:900;margin-top:4px">5</div>
+                  </div>
+                  <div class="widget" style="padding:12px;text-align:center;margin:0">
+                    <div class="k">Faturas</div>
+                    <div style="font-size:20px;font-weight:900;margin-top:4px">3</div>
+                  </div>
+                  <div class="widget" style="padding:12px;text-align:center;margin:0">
+                    <div class="k">Visualizações</div>
+                    <div style="font-size:20px;font-weight:900;margin-top:4px">1.2k</div>
+                  </div>
+                </div>
+                <div class="prop-grid">
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Apartamento Talatona</h4><p>3 quartos · 140m²</p><div class="prop-price">Kz 85.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Vila Kilamba</h4><p>2 quartos · 95m²</p><div class="prop-price">Kz 42.500.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Análise</span></div><div class="prop-b"><h4>Condomínio Benfica</h4><p>4 quartos · 210m²</p><div class="prop-price">Kz 150.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Loja Miramar</h4><p>Comercial · 60m²</p><div class="prop-price">Kz 35.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Rascunho</span></div><div class="prop-b"><h4>T3 Camama</h4><p>3 quartos · 120m²</p><div class="prop-price">Kz 48.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Casa Cacuaco</h4><p>4 quartos · 180m²</p><div class="prop-price">Kz 72.000.000</div></div></article>
+                </div>
+              </section>
+              <aside class="widgets-col" aria-label="Coluna direita">
+                <div class="widget">
+                  <div class="welcome-row">
+                    <div class="avatar">MA</div>
+                    <div>
+                      <strong>Olá, Maria</strong>
+                      <span>Agente · perfil 78%</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="widget">
+                  <div class="k">Plano Free</div>
+                  <h4 style="margin-top:6px">6 de 10 imóveis</h4>
+                  <div class="plan-bar" aria-hidden="true"><i></i></div>
+                  <div class="plan-meta"><span>Usados</span><span>4 restantes</span></div>
+                </div>
+                <div class="ad-card purple" role="complementary" aria-label="Publicidade: destaque imóvel">
+                  <span class="tag">Publicidade</span>
+                  <h4>Destaque seu imóvel</h4>
+                  <p>Aumente suas visualizações com o impulsionamento da Kercasa.</p>
+                  <button type="button">Saber Mais</button>
+                </div>
+                <div class="ad-card orange" role="complementary" aria-label="Publicidade: torne-se agente">
+                  <span class="tag">Publicidade</span>
+                  <h4>Torne-se Agente</h4>
+                  <p>Cadastre imóveis e gerencie suas vendas na Kercasa.</p>
+                  <button type="button">Ativar Agora</button>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+        <aside class="ux-note">
+          <strong>Fallback para métricas</strong>
+          <ul>
+            <li>Prop/Fav/Faturas não se perdem — sobem ao content</li>
+            <li>Coluna direita = perfil + plano + 2 ads</li>
+            <li>Nav button no esquerdo</li>
+            <li>Útil se quiserem manter KPIs visíveis</li>
+          </ul>
+        </aside>
+      </div>
+
+    </div>
+  </div>
+
+  <nav class="nav-bar" aria-label="Navegação de variações">
+    <button type="button" class="nav-btn prev" id="btn-prev" onclick="go(-1)">
+      <svg class="icon sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      Anterior
+    </button>
+    <div class="nav-info">
+      <div class="variant-label" id="nav-label">Variação 1 de 5</div>
+      <div class="variant-title" id="nav-title">—</div>
+      <div class="variant-desc" id="nav-desc">—</div>
+      <div class="nav-dots" id="nav-dots"></div>
+    </div>
+    <button type="button" class="nav-btn next" id="btn-next" onclick="go(1)">
+      Next
+      <svg class="icon sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+  </nav>
+
+  <script>
+    const variants = Array.from(document.querySelectorAll('.variant'));
+    const dotsRoot = document.getElementById('nav-dots');
+    let idx = 0;
+
+    variants.forEach((_, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'nav-dot' + (i === 0 ? ' active' : '');
+      b.setAttribute('aria-label', 'Ir para variação ' + (i + 1));
+      b.onclick = () => show(i);
+      dotsRoot.appendChild(b);
+    });
+
+    function show(i) {
+      idx = (i + variants.length) % variants.length;
+      variants.forEach((v, j) => v.classList.toggle('active', j === idx));
+      dotsRoot.querySelectorAll('.nav-dot').forEach((d, j) => d.classList.toggle('active', j === idx));
+      const v = variants[idx];
+      document.getElementById('nav-label').textContent = 'Variação ' + (idx + 1) + ' de ' + variants.length;
+      document.getElementById('nav-title').textContent = v.dataset.title || '';
+      document.getElementById('nav-desc').textContent = v.dataset.desc || '';
+      document.getElementById('btn-prev').disabled = idx === 0;
+      document.getElementById('btn-next').disabled = idx === variants.length - 1;
+    }
+
+    function go(dir) { show(idx + dir); }
+
+    document.querySelectorAll('.variant').forEach((root) => {
+      const items = root.querySelectorAll('.nav-item');
+      items.forEach((el) => {
+        if (el.tagName !== 'BUTTON') return;
+        el.addEventListener('click', () => {
+          const scope = root.querySelector('nav.side') || root;
+          scope.querySelectorAll('[aria-current]').forEach((n) => n.removeAttribute('aria-current'));
+          el.setAttribute('aria-current', 'page');
+          const name = (el.querySelector('.lbl')?.textContent || '').trim();
+          const h = root.querySelector('.app-top h3');
+          if (h && name) h.textContent = name;
+        });
+      });
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') go(1);
+      if (e.key === 'ArrowLeft') go(-1);
+    });
+
+    show(0);
+  </script>
+</body>
+</html>

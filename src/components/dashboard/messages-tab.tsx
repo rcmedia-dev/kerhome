@@ -548,7 +548,7 @@ export function MessagesTab() {
 
         {/* COLUMN 2: Chat Window (6/12) */}
         <div className={cn(
-          "md:col-span-6 flex flex-col h-full overflow-hidden bg-white border-r border-gray-100 z-10",
+          "md:col-span-6 flex flex-col h-full min-h-0 overflow-hidden bg-white border-r border-gray-100 z-10",
           !activeConversationId && "hidden md:flex",
           activeConversationId && "fixed inset-0 z-50 md:relative md:inset-auto md:z-10 h-[100dvh] md:h-full w-full"
         )}>
@@ -622,45 +622,74 @@ export function MessagesTab() {
         )}>
 
           {activeConversationId ? (
-            <div className="mobile-scroll-container flex-1 overflow-y-auto custom-scrollbar flex flex-col pb-10 lg:pb-10">
-              
-              {/* Profile Overview - Mobile: Full screen header / Desktop: Original */}
-              <div className="lg:p-6 p-4 pt-14 lg:pt-6 bg-white border-b border-gray-100 shadow-sm shrink-0 relative">
+            <div className="mobile-scroll-container flex-1 overflow-y-auto custom-scrollbar flex flex-col">
+              {/* V4 — Sticky profile: row + temp pill + progress rail */}
+              <div className="sticky top-0 z-10 shrink-0 relative bg-white px-4 pt-14 pb-4 lg:px-4 lg:pt-5 lg:pb-4 border-b border-gray-100 shadow-sm">
                 {/* Mobile Back Button */}
-                <button 
+                <button
                   onClick={() => setIsMobileCrmOpen(false)}
                   className="lg:hidden absolute top-4 left-4 w-10 h-10 flex items-center justify-center bg-gray-50 rounded-2xl text-gray-500 active:scale-95 transition-transform"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                <div className="flex flex-col items-center text-center space-y-3 mb-4 lg:mb-6">
-                  <div className="relative">
+                <div className="flex items-center gap-3">
+                  <div className="relative shrink-0">
                     {contactAvatar ? (
-                      <img src={contactAvatar} alt={contactName ?? ''} className="lg:w-20 lg:h-20 lg:rounded-md w-[72px] h-[72px] rounded-2xl object-cover border-4 border-white shadow-md" />
+                      <img src={contactAvatar} alt={contactName ?? ''} className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md" />
                     ) : (
-                      <div className="lg:w-20 lg:h-20 lg:rounded-md w-[72px] h-[72px] rounded-2xl bg-gradient-to-br from-purple-100 to-orange-50 flex items-center justify-center border-4 border-white shadow-sm">
-                        <User className="w-10 h-10 text-purple-200" />
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-100 to-orange-50 flex items-center justify-center border-2 border-white shadow-sm">
+                        <User className="w-6 h-6 text-purple-300" />
                       </div>
                     )}
-                    <div className="absolute -bottom-1 -right-1 w-5 h-5 lg:w-6 lg:h-6 bg-green-500 border-3 lg:border-4 border-white rounded-full shadow-md" />
+                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full shadow-md" aria-label="Online" />
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="font-extrabold text-gray-900 text-lg lg:text-lg tracking-tight leading-none mb-1">{contactName}</h3>
-                    <p className="text-[11px] lg:text-[10px] text-gray-400 font-semibold">{activeProfile?.email || 'Lead Kercasa'}</p>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-extrabold text-gray-900 text-sm tracking-tight leading-tight truncate">{contactName}</h3>
+                    <p className="text-[11px] text-gray-400 font-semibold truncate">{activeProfile?.email || 'Lead Kercasa'}</p>
+                  </div>
+                  <span className={cn(
+                    "shrink-0 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide",
+                    currentTemp === 'hot' ? "bg-red-100 text-red-600" : currentTemp === 'warm' ? "bg-orange-100 text-orange-600" : currentTemp === 'cold' ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-400"
+                  )}>
+                    {currentTemp === 'none' ? 'Sem def.' : currentTemp === 'hot' ? 'Quente' : currentTemp === 'warm' ? 'Morno' : 'Frio'}
+                  </span>
+                </div>
+                <div
+                  className="mt-3 h-1 bg-gray-100 rounded-full overflow-hidden flex"
+                  role="progressbar"
+                  aria-valuenow={currentTemp === 'hot' ? 75 : currentTemp === 'warm' ? 50 : currentTemp === 'cold' ? 25 : 10}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label="Progresso do funil"
+                >
+                  <span
+                    className="block h-full bg-gradient-to-r from-purple-600 to-orange-500 rounded-full transition-all duration-500"
+                    style={{ width: `${currentTemp === 'hot' ? 75 : currentTemp === 'warm' ? 50 : currentTemp === 'cold' ? 25 : 10}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* V4 — CRM body: stats + cards */}
+              <div className="p-4 space-y-4 flex-1">
+                {/* Stat grid */}
+                <div className="grid grid-cols-3 gap-2" aria-label="Métricas do lead">
+                  <div className="bg-purple-50 rounded-xl py-3 px-1 text-center">
+                    <div className="text-base font-black text-purple-700 tabular-nums leading-none">{messages.length}</div>
+                    <div className="text-[9px] font-bold text-gray-500 uppercase tracking-wider mt-1">Msgs</div>
+                  </div>
+                  <div className="bg-purple-50 rounded-xl py-3 px-1 text-center">
+                    <div className="text-base font-black text-purple-700 tabular-nums leading-none">{visits.length}</div>
+                    <div className="text-[9px] font-bold text-gray-500 uppercase tracking-wider mt-1">Visitas</div>
+                  </div>
+                  <div className="bg-purple-50 rounded-xl py-3 px-1 text-center">
+                    <div className="text-base font-black text-purple-700 tabular-nums leading-none">{property ? 1 : 0}</div>
+                    <div className="text-[9px] font-bold text-gray-500 uppercase tracking-wider mt-1">Imóvel</div>
                   </div>
                 </div>
 
-                {/* Lead Temp Control - Mobile: Compact / Desktop: Original */}
-                <div className="space-y-3 lg:space-y-4">
-                  <div className="flex items-center justify-between px-1">
-                    <p className="text-[10px] lg:text-[9px] font-bold text-gray-400 uppercase tracking-wider">Qualificação</p>
-                    <div className={cn(
-                      "px-2.5 py-1 rounded-full text-[10px] lg:text-[8px] font-bold uppercase",
-                      currentTemp === 'hot' ? "bg-red-100 text-red-600" : currentTemp === 'warm' ? "bg-orange-100 text-orange-600" : currentTemp === 'cold' ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-400"
-                    )}>
-                      {currentTemp === 'none' ? 'Não definida' : currentTemp}
-                    </div>
-                  </div>
+                {/* Qualificação card */}
+                <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">Qualificação</p>
                   <div className="flex gap-2">
                     {[
                       { id: 'hot', label: 'Quente', activeBg: 'bg-rose-500', activeText: 'text-white', inactiveBg: 'bg-rose-50 text-rose-400 border-rose-100' },
@@ -671,8 +700,8 @@ export function MessagesTab() {
                         key={t.id}
                         onClick={() => handleTempChange(t.id as LeadTemperature)}
                         className={cn(
-                          "flex-1 py-2.5 lg:py-3 rounded-xl lg:rounded-md border transition-all duration-200 text-xs lg:text-[10px] font-bold cursor-pointer",
-                          currentTemp === t.id 
+                          "flex-1 min-h-[38px] rounded-lg border transition-all duration-200 text-xs font-bold cursor-pointer",
+                          currentTemp === t.id
                             ? `${t.activeBg} ${t.activeText} border-transparent shadow-md`
                             : `${t.inactiveBg} active:scale-95`
                         )}
@@ -682,96 +711,68 @@ export function MessagesTab() {
                     ))}
                   </div>
                 </div>
-              </div>
 
-              {/* CRM Features - Organized Sections */}
-              <div className="p-5 lg:p-6 space-y-6 lg:space-y-8 flex-1">
-                
-                {/* Actions Grid */}
-                <div className="grid grid-cols-1 gap-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="text-[11px] lg:text-[10px] font-bold text-gray-900 uppercase tracking-wider">Próximos Passos</p>
+                {/* Imóvel de interesse card */}
+                <div className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm">
+                  <div className="px-4 pt-4">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Imóvel de interesse</p>
                   </div>
-                  <button 
-                    onClick={() => setIsVisitModalOpen(true)}
-                    className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-600 to-purple-700 rounded-2xl lg:rounded-md shadow-lg shadow-purple-200 active:scale-[0.98] transition-transform cursor-pointer"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 lg:w-10 lg:h-10 rounded-xl lg:rounded-md bg-white/20 flex items-center justify-center">
-                        <Calendar className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="text-left">
-                        <span className="block text-xs lg:text-[11px] font-bold text-white leading-none">Agendar Visita</span>
-                        <span className="text-[10px] lg:text-[9px] text-purple-200 font-medium mt-1 block">Defina o próximo follow-up</span>
-                      </div>
-                    </div>
-                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-                      <Plus className="w-4 h-4 text-white" />
-                    </div>
-                  </button>
-                </div>
-
-                {/* Property Context - Dynamic Card */}
-                <section className="space-y-3">
-                  <p className="text-[11px] lg:text-[10px] font-bold text-gray-900 uppercase tracking-wider">Imóvel de Interesse</p>
                   {property ? (
-                    <div className="bg-white p-3 lg:p-4 rounded-2xl lg:rounded-md border border-gray-100 shadow-sm flex gap-3 lg:gap-4 active:scale-[0.98] transition-transform cursor-pointer">
-                      <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-xl lg:rounded-md bg-gray-50 shrink-0 overflow-hidden border border-gray-50 relative">
+                    <div className="flex gap-3 p-4 pt-3 cursor-pointer hover:bg-gray-50/50 transition-colors">
+                      <div className="w-16 h-16 rounded-lg bg-gray-50 shrink-0 overflow-hidden border border-gray-100">
                         {property.images?.[0] ? (
                           <img src={property.images[0]} alt={property.title} className="w-full h-full object-cover" />
                         ) : (
-                          <Building2 className="w-full h-full p-4 lg:p-5 text-gray-200" />
+                          <Building2 className="w-full h-full p-4 text-gray-200" />
                         )}
                       </div>
-                      <div className="min-w-0 flex flex-col justify-center py-1">
-                        <h4 className="text-[13px] lg:text-[12px] font-bold text-gray-900 truncate mb-1">{property.title}</h4>
-                        <div className="flex items-center gap-1.5 text-gray-400 mb-2">
+                      <div className="min-w-0 flex flex-col justify-center">
+                        <h4 className="text-[13px] font-bold text-gray-900 truncate">{property.title}</h4>
+                        <div className="flex items-center gap-1 text-gray-400 mt-0.5">
                           <Search className="w-3 h-3" />
-                          <span className="text-[11px] lg:text-[10px] font-medium truncate">{property.cidade}</span>
+                          <span className="text-[11px] font-medium truncate">{property.cidade}</span>
                         </div>
-                        <div className="mt-auto">
-                          <p className="text-[15px] lg:text-[14px] font-bold text-purple-600">{property.price?.toLocaleString('pt-PT')} Kz</p>
-                        </div>
+                        <p className="text-sm font-black text-purple-600 mt-1">{property.price?.toLocaleString('pt-PT')} Kz</p>
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-gray-50 p-6 lg:p-8 rounded-2xl lg:rounded-md border border-dashed border-gray-200 text-center flex flex-col items-center gap-2">
-                      <Inbox className="w-6 h-6 text-gray-300" />
-                      <p className="text-[11px] lg:text-[10px] text-gray-400 font-semibold">Nenhum imóvel vinculado</p>
+                    <div className="px-4 pb-4 pt-3">
+                      <div className="py-5 rounded-lg border border-dashed border-gray-200 text-center flex flex-col items-center gap-1.5">
+                        <Inbox className="w-5 h-5 text-gray-300" />
+                        <p className="text-[11px] text-gray-400 font-semibold">Nenhum imóvel vinculado</p>
+                      </div>
                     </div>
                   )}
-                </section>
+                </div>
 
-                {/* Notes Section - Adaptive UX */}
-                <section className="space-y-4">
-                  <div className="flex items-center justify-between px-1">
+                {/* Nota estratégica card */}
+                <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <StickyNote className="w-4 h-4 lg:w-3.5 lg:h-3.5 text-purple-600" />
-                      <p className="text-[11px] lg:text-[10px] font-bold text-gray-900 uppercase tracking-wider">Notas Estratégicas</p>
+                      <StickyNote className="w-3.5 h-3.5 text-purple-600" />
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Nota estratégica</p>
                     </div>
                     {localNote && !isEditingNote && (
-                      <button 
-                        onClick={() => setIsEditingNote(true)} 
-                        className="text-[11px] lg:text-[10px] font-bold text-purple-600 active:text-purple-800"
+                      <button
+                        onClick={() => setIsEditingNote(true)}
+                        className="text-[11px] font-bold text-purple-600 hover:text-purple-800"
                       >
                         Editar
                       </button>
                     )}
                   </div>
-                  
+
                   {!localNote && !isEditingNote ? (
-                    /* EMPTY STATE */
-                    <button 
+                    <button
                       onClick={() => setIsEditingNote(true)}
-                      className="w-full py-6 lg:py-8 border-2 border-dashed border-gray-200 rounded-2xl lg:rounded-md flex flex-col items-center justify-center gap-2 active:border-purple-300 active:bg-purple-50/30 transition-all"
+                      className="w-full py-5 border-2 border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center gap-1.5 hover:border-purple-300 hover:bg-purple-50/30 transition-all"
                     >
-                      <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                        <Plus className="w-5 h-5 text-gray-400" />
+                      <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                        <Plus className="w-4 h-4 text-gray-400" />
                       </div>
-                      <span className="text-[11px] lg:text-[10px] font-semibold text-gray-400">Adicionar nota estratégica</span>
+                      <span className="text-[11px] font-semibold text-gray-400">Adicionar nota estratégica</span>
                     </button>
                   ) : isEditingNote ? (
-                    /* EDIT STATE */
                     <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
                       <div className="relative">
                         <textarea
@@ -779,60 +780,55 @@ export function MessagesTab() {
                           value={localNote}
                           onChange={(e) => handleNoteChange(e.target.value)}
                           placeholder="Ex: Cliente prefere casas com quintal..."
-                          className="w-full min-h-32 lg:min-h-35 p-4 text-sm lg:text-[12px] font-medium bg-white border border-gray-200 rounded-2xl lg:rounded-md focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-300 resize-none transition-all text-gray-700 shadow-sm"
+                          className="w-full min-h-28 p-3 text-[12px] font-medium bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-300 resize-none transition-all text-gray-700 shadow-sm"
                         />
-                        <div className="absolute bottom-3 right-3">
+                        <div className="absolute bottom-2 right-2">
                           {saveTimeoutRef.current && (
-                            <div className="flex items-center gap-1.5 px-2 py-1 bg-white/90 rounded-lg border border-orange-100">
+                            <div className="flex items-center gap-1.5 px-2 py-1 bg-white/90 rounded-md border border-orange-100">
                               <div className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
-                              <span className="text-[9px] lg:text-[8px] text-orange-600 font-semibold">A gravar...</span>
+                              <span className="text-[9px] text-orange-600 font-semibold">A gravar...</span>
                             </div>
                           )}
                         </div>
                       </div>
-                      <button 
+                      <button
                         onClick={() => setIsEditingNote(false)}
-                        className="w-full py-3 lg:py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white text-xs lg:text-[10px] font-bold rounded-xl lg:rounded-md shadow-md shadow-purple-200 active:scale-95 transition-all"
+                        className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white text-xs font-bold rounded-lg shadow-md shadow-purple-200 active:scale-95 transition-all"
                       >
                         Concluir e Guardar
                       </button>
                     </div>
                   ) : (
-                    /* DISPLAY STATE */
-                    <div 
+                    <div
                       onClick={() => setIsEditingNote(true)}
-                      className="group relative flex items-center gap-3 lg:gap-4 py-3 px-4 lg:px-5 bg-orange-50 border border-orange-100 rounded-2xl lg:rounded-md border-l-[4px] lg:border-l-[5px] border-l-orange-400 active:bg-orange-100 transition-all min-h-14 lg:min-h-15"
+                      className="group flex items-center gap-3 py-3 px-3.5 bg-orange-50 border border-orange-100 rounded-lg border-l-4 border-l-orange-400 hover:bg-orange-100 transition-all cursor-pointer min-h-12"
                     >
-                      <div className="shrink-0">
-                        <div className="w-9 h-9 rounded-xl lg:rounded-md bg-white shadow-sm flex items-center justify-center border border-orange-100">
-                          <StickyNote className="w-4 h-4 lg:w-4.5 lg:h-4.5 text-orange-500" />
-                        </div>
+                      <div className="shrink-0 w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center border border-orange-100">
+                        <StickyNote className="w-4 h-4 text-orange-500" />
                       </div>
-                      
                       <div className="flex-1 min-w-0">
-                        <p className="text-[13px] lg:text-[12px] text-gray-900 font-semibold leading-tight whitespace-pre-wrap">
+                        <p className="text-[12px] text-gray-900 font-semibold leading-snug whitespace-pre-wrap">
                           {localNote.length > 80 ? `${localNote.substring(0, 80)}...` : localNote}
                         </p>
                       </div>
                     </div>
                   )}
-
-                  <p className="px-1 text-[10px] lg:text-[9px] text-gray-400 font-medium italic">
+                  <p className="mt-2.5 text-[9px] text-gray-400 font-medium italic">
                     * Notas privadas visíveis apenas para a sua equipa.
                   </p>
-                </section>
+                </div>
 
-                {/* Agenda Sub-section - Modern Simple Cards */}
+                {/* Visitas — só se existirem (mantém lógica) */}
                 {visits.length > 0 && (
-                  <section className="space-y-4">
-                    <div className="flex items-center justify-between px-1">
+                  <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+                    <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <CalendarDays className="w-4 h-4 lg:w-3.5 lg:h-3.5 text-purple-600" />
-                        <p className="text-[11px] lg:text-[10px] font-bold text-gray-900 uppercase tracking-wider">Visitas no Radar</p>
+                        <CalendarDays className="w-3.5 h-3.5 text-purple-600" />
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Visitas no radar</p>
                       </div>
-                      <span className="text-[10px] lg:text-[9px] bg-purple-100 text-purple-600 font-bold px-2.5 py-0.5 lg:px-2 lg:py-0.5 rounded-lg lg:rounded-md">{visits.length}</span>
+                      <span className="text-[10px] bg-purple-100 text-purple-600 font-bold px-2 py-0.5 rounded-md">{visits.length}</span>
                     </div>
-                    <div className="space-y-2 lg:space-y-2.5">
+                    <div className="space-y-2">
                       {visits.map(visit => {
                         const statusMap = {
                           pending: { label: 'Pendente', cls: 'bg-amber-500 text-white border-transparent' },
@@ -846,36 +842,31 @@ export function MessagesTab() {
                             const date = parseISO(dateStr);
                             if (isToday(date)) return 'Hoje';
                             if (isTomorrow(date)) return 'Amanhã';
-                            
                             const nextWeek = new Date();
                             nextWeek.setDate(nextWeek.getDate() + 7);
-                            
                             if (date < nextWeek) {
                               return format(date, "EEEE", { locale: ptBR }).replace('-feira', '');
                             }
-                            
                             return format(date, "dd 'de' MMMM", { locale: ptBR });
                           } catch {
                             return dateStr;
                           }
                         };
-
                         const friendlyDate = getFriendlyDate(visit.scheduled_date);
-                        
+
                         return (
-                          <div key={visit.id} className="bg-white rounded-md border border-gray-100 p-4 transition-all hover:shadow-md cursor-pointer group/visit relative overflow-hidden">
+                          <div key={visit.id} className="bg-white rounded-lg border border-gray-100 p-3 transition-all hover:shadow-md cursor-pointer group/visit relative overflow-hidden">
                             {deletingVisitId === visit.id ? (
-                              /* CONFIRMATION OVERLAY */
                               <div className="flex flex-col items-center justify-center py-2 animate-in fade-in zoom-in-95 duration-200">
                                 <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-3">Eliminar agendamento?</p>
                                 <div className="flex gap-2 w-full">
-                                  <button 
+                                  <button
                                     onClick={(e) => { e.stopPropagation(); confirmDeleteVisit(visit.id); }}
                                     className="flex-1 py-2 bg-rose-500 text-white text-[9px] font-black uppercase rounded-md hover:bg-rose-600 transition-colors shadow-sm"
                                   >
                                     Apagar
                                   </button>
-                                  <button 
+                                  <button
                                     onClick={(e) => { e.stopPropagation(); setDeletingVisitId(null); }}
                                     className="flex-1 py-2 bg-gray-100 text-gray-500 text-[9px] font-black uppercase rounded-md hover:bg-gray-200 transition-colors"
                                   >
@@ -884,9 +875,8 @@ export function MessagesTab() {
                                 </div>
                               </div>
                             ) : (
-                              /* NORMAL CONTENT */
                               <>
-                                <button 
+                                <button
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleDeleteVisit(visit.id);
@@ -895,7 +885,6 @@ export function MessagesTab() {
                                 >
                                   <Trash2 className="w-3.5 h-3.5 text-gray-400 group-hover/trash:text-rose-600 transition-colors" />
                                 </button>
-                                
                                 <div className="flex-1 pr-6">
                                   <p className="text-[12px] text-gray-500 font-bold leading-snug">
                                     Visita agendada para <span className="text-gray-900 font-black capitalize">{friendlyDate}</span> às <span className="text-gray-900 font-black">{visit.scheduled_time.split(':').slice(0, 2).join(':')}</span>
@@ -909,15 +898,14 @@ export function MessagesTab() {
                                     )}
                                   </div>
                                 </div>
-                                
                                 {visit.status === 'pending' && (
-                                  <div className="flex gap-2 mt-4">
-                                    <button onClick={(e) => { e.stopPropagation(); handleUpdateVisitStatus(visit.id, 'confirmed'); }} className="flex-1 py-2 text-[9px] font-black uppercase bg-emerald-500 text-white rounded-md hover:bg-emerald-600 transition-colors shadow-sm">Confirmar</button>
-                                    <button onClick={(e) => { e.stopPropagation(); handleUpdateVisitStatus(visit.id, 'cancelled'); }} className="flex-1 py-2 text-[9px] font-black uppercase bg-gray-50 text-gray-500 rounded-md hover:bg-rose-50 hover:text-rose-600 transition-colors">Cancelar</button>
+                                  <div className="flex gap-2 mt-3">
+                                    <button onClick={(e) => { e.stopPropagation(); handleUpdateVisitStatus(visit.id, 'confirmed'); }} className="flex-1 py-1.5 text-[9px] font-black uppercase bg-emerald-500 text-white rounded-md hover:bg-emerald-600 transition-colors shadow-sm">Confirmar</button>
+                                    <button onClick={(e) => { e.stopPropagation(); handleUpdateVisitStatus(visit.id, 'cancelled'); }} className="flex-1 py-1.5 text-[9px] font-black uppercase bg-gray-50 text-gray-500 rounded-md hover:bg-rose-50 hover:text-rose-600 transition-colors">Cancelar</button>
                                   </div>
                                 )}
                                 {visit.status === 'confirmed' && (
-                                  <button onClick={(e) => { e.stopPropagation(); handleUpdateVisitStatus(visit.id, 'done'); }} className="w-full mt-4 py-2 text-[9px] font-black uppercase bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors shadow-sm"><Check className="w-3 h-3 inline mr-1" /> Concluir Visita</button>
+                                  <button onClick={(e) => { e.stopPropagation(); handleUpdateVisitStatus(visit.id, 'done'); }} className="w-full mt-3 py-1.5 text-[9px] font-black uppercase bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors shadow-sm"><Check className="w-3 h-3 inline mr-1" /> Concluir Visita</button>
                                 )}
                               </>
                             )}
@@ -925,8 +913,18 @@ export function MessagesTab() {
                         );
                       })}
                     </div>
-                  </section>
+                  </div>
                 )}
+
+                {/* V4 CTA — sempre no fim do body */}
+                <button
+                  type="button"
+                  onClick={() => setIsVisitModalOpen(true)}
+                  className="w-full min-h-[44px] rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 text-white text-[13px] font-bold shadow-lg shadow-purple-200 hover:shadow-xl hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                >
+                  <Calendar className="w-4 h-4" />
+                  Agendar Visita
+                </button>
               </div>
             </div>
           ) : (

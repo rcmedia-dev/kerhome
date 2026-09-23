@@ -65,6 +65,13 @@
     0% { width: 0%; }
     100% { width: 100%; }
   }
+
+  @keyframes glass-sweep {
+    0% { transform: translateX(-120%) skewX(-18deg); opacity: 0; }
+    8% { opacity: 1; }
+    22% { opacity: 1; }
+    30%, 100% { transform: translateX(220%) skewX(-18deg); opacity: 0; }
+  }
 }
 
 :root {
@@ -190,6 +197,17 @@
   animation: shimmer 2s infinite;
 }
 
+/* Brilho de vidro que passa de 5 em 5 segundos */
+.animate-glass-sweep {
+  animation: glass-sweep 5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-glass-sweep {
+    animation: none;
+  }
+}
+
 @layer utilities {
   .scrollbar-none::-webkit-scrollbar {
     display: none;
@@ -225,6 +243,15 @@
     min-height: 100svh;
     height: 100dvh;
     overscroll-behavior: none;
+  }
+
+  /* Desktop: preenche o <main> por baixo do TopBar+Header (não 100dvh — senão corta o fim do shell) */
+  @media (min-width: 1024px) {
+    .mobile-app-shell {
+      height: 100%;
+      min-height: 0;
+      max-height: 100%;
+    }
   }
 
   .mobile-scroll-container {

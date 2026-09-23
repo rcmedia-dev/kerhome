@@ -79,6 +79,7 @@ interface ChatState {
     backToList: () => void;
 
     addMessage: (message: Message) => void;
+    deleteMessage: (messageId: string) => Promise<boolean>;
     fetchMessages: (conversationId: string) => Promise<void>;
 
     fetchConversations: (userId: string) => Promise<void>;
@@ -286,6 +287,37 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
         return { messages: [...filteredMessages, message] };
     }),
+
+    deleteMessage: async (messageId: string) => {
+        const message = get().messages.find(m => m.id === messageId);
+        if (!message || messageId.startsWith('temp-')) return false;
+
+        // Optimistic remove
+        const prev = get().messages;
+        set({ messages: prev.filter(m => m.id !== messageId) });
+
+        try {
+            const { user } = await import('@/lib/store/user-store').then(m => m.useUserStore.getState());
+            const response = await fetch('/api/messages', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message_id: messageId, user_id: user?.id })
+            });
+
+            if (!response.ok) {
+                // Restore on failure
+                set({ messages: prev });
+                const data = await response.json().catch(() => ({}));
+                console.error('Failed to delete message:', data.error || response.statusText);
+                return false;
+            }
+            return true;
+        } catch (error) {
+            set({ messages: prev });
+            console.error('Failed to delete message:', error);
+            return false;
+        }
+    },
 
     fetchMessages: async (conversationId) => {
         set({ isLoading: true });
