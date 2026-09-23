@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KerHome — Coluna Direita Desktop · 5 Variações</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #820AD1;
+      --primary-dark: #6A08AA;
+      --primary-soft: #f3e8ff;
+      --accent: #FF6B00;
+      --bg: #f4f5f9;
+      --elevated: #f1f3f7;
+      --ink: #1a1a2e;
+      --muted: #6b7280;
+      --dim: #9ca3af;
+      --line: #e5e7eb;
+      --red: #ef4444;
+      --green: #16a34a;
+      --amber: #d97706;
+      --shadow-1: 0 2px 10px rgba(23,32,51,.06);
+      --shadow-card: 0 4px 20px rgba(23,32,51,.05);
+      --shadow-brand: 0 6px 22px rgba(130,10,209,.35);
+      --focus: 0 0 0 3px rgba(130,10,209,.35);
+      --hit: 44px;
+    }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: radial-gradient(1400px 700px at 50% -10%, #efe6ff 0%, var(--bg) 55%);
+      color: var(--ink);
+      overflow: hidden;
+    }
+    :focus-visible { outline: none; box-shadow: var(--focus); }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+    .icon { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .icon.sm { width: 15px; height: 15px; }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+    .badge-num {
+      min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
+      font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center;
+      font-variant-numeric: tabular-nums;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px;
+      font-size: 11px; font-weight: 800;
+    }
+    .pill.purple { background: var(--primary-soft); color: var(--primary); }
+
+    /* ═══════ Comp nav ═══════ */
+    .nav-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(255,255,255,.96); backdrop-filter: blur(20px);
+      border-top: 1px solid var(--line);
+      padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .nav-btn {
+      min-height: 44px; padding: 10px 22px; border-radius: 14px;
+      font: 800 13px/1 'Inter', sans-serif; cursor: pointer; transition: background .2s, color .2s, transform .15s;
+      border: none; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .nav-btn.prev { background: var(--elevated); color: var(--muted); }
+    .nav-btn.prev:hover { background: var(--primary); color: #fff; }
+    .nav-btn.next { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; box-shadow: var(--shadow-brand); }
+    .nav-btn.next:hover { transform: translateY(-1px); }
+    .nav-btn:disabled { opacity: .3; cursor: not-allowed; transform: none !important; }
+    .nav-info { text-align: center; flex: 1; min-width: 0; }
+    .nav-info .variant-label { font-size: 10px; font-weight: 900; color: var(--primary); text-transform: uppercase; letter-spacing: .14em; }
+    .nav-info .variant-title { font-size: 14px; font-weight: 800; color: var(--ink); margin-top: 3px; }
+    .nav-info .variant-desc { font-size: 11px; color: var(--muted); margin-top: 2px; max-width: 560px; margin-inline: auto; }
+    .nav-dots { display: flex; gap: 6px; justify-content: center; margin-top: 8px; }
+    .nav-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #d1d5db;
+      transition: all .3s; cursor: pointer; border: none; padding: 0;
+    }
+    .nav-dot:hover { background: #a78bfa; }
+    .nav-dot.active { background: linear-gradient(135deg, var(--primary), var(--accent)); width: 24px; border-radius: 4px; }
+
+    /* ═══════ Frame ═══════ */
+    .desktop-frame {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+      width: min(1200px, calc(100vw - 40px));
+      height: calc(100dvh - 110px);
+      border-radius: 16px; border: 1px solid #2a2a3a; overflow: hidden;
+      background: var(--bg); box-shadow: 0 30px 80px rgba(20,20,31,.22);
+      display: flex; flex-direction: column;
+    }
+    .browser-chrome {
+      background: #1e1e2e; padding: 10px 14px; display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    }
+    .browser-dots { display: flex; gap: 6px; }
+    .browser-dots span { width: 10px; height: 10px; border-radius: 50%; }
+    .browser-dots .r { background: #ff5f57; }
+    .browser-dots .y { background: #febc2e; }
+    .browser-dots .g { background: #28c840; }
+    .browser-url {
+      flex: 1; background: #2a2a3d; border-radius: 8px; padding: 6px 14px;
+      font-size: 12px; color: #9ca3af; font-family: ui-monospace, monospace;
+    }
+    .browser-url strong { color: #c4b5fd; font-weight: 600; }
+    .desktop-screen { flex: 1; overflow: hidden; position: relative; background: var(--bg); }
+    .variant { display: none; height: 100%; }
+    .variant.active { display: flex; animation: fadeIn .3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+    /* ═══════ Shell base ═══════ */
+    .app-shell { display: flex; width: 100%; height: 100%; min-width: 0; background: var(--bg); }
+    .app-main { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+    .app-top {
+      min-height: 52px; flex-shrink: 0; background: rgba(255,255,255,.92);
+      border-bottom: 1px solid var(--line); display: flex; align-items: center;
+      justify-content: space-between; gap: 12px; padding: 10px 18px;
+    }
+    .app-top .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .app-top .mark {
+      width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff;
+      font-weight: 900; font-size: 13px; box-shadow: var(--shadow-brand); flex-shrink: 0;
+    }
+    .app-top h3 { font-size: 14px; font-weight: 800; white-space: nowrap; }
+    .app-top .sub { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .app-top .user { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .avatar {
+      width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff;
+      font-size: 12px; font-weight: 900; border: 2px solid #fff; box-shadow: var(--shadow-1);
+    }
+    .bell {
+      width: 36px; height: 36px; border-radius: 12px; background: var(--elevated); border: 1px solid var(--line);
+      display: grid; place-items: center; color: var(--muted); position: relative; cursor: pointer;
+    }
+    .bell .dot {
+      position: absolute; top: 7px; right: 7px; width: 8px; height: 8px; border-radius: 50%;
+      background: var(--red); border: 2px solid #fff;
+    }
+    .app-body { flex: 1; min-height: 0; display: flex; gap: 16px; padding: 16px; overflow: hidden; }
+
+    /* Left nav (V1 aplicada) */
+    .side {
+      width: 128px; flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 14px 0; gap: 6px; overflow: auto;
+      background: linear-gradient(180deg, #faf5ff 0%, var(--bg) 35%);
+      border-right: 1px solid var(--line);
+    }
+    .side-title {
+      font-size: 9px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--dim); margin-bottom: 4px;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 4px; min-width: var(--hit); min-height: var(--hit); width: 104px; padding: 8px 6px;
+      border-radius: 16px; border: 1px solid transparent; background: transparent;
+      color: var(--muted); cursor: pointer; text-align: center;
+      transition: background .15s, color .15s, border-color .15s, transform .1s;
+      position: relative;
+    }
+    .nav-item:active { transform: scale(.97); }
+    .nav-item:focus-visible { box-shadow: var(--focus); }
+    .nav-item .lbl { font-size: 10px; font-weight: 700; line-height: 1.15; max-width: 88px; word-break: break-word; }
+    .nav-item .ic {
+      width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center;
+      background: #f3f4f6; color: #9ca3af; flex-shrink: 0; position: relative;
+    }
+    .nav-item[aria-current="page"] { color: var(--primary); }
+    .nav-item[aria-current="page"] .ic {
+      background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff;
+      box-shadow: var(--shadow-brand);
+    }
+    .nav-item[aria-current="page"] .lbl { color: var(--primary); font-weight: 800; }
+    .nav-item:hover:not([aria-current="page"]) { background: #f9fafb; color: var(--ink); border-color: var(--line); }
+    .nav-item .nb {
+      position: absolute; top: -4px; right: -6px; min-width: 16px; height: 16px; padding: 0 4px;
+      border-radius: 99px; background: var(--red); color: #fff; font-size: 9px; font-weight: 900;
+      display: grid; place-items: center; border: 2px solid #fff;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .content-col {
+      flex: 1; min-width: 0; background: #fff; border: 1px solid var(--line);
+      border-radius: 24px; box-shadow: var(--shadow-card); padding: 18px; overflow: auto;
+    }
+    .content-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      margin-bottom: 14px; flex-wrap: wrap;
+    }
+    .content-head h2 { font-size: 16px; font-weight: 800; letter-spacing: -.02em; }
+    .content-head p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .prop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .prop {
+      border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: #fff;
+      box-shadow: var(--shadow-1); transition: transform .15s, box-shadow .15s;
+    }
+    .prop:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(23,32,51,.08); }
+    .prop-img { height: 88px; background: linear-gradient(135deg, #ede9fe, #ffedd5); position: relative; }
+    .prop-img .tag {
+      position: absolute; top: 8px; left: 8px; background: #fff; color: var(--primary);
+      font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 999px;
+    }
+    .prop-b { padding: 10px 12px 12px; }
+    .prop-b h4 { font-size: 13px; font-weight: 800; letter-spacing: -.01em; }
+    .prop-b p { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .prop-price { font-size: 13px; font-weight: 900; color: var(--primary); margin-top: 6px; font-variant-numeric: tabular-nums; }
+
+    /* Coluna direita — base */
+    .widgets-col {
+      width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px;
+      overflow: auto; padding-right: 2px;
+    }
+    .widgets-col::-webkit-scrollbar { width: 6px; }
+    .widgets-col::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 99px; }
+
+    .card {
+      background: #fff; border: 1px solid var(--line); border-radius: 20px;
+      box-shadow: var(--shadow-card);
+    }
+    .card-label {
+      font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em;
+      color: var(--dim);
+    }
+    .card-title {
+      font-size: 14px; font-weight: 800; letter-spacing: -.01em; color: var(--ink);
+    }
+    .card-body { font-size: 12px; color: var(--muted); line-height: 1.45; }
+
+    .btn {
+      min-height: var(--hit); padding: 0 14px; border-radius: 12px; border: none;
+      font: 800 12px/1 'Inter', sans-serif; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      transition: transform .15s, box-shadow .15s, background .15s;
+    }
+    .btn:focus-visible { box-shadow: var(--focus); }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-white { background: #fff; color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+    .btn-white.orange { color: var(--accent); }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; width: 100%; }
+    .btn-ghost { background: var(--elevated); color: var(--muted); width: 100%; }
+    .btn-ghost:hover { background: var(--primary); color: #fff; }
+
+    .avatar-lg {
+      width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff;
+      font-size: 22px; font-weight: 900; border: 3px solid #fff;
+      box-shadow: 0 8px 20px rgba(130,10,209,.3);
+    }
+    .progress {
+      height: 8px; border-radius: 99px; background: #f3f4f6; overflow: hidden;
+    }
+    .progress i {
+      display: block; height: 100%; border-radius: 99px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transition: width .4s ease;
+    }
+    .meta-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 11px; color: var(--muted); font-weight: 600;
+    }
+    .meta-row strong { color: var(--ink); font-weight: 800; font-variant-numeric: tabular-nums; }
+
+    .stat-chips { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .chip {
+      background: var(--bg); border: 1px solid var(--line); border-radius: 14px;
+      padding: 10px; text-align: center;
+    }
+    .chip .val {
+      font-size: 18px; font-weight: 900; letter-spacing: -.03em; font-variant-numeric: tabular-nums;
+      color: var(--ink); line-height: 1.1;
+    }
+    .chip .lbl {
+      font-size: 10px; font-weight: 700; color: var(--muted); margin-top: 3px;
+      text-transform: uppercase; letter-spacing: .04em;
+    }
+
+    .ad {
+      border-radius: 20px; padding: 16px; color: #fff; position: relative; overflow: hidden;
+      box-shadow: 0 10px 24px rgba(23,32,51,.12);
+    }
+    .ad::after {
+      content: ''; position: absolute; right: -24px; top: -24px; width: 100px; height: 100px;
+      border-radius: 50%; background: rgba(255,255,255,.12); pointer-events: none;
+    }
+    .ad.purple { background: linear-gradient(145deg, var(--primary), #4c1d95 75%, #6d28d9); }
+    .ad.orange { background: linear-gradient(145deg, var(--accent), #c2410c 80%); }
+    .ad .tag {
+      display: inline-block; font-size: 9px; font-weight: 900; letter-spacing: .14em;
+      text-transform: uppercase; opacity: .8; margin-bottom: 8px;
+    }
+    .ad h4 { font-size: 14px; font-weight: 900; letter-spacing: -.01em; line-height: 1.25; margin-bottom: 6px; position: relative; z-index: 1; }
+    .ad p { font-size: 12px; line-height: 1.45; opacity: .92; position: relative; z-index: 1; }
+    .ad .btn { margin-top: 12px; position: relative; z-index: 1; width: 100%; }
+
+    .ux-note {
+      position: absolute; right: 14px; bottom: 14px; z-index: 6;
+      max-width: 300px; background: rgba(255,255,255,.97); border: 1px solid var(--line);
+      border-radius: 14px; padding: 12px 14px; box-shadow: var(--shadow-1);
+      font-size: 11px; color: var(--muted); line-height: 1.45;
+    }
+    .ux-note strong {
+      display: block; color: var(--ink); font-size: 11px; font-weight: 900; margin-bottom: 4px;
+      text-transform: uppercase; letter-spacing: .06em;
+    }
+    .ux-note ul { margin: 0; padding-left: 14px; }
+    .ux-note li { margin: 2px 0; }
+
+    /* ═══════ V1 — Hero compacto + plano + ads ═══════ */
+    #v1 .hero {
+      padding: 18px 16px 16px; text-align: center;
+      background: linear-gradient(165deg, #1e1033 0%, #0f172a 55%, #1a0b2e 100%);
+      border: none; color: #fff;
+    }
+    #v1 .hero .avatar-lg { margin: 0 auto 12px; }
+    #v1 .role {
+      display: inline-flex; padding: 4px 10px; border-radius: 999px;
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
+      font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+      color: #e9d5ff; backdrop-filter: blur(8px);
+    }
+    #v1 .hero h2 {
+      font-size: 22px; font-weight: 900; letter-spacing: -.03em; margin-top: 10px; line-height: 1.15;
+    }
+    #v1 .hero h2 span {
+      background: linear-gradient(90deg, #c084fc, #fb923c);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    #v1 .hero .sub { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+    #v1 .plan { padding: 16px; }
+    #v1 .plan-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    #v1 .plan-head .name {
+      font-size: 18px; font-weight: 900; letter-spacing: -.02em; display: flex; align-items: center; gap: 6px;
+    }
+    #v1 .plan-head .name .star { color: var(--accent); }
+    #v1 .plan-head .link {
+      font-size: 11px; font-weight: 800; color: var(--primary); background: var(--primary-soft);
+      border: none; border-radius: 999px; padding: 6px 10px; cursor: pointer; min-height: 32px;
+    }
+    #v1 .plan-head .link:hover { background: #e9d5ff; }
+    #v1 .quota {
+      display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;
+    }
+    #v1 .quota strong { font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; }
+    #v1 .quota span { color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+    #v1 .plan-foot { margin-top: 14px; display: grid; gap: 8px; }
+    #v1 .mini-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 4px 4px; }
+    #v1 .mini {
+      text-align: center; background: #fff; border: 1px solid var(--line);
+      border-radius: 14px; padding: 10px 6px;
+    }
+    #v1 .mini .v { font-size: 16px; font-weight: 900; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+    #v1 .mini .l { font-size: 9px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-top: 2px; }
+
+    /* ═══════ V2 — Cards horizontais / lista densa ═══════ */
+    #v2 .widgets-col { gap: 10px; }
+    #v2 .row-card {
+      display: flex; align-items: center; gap: 12px; padding: 14px;
+    }
+    #v2 .row-card .icon-box {
+      width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center;
+      flex-shrink: 0;
+    }
+    #v2 .row-card .icon-box.purple { background: var(--primary-soft); color: var(--primary); }
+    #v2 .row-card .icon-box.orange { background: #fff7ed; color: var(--accent); }
+    #v2 .row-card .icon-box.green { background: #dcfce7; color: var(--green); }
+    #v2 .row-card .txt { flex: 1; min-width: 0; }
+    #v2 .row-card .txt strong { display: block; font-size: 13px; font-weight: 800; letter-spacing: -.01em; }
+    #v2 .row-card .txt span { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.35; }
+    #v2 .row-card .action {
+      width: 36px; height: 36px; border-radius: 12px; border: none; cursor: pointer;
+      background: var(--elevated); color: var(--muted); display: grid; place-items: center;
+      flex-shrink: 0; transition: all .15s;
+    }
+    #v2 .row-card .action:hover { background: var(--primary); color: #fff; }
+    #v2 .profile-strip {
+      display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+      background: linear-gradient(135deg, #1e1033, #0f172a); border: none; color: #fff;
+    }
+    #v2 .profile-strip .avatar-sm {
+      width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--accent)); font-weight: 900; font-size: 15px;
+      border: 2px solid rgba(255,255,255,.2); flex-shrink: 0;
+    }
+    #v2 .profile-strip .who { flex: 1; min-width: 0; }
+    #v2 .profile-strip .who strong { display: block; font-size: 14px; font-weight: 800; }
+    #v2 .profile-strip .who span { font-size: 11px; color: #94a3b8; }
+    #v2 .plan-block { padding: 16px; }
+    #v2 .plan-block .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    #v2 .badge-plan {
+      font-size: 10px; font-weight: 900; padding: 4px 8px; border-radius: 999px;
+      background: #fff7ed; color: var(--accent); border: 1px solid #fed7aa;
+    }
+    #v2 .ad-list { display: flex; flex-direction: column; gap: 10px; }
+    #v2 .ad-compact {
+      display: flex; flex-direction: column; gap: 6px; padding: 14px 16px;
+      border-radius: 16px; color: #fff;
+    }
+    #v2 .ad-compact.purple { background: linear-gradient(135deg, var(--primary), #5b21b6); }
+    #v2 .ad-compact.orange { background: linear-gradient(135deg, var(--accent), #c2410c); }
+    #v2 .ad-compact h4 { font-size: 13px; font-weight: 800; }
+    #v2 .ad-compact p { font-size: 11px; opacity: .9; line-height: 1.4; }
+    #v2 .ad-compact .btn { align-self: flex-start; min-height: 36px; margin-top: 4px; }
+
+    /* ═══════ V3 — Stack minimalista (tipografia forte) ═══════ */
+    #v3 .widgets-col { gap: 8px; }
+    #v3 .mini-hero { padding: 20px 18px; text-align: left; border: none; background: #fff; }
+    #v3 .mini-hero .top { display: flex; align-items: center; gap: 12px; }
+    #v3 .mini-hero .avatar-lg { width: 52px; height: 52px; font-size: 18px; margin: 0; }
+    #v3 .mini-hero h2 { font-size: 20px; font-weight: 900; letter-spacing: -.035em; line-height: 1.15; }
+    #v3 .mini-hero h2 span { color: var(--primary); }
+    #v3 .mini-hero .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    #v3 .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--line), transparent); margin: 4px 0; }
+    #v3 .line-item {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 14px 16px;
+    }
+    #v3 .line-item .k { font-size: 12px; font-weight: 700; color: var(--muted); }
+    #v3 .line-item .v {
+      font-size: 15px; font-weight: 900; letter-spacing: -.02em; color: var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+    #v3 .line-item .v.muted { color: var(--dim); font-size: 13px; font-weight: 700; }
+    #v3 .cta-block { padding: 16px 18px 18px; }
+    #v3 .cta-block h3 {
+      font-size: 16px; font-weight: 900; letter-spacing: -.025em; line-height: 1.2; margin-bottom: 6px;
+    }
+    #v3 .cta-block p { font-size: 12px; color: var(--muted); line-height: 1.45; margin-bottom: 12px; }
+    #v3 .ad.purple { background: linear-gradient(135deg, var(--primary) 0%, #3b0764 100%); }
+    #v3 .ad.orange { background: linear-gradient(135deg, var(--accent) 0%, #7c2d12 100%); }
+    #v3 .ad h4 { font-size: 15px; }
+    #v3 .quota-bar {
+      display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+    }
+    #v3 .quota-bar .ring {
+      width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center;
+      background: conic-gradient(var(--primary) 0 60%, #e5e7eb 60% 100%);
+      position: relative; flex-shrink: 0;
+    }
+    #v3 .quota-bar .ring::before {
+      content: ''; position: absolute; inset: 5px; border-radius: 50%; background: #fff;
+    }
+    #v3 .quota-bar .ring span {
+      position: relative; z-index: 1; font-size: 11px; font-weight: 900; color: var(--primary);
+      font-variant-numeric: tabular-nums;
+    }
+    #v3 .quota-bar .info { flex: 1; min-width: 0; }
+    #v3 .quota-bar .info strong { display: block; font-size: 13px; font-weight: 800; }
+    #v3 .quota-bar .info span { font-size: 11px; color: var(--muted); }
+    #v3 .quota-bar .btn { width: auto; min-height: 36px; }
+
+    /* ═══════ V4 — Sectioned com headers + grid métricas ═══════ */
+    #v4 .sec-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px 8px;
+    }
+    #v4 .sec-head h3 {
+      font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .12em;
+      color: var(--dim);
+    }
+    #v4 .sec-head .more {
+      font-size: 11px; font-weight: 800; color: var(--primary); background: none; border: none;
+      cursor: pointer; padding: 4px;
+    }
+    #v4 .sec-head .more:hover { text-decoration: underline; }
+    #v4 .panel { padding: 4px; }
+    #v4 .user-panel {
+      display: flex; flex-direction: column; gap: 12px; padding: 16px;
+      background: linear-gradient(145deg, #1e1033 0%, #0c0a1a 100%);
+      border: none; color: #fff;
+    }
+    #v4 .user-panel .top { display: flex; align-items: center; gap: 12px; }
+    #v4 .user-panel .avatar-lg { width: 56px; height: 56px; font-size: 18px; margin: 0; }
+    #v4 .user-panel .who strong { display: block; font-size: 16px; font-weight: 900; letter-spacing: -.02em; }
+    #v4 .user-panel .who span { font-size: 11px; color: #a78bfa; font-weight: 700; }
+    #v4 .user-panel .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    #v4 .user-panel .actions .btn { min-height: 38px; font-size: 11px; }
+    #v4 .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 4px; }
+    #v4 .metric {
+      background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 12px;
+      position: relative; overflow: hidden;
+    }
+    #v4 .metric::after {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+      background: linear-gradient(180deg, var(--primary), var(--accent));
+    }
+    #v4 .metric .lbl { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); }
+    #v4 .metric .val { font-size: 20px; font-weight: 900; letter-spacing: -.03em; margin-top: 4px; font-variant-numeric: tabular-nums; }
+    #v4 .metric .delta { font-size: 10px; font-weight: 700; color: var(--green); margin-top: 2px; }
+    #v4 .plan-panel { padding: 16px; }
+    #v4 .plan-panel .title-row {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+    }
+    #v4 .ad { border-radius: 16px; padding: 14px; }
+    #v4 .ad h4 { font-size: 13px; }
+    #v4 .ads-stack { display: flex; flex-direction: column; gap: 10px; padding: 0 4px 4px; }
+
+    /* ═══════ V5 — Sticky summary + accordion ads ═══════ */
+    #v5 .widgets-col { gap: 10px; }
+    #v5 .sticky-sum {
+      position: sticky; top: 0; z-index: 2;
+      background: linear-gradient(160deg, var(--primary) 0%, #4c1d95 60%, var(--accent) 140%);
+      border: none; color: #fff; padding: 18px 16px; border-radius: 20px;
+      box-shadow: 0 12px 28px rgba(130,10,209,.3);
+    }
+    #v5 .sticky-sum .k {
+      font-size: 10px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase;
+      opacity: .8;
+    }
+    #v5 .sticky-sum h2 {
+      font-size: 20px; font-weight: 900; letter-spacing: -.03em; margin-top: 6px; line-height: 1.2;
+    }
+    #v5 .sticky-sum .row {
+      display: flex; align-items: center; gap: 10px; margin-top: 14px;
+    }
+    #v5 .sticky-sum .avatar-sm {
+      width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+      background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.35);
+      font-weight: 900; font-size: 14px;
+    }
+    #v5 .sticky-sum .row .who { flex: 1; min-width: 0; }
+    #v5 .sticky-sum .row .who strong { display: block; font-size: 13px; font-weight: 800; }
+    #v5 .sticky-sum .row .who span { font-size: 11px; opacity: .85; }
+    #v5 .sticky-sum .quota {
+      margin-top: 14px; background: rgba(0,0,0,.2); border-radius: 14px; padding: 10px 12px;
+    }
+    #v5 .sticky-sum .quota .meta-row { color: rgba(255,255,255,.85); }
+    #v5 .sticky-sum .quota .meta-row strong { color: #fff; }
+    #v5 .sticky-sum .progress { background: rgba(255,255,255,.25); margin-top: 8px; }
+    #v5 .sticky-sum .progress i { background: #fff; }
+    #v5 .summary-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    }
+    #v5 .summary-grid .s {
+      background: #fff; border: 1px solid var(--line); border-radius: 14px;
+      padding: 12px 6px; text-align: center;
+    }
+    #v5 .summary-grid .s .v {
+      font-size: 17px; font-weight: 900; letter-spacing: -.03em; font-variant-numeric: tabular-nums;
+    }
+    #v5 .summary-grid .s .l {
+      font-size: 9px; font-weight: 700; color: var(--muted); text-transform: uppercase;
+      letter-spacing: .05em; margin-top: 2px;
+    }
+    #v5 details.ad {
+      border-radius: 16px; padding: 0; overflow: hidden;
+    }
+    #v5 details.ad summary {
+      list-style: none; cursor: pointer; padding: 14px 16px;
+      display: flex; align-items: center; gap: 10px; min-height: var(--hit);
+      position: relative; z-index: 1;
+    }
+    #v5 details.ad summary::-webkit-details-marker { display: none; }
+    #v5 details.ad summary h4 { flex: 1; margin: 0; font-size: 13px; }
+    #v5 details.ad summary .chev {
+      width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,.2);
+      display: grid; place-items: center; transition: transform .2s;
+    }
+    #v5 details.ad[open] summary .chev { transform: rotate(180deg); }
+    #v5 details.ad .ad-body { padding: 0 16px 16px; position: relative; z-index: 1; }
+    #v5 details.ad .ad-body p { font-size: 12px; opacity: .92; line-height: 1.45; margin-bottom: 4px; }
+
+    @media (max-width: 1100px) {
+      .widgets-col { width: 270px; }
+      .prop-grid { grid-template-columns: 1fr 1fr; }
+      .ux-note { display: none; }
+    }
+    @media (max-width: 900px) {
+      .widgets-col { display: none; }
+      .side { width: 88px; }
+      .nav-item .lbl { font-size: 9px; }
+    }
+    @media (max-width: 700px) {
+      .prop-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="desktop-frame">
+    <div class="browser-chrome">
+      <div class="browser-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+      <div class="browser-url"><strong>kerhome.ao</strong> / dashboard?tab=properties</div>
+    </div>
+    <div class="desktop-screen" id="screen">
+
+      <!-- ═══════ V1 — Hero + plano + ads (equilibrado) ═══════ -->
+      <div class="variant active" id="v1"
+        data-title="V1 — Hero + plano + ads"
+        data-desc="Boas-vindas dark com tipografia forte · quota legível · 2 ads no fim · hierarquia clara">
+        <div class="app-shell">
+          <nav class="side" aria-label="Navegação do painel">
+            <div class="side-title">Menu</div>
+            <button type="button" class="nav-item" aria-current="page">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="nb">12</span></span>
+              <span class="lbl">Propriedades</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="nb">5</span></span>
+              <span class="lbl">Favoritas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nb">3</span></span>
+              <span class="lbl">Mensagens</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+              <span class="lbl">Visitas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg></span>
+              <span class="lbl">Faturas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 5-9"/></svg></span>
+              <span class="lbl">Estatísticas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg></span>
+              <span class="lbl">Agência</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09A1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+              <span class="lbl">Definições</span>
+            </button>
+          </nav>
+          <div class="app-main">
+            <header class="app-top">
+              <div class="brand">
+                <div class="mark" aria-hidden="true">K</div>
+                <div>
+                  <h3>Minhas Propriedades</h3>
+                  <div class="sub">Coluna direita · V1 hero + plano + ads</div>
+                </div>
+              </div>
+              <div class="user">
+                <span class="pill purple">Plano Free</span>
+                <div class="bell" aria-label="Notificações" role="button" tabindex="0">
+                  <svg class="icon sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                  <span class="dot"></span>
+                </div>
+                <div class="avatar" aria-hidden="true">MA</div>
+              </div>
+            </header>
+            <div class="app-body">
+              <section class="content-col">
+                <div class="content-head">
+                  <div>
+                    <h2>Minhas Propriedades</h2>
+                    <p>8 publicadas · 3 em análise</p>
+                  </div>
+                  <span class="pill purple">12 imóveis</span>
+                </div>
+                <div class="prop-grid">
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Apartamento Talatona</h4><p>3 quartos · 140m²</p><div class="prop-price">Kz 85.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Vila Kilamba</h4><p>2 quartos · 95m²</p><div class="prop-price">Kz 42.500.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Análise</span></div><div class="prop-b"><h4>Condomínio Benfica</h4><p>4 quartos · 210m²</p><div class="prop-price">Kz 150.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Loja Miramar</h4><p>Comercial · 60m²</p><div class="prop-price">Kz 35.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Rascunho</span></div><div class="prop-b"><h4>T3 Camama</h4><p>3 quartos · 120m²</p><div class="prop-price">Kz 48.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Casa Cacuaco</h4><p>4 quartos · 180m²</p><div class="prop-price">Kz 72.000.000</div></div></article>
+                </div>
+              </section>
+              <aside class="widgets-col" aria-label="Coluna direita">
+                <div class="card hero">
+                  <div class="avatar-lg" aria-hidden="true">MA</div>
+                  <span class="role">Agente Kercasa</span>
+                  <h2>Olá, <span>Maria</span></h2>
+                  <p class="sub">Bem-vinda ao seu painel.</p>
+                </div>
+                <div class="card plan">
+                  <div class="plan-head">
+                    <div>
+                      <div class="card-label">Seu plano</div>
+                      <div class="name">Free <span class="star" aria-hidden="true">★</span></div>
+                    </div>
+                    <button type="button" class="link">Gerir</button>
+                  </div>
+                  <div class="quota">
+                    <strong>6 / 10</strong>
+                    <span>4 restantes</span>
+                  </div>
+                  <div class="progress" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Uso do plano">
+                    <i style="width:60%"></i>
+                  </div>
+                  <div class="plan-foot">
+                    <button type="button" class="btn btn-primary">Fazer Upgrade</button>
+                  </div>
+                </div>
+                <div class="mini-stats" aria-label="Resumo rápido">
+                  <div class="mini"><div class="v">8</div><div class="l">Pub.</div></div>
+                  <div class="mini"><div class="v">5</div><div class="l">Fav.</div></div>
+                  <div class="mini"><div class="v">14</div><div class="l">Visitas</div></div>
+                </div>
+                <div class="ad purple" role="complementary">
+                  <span class="tag">Publicidade</span>
+                  <h4>Destaque seu imóvel</h4>
+                  <p>Aumente visualizações com o impulsionamento da Kercasa.</p>
+                  <button type="button" class="btn btn-white">Saber Mais</button>
+                </div>
+                <div class="ad orange" role="complementary">
+                  <span class="tag">Publicidade</span>
+                  <h4>Torne-se Agente</h4>
+                  <p>Cadastre imóveis e gerencie suas vendas na Kercasa.</p>
+                  <button type="button" class="btn btn-white orange">Ativar Agora</button>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+        <aside class="ux-note">
+          <strong>Boas práticas · V1</strong>
+          <ul>
+            <li>Escala tipográfica: 10 / 12 / 14 / 18 / 22</li>
+            <li>1 hero = 1 foco · CTAs full-width ≥44px</li>
+            <li>Números tabular-nums · contraste AA</li>
+            <li>Coluna 300px, scroll próprio se preciso</li>
+          </ul>
+        </aside>
+      </div>
+
+      <!-- ═══════ V2 — Lista de ações densa ═══════ -->
+      <div class="variant" id="v2"
+        data-title="V2 — Lista de ações"
+        data-desc="Cards horizontais escaneáveis · perfil compacto · ads em lista · densidade elevada">
+        <div class="app-shell">
+          <nav class="side" aria-label="Navegação do painel">
+            <div class="side-title">Menu</div>
+            <button type="button" class="nav-item" aria-current="page">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="nb">12</span></span>
+              <span class="lbl">Propriedades</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="nb">5</span></span>
+              <span class="lbl">Favoritas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nb">3</span></span>
+              <span class="lbl">Mensagens</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+              <span class="lbl">Visitas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg></span>
+              <span class="lbl">Faturas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 5-9"/></svg></span>
+              <span class="lbl">Estatísticas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg></span>
+              <span class="lbl">Agência</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09A1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+              <span class="lbl">Definições</span>
+            </button>
+          </nav>
+          <div class="app-main">
+            <header class="app-top">
+              <div class="brand">
+                <div class="mark" aria-hidden="true">K</div>
+                <div>
+                  <h3>Minhas Propriedades</h3>
+                  <div class="sub">Coluna direita · V2 lista de ações</div>
+                </div>
+              </div>
+              <div class="user">
+                <span class="pill purple">Plano Free</span>
+                <div class="bell" aria-label="Notificações" role="button" tabindex="0">
+                  <svg class="icon sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                  <span class="dot"></span>
+                </div>
+                <div class="avatar" aria-hidden="true">MA</div>
+              </div>
+            </header>
+            <div class="app-body">
+              <section class="content-col">
+                <div class="content-head">
+                  <div>
+                    <h2>Minhas Propriedades</h2>
+                    <p>8 publicadas · 3 em análise</p>
+                  </div>
+                  <span class="pill purple">12 imóveis</span>
+                </div>
+                <div class="prop-grid">
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Apartamento Talatona</h4><p>3 quartos · 140m²</p><div class="prop-price">Kz 85.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Vila Kilamba</h4><p>2 quartos · 95m²</p><div class="prop-price">Kz 42.500.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Análise</span></div><div class="prop-b"><h4>Condomínio Benfica</h4><p>4 quartos · 210m²</p><div class="prop-price">Kz 150.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Loja Miramar</h4><p>Comercial · 60m²</p><div class="prop-price">Kz 35.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Rascunho</span></div><div class="prop-b"><h4>T3 Camama</h4><p>3 quartos · 120m²</p><div class="prop-price">Kz 48.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Casa Cacuaco</h4><p>4 quartos · 180m²</p><div class="prop-price">Kz 72.000.000</div></div></article>
+                </div>
+              </section>
+              <aside class="widgets-col" aria-label="Coluna direita">
+                <div class="card profile-strip">
+                  <div class="avatar-sm" aria-hidden="true">MA</div>
+                  <div class="who">
+                    <strong>Maria Andrade</strong>
+                    <span>Agente · perfil 78%</span>
+                  </div>
+                  <button type="button" class="action" aria-label="Editar perfil">
+                    <svg class="icon sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                  </button>
+                </div>
+                <div class="card plan-block">
+                  <div class="top">
+                    <div>
+                      <div class="card-label">Plano atual</div>
+                      <div class="card-title" style="margin-top:4px">Free · 6/10</div>
+                    </div>
+                    <span class="badge-plan">4 vagas</span>
+                  </div>
+                  <div class="progress" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Uso do plano">
+                    <i style="width:60%"></i>
+                  </div>
+                  <button type="button" class="btn btn-primary" style="margin-top:12px">Fazer Upgrade</button>
+                </div>
+                <div class="card row-card">
+                  <div class="icon-box purple" aria-hidden="true">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                  </div>
+                  <div class="txt">
+                    <strong>Minhas propriedades</strong>
+                    <span>12 anúncios · 8 publicados</span>
+                  </div>
+                  <button type="button" class="action" aria-label="Abrir propriedades">
+                    <svg class="icon sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+                  </button>
+                </div>
+                <div class="card row-card">
+                  <div class="icon-box green" aria-hidden="true">
+                    <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                  </div>
+                  <div class="txt">
+                    <strong>Visitas pendentes</strong>
+                    <span>2 aguardando confirmação</span>
+                  </div>
+                  <button type="button" class="action" aria-label="Abrir visitas">
+                    <svg class="icon sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+                  </button>
+                </div>
+                <div class="ad-list">
+                  <div class="ad-compact purple" role="complementary">
+                    <h4>Destaque seu imóvel</h4>
+                    <p>Mais visualizações com impulsionamento.</p>
+                    <button type="button" class="btn btn-white">Saber Mais</button>
+                  </div>
+                  <div class="ad-compact orange" role="complementary">
+                    <h4>Torne-se Agente</h4>
+                    <p>Cadastre imóveis e gerencie vendas.</p>
+                    <button type="button" class="btn btn-white orange">Ativar Agora</button>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+        <aside class="ux-note">
+          <strong>Boas práticas · V2</strong>
+          <ul>
+            <li>Scan vertical: 1 linha = 1 acção</li>
+            <li>Seta chevron = affordance de navegação</li>
+            <li>Badges de estado (4 vagas) scannable</li>
+            <li>Ads compactos = menos ruído visual</li>
+          </ul>
+        </aside>
+      </div>
+
+      <!-- ═══════ V3 — Minimalista tipográfico ═══════ -->
+      <div class="variant" id="v3"
+        data-title="V3 — Minimalista tipográfico"
+        data-desc="Menos caixas, mais hierarchy de texto · linhas-chave · CTAs com peso">
+        <div class="app-shell">
+          <nav class="side" aria-label="Navegação do painel">
+            <div class="side-title">Menu</div>
+            <button type="button" class="nav-item" aria-current="page">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="nb">12</span></span>
+              <span class="lbl">Propriedades</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="nb">5</span></span>
+              <span class="lbl">Favoritas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nb">3</span></span>
+              <span class="lbl">Mensagens</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+              <span class="lbl">Visitas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg></span>
+              <span class="lbl">Faturas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 5-9"/></svg></span>
+              <span class="lbl">Estatísticas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg></span>
+              <span class="lbl">Agência</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09A1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+              <span class="lbl">Definições</span>
+            </button>
+          </nav>
+          <div class="app-main">
+            <header class="app-top">
+              <div class="brand">
+                <div class="mark" aria-hidden="true">K</div>
+                <div>
+                  <h3>Minhas Propriedades</h3>
+                  <div class="sub">Coluna direita · V3 minimalista</div>
+                </div>
+              </div>
+              <div class="user">
+                <span class="pill purple">Plano Free</span>
+                <div class="bell" aria-label="Notificações" role="button" tabindex="0">
+                  <svg class="icon sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                  <span class="dot"></span>
+                </div>
+                <div class="avatar" aria-hidden="true">MA</div>
+              </div>
+            </header>
+            <div class="app-body">
+              <section class="content-col">
+                <div class="content-head">
+                  <div>
+                    <h2>Minhas Propriedades</h2>
+                    <p>8 publicadas · 3 em análise</p>
+                  </div>
+                  <span class="pill purple">12 imóveis</span>
+                </div>
+                <div class="prop-grid">
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Apartamento Talatona</h4><p>3 quartos · 140m²</p><div class="prop-price">Kz 85.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Vila Kilamba</h4><p>2 quartos · 95m²</p><div class="prop-price">Kz 42.500.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Análise</span></div><div class="prop-b"><h4>Condomínio Benfica</h4><p>4 quartos · 210m²</p><div class="prop-price">Kz 150.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Loja Miramar</h4><p>Comercial · 60m²</p><div class="prop-price">Kz 35.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Rascunho</span></div><div class="prop-b"><h4>T3 Camama</h4><p>3 quartos · 120m²</p><div class="prop-price">Kz 48.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Casa Cacuaco</h4><p>4 quartos · 180m²</p><div class="prop-price">Kz 72.000.000</div></div></article>
+                </div>
+              </section>
+              <aside class="widgets-col" aria-label="Coluna direita">
+                <div class="card mini-hero">
+                  <div class="top">
+                    <div class="avatar-lg" aria-hidden="true">MA</div>
+                    <div>
+                      <h2>Olá, <span>Maria</span></h2>
+                      <p class="sub">Agente Kercasa · painel</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="divider" aria-hidden="true"></div>
+                <div class="card quota-bar">
+                  <div class="ring" aria-hidden="true"><span>60%</span></div>
+                  <div class="info">
+                    <strong>Plano Free</strong>
+                    <span>6 de 10 imóveis usados</span>
+                  </div>
+                  <button type="button" class="btn btn-primary" style="width:auto">Upgrade</button>
+                </div>
+                <div class="card">
+                  <div class="line-item">
+                    <span class="k">Propriedades</span>
+                    <span class="v">12</span>
+                  </div>
+                  <div class="divider" aria-hidden="true"></div>
+                  <div class="line-item">
+                    <span class="k">Favoritas</span>
+                    <span class="v">5</span>
+                  </div>
+                  <div class="divider" aria-hidden="true"></div>
+                  <div class="line-item">
+                    <span class="k">Visitas</span>
+                    <span class="v">14</span>
+                  </div>
+                </div>
+                <div class="ad purple" role="complementary">
+                  <span class="tag">Publicidade</span>
+                  <div class="cta-block" style="padding:0">
+                    <h4>Destaque seu imóvel</h4>
+                    <p style="color:inherit;opacity:.9;font-size:12px;margin:6px 0 0">Aumente visualizações com impulsionamento.</p>
+                  </div>
+                  <button type="button" class="btn btn-white">Saber Mais</button>
+                </div>
+                <div class="ad orange" role="complementary">
+                  <span class="tag">Publicidade</span>
+                  <div class="cta-block" style="padding:0">
+                    <h4>Torne-se Agente</h4>
+                    <p style="color:inherit;opacity:.9;font-size:12px;margin:6px 0 0">Cadastre imóveis e gerencie vendas.</p>
+                  </div>
+                  <button type="button" class="btn btn-white orange">Ativar Agora</button>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+        <aside class="ux-note">
+          <strong>Boas práticas · V3</strong>
+          <ul>
+            <li>Whitespace + divisores finos (não caixas)</li>
+            <li>Key-value rows = leitura rápida</li>
+            <li>Ring conic = progresso sem barra genérica</li>
+            <li>Tracking negativo em títulos grandes</li>
+          </ul>
+        </aside>
+      </div>
+
+      <!-- ═══════ V4 — Secções com headers ═══════ -->
+      <div class="variant" id="v4"
+        data-title="V4 — Secções rotuladas"
+        data-desc="Headers uppercase · painel user · grid de métricas · ads empilhadas">
+        <div class="app-shell">
+          <nav class="side" aria-label="Navegação do painel">
+            <div class="side-title">Menu</div>
+            <button type="button" class="nav-item" aria-current="page">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="nb">12</span></span>
+              <span class="lbl">Propriedades</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="nb">5</span></span>
+              <span class="lbl">Favoritas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nb">3</span></span>
+              <span class="lbl">Mensagens</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+              <span class="lbl">Visitas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg></span>
+              <span class="lbl">Faturas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 5-9"/></svg></span>
+              <span class="lbl">Estatísticas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg></span>
+              <span class="lbl">Agência</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09A1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+              <span class="lbl">Definições</span>
+            </button>
+          </nav>
+          <div class="app-main">
+            <header class="app-top">
+              <div class="brand">
+                <div class="mark" aria-hidden="true">K</div>
+                <div>
+                  <h3>Minhas Propriedades</h3>
+                  <div class="sub">Coluna direita · V4 secções</div>
+                </div>
+              </div>
+              <div class="user">
+                <span class="pill purple">Plano Free</span>
+                <div class="bell" aria-label="Notificações" role="button" tabindex="0">
+                  <svg class="icon sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                  <span class="dot"></span>
+                </div>
+                <div class="avatar" aria-hidden="true">MA</div>
+              </div>
+            </header>
+            <div class="app-body">
+              <section class="content-col">
+                <div class="content-head">
+                  <div>
+                    <h2>Minhas Propriedades</h2>
+                    <p>8 publicadas · 3 em análise</p>
+                  </div>
+                  <span class="pill purple">12 imóveis</span>
+                </div>
+                <div class="prop-grid">
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Apartamento Talatona</h4><p>3 quartos · 140m²</p><div class="prop-price">Kz 85.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Vila Kilamba</h4><p>2 quartos · 95m²</p><div class="prop-price">Kz 42.500.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Análise</span></div><div class="prop-b"><h4>Condomínio Benfica</h4><p>4 quartos · 210m²</p><div class="prop-price">Kz 150.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Loja Miramar</h4><p>Comercial · 60m²</p><div class="prop-price">Kz 35.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Rascunho</span></div><div class="prop-b"><h4>T3 Camama</h4><p>3 quartos · 120m²</p><div class="prop-price">Kz 48.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Casa Cacuaco</h4><p>4 quartos · 180m²</p><div class="prop-price">Kz 72.000.000</div></div></article>
+                </div>
+              </section>
+              <aside class="widgets-col" aria-label="Coluna direita">
+                <div class="sec-head"><h3>Conta</h3><button type="button" class="more">Definições</button></div>
+                <div class="card user-panel">
+                  <div class="top">
+                    <div class="avatar-lg" aria-hidden="true">MA</div>
+                    <div class="who">
+                      <strong>Maria Andrade</strong>
+                      <span>Agente Kercasa · 78%</span>
+                    </div>
+                  </div>
+                  <div class="actions">
+                    <button type="button" class="btn btn-white">Editar perfil</button>
+                    <button type="button" class="btn btn-white orange">Ser Agente</button>
+                  </div>
+                </div>
+
+                <div class="sec-head"><h3>Resumo</h3></div>
+                <div class="metrics">
+                  <div class="metric">
+                    <div class="lbl">Propriedades</div>
+                    <div class="val">12</div>
+                    <div class="delta">+2 esta semana</div>
+                  </div>
+                  <div class="metric">
+                    <div class="lbl">Favoritas</div>
+                    <div class="val">5</div>
+                    <div class="delta">+1 hoje</div>
+                  </div>
+                  <div class="metric">
+                    <div class="lbl">Visitas</div>
+                    <div class="val">14</div>
+                    <div class="delta">+3 esta semana</div>
+                  </div>
+                  <div class="metric">
+                    <div class="lbl">Contatos</div>
+                    <div class="val">46</div>
+                    <div class="delta">+12%</div>
+                  </div>
+                </div>
+
+                <div class="sec-head"><h3>Plano</h3></div>
+                <div class="card plan-panel">
+                  <div class="title-row">
+                    <div>
+                      <div class="card-title">Free</div>
+                      <div class="card-body" style="margin-top:2px">6 de 10 imóveis</div>
+                    </div>
+                    <span class="pill purple">4 vagas</span>
+                  </div>
+                  <div class="progress" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Uso do plano">
+                    <i style="width:60%"></i>
+                  </div>
+                  <button type="button" class="btn btn-primary" style="margin-top:14px">Fazer Upgrade</button>
+                </div>
+
+                <div class="sec-head"><h3>Publicidade</h3></div>
+                <div class="ads-stack">
+                  <div class="ad purple" role="complementary">
+                    <span class="tag">Impulsionar</span>
+                    <h4>Destaque seu imóvel</h4>
+                    <p>Aumente visualizações com a Kercasa.</p>
+                    <button type="button" class="btn btn-white">Saber Mais</button>
+                  </div>
+                  <div class="ad orange" role="complementary">
+                    <span class="tag">Parceiros</span>
+                    <h4>Torne-se Agente</h4>
+                    <p>Cadastre imóveis e gerencie vendas.</p>
+                    <button type="button" class="btn btn-white orange">Ativar Agora</button>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+        <aside class="ux-note">
+          <strong>Boas práticas · V4</strong>
+          <ul>
+            <li>Headers de secção = chunking cognitivo</li>
+            <li>Métricas em 2×2 com delta contextual</li>
+            <li>"Publicidade" separado do product UI</li>
+            <li>More-link para não saturar a coluna</li>
+          </ul>
+        </aside>
+      </div>
+
+      <!-- ═══════ V5 — Sticky summary + ads accordion ═══════ -->
+      <div class="variant" id="v5"
+        data-title="V5 — Sticky + accordion"
+        data-desc="Resumo sticky no topo · ads como details/summary · economia de espaço">
+        <div class="app-shell">
+          <nav class="side" aria-label="Navegação do painel">
+            <div class="side-title">Menu</div>
+            <button type="button" class="nav-item" aria-current="page">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="nb">12</span></span>
+              <span class="lbl">Propriedades</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="nb">5</span></span>
+              <span class="lbl">Favoritas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nb">3</span></span>
+              <span class="lbl">Mensagens</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+              <span class="lbl">Visitas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg></span>
+              <span class="lbl">Faturas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 5-9"/></svg></span>
+              <span class="lbl">Estatísticas</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg></span>
+              <span class="lbl">Agência</span>
+            </button>
+            <button type="button" class="nav-item">
+              <span class="ic" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09A1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+              <span class="lbl">Definições</span>
+            </button>
+          </nav>
+          <div class="app-main">
+            <header class="app-top">
+              <div class="brand">
+                <div class="mark" aria-hidden="true">K</div>
+                <div>
+                  <h3>Minhas Propriedades</h3>
+                  <div class="sub">Coluna direita · V5 sticky + accordion</div>
+                </div>
+              </div>
+              <div class="user">
+                <span class="pill purple">Plano Free</span>
+                <div class="bell" aria-label="Notificações" role="button" tabindex="0">
+                  <svg class="icon sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                  <span class="dot"></span>
+                </div>
+                <div class="avatar" aria-hidden="true">MA</div>
+              </div>
+            </header>
+            <div class="app-body">
+              <section class="content-col">
+                <div class="content-head">
+                  <div>
+                    <h2>Minhas Propriedades</h2>
+                    <p>8 publicadas · 3 em análise</p>
+                  </div>
+                  <span class="pill purple">12 imóveis</span>
+                </div>
+                <div class="prop-grid">
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Apartamento Talatona</h4><p>3 quartos · 140m²</p><div class="prop-price">Kz 85.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Vila Kilamba</h4><p>2 quartos · 95m²</p><div class="prop-price">Kz 42.500.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Análise</span></div><div class="prop-b"><h4>Condomínio Benfica</h4><p>4 quartos · 210m²</p><div class="prop-price">Kz 150.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Loja Miramar</h4><p>Comercial · 60m²</p><div class="prop-price">Kz 35.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Rascunho</span></div><div class="prop-b"><h4>T3 Camama</h4><p>3 quartos · 120m²</p><div class="prop-price">Kz 48.000.000</div></div></article>
+                  <article class="prop"><div class="prop-img"><span class="tag">Publicado</span></div><div class="prop-b"><h4>Casa Cacuaco</h4><p>4 quartos · 180m²</p><div class="prop-price">Kz 72.000.000</div></div></article>
+                </div>
+              </section>
+              <aside class="widgets-col" aria-label="Coluna direita">
+                <div class="card sticky-sum">
+                  <div class="k">Painel</div>
+                  <h2>Olá, Maria</h2>
+                  <div class="row">
+                    <div class="avatar-sm" aria-hidden="true">MA</div>
+                    <div class="who">
+                      <strong>Maria Andrade</strong>
+                      <span>Agente Kercasa</span>
+                    </div>
+                    <button type="button" class="btn btn-white" style="width:auto;min-height:36px;font-size:11px">Perfil</button>
+                  </div>
+                  <div class="quota">
+                    <div class="meta-row">
+                      <span>Plano Free</span>
+                      <strong>6 / 10</strong>
+                    </div>
+                    <div class="progress" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Uso do plano">
+                      <i style="width:60%"></i>
+                    </div>
+                  </div>
+                </div>
+                <div class="summary-grid" aria-label="Resumo">
+                  <div class="s"><div class="v">12</div><div class="l">Anúncios</div></div>
+                  <div class="s"><div class="v">5</div><div class="l">Favoritas</div></div>
+                  <div class="s"><div class="v">14</div><div class="l">Visitas</div></div>
+                </div>
+                <details class="ad purple" open role="complementary">
+                  <summary>
+                    <h4>Destaque seu imóvel</h4>
+                    <span class="chev" aria-hidden="true">
+                      <svg class="icon sm" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+                    </span>
+                  </summary>
+                  <div class="ad-body">
+                    <span class="tag">Publicidade</span>
+                    <p>Aumente visualizações com o impulsionamento da Kercasa.</p>
+                    <button type="button" class="btn btn-white" style="width:100%;margin-top:8px">Saber Mais</button>
+                  </div>
+                </details>
+                <details class="ad orange" role="complementary">
+                  <summary>
+                    <h4>Torne-se Agente</h4>
+                    <span class="chev" aria-hidden="true">
+                      <svg class="icon sm" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+                    </span>
+                  </summary>
+                  <div class="ad-body">
+                    <span class="tag">Publicidade</span>
+                    <p>Cadastre imóveis e gerencie suas vendas na Kercasa.</p>
+                    <button type="button" class="btn btn-white orange" style="width:100%;margin-top:8px">Ativar Agora</button>
+                  </div>
+                </details>
+                <button type="button" class="btn btn-ghost">Ver todos os planos</button>
+              </aside>
+            </div>
+          </div>
+        </div>
+        <aside class="ux-note">
+          <strong>Boas práticas · V5</strong>
+          <ul>
+            <li>Sticky: quota sempre visível ao scroll</li>
+            <li>Accordion nativo = teclado/gratuito</li>
+            <li>1 ad aberto por defeito (progressive)</li>
+            <li>Hit area do summary ≥ 44px</li>
+          </ul>
+        </aside>
+      </div>
+
+    </div>
+  </div>
+
+  <nav class="nav-bar" aria-label="Navegação de variações">
+    <button type="button" class="nav-btn prev" id="btn-prev" onclick="go(-1)">
+      <svg class="icon sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      Anterior
+    </button>
+    <div class="nav-info">
+      <div class="variant-label" id="nav-label">Variação 1 de 5</div>
+      <div class="variant-title" id="nav-title">—</div>
+      <div class="variant-desc" id="nav-desc">—</div>
+      <div class="nav-dots" id="nav-dots"></div>
+    </div>
+    <button type="button" class="nav-btn next" id="btn-next" onclick="go(1)">
+      Next
+      <svg class="icon sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+  </nav>
+
+  <script>
+    const variants = Array.from(document.querySelectorAll('.variant'));
+    const dotsRoot = document.getElementById('nav-dots');
+    let idx = 0;
+
+    variants.forEach((_, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'nav-dot' + (i === 0 ? ' active' : '');
+      b.setAttribute('aria-label', 'Ir para variação ' + (i + 1));
+      b.onclick = () => show(i);
+      dotsRoot.appendChild(b);
+    });
+
+    function show(i) {
+      idx = (i + variants.length) % variants.length;
+      variants.forEach((v, j) => v.classList.toggle('active', j === idx));
+      dotsRoot.querySelectorAll('.nav-dot').forEach((d, j) => d.classList.toggle('active', j === idx));
+      const v = variants[idx];
+      document.getElementById('nav-label').textContent = 'Variação ' + (idx + 1) + ' de ' + variants.length;
+      document.getElementById('nav-title').textContent = v.dataset.title || '';
+      document.getElementById('nav-desc').textContent = v.dataset.desc || '';
+      document.getElementById('btn-prev').disabled = idx === 0;
+      document.getElementById('btn-next').disabled = idx === variants.length - 1;
+    }
+
+    function go(dir) { show(idx + dir); }
+
+    document.querySelectorAll('.variant').forEach((root) => {
+      const items = root.querySelectorAll('.nav-item');
+      items.forEach((el) => {
+        if (el.tagName !== 'BUTTON') return;
+        el.addEventListener('click', () => {
+          const scope = root.querySelector('nav.side') || root;
+          scope.querySelectorAll('[aria-current]').forEach((n) => n.removeAttribute('aria-current'));
+          el.setAttribute('aria-current', 'page');
+          const name = (el.querySelector('.lbl')?.textContent || '').trim();
+          const h = root.querySelector('.app-top h3');
+          if (h && name) h.textContent = name === 'Propriedades' ? 'Minhas Propriedades' : name;
+        });
+      });
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') go(1);
+      if (e.key === 'ArrowLeft') go(-1);
+    });
+
+    show(0);
+  </script>
+</body>
+</html>

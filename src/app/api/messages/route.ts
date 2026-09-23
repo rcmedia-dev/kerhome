@@ -117,3 +117,42 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Erro ao buscar mensagens" }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request) {
+  const supabase = await createClient();
+  const { message_id, user_id } = await req.json();
+
+  if (!message_id || !user_id) {
+    return NextResponse.json({ error: "Dados incompletos" }, { status: 400 });
+  }
+
+  try {
+    const { data: message, error: fetchError } = await supabase
+      .from('messages')
+      .select('id, sender_id, conversation_id, content')
+      .eq('id', message_id)
+      .single();
+
+    if (fetchError || !message) {
+      return NextResponse.json({ error: "Mensagem não encontrada" }, { status: 404 });
+    }
+
+    if (message.sender_id !== user_id) {
+      return NextResponse.json({ error: "Sem permissão para eliminar esta mensagem" }, { status: 403 });
+    }
+
+    const { error: deleteError } = await supabase
+      .from('messages')
+      .delete()
+      .eq('id', message_id);
+
+    if (deleteError) throw deleteError;
+
+    return NextResponse.json({ success: true, message_id, conversation_id: message.conversation_id });
+  } catch (error) {
+    console.error("Erro ao eliminar mensagem:", error);
+    return NextResponse.json({
+      error: error instanceof Error ? error.message : "Erro desconhecido"
+    }, { status: 500 });
+  }
+}

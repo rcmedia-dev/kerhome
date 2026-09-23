@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { Home, Heart, BarChart3, Eye, User, Menu, X } from 'lucide-react';
+import { User, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUserStore } from '@/lib/store/user-store';
 import { useChatStore } from '@/lib/store/chat-store';
@@ -22,7 +22,6 @@ import { DashboardSidebar } from './dashboard/sidebar';
 import { MobileNavbar } from './dashboard/mobile-navbar';
 import { DashboardWelcomeCard } from './dashboard/welcome-card';
 import { DashboardPlanCard } from './dashboard/plan-card';
-import { DashboardStats } from './dashboard/stats';
 import { DashboardContent } from './dashboard/content';
 import { DashboardTipsModal } from './dashboard-tips-modal';
 import { NotificationsPanel } from './dashboard/notifications-panel';
@@ -34,7 +33,6 @@ function DashboardInner() {
   const searchParams = useSearchParams();
   const isAgent = ['agente', 'agent', 'corretor', 'profissional'].includes(user?.role?.toLowerCase() || '');
   const [activeTab, setActiveTab] = useState('properties');
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -167,17 +165,10 @@ function DashboardInner() {
 
   const displayName = [user.primeiro_nome, user.ultimo_nome].filter(Boolean).join(' ').trim() || user.email?.split('@')[0] || 'Usuário';
 
-  const stats = [
-    { label: 'Propriedades', value: userProperties.data?.length || 0, icon: Home },
-    { label: 'Favoritas', value: userFavoriteProperties.data?.length || 0, icon: Heart },
-    { label: 'Faturas', value: userInvoices.data?.length || 0, icon: BarChart3 },
-    { label: 'Visualizações', value: mostViewed.data?.total_views_all || 0, icon: Eye },
-  ];
-
   const hasRightSidebar = activeTab !== 'stats' && activeTab !== 'messages';
 
   return (
-    <div className="mobile-app-shell lg:h-[calc(100vh-104px)] bg-gray-50 flex flex-col lg:flex-row relative overflow-hidden">
+    <div className="mobile-app-shell lg:h-auto lg:min-h-0 lg:max-h-none bg-gray-50 flex flex-col lg:flex-row relative overflow-hidden">
 
       {/* Listener de Notificações de Lead */}
       <AgencyNotificationsListener imobiliariaId={userAgency.data?.id || null} />
@@ -224,8 +215,6 @@ function DashboardInner() {
           visitCount={pendingVisitCount}
           isAgent={isAgent}
           userAgency={userAgency.data}
-          isCollapsed={isSidebarCollapsed}
-          onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         />
       </div>
 
@@ -339,7 +328,92 @@ function DashboardInner() {
                   remaining={userPlan.data?.restante || 0}
                 />
 
-                <DashboardStats stats={stats} isLoading={isDataLoading} />
+                {/* Mini métricas — V5 summary-grid */}
+                <div
+                  className="grid grid-cols-3 gap-2"
+                  aria-label="Resumo"
+                >
+                  <div className="bg-white border border-border rounded-[14px] py-3 px-1.5 text-center shadow-card">
+                    <div className="text-[17px] font-black tracking-tight tabular-nums text-purple-700 leading-none">
+                      {userProperties.data?.length ?? 0}
+                    </div>
+                    <div className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.05em] mt-1">
+                      Anúncios
+                    </div>
+                  </div>
+                  <div className="bg-white border border-border rounded-[14px] py-3 px-1.5 text-center shadow-card">
+                    <div className="text-[17px] font-black tracking-tight tabular-nums text-purple-700 leading-none">
+                      {userFavoriteProperties.data?.length ?? 0}
+                    </div>
+                    <div className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.05em] mt-1">
+                      Favoritas
+                    </div>
+                  </div>
+                  <div className="bg-white border border-border rounded-[14px] py-3 px-1.5 text-center shadow-card">
+                    <div className="text-[17px] font-black tracking-tight tabular-nums text-purple-700 leading-none">
+                      {pendingVisitCount}
+                    </div>
+                    <div className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.05em] mt-1">
+                      Visitas
+                    </div>
+                  </div>
+                </div>
+
+                {/* Ads — V5: tag/corpo → CTA + vidro 5s */}
+                <div
+                  className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-700 text-white shadow-lg"
+                  role="complementary"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/15"
+                  />
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-white/35 to-transparent animate-glass-sweep"
+                  />
+                  <div className="relative z-10 p-4">
+                    <h4 className="text-sm font-bold m-0">Destaque seu imóvel</h4>
+                    <p className="text-[10px] font-bold uppercase tracking-widest opacity-80 mt-1.5 mb-0">Publicidade</p>
+                    <p className="text-[11px] opacity-90 mt-1 mb-0 leading-snug">
+                      Aumente visualizações com o impulsionamento da Kercasa.
+                    </p>
+                    <button
+                      type="button"
+                      className="mt-3 px-3 py-1.5 rounded-lg bg-white text-purple-700 text-[11px] font-bold hover:bg-purple-50 transition-all"
+                    >
+                      Saber Mais
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 to-rose-600 text-white shadow-lg"
+                  role="complementary"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/15"
+                  />
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-white/35 to-transparent animate-glass-sweep"
+                    style={{ animationDelay: '2.5s' }}
+                  />
+                  <div className="relative z-10 p-4">
+                    <h4 className="text-sm font-bold m-0">Torne-se Agente</h4>
+                    <p className="text-[10px] font-bold uppercase tracking-widest opacity-80 mt-1.5 mb-0">Publicidade</p>
+                    <p className="text-[11px] opacity-90 mt-1 mb-0 leading-snug">
+                      Cadastre imóveis e gerencie suas vendas na Kercasa.
+                    </p>
+                    <button
+                      type="button"
+                      className="mt-3 px-3 py-1.5 rounded-lg bg-white text-orange-600 text-[11px] font-bold hover:bg-orange-50 transition-all"
+                    >
+                      Ativar Agora
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>

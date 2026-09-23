@@ -292,7 +292,7 @@ export function MobileNavbar({
                                     </div>
                                 </div>
 
-                                {/* Barra de Cota do Plano */}
+                                {/* Barra de Cota do Plano + Upgrade */}
                                 <div className="bg-white/10 rounded-2xl p-3 backdrop-blur-xs border border-white/10">
                                     <div className="flex items-center justify-between text-[11px] font-bold mb-1.5">
                                         <span className="text-white/80">Cota de Imóveis</span>
@@ -304,6 +304,17 @@ export function MobileNavbar({
                                             style={{ width: `${quotaPercentage}%` }}
                                         />
                                     </div>
+                                    <Link
+                                        href="/planos"
+                                        onClick={() => setShowSidebar(false)}
+                                        className="mt-2.5 w-full min-h-9 flex items-center justify-center gap-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 active:scale-[0.98] text-white text-[11px] font-extrabold tracking-wide shadow-md shadow-purple-900/40 transition-all cursor-pointer"
+                                        title="Fazer Upgrade do Plano"
+                                        aria-label="Fazer Upgrade do Plano"
+                                    >
+                                        <Sparkles className="w-3.5 h-3.5" />
+                                        Upgrade do Plano
+                                        <ChevronRight className="w-3.5 h-3.5" />
+                                    </Link>
                                 </div>
 
                             </div>

@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KerHome — Coluna CRM / Perfil · 8 Variações</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #820AD1;
+      --primary-dark: #6A08AA;
+      --primary-deep: #3b0764;
+      --primary-soft: #f3e8ff;
+      --accent: #FF6B00;
+      --accent-soft: #fff7ed;
+      --bg: #f4f5f9;
+      --elevated: #f1f3f7;
+      --ink: #1a1a2e;
+      --muted: #6b7280;
+      --dim: #9ca3af;
+      --line: #e5e7eb;
+      --red: #ef4444;
+      --green: #16a34a;
+      --amber: #d97706;
+      --sky: #0284c7;
+      --rose: #e11d48;
+      --shadow-1: 0 2px 10px rgba(23,32,51,.06);
+      --shadow-card: 0 4px 20px rgba(23,32,51,.05);
+      --shadow-brand: 0 6px 22px rgba(130,10,209,.35);
+      --focus: 0 0 0 3px rgba(130,10,209,.35);
+      --radius: 16px;
+      --radius-sm: 12px;
+      --radius-xs: 8px;
+    }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: radial-gradient(1400px 700px at 50% -10%, #efe6ff 0%, var(--bg) 55%);
+      color: var(--ink);
+      overflow: hidden;
+    }
+    :focus-visible { outline: none; box-shadow: var(--focus); }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+    .icon { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .icon.sm { width: 14px; height: 14px; }
+    .icon.xs { width: 12px; height: 12px; }
+
+    /* Comp nav */
+    .nav-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(255,255,255,.96); backdrop-filter: blur(20px);
+      border-top: 1px solid var(--line);
+      padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .nav-btn {
+      min-height: 44px; padding: 10px 22px; border-radius: 14px;
+      font: 800 13px/1 'Inter', sans-serif; cursor: pointer; transition: background .2s, color .2s, transform .15s;
+      border: none; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .nav-btn.prev { background: var(--elevated); color: var(--muted); }
+    .nav-btn.prev:hover { background: var(--primary); color: #fff; }
+    .nav-btn.next { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; box-shadow: var(--shadow-brand); }
+    .nav-btn.next:hover { transform: translateY(-1px); }
+    .nav-btn:disabled { opacity: .3; cursor: not-allowed; transform: none !important; }
+    .nav-info { text-align: center; flex: 1; min-width: 0; }
+    .nav-info .variant-label { font-size: 10px; font-weight: 900; color: var(--primary); text-transform: uppercase; letter-spacing: .14em; }
+    .nav-info .variant-title { font-size: 14px; font-weight: 800; color: var(--ink); margin-top: 3px; }
+    .nav-info .variant-desc { font-size: 11px; color: var(--muted); margin-top: 2px; max-width: 560px; margin-inline: auto; }
+    .nav-dots { display: flex; gap: 6px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+    .nav-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #d1d5db;
+      transition: all .3s; cursor: pointer; border: none; padding: 0;
+    }
+    .nav-dot:hover { background: #a78bfa; }
+    .nav-dot.active { background: linear-gradient(135deg, var(--primary), var(--accent)); width: 24px; border-radius: 4px; }
+
+    /* Frame */
+    .desktop-frame {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+      width: min(1200px, calc(100vw - 40px));
+      height: calc(100dvh - 110px);
+      border-radius: 16px; border: 1px solid #2a2a3a; overflow: hidden;
+      background: var(--bg); box-shadow: 0 30px 80px rgba(20,20,31,.22);
+      display: flex; flex-direction: column;
+    }
+    .browser-chrome {
+      background: #1e1e2e; padding: 10px 14px; display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    }
+    .browser-dots { display: flex; gap: 6px; }
+    .browser-dots span { width: 10px; height: 10px; border-radius: 50%; }
+    .browser-dots .r { background: #ff5f57; }
+    .browser-dots .y { background: #febc2e; }
+    .browser-dots .g { background: #28c840; }
+    .browser-url {
+      flex: 1; background: #2a2a3d; border-radius: 8px; padding: 6px 14px;
+      font-size: 12px; color: #9ca3af; font-family: ui-monospace, monospace;
+    }
+    .browser-url strong { color: #c4b5fd; font-weight: 600; }
+    .desktop-screen { flex: 1; overflow: hidden; position: relative; background: var(--bg); }
+    .variant { display: none; height: 100%; }
+    .variant.active { display: flex; animation: fadeIn .3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+    /* App shell */
+    .app-shell { display: flex; width: 100%; height: 100%; min-width: 0; background: var(--bg); }
+    .app-main { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+    .app-top {
+      min-height: 52px; flex-shrink: 0; background: rgba(255,255,255,.92);
+      border-bottom: 1px solid var(--line); display: flex; align-items: center;
+      justify-content: space-between; gap: 12px; padding: 10px 18px;
+    }
+    .app-top h3 { font-size: 15px; font-weight: 800; }
+    .app-body { flex: 1; overflow: hidden; padding: 12px; display: flex; gap: 12px; min-height: 0; }
+
+    /* Chat mock */
+    .chat-mock {
+      flex: 1; min-width: 0; display: flex; flex-direction: column;
+      background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .chat-header {
+      background: linear-gradient(135deg, #7c3aed, #6d28d9);
+      color: #fff; padding: 12px 16px; display: flex; align-items: center; gap: 10px;
+    }
+    .chat-header .avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.2); display: grid; place-items: center; font-weight: 800; font-size: 14px; }
+    .chat-header strong { font-size: 13px; display: block; }
+    .chat-header span { font-size: 11px; opacity: .8; }
+    .chat-msgs { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+    .msg { max-width: 70%; padding: 10px 14px; border-radius: 16px; font-size: 13px; line-height: 1.4; }
+    .msg.in { background: #f3f4f6; align-self: flex-start; border-bottom-left-radius: 4px; }
+    .msg.out { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .chat-input {
+      border-top: 1px solid var(--line); padding: 10px 14px; display: flex; gap: 8px; align-items: center;
+      background: #fafafa;
+    }
+    .chat-input .fake-input {
+      flex: 1; height: 40px; background: #f3f4f6; border-radius: 999px; display: flex; align-items: center;
+      padding: 0 16px; color: var(--dim); font-size: 13px;
+    }
+    .chat-input .send { width: 40px; height: 40px; border-radius: 50%; background: #7c3aed; display: grid; place-items: center; color: #fff; }
+
+    /* ═══════ Base CRM panel (variants override) ═══════ */
+    .crm {
+      width: 300px; flex-shrink: 0; display: flex; flex-direction: column;
+      overflow: hidden; background: #fff; border: 1px solid var(--line);
+      border-radius: var(--radius); min-height: 0;
+    }
+    .crm-scroll { flex: 1; overflow-y: auto; min-height: 0; }
+    .crm-scroll::-webkit-scrollbar { width: 5px; }
+    .crm-scroll::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }
+
+    /* Shared blocks */
+    .sec-label {
+      font-size: 10px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--muted); display: flex; align-items: center; gap: 6px;
+    }
+    .sec-label .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); }
+    .temp-btn {
+      flex: 1; min-height: 38px; border-radius: var(--radius-xs); border: 1.5px solid var(--line);
+      font-size: 12px; font-weight: 700; cursor: pointer; transition: all .15s; background: #fff; color: var(--muted);
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+    .temp-btn:hover { border-color: #c4b5fd; }
+    .temp-btn.on-hot { background: var(--red); color: #fff; border-color: var(--red); box-shadow: 0 4px 12px rgba(239,68,68,.3); }
+    .temp-btn.on-warm { background: var(--amber); color: #fff; border-color: var(--amber); box-shadow: 0 4px 12px rgba(217,119,6,.3); }
+    .temp-btn.on-cold { background: var(--sky); color: #fff; border-color: var(--sky); box-shadow: 0 4px 12px rgba(2,132,199,.3); }
+    .cta-primary {
+      width: 100%; min-height: 44px; border: none; border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff; font-size: 13px; font-weight: 800; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 6px 18px rgba(130,10,209,.3); transition: transform .15s, box-shadow .15s;
+    }
+    .cta-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(130,10,209,.4); }
+    .cta-primary:active { transform: scale(.98); }
+    .prop-card {
+      display: flex; gap: 12px; padding: 12px; background: #fff;
+      border: 1px solid var(--line); border-radius: var(--radius-sm);
+      cursor: pointer; transition: border-color .15s, box-shadow .15s;
+    }
+    .prop-card:hover { border-color: #c4b5fd; box-shadow: var(--shadow-1); }
+    .prop-card .ph {
+      width: 72px; height: 72px; border-radius: var(--radius-xs); flex-shrink: 0;
+      background: linear-gradient(135deg, #ddd6fe, #fde68a); display: grid; place-items: center;
+      color: #a78bfa;
+    }
+    .prop-card .meta { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+    .prop-card .meta strong { font-size: 13px; font-weight: 800; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .prop-card .meta span { font-size: 11px; color: var(--muted); }
+    .prop-card .meta .price { font-size: 15px; font-weight: 900; color: var(--primary); margin-top: 2px; }
+    .note-card {
+      padding: 12px 14px; background: var(--accent-soft); border-left: 4px solid var(--accent);
+      border-radius: var(--radius-xs); font-size: 13px; color: var(--ink); line-height: 1.45; cursor: pointer;
+      transition: background .15s;
+    }
+    .note-card:hover { background: #ffedd5; }
+    .visit-card {
+      padding: 12px 14px; background: #fff; border: 1px solid var(--line);
+      border-radius: var(--radius-xs); font-size: 12px; line-height: 1.4;
+    }
+    .visit-card .when { font-weight: 800; color: var(--ink); }
+    .visit-card .badge {
+      display: inline-block; font-size: 9px; font-weight: 800; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 6px; margin-top: 6px;
+    }
+    .badge.pending { background: #fef3c7; color: #92400e; }
+    .badge.confirmed { background: #d1fae5; color: #065f46; }
+    .avatar-wrap { position: relative; display: inline-block; }
+    .avatar-wrap img, .avatar-wrap .fallback {
+      width: 72px; height: 72px; border-radius: 50%; object-fit: cover;
+      border: 3px solid #fff; box-shadow: 0 4px 14px rgba(0,0,0,.12);
+    }
+    .avatar-wrap .fallback {
+      display: grid; place-items: center; font-weight: 900; font-size: 26px; color: #fff;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+    }
+    .avatar-wrap .online {
+      position: absolute; bottom: 2px; right: 2px; width: 14px; height: 14px;
+      background: var(--green); border: 3px solid #fff; border-radius: 50%;
+    }
+    .pill-temp {
+      font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 4px 10px;
+      border-radius: 999px; letter-spacing: .04em;
+    }
+    .pill-temp.hot { background: #fee2e2; color: var(--red); }
+    .pill-temp.warm { background: #fef3c7; color: var(--amber); }
+    .pill-temp.cold { background: #e0f2fe; color: var(--sky); }
+
+    /* ============================================================
+       V1 — Header sticky + sections em cards brancos
+       ============================================================ */
+    #v1 .crm { background: var(--bg); border: none; }
+    #v1 .crm-profile {
+      background: #fff; padding: 20px 16px; text-align: center;
+      border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 2;
+    }
+    #v1 .crm-profile h3 { font-size: 16px; font-weight: 900; margin-top: 10px; }
+    #v1 .crm-profile .email { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    #v1 .crm-body { padding: 14px; display: flex; flex-direction: column; gap: 14px; }
+    #v1 .card {
+      background: #fff; border: 1px solid var(--line); border-radius: var(--radius-sm);
+      padding: 14px; box-shadow: var(--shadow-1);
+    }
+    #v1 .card .sec-label { margin-bottom: 10px; }
+    #v1 .temp-row { display: flex; gap: 8px; }
+    #v1 .qualif-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+
+    /* ============================================================
+       V2 — Hero dark profile + ações flutuantes
+       ============================================================ */
+    #v2 .crm { background: var(--bg); border: none; }
+    #v2 .crm-hero {
+      background: linear-gradient(165deg, #312e81 0%, #4c1d95 50%, #6d28d9 100%);
+      color: #fff; padding: 24px 16px 20px; text-align: center; position: relative; overflow: hidden;
+    }
+    #v2 .crm-hero::after {
+      content: ''; position: absolute; right: -40px; top: -40px; width: 140px; height: 140px;
+      border-radius: 50%; background: rgba(255,255,255,.08); pointer-events: none;
+    }
+    #v2 .crm-hero h3 { font-size: 17px; font-weight: 900; margin-top: 10px; position: relative; }
+    #v2 .crm-hero .email { font-size: 11px; opacity: .7; margin-top: 2px; position: relative; }
+    #v2 .crm-hero .temp-pill {
+      display: inline-block; margin-top: 10px; font-size: 10px; font-weight: 800;
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+      padding: 4px 12px; border-radius: 999px; text-transform: uppercase; letter-spacing: .06em;
+    }
+    #v2 .quick-actions {
+      display: flex; gap: 8px; padding: 12px 14px; margin: -18px 14px 0; position: relative; z-index: 2;
+      background: #fff; border-radius: var(--radius-sm); box-shadow: 0 8px 24px rgba(0,0,0,.1);
+      border: 1px solid var(--line);
+    }
+    #v2 .quick-actions button {
+      flex: 1; min-height: 52px; border: none; background: var(--primary-soft); border-radius: var(--radius-xs);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+      color: var(--primary); font-size: 10px; font-weight: 800; cursor: pointer; transition: all .15s;
+    }
+    #v2 .quick-actions button:hover { background: var(--primary); color: #fff; }
+    #v2 .crm-body { padding: 14px; display: flex; flex-direction: column; gap: 14px; }
+    #v2 .temp-row { display: flex; gap: 8px; }
+
+    /* ============================================================
+       V3 — Minimal tipográfico (sem cards, hierarchy por type)
+       ============================================================ */
+    #v3 .crm { background: #fff; border: none; border-left: 1px solid var(--line); }
+    #v3 .crm-profile { padding: 22px 18px 16px; border-bottom: 1px solid var(--line); }
+    #v3 .crm-profile .row { display: flex; align-items: center; gap: 14px; }
+    #v3 .crm-profile h3 { font-size: 18px; font-weight: 900; letter-spacing: -.02em; }
+    #v3 .crm-profile .email { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    #v3 .crm-body { padding: 18px; display: flex; flex-direction: column; gap: 22px; }
+    #v3 .big-num { font-size: 28px; font-weight: 900; letter-spacing: -.04em; color: var(--primary); font-variant-numeric: tabular-nums; }
+    #v3 .temp-row { display: flex; gap: 6px; margin-top: 8px; }
+    #v3 .temp-btn { min-height: 36px; font-size: 11px; border-radius: 999px; border-width: 1.5px; }
+    #v3 .divider { height: 1px; background: var(--line); }
+    #v3 .inline-cta {
+      display: flex; align-items: center; justify-content: space-between; padding: 14px 0;
+      cursor: pointer; border-bottom: 1px solid var(--line);
+    }
+    #v3 .inline-cta:last-child { border-bottom: none; }
+    #v3 .inline-cta .left { display: flex; align-items: center; gap: 12px; }
+    #v3 .inline-cta .ico {
+      width: 40px; height: 40px; border-radius: var(--radius-xs); background: var(--primary-soft);
+      display: grid; place-items: center; color: var(--primary);
+    }
+    #v3 .inline-cta strong { font-size: 13px; font-weight: 800; display: block; }
+    #v3 .inline-cta span { font-size: 11px; color: var(--muted); }
+    #v3 .arrow { color: var(--dim); }
+
+    /* ============================================================
+       V4 — Sticky profile + scrollable body com rail
+       ============================================================ */
+    #v4 .crm { background: var(--bg); border: none; position: relative; }
+    #v4 .crm-profile {
+      background: #fff; padding: 18px 16px; border-bottom: 1px solid var(--line);
+      position: sticky; top: 0; z-index: 2;
+    }
+    #v4 .crm-profile .top { display: flex; align-items: center; gap: 12px; }
+    #v4 .crm-profile h3 { font-size: 15px; font-weight: 900; }
+    #v4 .crm-profile .email { font-size: 11px; color: var(--muted); }
+    #v4 .progress-rail {
+      height: 4px; background: #e5e7eb; border-radius: 999px; margin-top: 12px; overflow: hidden;
+      display: flex;
+    }
+    #v4 .progress-rail i { display: block; height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 999px; }
+    #v4 .crm-body { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+    #v4 .card {
+      background: #fff; border: 1px solid var(--line); border-radius: var(--radius-sm);
+      padding: 14px; box-shadow: var(--shadow-1);
+    }
+    #v4 .temp-row { display: flex; gap: 8px; margin-top: 10px; }
+    #v4 .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    #v4 .stat-grid .s {
+      background: var(--primary-soft); border-radius: var(--radius-xs); padding: 10px 6px; text-align: center;
+    }
+    #v4 .stat-grid .s .v { font-size: 16px; font-weight: 900; color: var(--primary); font-variant-numeric: tabular-nums; }
+    #v4 .stat-grid .s .l { font-size: 9px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+
+    /* ============================================================
+       V5 — Accordion sections (progressive disclosure)
+       ============================================================ */
+    #v5 .crm { background: #fff; }
+    #v5 .crm-profile {
+      padding: 20px 16px; text-align: center; background: linear-gradient(180deg, #faf5ff, #fff);
+      border-bottom: 1px solid var(--line);
+    }
+    #v5 .crm-profile h3 { font-size: 16px; font-weight: 900; margin-top: 8px; }
+    #v5 .crm-profile .email { font-size: 11px; color: var(--muted); }
+    #v5 .crm-body { padding: 8px 0; }
+    #v5 details.acc {
+      border-bottom: 1px solid var(--line);
+    }
+    #v5 details.acc summary {
+      list-style: none; cursor: pointer; padding: 14px 16px; display: flex; align-items: center;
+      gap: 10px; min-height: 48px; user-select: none;
+    }
+    #v5 details.acc summary::-webkit-details-marker { display: none; }
+    #v5 details.acc summary strong { flex: 1; font-size: 13px; font-weight: 800; }
+    #v5 details.acc summary .chev {
+      width: 28px; height: 28px; border-radius: 50%; background: var(--primary-soft);
+      display: grid; place-items: center; color: var(--primary); transition: transform .2s;
+    }
+    #v5 details.acc[open] summary .chev { transform: rotate(180deg); background: var(--primary); color: #fff; }
+    #v5 details.acc .acc-body { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+    #v5 .temp-row { display: flex; gap: 8px; }
+    #v5 .icon-badge {
+      width: 36px; height: 36px; border-radius: var(--radius-xs); display: grid; place-items: center;
+      background: var(--primary-soft); color: var(--primary);
+    }
+
+    /* ============================================================
+       V6 — Glass dark panel (igual welcome V3)
+       ============================================================ */
+    #v6 .crm {
+      background: linear-gradient(165deg, rgba(49,46,129,.97) 0%, rgba(76,29,149,.97) 50%, rgba(91,33,182,.97) 100%);
+      border: 1px solid rgba(167,139,250,.4); border-radius: var(--radius);
+      color: #fff; position: relative;
+    }
+    #v6 .crm::before {
+      content: ''; position: absolute; inset: 0; background: rgba(255,255,255,.06);
+      border-radius: inherit; pointer-events: none;
+    }
+    #v6 .crm-profile { padding: 22px 16px 14px; text-align: center; position: relative; z-index: 1; }
+    #v6 .crm-profile h3 { font-size: 16px; font-weight: 900; margin-top: 10px; }
+    #v6 .crm-profile .email { font-size: 11px; opacity: .65; margin-top: 2px; }
+    #v6 .crm-body { padding: 8px 14px 16px; display: flex; flex-direction: column; gap: 12px; position: relative; z-index: 1; }
+    #v6 .glass-card {
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.14);
+      border-radius: var(--radius-sm); padding: 14px; backdrop-filter: blur(8px);
+    }
+    #v6 .glass-card .sec-label { color: rgba(255,255,255,.6); }
+    #v6 .glass-card .sec-label .dot { background: #c4b5fd; }
+    #v6 .temp-row { display: flex; gap: 8px; margin-top: 10px; }
+    #v6 .temp-btn { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.2); color: rgba(255,255,255,.7); }
+    #v6 .temp-btn:hover { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.4); }
+    #v6 .temp-btn.on-hot { background: var(--red); border-color: var(--red); color: #fff; }
+    #v6 .temp-btn.on-warm { background: var(--amber); border-color: var(--amber); color: #fff; }
+    #v6 .temp-btn.on-cold { background: var(--sky); border-color: var(--sky); color: #fff; }
+    #v6 .cta-primary { background: #fff; color: var(--primary); box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+    #v6 .cta-primary:hover { box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+    #v6 .prop-card {
+      background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.12);
+    }
+    #v6 .prop-card .meta strong { color: #fff; }
+    #v6 .prop-card .meta span { color: rgba(255,255,255,.6); }
+    #v6 .prop-card .meta .price { color: #fdba74; }
+    #v6 .prop-card .ph { background: rgba(255,255,255,.12); color: #c4b5fd; }
+    #v6 .note-card {
+      background: rgba(255,107,0,.2); border-left-color: var(--accent); color: #fff;
+    }
+    #v6 .visit-card {
+      background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.12); color: #fff;
+    }
+    #v6 .visit-card .when { color: #fff; }
+    #v6 .avatar-wrap img, #v6 .avatar-wrap .fallback { border-color: rgba(255,255,255,.3); }
+
+    /* ============================================================
+       V7 — Timeline vertical (etapas do funil)
+       ============================================================ */
+    #v7 .crm { background: var(--bg); border: none; }
+    #v7 .crm-profile {
+      background: #fff; padding: 18px 16px; border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; gap: 12px;
+    }
+    #v7 .crm-profile h3 { font-size: 15px; font-weight: 900; }
+    #v7 .crm-profile .email { font-size: 11px; color: var(--muted); }
+    #v7 .crm-body { padding: 16px 14px; position: relative; }
+    #v7 .timeline { position: relative; padding-left: 28px; display: flex; flex-direction: column; gap: 0; }
+    #v7 .timeline::before {
+      content: ''; position: absolute; left: 9px; top: 8px; bottom: 8px; width: 3px;
+      background: linear-gradient(180deg, var(--primary), var(--accent), #e5e7eb);
+      border-radius: 999px;
+    }
+    #v7 .tl-item { position: relative; padding-bottom: 18px; }
+    #v7 .tl-item:last-child { padding-bottom: 0; }
+    #v7 .tl-item::before {
+      content: ''; position: absolute; left: -24px; top: 4px; width: 15px; height: 15px;
+      border-radius: 50%; background: #fff; border: 3px solid var(--primary); z-index: 1;
+    }
+    #v7 .tl-item.done::before { background: var(--primary); }
+    #v7 .tl-item.current::before { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(255,107,0,.25); }
+    #v7 .tl-item.future::before { border-color: #d1d5db; }
+    #v7 .tl-card {
+      background: #fff; border: 1px solid var(--line); border-radius: var(--radius-sm);
+      padding: 12px 14px; box-shadow: var(--shadow-1);
+    }
+    #v7 .tl-card h4 { font-size: 12px; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    #v7 .tl-card p { font-size: 11px; color: var(--muted); line-height: 1.4; }
+    #v7 .tl-card .step-tag {
+      font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em;
+      color: var(--primary); background: var(--primary-soft); padding: 2px 7px; border-radius: 999px;
+    }
+    #v7 .temp-row { display: flex; gap: 6px; margin-top: 8px; }
+
+    /* ============================================================
+       V8 — Split: sticky footer CTA + sections compactas
+       ============================================================ */
+    #v8 .crm { background: #fff; }
+    #v8 .crm-profile {
+      padding: 20px 16px 14px; text-align: center; border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #f5f3ff 0%, #fff 100%);
+    }
+    #v8 .crm-profile h3 { font-size: 16px; font-weight: 900; margin-top: 8px; }
+    #v8 .crm-profile .email { font-size: 11px; color: var(--muted); }
+    #v8 .crm-scroll { padding-bottom: 0; }
+    #v8 .crm-body { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+    #v8 .chip-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    #v8 .chip {
+      font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 999px;
+      background: var(--elevated); color: var(--muted); border: 1.5px solid transparent;
+      cursor: pointer; transition: all .15s;
+    }
+    #v8 .chip:hover { border-color: #c4b5fd; }
+    #v8 .chip.on-hot { background: #fee2e2; color: var(--red); border-color: var(--red); }
+    #v8 .chip.on-warm { background: #fef3c7; color: var(--amber); border-color: var(--amber); }
+    #v8 .chip.on-cold { background: #e0f2fe; color: var(--sky); border-color: var(--sky); }
+    #v8 .kv { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+    #v8 .kv:last-child { border-bottom: none; }
+    #v8 .kv .k { color: var(--muted); font-weight: 600; }
+    #v8 .kv .v { font-weight: 800; color: var(--ink); }
+    #v8 .crm-footer {
+      flex-shrink: 0; padding: 14px; border-top: 1px solid var(--line);
+      background: #fff; box-shadow: 0 -8px 24px rgba(0,0,0,.06);
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    #v8 .footer-row { display: flex; gap: 8px; }
+    #v8 .cta-primary { flex: 1; }
+    #v8 .cta-ghost {
+      min-height: 44px; padding: 0 16px; border-radius: var(--radius-sm); border: 1.5px solid var(--line);
+      background: #fff; font-size: 13px; font-weight: 700; color: var(--muted); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px; transition: all .15s;
+    }
+    #v8 .cta-ghost:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-soft); }
+
+    /* empty state */
+    .empty-crm {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 40px 24px; text-align: center; gap: 12px;
+    }
+    .empty-crm .ico {
+      width: 64px; height: 64px; border-radius: var(--radius-sm); background: var(--primary-soft);
+      display: grid; place-items: center; color: var(--primary);
+    }
+    .empty-crm h4 { font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .14em; color: var(--muted); }
+    .empty-crm p { font-size: 11px; color: var(--dim); max-width: 200px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="desktop-frame">
+    <div class="browser-chrome">
+      <div class="browser-dots" aria-hidden="true"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+      <div class="browser-url"><strong>kerhome</strong>.ao / dashboard?tab=messages</div>
+    </div>
+    <div class="desktop-screen">
+      <!-- ══════════ V1 — Cards brancos + header sticky ══════════ -->
+      <section class="variant" id="v1" data-title="Cards brancos + sticky" data-desc="Header fixo, secções em cards elevados, hierarquia clara e empty-state consistente.">
+        <div class="app-shell">
+          <div class="app-main">
+            <div class="app-top"><h3>Mensagens</h3></div>
+            <div class="app-body">
+              <div class="chat-mock">
+                <div class="chat-header"><div class="avatar">M</div><div><strong>Maria Silva</strong><span>Online agora</span></div></div>
+                <div class="chat-msgs">
+                  <div class="msg in">Ola! Vi o anuncio do apartamento em Talatona. Ainda esta disponivel?</div>
+                  <div class="msg out">Ola Maria! Sim, esta disponivel. Posso enviar mais detalhes.</div>
+                  <div class="msg in">Perfeito. Gostaria de agendar uma visita esta semana.</div>
+                  <div class="msg out">Claro! Tenho disponibilidade quinta as 15h. Prefere?</div>
+                </div>
+                <div class="chat-input"><div class="fake-input">Digite uma mensagem...</div><div class="send">SEND</div></div>
+              </div>
+              <aside class="crm" aria-label="Coluna CRM">
+                <div class="crm-scroll">
+                  <div class="crm-profile">
+                    <div class="avatar-wrap"><div class="fallback">M</div><span class="online" aria-label="Online"></span></div>
+                    <h3>Maria Silva</h3>
+                    <p class="email">maria.silva@email.com</p>
+                  </div>
+                  <div class="crm-body">
+                    <div class="card">
+                      <div class="qualif-row">
+                        <span class="sec-label">Qualificacao</span>
+                        <span class="pill-temp hot">Quente</span>
+                      </div>
+                      <div class="temp-row">
+                        <button type="button" class="temp-btn on-hot">Quente</button>
+                        <button type="button" class="temp-btn">Morno</button>
+                        <button type="button" class="temp-btn">Frio</button>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="sec-label" style="margin-bottom:10px"><span class="dot"></span>Proximos passos</div>
+                      <button type="button" class="cta-primary">Agendar Visita</button>
+                    </div>
+                    <div class="card">
+                      <div class="sec-label" style="margin-bottom:10px"><span class="dot"></span>Imovel de interesse</div>
+                      <div class="prop-card">
+                        <div class="ph">IMG</div>
+                        <div class="meta">
+                          <strong>Apartamento Talatona</strong>
+                          <span>Luanda · 3 quartos</span>
+                          <span class="price">45.000.000 Kz</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="sec-label" style="margin-bottom:10px"><span class="dot"></span>Nota estrategica</div>
+                      <div class="note-card">Cliente prefere casas com quintal e garagem para 2 carros. Orcamento ate 50M.</div>
+                    </div>
+                    <div class="card">
+                      <div class="sec-label" style="margin-bottom:10px"><span class="dot"></span>Visitas no radar <span style="margin-left:auto;background:var(--primary-soft);color:var(--primary);padding:2px 8px;border-radius:999px;font-size:10px">2</span></div>
+                      <div style="display:flex;flex-direction:column;gap:8px">
+                        <div class="visit-card">Visita agendada para <span class="when">Amanha</span> as <span class="when">15:00</span><br><span class="badge confirmed">Confirmada</span></div>
+                        <div class="visit-card">Visita agendada para <span class="when">Sexta</span> as <span class="when">10:00</span><br><span class="badge pending">Pendente</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- ══════════ V2 — Hero dark + quick actions ══════════ -->
+      <section class="variant" id="v2" data-title="Hero dark + acoes rapidas" data-desc="Topo em gradiente indigo, grelha de acoes flutuantes e corpo limpo por baixo.">
+        <div class="app-shell">
+          <div class="app-main">
+            <div class="app-top"><h3>Mensagens</h3></div>
+            <div class="app-body">
+              <div class="chat-mock">
+                <div class="chat-header"><div class="avatar">M</div><div><strong>Maria Silva</strong><span>Online agora</span></div></div>
+                <div class="chat-msgs">
+                  <div class="msg in">Ola! Vi o anuncio do apartamento em Talatona. Ainda esta disponivel?</div>
+                  <div class="msg out">Ola Maria! Sim, esta disponivel. Posso enviar mais detalhes.</div>
+                  <div class="msg in">Perfeito. Gostaria de agendar uma visita esta semana.</div>
+                </div>
+                <div class="chat-input"><div class="fake-input">Digite uma mensagem...</div><div class="send">SEND</div></div>
+              </div>
+              <aside class="crm" aria-label="Coluna CRM">
+                <div class="crm-scroll">
+                  <div class="crm-hero">
+                    <div class="avatar-wrap"><div class="fallback">M</div><span class="online"></span></div>
+                    <h3>Maria Silva</h3>
+                    <p class="email">maria.silva@email.com</p>
+                    <span class="temp-pill">Lead quente</span>
+                  </div>
+                  <div class="quick-actions" role="toolbar" aria-label="Acoes rapidas">
+                    <button type="button">Visita</button>
+                    <button type="button">Nota</button>
+                    <button type="button">Historico</button>
+                  </div>
+                  <div class="crm-body">
+                    <div>
+                      <div class="sec-label" style="margin-bottom:10px"><span class="dot"></span>Qualificacao</div>
+                      <div class="temp-row">
+                        <button type="button" class="temp-btn on-hot">Quente</button>
+                        <button type="button" class="temp-btn">Morno</button>
+                        <button type="button" class="temp-btn">Frio</button>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="sec-label" style="margin-bottom:10px"><span class="dot"></span>Imovel de interesse</div>
+                      <div class="prop-card">
+                        <div class="ph">IMG</div>
+                        <div class="meta"><strong>Apartamento Talatona</strong><span>Luanda · 3 quartos</span><span class="price">45.000.000 Kz</span></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="sec-label" style="margin-bottom:10px"><span class="dot"></span>Nota estrategica</div>
+                      <div class="note-card">Prefere casas com quintal. Orcamento ate 50M Kz.</div>
+                    </div>
+                    <div>
+                      <div class="sec-label" style="margin-bottom:10px"><span class="dot"></span>Proxima visita</div>
+                      <div class="visit-card">Amanha as <span class="when">15:00</span> · Apartamento Talatona<br><span class="badge confirmed">Confirmada</span></div>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- ══════════ V3 — Minimal tipografico ══════════ -->
+      <section class="variant" id="v3" data-title="Minimal tipografico" data-desc="Sem cards — hierarchy so com tipografia, divisores finos e CTA inline.">
+        <div class="app-shell">
+          <div class="app-main">
+            <div class="app-top"><h3>Mensagens</h3></div>
+            <div class="app-body">
+              <div class="chat-mock">
+                <div class="chat-header"><div class="avatar">M</div><div><strong>Maria Silva</strong><span>Online agora</span></div></div>
+                <div class="chat-msgs">
+                  <div class="msg in">Ola! Vi o anuncio do apartamento em Talatona. Ainda esta disponivel?</div>
+                  <div class="msg out">Ola Maria! Sim, esta disponivel. Posso enviar mais detalhes.</div>
+                  <div class="msg in">Perfeito. Gostaria de agendar uma visita esta semana.</div>
+                </div>
+                <div class="chat-input"><div class="fake-input">Digite uma mensagem...</div><div class="send">SEND</div></div>
+              </div>
+              <aside class="crm" aria-label="Coluna CRM">
+                <div class="crm-scroll">
+                  <div class="crm-profile">
+                    <div class="row">
+                      <div class="avatar-wrap"><div class="fallback">M</div><span class="online"></span></div>
+                      <div>
+                        <h3>Maria Silva</h3>
+                        <p class="email">maria.silva@email.com</p>
+                        <span class="pill-temp hot" style="display:inline-block;margin-top:6px">Quente</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="crm-body">
+                    <div>
+                      <span class="sec-label">Qualificacao</span>
+                      <div class="temp-row">
+                        <button type="button" class="temp-btn on-hot">Quente</button>
+                        <button type="button" class="temp-btn">Morno</button>
+                        <button type="button" class="temp-btn">Frio</button>
+                      </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="inline-cta">
+                      <div class="left">
+                        <div class="ico">CAL</div>
+                        <div><strong>Agendar visita</strong><span>Defina o proximo follow-up</span></div>
+                      </div>
+                      <span class="arrow">›</span>
+                    </div>
+                    <div class="inline-cta">
+                      <div class="left">
+                        <div class="ico">HOU</div>
+                        <div><strong>Apartamento Talatona</strong><span>45.000.000 Kz · Luanda</span></div>
+                      </div>
+                      <span class="arrow">›</span>
+                    </div>
+                    <div class="inline-cta">
+                      <div class="left">
+                        <div class="ico" style="background:var(--accent-soft);color:var(--accent)">NOT</div>
+                        <div><strong>Nota estrategica</strong><span>Orcamento ate 50M · quintal</span></div>
+                      </div>
+                      <span class="arrow">›</span>
+                    </div>
+                    <div class="inline-cta">
+                      <div class="left">
+                        <div class="ico" style="background:#d1fae5;color:#059669">VIS</div>
+                        <div><strong>2 visitas no radar</strong><span>Proxima: amanha 15:00</span></div>
+                      </div>
+                      <span class="arrow">›</span>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- ══════════ V4 — Sticky + stats + cards ══════════ -->
+      <section class="variant" id="v4" data-title="Sticky + metricas" data-desc="Header fixo com progress rail, grelha de metricas e cards de acao abaixo.">
+        <div class="app-shell">
+          <div class="app-main">
+            <div class="app-top"><h3>Mensagens</h3></div>
+            <div class="app-body">
+              <div class="chat-mock">
+                <div class="chat-header"><div class="avatar">M</div><div><strong>Maria Silva</strong><span>Online agora</span></div></div>
+                <div class="chat-msgs">
+                  <div class="msg in">Ola! Vi o anuncio do apartamento em Talatona. Ainda esta disponivel?</div>
+                  <div class="msg out">Ola Maria! Sim, esta disponivel. Posso enviar mais detalhes.</div>
+                  <div class="msg in">Perfeito. Gostaria de agendar uma visita esta semana.</div>
+                </div>
+                <div class="chat-input"><div class="fake-input">Digite uma mensagem...</div><div class="send">SEND</div></div>
+              </div>
+              <aside class="crm" aria-label="Coluna CRM">
+                <div class="crm-scroll">
+                  <div class="crm-profile">
+                    <div class="top">
+                      <div class="avatar-wrap"><div class="fallback">M</div><span class="online"></span></div>
+                      <div style="flex:1;min-width:0">
+                        <h3>Maria Silva</h3>
+                        <p class="email">maria.silva@email.com</p>
+                      </div>
+                      <span class="pill-temp hot">Quente</span>
+                    </div>
+                    <div class="progress-rail" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" aria-label="Progresso do funil"><i style="width:65%"></i></div>
+                  </div>
+                  <div class="crm-body">
+                    <div class="stat-grid" aria-label="Metricas do lead">
+                      <div class="s"><div class="v">12</div><div class="l">Msgs</div></div>
+                      <div class="s"><div class="v">2</div><div class="l">Visitas</div></div>
+                      <div class="s"><div class="v">1</div><div class="l">Imovel</div></div>
+                    </div>
+                    <div class="card">
+                      <div class="sec-label" style="margin-bottom:10px"><span class="dot"></span>Qualificacao</div>
+                      <div class="temp-row">
+                        <button type="button" class="temp-btn on-hot">Quente</button>
+                        <button type="button" class="temp-btn">Morno</button>
+                        <button type="button" class="temp-btn">Frio</button>
+                      </div>
+                    </div>
+                    <div class="card" style="padding:0;overflow:hidden">
+                      <div style="padding:14px 14px 0"><div class="sec-label"><span class="dot"></span>Imovel de interesse</div></div>
+                      <div class="prop-card" style="border:none;border-radius:0;margin-top:10px">
+                        <div class="ph">IMG</div>
+                        <div class="meta"><strong>Apartamento Talatona</strong><span>Luanda · 3 quartos</span><span class="price">45.000.000 Kz</span></div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="sec-label" style="margin-bottom:10px"><span class="dot"></span>Nota estrategica</div>
+                      <div class="note-card">Cliente prefere casas com quintal. Orcamento ate 50M Kz.</div>
+                    </div>
+                    <button type="button" class="cta-primary">Agendar Visita</button>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- ══════════ V5 — Accordion ══════════ -->
+      <section class="variant" id="v5" data-title="Accordion progressivo" data-desc="Disclosure nativo: so uma seccao aberta de cada vez — foco e teclado gratis.">
+        <div class="app-shell">
+          <div class="app-main">
+            <div class="app-top"><h3>Mensagens</h3></div>
+            <div class="app-body">
+              <div class="chat-mock">
+                <div class="chat-header"><div class="avatar">M</div><div><strong>Maria Silva</strong><span>Online agora</span></div></div>
+                <div class="chat-msgs">
+                  <div class="msg in">Ola! Vi o anuncio do apartamento em Talatona. Ainda esta disponivel?</div>
+                  <div class="msg out">Ola Maria! Sim, esta disponivel. Posso enviar mais detalhes.</div>
+                  <div class="msg in">Perfeito. Gostaria de agendar uma visita esta semana.</div>
+                </div>
+                <div class="chat-input"><div class="fake-input">Digite uma mensagem...</div><div class="send">SEND</div></div>
+              </div>
+              <aside class="crm" aria-label="Coluna CRM">
+                <div class="crm-scroll">
+                  <div class="crm-profile">
+                    <div class="avatar-wrap"><div class="fallback">M</div><span class="online"></span></div>
+                    <h3>Maria Silva</h3>
+                    <p class="email">maria.silva@email.com</p>
+                    <span class="pill-temp hot" style="display:inline-block;margin-top:8px">Quente</span>
+                  </div>
+                  <div class="crm-body">
+                    <details class="acc" open>
+                      <summary>
+                        <span class="icon-badge">FR</span>
+                        <strong>Qualificacao</strong>
+                        <span class="chev" aria-hidden="true">v</span>
+                      </summary>
+                      <div class="acc-body">
+                        <div class="temp-row">
+                          <button type="button" class="temp-btn on-hot">Quente</button>
+                          <button type="button" class="temp-btn">Morno</button>
+                          <button type="button" class="temp-btn">Frio</button>
+                        </div>
+                      </div>
+                    </details>
+                    <details class="acc">
+                      <summary>
+                        <span class="icon-badge">CAL</span>
+                        <strong>Proximos passos</strong>
+                        <span class="chev" aria-hidden="true">v</span>
+                      </summary>
+                      <div class="acc-body">
+                        <button type="button" class="cta-primary">Agendar Visita</button>
+                        <button type="button" class="cta-primary" style="background:linear-gradient(135deg,#FF6B00,#c2410c);box-shadow:0 6px 18px rgba(255,107,0,.3)">Enviar proposta</button>
+                      </div>
+                    </details>
+                    <details class="acc">
+                      <summary>
+                        <span class="icon-badge">HOU</span>
+                        <strong>Imovel de interesse</strong>
+                        <span class="chev" aria-hidden="true">v</span>
+                      </summary>
+                      <div class="acc-body">
+                        <div class="prop-card">
+                          <div class="ph">IMG</div>
+                          <div class="meta"><strong>Apartamento Talatona</strong><span>Luanda · 3 quartos</span><span class="price">45.000.000 Kz</span></div>
+                        </div>
+                      </div>
+                    </details>
+                    <details class="acc">
+                      <summary>
+                        <span class="icon-badge" style="background:var(--accent-soft);color:var(--accent)">NOT</span>
+                        <strong>Notas &amp; visitas</strong>
+                        <span class="chev" aria-hidden="true">v</span>
+                      </summary>
+                      <div class="acc-body">
+                        <div class="note-card">Prefere casas com quintal. Orcamento ate 50M Kz.</div>
+                        <div class="visit-card">Amanha as <span class="when">15:00</span><br><span class="badge confirmed">Confirmada</span></div>
+                      </div>
+                    </details>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- ══════════ V6 — Glass dark ══════════ -->
+      <section class="variant" id="v6" data-title="Casco glass indigo" data-desc="Painel todo em indigo fosco com cards em vidro — unidade com o welcome da coluna direita.">
+        <div class="app-shell">
+          <div class="app-main">
+            <div class="app-top"><h3>Mensagens</h3></div>
+            <div class="app-body">
+              <div class="chat-mock">
+                <div class="chat-header"><div class="avatar">M</div><div><strong>Maria Silva</strong><span>Online agora</span></div></div>
+                <div class="chat-msgs">
+                  <div class="msg in">Ola! Vi o anuncio do apartamento em Talatona. Ainda esta disponivel?</div>
+                  <div class="msg out">Ola Maria! Sim, esta disponivel. Posso enviar mais detalhes.</div>
+                  <div class="msg in">Perfeito. Gostaria de agendar uma visita esta semana.</div>
+                </div>
+                <div class="chat-input"><div class="fake-input">Digite uma mensagem...</div><div class="send">SEND</div></div>
+              </div>
+              <aside class="crm" aria-label="Coluna CRM">
+                <div class="crm-scroll">
+                  <div class="crm-profile">
+                    <div class="avatar-wrap"><div class="fallback">M</div><span class="online"></span></div>
+                    <h3>Maria Silva</h3>
+                    <p class="email">maria.silva@email.com</p>
+                    <span class="pill-temp hot" style="display:inline-block;margin-top:8px;background:rgba(239,68,68,.3);color:#fecaca;border:1px solid rgba(239,68,68,.4)">Quente</span>
+                  </div>
+                  <div class="crm-body">
+                    <div class="glass-card">
+                      <div class="sec-label"><span class="dot"></span>Qualificacao</div>
+                      <div class="temp-row">
+                        <button type="button" class="temp-btn on-hot">Quente</button>
+                        <button type="button" class="temp-btn">Morno</button>
+                        <button type="button" class="temp-btn">Frio</button>
+                      </div>
+                    </div>
+                    <button type="button" class="cta-primary">Agendar Visita</button>
+                    <div class="glass-card" style="padding:0;overflow:hidden">
+                      <div style="padding:14px 14px 0"><div class="sec-label"><span class="dot"></span>Imovel de interesse</div></div>
+                      <div class="prop-card" style="border:none;background:transparent;margin-top:8px">
+                        <div class="ph">IMG</div>
+                        <div class="meta"><strong>Apartamento Talatona</strong><span>Luanda · 3 quartos</span><span class="price">45.000.000 Kz</span></div>
+                      </div>
+                    </div>
+                    <div class="glass-card">
+                      <div class="sec-label" style="margin-bottom:8px"><span class="dot"></span>Nota estrategica</div>
+                      <div class="note-card" style="width:100%">Prefere casas com quintal. Orcamento ate 50M Kz.</div>
+                    </div>
+                    <div class="glass-card">
+                      <div class="sec-label" style="margin-bottom:8px"><span class="dot"></span>Proxima visita</div>
+                      <div class="visit-card" style="background:transparent;border:none;padding:0;color:#fff">Amanha as <span class="when">15:00</span><br><span class="badge confirmed" style="background:rgba(22,163,74,.35);color:#bbf7d0">Confirmada</span></div>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════ V7 — Timeline funil ══════════ -->
+      <section class="variant" id="v7" data-title="Timeline do funil" data-desc="Etapas verticais (contacto, visita, proposta) — o estado do lead num relance.">
+        <div class="app-shell">
+          <div class="app-main">
+            <div class="app-top"><h3>Mensagens</h3></div>
+            <div class="app-body">
+              <div class="chat-mock">
+                <div class="chat-header"><div class="avatar">M</div><div><strong>Maria Silva</strong><span>Online agora</span></div></div>
+                <div class="chat-msgs">
+                  <div class="msg in">Ola! Vi o anuncio do apartamento em Talatona. Ainda esta disponivel?</div>
+                  <div class="msg out">Ola Maria! Sim, esta disponivel. Posso enviar mais detalhes.</div>
+                  <div class="msg in">Perfeito. Gostaria de agendar uma visita esta semana.</div>
+                </div>
+                <div class="chat-input"><div class="fake-input">Digite uma mensagem...</div><div class="send">SEND</div></div>
+              </div>
+              <aside class="crm" aria-label="Coluna CRM">
+                <div class="crm-scroll">
+                  <div class="crm-profile" style="display:flex;align-items:center;gap:12px">
+                    <div class="avatar-wrap"><div class="fallback">M</div><span class="online"></span></div>
+                    <div style="flex:1;min-width:0">
+                      <h3 style="margin:0">Maria Silva</h3>
+                      <p class="email" style="margin:2px 0 0">maria.silva@email.com</p>
+                    </div>
+                    <span class="pill-temp hot">Quente</span>
+                  </div>
+                  <div class="crm-body">
+                    <div class="sec-label" style="margin-bottom:4px"><span class="dot"></span>Funil do lead</div>
+                    <div class="timeline" aria-label="Etapas do funil">
+                      <div class="tl-item done">
+                        <div class="tl-card">
+                          <h4>Primeiro contacto <span class="step-tag">Concluido</span></h4>
+                          <p>Lead entrou pelo anuncio Talatona · ha 2 dias</p>
+                        </div>
+                      </div>
+                      <div class="tl-item done">
+                        <div class="tl-card">
+                          <h4>Qualificacao <span class="step-tag">Quente</span></h4>
+                          <div class="temp-row">
+                            <button type="button" class="temp-btn on-hot">Quente</button>
+                            <button type="button" class="temp-btn">Morno</button>
+                            <button type="button" class="temp-btn">Frio</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="tl-item current">
+                        <div class="tl-card" style="border-color:#fdba74;box-shadow:0 0 0 3px rgba(255,107,0,.12)">
+                          <h4>Visita agendada <span class="step-tag" style="background:var(--accent-soft);color:var(--accent)">Agora</span></h4>
+                          <p>Amanha as 15:00 · Apartamento Talatona</p>
+                          <button type="button" class="cta-primary" style="margin-top:10px;min-height:38px;font-size:12px">Abrir agenda</button>
+                        </div>
+                      </div>
+                      <div class="tl-item future">
+                        <div class="tl-card" style="opacity:.55">
+                          <h4>Proposta <span class="step-tag" style="background:#f3f4f6;color:var(--dim)">Pendente</span></h4>
+                          <p>Enviar proposta formal apos visita</p>
+                        </div>
+                      </div>
+                      <div class="tl-item future">
+                        <div class="tl-card" style="opacity:.4">
+                          <h4>Fecho <span class="step-tag" style="background:#f3f4f6;color:var(--dim)">-</span></h4>
+                          <p>Contrato e sinal</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="prop-card">
+                      <div class="ph">IMG</div>
+                      <div class="meta"><strong>Apartamento Talatona</strong><span>Luanda · 3 quartos</span><span class="price">45.000.000 Kz</span></div>
+                    </div>
+                    <div class="note-card">Prefere casas com quintal. Orcamento ate 50M Kz.</div>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- ══════════ V8 — Footer sticky CTA + kv ══════════ -->
+      <section class="variant" id="v8" data-title="Footer sticky + key-values" data-desc="Resumo em linhas chave/valor, scroll livre e CTA fixo no fundo (sempre acessivel).">
+        <div class="app-shell">
+          <div class="app-main">
+            <div class="app-top"><h3>Mensagens</h3></div>
+            <div class="app-body">
+              <div class="chat-mock">
+                <div class="chat-header"><div class="avatar">M</div><div><strong>Maria Silva</strong><span>Online agora</span></div></div>
+                <div class="chat-msgs">
+                  <div class="msg in">Ola! Vi o anuncio do apartamento em Talatona. Ainda esta disponivel?</div>
+                  <div class="msg out">Ola Maria! Sim, esta disponivel. Posso enviar mais detalhes.</div>
+                  <div class="msg in">Perfeito. Gostaria de agendar uma visita esta semana.</div>
+                </div>
+                <div class="chat-input"><div class="fake-input">Digite uma mensagem...</div><div class="send">SEND</div></div>
+              </div>
+              <aside class="crm" aria-label="Coluna CRM">
+                <div class="crm-scroll">
+                  <div class="crm-profile">
+                    <div class="avatar-wrap"><div class="fallback">M</div><span class="online"></span></div>
+                    <h3>Maria Silva</h3>
+                    <p class="email">maria.silva@email.com</p>
+                  </div>
+                  <div class="crm-body">
+                    <div>
+                      <div class="sec-label" style="margin-bottom:8px"><span class="dot"></span>Qualificacao</div>
+                      <div class="chip-row">
+                        <button type="button" class="chip on-hot">Quente</button>
+                        <button type="button" class="chip">Morno</button>
+                        <button type="button" class="chip">Frio</button>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="sec-label" style="margin-bottom:4px"><span class="dot"></span>Resumo</div>
+                      <div class="kv"><span class="k">Estado</span><span class="v" style="color:var(--red)">Quente</span></div>
+                      <div class="kv"><span class="k">Mensagens</span><span class="v">12</span></div>
+                      <div class="kv"><span class="k">Proxima visita</span><span class="v">Amanha 15:00</span></div>
+                      <div class="kv"><span class="k">Imovel</span><span class="v">Talatona · 45M</span></div>
+                      <div class="kv"><span class="k">Orcamento</span><span class="v">&lt;= 50.000.000 Kz</span></div>
+                    </div>
+                    <div>
+                      <div class="sec-label" style="margin-bottom:8px"><span class="dot"></span>Imovel de interesse</div>
+                      <div class="prop-card">
+                        <div class="ph">IMG</div>
+                        <div class="meta"><strong>Apartamento Talatona</strong><span>Luanda · 3 quartos</span><span class="price">45.000.000 Kz</span></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="sec-label" style="margin-bottom:8px"><span class="dot"></span>Nota estrategica</div>
+                      <div class="note-card">Prefere casas com quintal e garagem. Orcamento ate 50M Kz.</div>
+                    </div>
+                    <div>
+                      <div class="sec-label" style="margin-bottom:8px"><span class="dot"></span>Visitas</div>
+                      <div style="display:flex;flex-direction:column;gap:8px">
+                        <div class="visit-card">Amanha as <span class="when">15:00</span><br><span class="badge confirmed">Confirmada</span></div>
+                        <div class="visit-card">Sexta as <span class="when">10:00</span><br><span class="badge pending">Pendente</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="crm-footer">
+                  <div class="footer-row">
+                    <button type="button" class="cta-primary">Agendar Visita</button>
+                    <button type="button" class="cta-ghost" aria-label="Mais acoes">...</button>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <nav class="nav-bar" aria-label="Navegacao de variacoes">
+    <button type="button" class="nav-btn prev" id="btn-prev" onclick="go(-1)">
+      Anterior
+    </button>
+    <div class="nav-info">
+      <div class="variant-label" id="nav-label">Variacao 1 de 8</div>
+      <div class="variant-title" id="nav-title">—</div>
+      <div class="variant-desc" id="nav-desc">—</div>
+      <div class="nav-dots" id="nav-dots"></div>
+    </div>
+    <button type="button" class="nav-btn next" id="btn-next" onclick="go(1)">
+      Next
+    </button>
+  </nav>
+
+  <script>
+    const variants = Array.from(document.querySelectorAll('.variant'));
+    const dotsRoot = document.getElementById('nav-dots');
+    let idx = 0;
+
+    variants.forEach((_, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'nav-dot' + (i === 0 ? ' active' : '');
+      b.setAttribute('aria-label', 'Ir para variacao ' + (i + 1));
+      b.onclick = () => show(i);
+      dotsRoot.appendChild(b);
+    });
+
+    function show(i) {
+      idx = (i + variants.length) % variants.length;
+      variants.forEach((v, j) => v.classList.toggle('active', j === idx));
+      dotsRoot.querySelectorAll('.nav-dot').forEach((d, j) => d.classList.toggle('active', j === idx));
+      const v = variants[idx];
+      document.getElementById('nav-label').textContent = 'Variacao ' + (idx + 1) + ' de ' + variants.length;
+      document.getElementById('nav-title').textContent = v.dataset.title || '';
+      document.getElementById('nav-desc').textContent = v.dataset.desc || '';
+      document.getElementById('btn-prev').disabled = idx === 0;
+      document.getElementById('btn-next').disabled = idx === variants.length - 1;
+    }
+
+    function go(dir) { show(idx + dir); }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') go(1);
+      if (e.key === 'ArrowLeft') go(-1);
+    });
+
+    show(0);
+  </script>
+</body>
+</html>

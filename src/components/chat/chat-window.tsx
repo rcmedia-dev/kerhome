@@ -203,7 +203,7 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
     };
 
     return (
-        <div className="flex flex-col h-full max-h-full overflow-hidden bg-white min-h-0 w-full md:rounded-card md:border md:border-gray-100 shadow-xs">
+        <div className="flex flex-col h-full min-h-0 max-h-full overflow-hidden bg-white w-full md:rounded-card md:border md:border-gray-100 shadow-xs">
             <input
                 type="file"
                 ref={fileInputRef}
@@ -222,7 +222,7 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
                             backToList();
                             onClose();
                         }} 
-                        className="p-2 -ml-1 hover:bg-white/10 rounded-full transition-colors shrink-0 active:scale-95 cursor-pointer touch-manipulation" 
+                        className="md:hidden p-2 -ml-1 hover:bg-white/10 rounded-full transition-colors shrink-0 active:scale-95 cursor-pointer touch-manipulation" 
                         aria-label="Voltar à lista"
                     >
                         <ArrowLeft size={20} />
@@ -338,7 +338,7 @@ export function ChatWindow({ onClose, onShowCRM }: ChatWindowProps) {
             <form 
                 onSubmit={handleSendMessage} 
                 style={{ paddingBottom: 'max(calc(env(safe-area-inset-bottom, 0px) + 10px), 18px)' }}
-                className="px-3 pt-2.5 sm:px-4 sm:py-3 bg-white border-t border-gray-100 flex items-center gap-1.5 sm:gap-2 shrink-0 relative z-10 shadow-xs"
+                className="px-3 pt-2.5 sm:px-4 sm:py-3 bg-white border-t border-gray-100 flex items-center gap-1.5 sm:gap-2 shrink-0 relative z-20 shadow-md"
             >
                 {/* Emoji Picker Popover */}
                 {showEmojiPicker && (
