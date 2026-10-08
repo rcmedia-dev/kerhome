@@ -138,7 +138,24 @@ export const PropertySearchSchema = z.object({
   limit: z.number().int().min(1).max(100).default(20),
 });
 
-// ========== TYPES INFERIDOS ==========
+// ========== REPORTE DE ANÚNCIO ==========
+
+export const ReportMotivoSchema = z.enum([
+  'preco_incorreto',
+  'indisponivel',
+  'duplicado',
+  'fotos_falsas',
+  'fraude',
+  'localizacao_incorreta',
+  'outro',
+]);
+
+export const ReportPropertySchema = z.object({
+  property_id: z.string().min(1, 'Imóvel é obrigatório'),
+  motivo: ReportMotivoSchema,
+  descricao: z.string().max(2000, 'Descrição muito longa').optional(),
+  contacto: z.string().max(255).optional(),
+});
 
 export type CreateProperty = z.infer<typeof CreatePropertySchema>;
 export type UpdateProperty = z.infer<typeof UpdatePropertySchema>;
@@ -147,6 +164,7 @@ export type CreateUser = z.infer<typeof CreateUserSchema>;
 export type UpdateUser = z.infer<typeof UpdateUserSchema>;
 export type CreateMessage = z.infer<typeof CreateMessageSchema>;
 export type PropertySearch = z.infer<typeof PropertySearchSchema>;
+export type ReportPropertyInput = z.infer<typeof ReportPropertySchema>;
 
 /**
  * Função helper para validar dados

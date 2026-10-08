@@ -4,10 +4,10 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
 
 export const metadata: Metadata = {
   title: 'Imobiliárias Verificadas em Angola',
-  description: 'Encontre imobiliárias verificadas em Angola. Agências imobiliárias de confiança em Luanda, Benguela, Huíla e todas as províncias.',
+  description: 'Encontre imobiliárias em Angola com identidade e contactos confirmados pela equipa Kercasa. Agências em Luanda, Benguela, Huíla e todas as províncias.',
   openGraph: {
     title: 'Imobiliárias Verificadas em Angola | Kercasa',
-    description: 'Encontre imobiliárias verificadas em Angola. Agências imobiliárias de confiança.',
+    description: 'Encontre imobiliárias em Angola com identidade e contactos confirmados pela equipa Kercasa.',
     url: `${SITE_URL}/imobiliarias`,
     siteName: 'Kercasa',
     locale: 'pt_AO',

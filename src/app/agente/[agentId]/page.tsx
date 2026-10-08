@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react';
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
 import React from 'react';
@@ -18,13 +19,15 @@ import { useEffect } from 'react';
 
 const supabase = createClient();
 
-// Dados de estatísticas
-const agentStats = {
-  propertiesSold: 47,
-  yearsExperience: 5,
-  clientSatisfaction: 98,
-  averageDaysOnMarket: 24
-};
+// Estatísticas calculadas a partir de dados reais (nunca valores fixos):
+// - imóveis publicados: contagem da tabela properties
+// - anos na plataforma: desde profiles.created_at
+function fullYearsSince(dateStr?: string | null): number {
+  if (!dateStr) return 0;
+  const start = new Date(dateStr).getTime();
+  if (Number.isNaN(start)) return 0;
+  return Math.max(0, Math.floor((Date.now() - start) / (365.25 * 24 * 3600 * 1000)));
+}
 
 export default function AgentProfilePage(
   params: { params: Promise<{ agentId: string }> }
@@ -64,9 +67,12 @@ export default function AgentProfilePage(
     }
   });
 
-  console.log(agentProfile.data);
-
   const profile = agentProfile.data?.[0] || null;
+
+  const agentStats = useMemo(() => ({
+    propertiesListed: agentProperties.data?.length ?? 0,
+    yearsOnPlatform: fullYearsSince(profile?.created_at),
+  }), [agentProperties.data?.length, profile?.created_at]);
 
   // Track View
   useEffect(() => {

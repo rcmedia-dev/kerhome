@@ -9,7 +9,7 @@ export function OrganizationJsonLd() {
     description: 'Plataforma imobiliária em Angola. Compre, arrende ou anuncie imóveis com inteligência artificial.',
     contactPoint: {
       '@type': 'ContactPoint',
-      telephone: '+244-XXX-XXX-XXX',
+      telephone: '+244-929-884-781',
       contactType: 'customer service',
     },
     sameAs: [

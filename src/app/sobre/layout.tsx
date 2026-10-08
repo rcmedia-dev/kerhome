@@ -4,7 +4,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
 
 export const metadata: Metadata = {
   title: 'Sobre Nós — A Plataforma Imobiliária de Angola',
-  description: 'Conheça a Kercasa, a plataforma líder em Angola para compra, venda e arrendamento de imóveis. Milhares de imóveis verificados e agentes de confiança.',
+  description: 'Conheça a Kercasa, a plataforma imobiliária em Angola para compra, venda e arrendamento de imóveis. Anúncios publicados por anunciantes com verificação básica.',
   openGraph: {
     title: 'Sobre Nós — Kercasa | Plataforma Imobiliária de Angola',
     description: 'Conheça a Kercasa, a plataforma líder em Angola para compra, venda e arrendamento de imóveis.',
@@ -35,7 +35,7 @@ const faqJsonLd = {
       name: 'O que é a Kercasa?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'A Kercasa é a plataforma líder em Angola para compra, venda e arrendamento de imóveis. Oferecemos milhares de imóveis verificados em todas as províncias, com agentes imobiliários de confiança e processos 100% digitais.',
+        text: 'A Kercasa é a plataforma imobiliária em Angola para compra, venda e arrendamento de imóveis. Publicamos anúncios de anunciantes com verificação básica (contacto e coerência do anúncio) em várias províncias.',
       },
     },
     {
@@ -51,7 +51,7 @@ const faqJsonLd = {
       name: 'Como funcionam as transações na Kercasa?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Todas as transações são verificadas pela nossa equipa. Os imóveis são rigorosamente verificados antes de serem publicados, garantindo segurança e confiança em cada negócio. Os processos são 100% digitais.',
+        text: 'Os anúncios passam por verificação básica (contacto do anunciante e coerência do anúncio) antes da publicação. O conteúdo é da responsabilidade do anunciante; recomendamos visitar o imóvel e confirmar preço e disponibilidade antes de qualquer pagamento.',
       },
     },
     {

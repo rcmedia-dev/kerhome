@@ -6,15 +6,14 @@ import Image from 'next/image';
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence, Variants, Transition } from 'framer-motion';
+import { formatArea, formatCount, formatKzPrice } from '@/lib/utils/formatting';
 
 type HeroCarouselProps = {
   property: any
 }
 
-// Função para formatar números com máscara de pontos
-const formatPrice = (price: number | string) => {
-  return String(price).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-};
+// Formato único Kercasa: `15 000 000 Kz` (espaço como separador de milhares)
+const formatPrice = (price: number | string) => formatKzPrice(price);
 
 // Configurações de transição reutilizáveis
 const springTransition: Transition = {
@@ -207,10 +206,10 @@ export default function HeroCarousel({ property }: HeroCarouselProps) {
                       </p>
                       <div className="flex flex-row justify-center gap-2 md:gap-6 text-xs md:text-base font-medium">
                         <span className="flex items-center justify-center gap-1 md:gap-2 px-3 md:px-4 py-1 md:py-2 rounded-full">
-                          <BedDouble size={16} className="text-orange-400" /> {property.bedrooms} Quarto{property.bedrooms > 1 ? 's' : ''}
+                          <BedDouble size={16} className="text-orange-400" /> {formatCount(property.bedrooms, 'Quarto', 'Quartos')}
                         </span>
                         <span className="flex items-center justify-center gap-1 md:gap-2 px-3 md:px-4 py-1 md:py-2 rounded-full">
-                          <Maximize size={16} className="text-orange-400" /> {property.size}m
+                          <Maximize size={16} className="text-orange-400" /> {formatArea(property.size)}
                         </span>
                         <span className="flex items-center justify-center gap-1 md:gap-2 bg-orange-600/90 px-3 md:px-4 py-1 md:py-2 rounded-full shadow-lg hover:bg-orange-600 transition-colors">
                           {formatPrice(property.price)}
@@ -249,7 +248,7 @@ export default function HeroCarousel({ property }: HeroCarouselProps) {
                 transition={{ duration: 1, ease: "easeOut" }}
               >
                 <span className="inline-block py-1 px-3 rounded-full bg-orange-500/20 border border-orange-500/30 text-orange-200 text-sm font-medium mb-4 backdrop-blur-sm">
-                  #1 Imobiliária em Angola
+                  Plataforma imobiliária em Angola
                 </span>
                 <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight tracking-tight drop-shadow-lg">
                   Encontre o Lar <br className="hidden md:block" />
@@ -258,7 +257,7 @@ export default function HeroCarousel({ property }: HeroCarouselProps) {
                   </span>
                 </h1>
                 <p className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto mb-8 font-light drop-shadow-md">
-                  Milhares de propriedades exclusivas esperando por você. Compre, venda ou arrende com total segurança.
+                  Milhares de propriedades exclusivas esperando por você. Compre, venda ou arrende com verificação básica e dicas de segurança.
                 </p>
               </motion.div>
             </div>

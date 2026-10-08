@@ -1,10 +1,16 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!
-);
+let supabaseCache: ReturnType<typeof createClient> | null = null;
+function getSupabase() {
+  if (!supabaseCache) {
+    supabaseCache = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co',
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || 'dummy_key'
+    );
+  }
+  return supabaseCache;
+}
 
 export async function POST(req: Request) {
   try {
@@ -22,7 +28,7 @@ export async function POST(req: Request) {
     const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
     const fileName = `feedback/${Date.now()}-${sanitizedName}`;
 
-    const { error } = await supabase.storage
+    const { error } = await getSupabase().storage
       .from('feedback-images')
       .upload(fileName, file, { contentType: file.type, upsert: false });
 
@@ -31,7 +37,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
     }
 
-    const { data: { publicUrl } } = supabase.storage
+    const { data: { publicUrl } } = getSupabase().storage
       .from('feedback-images')
       .getPublicUrl(fileName);
 

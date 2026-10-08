@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { Award, Trophy, Star, Shield, Home, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { Home, Star, Shield, BadgeCheck } from "lucide-react";
 import type { HeroSectionProps, AgentProfile } from "@/types/agent";
 import { motion } from "framer-motion";
 
@@ -45,9 +46,15 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
                   className="relative rounded-full object-cover border-4 border-white shadow-2xl"
                 />
 
-                <div className="absolute -bottom-3 -right-3 bg-linear-to from-purple-500 to-pink-500 rounded-full p-3 shadow-xl">
-                  <Award className="w-7 h-7 text-white" />
-                </div>
+                {profile.licenca && (
+                  <Link
+                    href="/sobre#verificacao-agente"
+                    title="Licença profissional apresentada. O que significa?"
+                    className="absolute -bottom-3 -right-3 bg-gradient-to from-green-500 to-emerald-500 rounded-full p-3 shadow-xl hover:scale-110 transition-transform"
+                  >
+                    <BadgeCheck className="w-7 h-7 text-white" />
+                  </Link>
+                )}
               </div>
             ) : (
               <div className="relative group">
@@ -68,31 +75,27 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
           >
             {hasProfile && profile ? (
               <>
-                {/* BADGES */}
+                {/* BADGES — apenas factos verificáveis: licença apresentada (se existir) */}
                 <div className="flex flex-wrap gap-3 justify-start mb-6">
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    className="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full text-white backdrop-blur-md border border-white/20 transition-all"
-                  >
-                    <Trophy className="w-4 h-4" />
-                    <span className="text-sm font-semibold">Top Vendedor</span>
-                  </motion.div>
-
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    className="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full text-white backdrop-blur-md border border-white/20 transition-all"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    <span className="text-sm font-semibold">Especialista em Luxo</span>
-                  </motion.div>
-
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    className="flex items-center gap-2 bg-green-500/30 hover:bg-green-500/40 px-4 py-2 rounded-full text-white backdrop-blur-md border border-green-400/30 transition-all"
-                  >
-                    <Shield className="w-4 h-4" />
-                    <span className="text-sm font-semibold">Verificado</span>
-                  </motion.div>
+                  {profile.licenca ? (
+                    <Link
+                      href="/sobre#verificacao-agente"
+                      title="Este agente apresentou licença profissional. O que significa?"
+                      className="flex items-center gap-2 bg-green-500/30 hover:bg-green-500/40 px-4 py-2 rounded-full text-white backdrop-blur-md border border-green-400/30 transition-all underline underline-offset-2"
+                    >
+                      <BadgeCheck className="w-4 h-4" />
+                      <span className="text-sm font-semibold">Licença profissional apresentada</span>
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/sobre#verificacao-agente"
+                      title="Conta com contacto confirmado. O que verificamos?"
+                      className="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full text-white backdrop-blur-md border border-white/20 transition-all underline underline-offset-2"
+                    >
+                      <Shield className="w-4 h-4" />
+                      <span className="text-sm font-semibold">Contacto confirmado — o que significa?</span>
+                    </Link>
+                  )}
                 </div>
 
                 {/* NOME COMPLETO */}
@@ -100,12 +103,14 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
                   {profile.primeiro_nome} {profile.ultimo_nome}
                 </h1>
 
-                {/* DESCRIÇÃƒO */}
+                {/* DESCRIÇÃO */}
                 <p className="text-xl text-purple-100 mb-8 max-w-2xl leading-relaxed">
-                  Especialista em negócios imobiliários com <span className="font-bold text-white">{agentStats.yearsExperience} anos</span> transformando sonhos em realidade
+                  {profile.sobre_mim
+                    ? profile.sobre_mim
+                    : "Anunciante de imóveis na plataforma Kercasa."}
                 </p>
 
-                {/* ESTATÍSTICAS */}
+                {/* ESTATÍSTICAS — apenas dados reais */}
                 <div className="flex flex-wrap gap-4 justify-start">
                   <motion.div
                     whileHover={{ y: -4 }}
@@ -113,8 +118,8 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
                   >
                     <Home className="w-6 h-6 mr-3 text-orange-300" />
                     <div>
-                      <div className="text-2xl font-bold">{agentStats.propertiesSold}+</div>
-                      <div className="text-xs text-purple-200">Imóveis Vendidos</div>
+                      <div className="text-2xl font-bold">{agentStats.propertiesListed}</div>
+                      <div className="text-xs text-purple-200">Imóveis Publicados</div>
                     </div>
                   </motion.div>
 
@@ -124,8 +129,8 @@ export function HeroSection({ profile, agentStats }: HeroSectionProps) {
                   >
                     <Star className="w-6 h-6 mr-3 text-yellow-300" />
                     <div>
-                      <div className="text-2xl font-bold">{agentStats.clientSatisfaction}%</div>
-                      <div className="text-xs text-purple-200">Satisfação</div>
+                      <div className="text-2xl font-bold">{agentStats.yearsOnPlatform}</div>
+                      <div className="text-xs text-purple-200">Anos na Plataforma</div>
                     </div>
                   </motion.div>
                 </div>

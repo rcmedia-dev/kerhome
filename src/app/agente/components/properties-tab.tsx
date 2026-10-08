@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Home, Users, MapPin, Sparkles, Calendar, MessageCircle } from "lucide-react";
+import { Home, Users, MapPin, Sparkles, Calendar, MessageCircle, Ruler } from "lucide-react";
+import { formatArea, formatCount } from "@/lib/utils/formatting";
 import Image from "next/image";
 import Link from "next/link";
 import type { PropertiesTabProps, AgentProperty } from "@/types/agent";
@@ -65,15 +66,15 @@ function PropertyCard({ property }: { property: AgentProperty }) {
             <div className="flex gap-4 text-sm text-gray-600 mb-4">
               <span className="flex items-center">
                 <Home className="w-4 h-4 mr-1" />
-                {property.bedrooms} quartos
+                {formatCount(property.bedrooms, 'quarto', 'quartos')}
               </span>
               <span className="flex items-center">
                 <Users className="w-4 h-4 mr-1" />
-                {property.bathrooms} banheiros
+                {formatCount(property.bathrooms, 'banheiro', 'banheiros')}
               </span>
               <span className="flex items-center">
-                <span className="w-4 h-4 mr-1">ãŽ¡</span>
-                {property.size}m²
+                <Ruler className="w-4 h-4 mr-1" />
+                {formatArea(property.size)}
               </span>
             </div>
             

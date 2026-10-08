@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Home, ArrowLeft, FileText, Shield, Users, AlertCircle, CheckCircle2, Scale, Globe } from 'lucide-react';
 
-export default function KerHomeTerms() {
+export default function KercasaTerms() {
   const [activeSection, setActiveSection] = useState('geral');
 
   const sections = [
@@ -37,7 +37,7 @@ export default function KerHomeTerms() {
                 <Home className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-purple-700 to-orange-500 bg-clip-text text-transparent">
-                KerHome
+                Kercasa
               </span>
             </div>
             
@@ -82,7 +82,7 @@ export default function KerHomeTerms() {
                   Termos e Condições de Uso
                 </h1>
                 <p className="text-lg text-gray-600">
-                  Bem-vindo ao KerHome. Ao usar nossa plataforma, você concorda com os seguintes termos e condições.
+                  Bem-vindo ao Kercasa. Ao usar nossa plataforma, você concorda com os seguintes termos e condições.
                 </p>
               </div>
 
@@ -95,10 +95,10 @@ export default function KerHomeTerms() {
                 
                 <div className="space-y-4 text-gray-700">
                   <p>
-                    <strong>1.1</strong> O KerHome é uma plataforma digital que conecta compradores, vendedores e agentes imobiliários em Angola e internacionalmente.
+                    <strong>1.1</strong> O Kercasa é uma plataforma digital que conecta compradores, vendedores e agentes imobiliários em Angola e internacionalmente.
                   </p>
                   <p>
-                    <strong>1.2</strong> Estes termos constituem um acordo legal entre você e a KerHome, Lda., empresa registrada em Angola.
+                    <strong>1.2</strong> Estes termos constituem um acordo legal entre você e a Kercasa — operado por RC Media, empresa registrada em Angola.
                   </p>
                   <p>
                     <strong>1.3</strong> Ao acessar ou usar nossos serviços, você confirma que tem pelo menos 18 anos e capacidade legal para celebrar contratos.
@@ -144,7 +144,7 @@ export default function KerHomeTerms() {
                 
                 <div className="space-y-4 text-gray-700">
                   <p>
-                    <strong>3.1</strong> O KerHome oferece uma plataforma para listar, pesquisar e facilitar transações imobiliárias.
+                    <strong>3.1</strong> O Kercasa oferece uma plataforma para listar, pesquisar e facilitar transações imobiliárias.
                   </p>
                   <p>
                     <strong>3.2</strong> Fornecemos ferramentas para agentes imobiliários, incluindo gestão de clientes e análise de mercado.
@@ -202,7 +202,7 @@ export default function KerHomeTerms() {
                     <strong>5.2</strong> Agentes devem cumprir todas as regulamentações profissionais aplicáveis.
                   </p>
                   <p>
-                    <strong>5.3</strong> O KerHome não se responsabiliza por disputas entre usuários.
+                    <strong>5.3</strong> O Kercasa não se responsabiliza por disputas entre usuários.
                   </p>
                   <p>
                     <strong>5.4</strong> Não garantimos a disponibilidade ininterrupta dos serviços.
@@ -295,8 +295,8 @@ export default function KerHomeTerms() {
               <div className="bg-gray-50 rounded-lg p-6 mt-8">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Contato para Questões Legais</h3>
                 <div className="space-y-2 text-gray-700">
-                  <p><strong>Email:</strong> legal@kerhome.ao</p>
-                  <p><strong>Telefone:</strong> +244 900 000 000</p>
+                  <p><strong>Email:</strong> geral@rcmedia.ao</p>
+                  <p><strong>Telefone:</strong> +244 929 884 781</p>
                   <p><strong>Endereço:</strong> Luanda, Angola</p>
                   <p><strong>Horário:</strong> Segunda a Sexta, 8h às 17h</p>
                 </div>
@@ -304,7 +304,7 @@ export default function KerHomeTerms() {
 
               {/* Footer */}
               <div className="border-t border-gray-200 mt-8 pt-6 text-center text-gray-600">
-                <p>© 2025 KerHome, Lda. Todos os direitos reservados.</p>
+                <p>© 2025 Kercasa — operado por RC Media Todos os direitos reservados.</p>
                 <p className="text-sm mt-2">Documento válido a partir de Janeiro de 2025</p>
               </div>
             </div>

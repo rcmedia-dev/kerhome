@@ -126,17 +126,17 @@ export default function ActionCardsSection() {
     },
     {
       title: 'Arrendar casa',
-      description: 'Tem um imóvel disponível? Arrende com total apoio e visibilidade.',
-      button: 'Ver opções',
+      description: 'Procura casa para arrendar? Explore imóveis disponíveis para arrendamento.',
+      button: 'Ver imóveis para arrendar',
       icon: <KeyRound className="w-6 h-6" />,
       gradient: 'from-orange-500 to-amber-600',
       hoverGradient: 'from-orange-600 to-amber-700',
       bgColor: 'bg-gradient-to-br from-orange-50 to-amber-50',
-      href: '/contato',
+      href: '/propriedades?status=arrendar',
     },
     {
-      title: 'Vender casa',
-      description: 'Anuncie seu imóvel e alcance milhares de potenciais compradores.',
+      title: 'Anunciar imóvel',
+      description: 'Tem um imóvel disponível? Anuncie com total apoio e visibilidade.',
       button: 'Anunciar agora',
       icon: <HandCoins className="w-6 h-6" />,
       gradient: 'from-slate-800 to-gray-900',
@@ -227,7 +227,7 @@ export default function ActionCardsSection() {
               }}
               className="text-lg text-gray-600 max-w-2xl mx-auto"
             >
-              Descubra as melhores opções para comprar, arrendar ou vender seu imóvel com toda segurança e transparência.
+              Descubra as melhores opções para comprar, arrendar ou vender seu imóvel com verificação básica e transparência.
             </motion.p>
           </motion.div>
 
@@ -361,7 +361,7 @@ export default function ActionCardsSection() {
             className="text-center mt-12"
           >
             <p className="text-gray-500 text-sm">
-              Junte-se a milhares de clientes satisfeitos. <span className="text-orange-500 font-medium">100% seguro</span> e <span className="text-orange-500 font-medium">transparente</span>.
+              Junte-se a milhares de clientes satisfeitos. Com <span className="text-orange-500 font-medium">verificação básica dos anúncios</span> e <span className="text-orange-500 font-medium">transparência</span>. <Link href="/sobre#verificacao" className="underline underline-offset-2">O que verificamos?</Link>
             </p>
           </motion.div>
         </div>

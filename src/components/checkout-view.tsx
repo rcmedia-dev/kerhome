@@ -86,7 +86,7 @@ export function CheckoutView({
 
                      <div>
                         <h3 className="text-base font-semibold text-slate-900">{selectedPlan}</h3>
-                        <p className="text-xs font-medium text-slate-500 mt-1">Subscrição Profissional KerCasa</p>
+                        <p className="text-xs font-medium text-slate-500 mt-1">Subscrição Profissional Kercasa</p>
                         <button 
                           onClick={onBack}
                           type="button" 

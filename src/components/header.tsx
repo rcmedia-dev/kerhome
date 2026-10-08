@@ -352,7 +352,7 @@ export default function Header() {
             >
               <Image
                 src="/kercasa_logo.png"
-                alt="kerhome logo"
+                alt="Kercasa logo"
                 width={160}
                 height={40}
                 style={{ width: 'auto', height: 'auto' }}
@@ -391,7 +391,7 @@ export default function Header() {
             >
               <Image
                 src="/kercasa_logo.png"
-                alt="kerhome logo"
+                alt="Kercasa logo"
                 width={160}
                 height={40}
                 style={{ width: 'auto', height: 'auto' }}

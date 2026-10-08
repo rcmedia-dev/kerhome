@@ -1,11 +1,17 @@
 ﻿import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// Initialize Supabase with Service Role Key to bypass RLS
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!
-);
+// Cliente Supabase com criação lazy (evita crash sem env no arranque)
+let supabaseCache: ReturnType<typeof createClient> | null = null;
+function getSupabase() {
+  if (!supabaseCache) {
+    supabaseCache = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co',
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || 'dummy_key'
+    );
+  }
+  return supabaseCache;
+}
 
 export async function POST(req: Request) {
     try {
@@ -21,7 +27,7 @@ export async function POST(req: Request) {
         const fileName = `${Date.now()}-${sanitizedName}`;
 
         // Upload to 'chat-uploads' bucket
-        const { data, error } = await supabase.storage
+        const { data, error } = await getSupabase().storage
             .from('chat-uploads') // Bucket must exist (I created it via script)
             .upload(fileName, file, {
                 contentType: file.type,
@@ -34,7 +40,7 @@ export async function POST(req: Request) {
         }
 
         // Get public URL
-        const { data: { publicUrl } } = supabase.storage
+        const { data: { publicUrl } } = getSupabase().storage
             .from('chat-uploads')
             .getPublicUrl(fileName);
 

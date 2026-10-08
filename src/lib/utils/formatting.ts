@@ -97,15 +97,122 @@ export const formatCurrency = (
 };
 
 /**
- * Converte string formatada para número
- * 
- * @param formatted - String formatada
- * @returns Número
- * 
+ * Formata preço no padrão único Kercasa: `15 000 000 Kz`
+ * (espaço como separador de milhares, sem decimais, sufixo `Kz`).
+ *
  * @example
- * ```tsx
+ * formatKzPrice(15000000) // "15 000 000 Kz"
+ * formatKzPrice(null) // "Sob consulta"
+ */
+export const formatKzPrice = (
+  value: string | number | null | undefined,
+  opts: { isRent?: boolean; negotiable?: boolean } = {}
+): string => {
+  if (value === null || value === undefined || value === '') {
+    return 'Sob consulta';
+  }
+  const numericValue =
+    typeof value === 'number'
+      ? value
+      : parseInt(String(value).replace(/\D/g, ''), 10);
+  if (!Number.isFinite(numericValue) || numericValue <= 0) {
+    return 'Sob consulta';
+  }
+  const grouped = new Intl.NumberFormat('pt-AO', {
+    style: 'decimal',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(Math.round(numericValue));
+  // Normaliza NBSP de pt-AO para espaço simples
+  const normalized = grouped.replace(/\u00a0|\u202f/g, ' ');
+  const suffix = opts.isRent ? ' Kz/mês' : ' Kz';
+  const base = `${normalized}${suffix}`;
+  return opts.negotiable ? `${base} (Negociável)` : base;
+};
+
+/**
+ * Exibe contagens (quartos, casas de banho...).
+ * `0`, `null` ou `undefined` => "Não informado" (nunca `0`).
+ */
+export const formatCount = (
+  value: string | number | null | undefined,
+  singular: string,
+  plural?: string
+): string => {
+  const n =
+    typeof value === 'number' ? value : parseInt(String(value ?? ''), 10);
+  if (!Number.isFinite(n) || n <= 0) return 'Não informado';
+  const label = n === 1 ? singular : plural ?? `${singular}s`;
+  return `${n} ${label}`;
+};
+
+/**
+ * Exibe áreas sempre com unidade `m²` e "Não informado" quando ausente.
+ * Aceita strings já com unidade sem duplicar.
+ */
+export const formatArea = (
+  value: string | number | null | undefined,
+  label?: string
+): string => {
+  if (value === null || value === undefined || value === '') {
+    return label ? `${label}: Não informado` : 'Não informado';
+  }
+  if (typeof value === 'string' && /não informado|—|–/i.test(value)) {
+    return label ? `${label}: Não informado` : 'Não informado';
+  }
+  const numeric =
+    typeof value === 'number'
+      ? value
+      : parseFloat(String(value).replace(/[^\d.,-]/g, '').replace(',', '.'));
+  if (!Number.isFinite(numeric) || numeric <= 0) {
+    return label ? `${label}: Não informado` : 'Não informado';
+  }
+  const display =
+    typeof value === 'string' && /m\s?²/i.test(value)
+      ? String(value).trim()
+      : `${numeric} m²`;
+  return label ? `${label}: ${display}` : display;
+};
+
+/**
+ * Deteta telefones em texto livre para padronização editorial.
+ * Retorna os candidatos encontrados (ex.: +244 9XX XXX XXX).
+ */
+export const detectPhonesInText = (text: string | null | undefined): string[] => {
+  if (!text) return [];
+  const matches = text.match(/(?:\+?244[\s-]?)?9\d{2}[\s-]?\d{3}[\s-]?\d{3}/g);
+  return matches ? [...new Set(matches)] : [];
+};
+
+/**
+ * Deteta discrepância entre preço estruturado e preço citado no texto.
+ * Ex.: campo = 15M mas descrição menciona 14M.
+ */
+export const detectPriceMismatch = (
+  structuredPrice: number | null | undefined,
+  text: string | null | undefined
+): { hasMismatch: boolean; mentionedPrices: number[] } => {
+  if (!structuredPrice || !text) return { hasMismatch: false, mentionedPrices: [] };
+  const raw = text.match(/\d[\d\s.]*\s?(?:milh(?:ões|ao|oes)?|M\b|Kz\b)/gi) ?? [];
+  const mentioned = raw
+    .map((m) => {
+      const digits = m.replace(/\D/g, '');
+      let n = parseInt(digits, 10);
+      if (/milh/i.test(m) && n < 1000000) n = n * 1000000;
+      return n;
+    })
+    .filter((n) => Number.isFinite(n) && n > 0);
+  const hasMismatch = mentioned.some(
+    (m) => Math.abs(m - structuredPrice) / structuredPrice > 0.02
+  );
+  return { hasMismatch, mentionedPrices: mentioned };
+};
+
+/**
+ * Converte string formatada para número
+ *
+ * @example
  * parseFormattedPrice("1.500.000") // 1500000
- * ```
  */
 export const parseFormattedPrice = (formatted: string): number => {
   if (!formatted) return 0;

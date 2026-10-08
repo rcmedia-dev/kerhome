@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     default: "Kercasa — Imóveis em Angola | Comprar, Vender e Arrendar Casas",
     template: "%s | Kercasa",
   },
-  description: "Plataforma imobiliária inteligente em Angola. Encontre casas, apartamentos e vivendas para comprar ou arrendar em Luanda, Benguela, Huíla e mais. Milhares de imóveis verificados.",
+  description: "Plataforma imobiliária inteligente em Angola. Encontre casas, apartamentos e vivendas para comprar ou arrendar em Luanda, Benguela, Huíla e mais. Anúncios publicados por anunciantes com verificação básica.",
   keywords: ["imóveis Angola", "comprar casa Angola", "arrendar imóvel", "agentes imobiliários", "Kercasa", "imobiliária online", "casa Luanda", "apartamento Benguela", "vivenda Talatona", "imóveis Kilamba"],
   metadataBase: new URL(SITE_URL),
   openGraph: {

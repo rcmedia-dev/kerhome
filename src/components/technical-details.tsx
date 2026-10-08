@@ -1,17 +1,18 @@
 import { TPropertyResponseSchema } from "@/lib/types/property";
 import { BedDouble, Bath, CarFront, Ruler, LandPlot, Square } from "lucide-react";
+import { formatArea, formatCount } from "@/lib/utils/formatting";
 
 // ===== COMPONENTE TECHNICAL DETAILS =====
 export function TechnicalDetails({ property }: { property: TPropertyResponseSchema }) {
 
   const details = [
-    { label: "Quartos", value: property.bedrooms, icon: BedDouble },
-    { label: "Banheiros", value: property.bathrooms, icon: Bath },
-    { label: "Garagens", value: property.garagens, icon: CarFront },
-    { label: "Área Útil", value: property.size ? `${property.size} m²` : null, icon: Ruler },
-    { label: "Terreno", value: property.area_terreno ? `${property.area_terreno} m²` : null, icon: LandPlot },
-    { label: "Garagem Área", value: property.garagemtamanho ? `${property.garagemtamanho} m²` : null, icon: Square },
-  ].filter(item => item.value !== null && item.value !== undefined);
+    { label: "Quartos", value: formatCount(property.bedrooms, "Quarto", "Quartos"), icon: BedDouble },
+    { label: "Banheiros", value: formatCount(property.bathrooms, "Banheiro", "Banheiros"), icon: Bath },
+    { label: "Garagens", value: formatCount(property.garagens, "Garagem", "Garagens"), icon: CarFront },
+    { label: "Área Útil", value: formatArea(property.size), icon: Ruler },
+    { label: "Terreno", value: formatArea(property.area_terreno), icon: LandPlot },
+    { label: "Garagem Área", value: formatArea((property as any).garagemtamanho ?? (property as any).garagem_tamanho), icon: Square },
+  ];
 
   if (details.length === 0) return null;
 

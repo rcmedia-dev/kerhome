@@ -32,7 +32,7 @@ async function uploadFileToSupabase(file: File, bucket: string, path: string): P
   return publicUrl;
 }
 
-// Upload de imagem COM marca d'água KerCasa
+// Upload de imagem COM marca d'água Kercasa
 async function uploadImageWithWatermark(file: File, bucket: string, path: string): Promise<string> {
   const supabase = await createClient();
 

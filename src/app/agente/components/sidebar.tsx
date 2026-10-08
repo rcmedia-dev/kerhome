@@ -93,26 +93,18 @@ export function Sidebar({ profile, agentStats, onOpenMessageBox }: SidebarProps)
         )}
       </Card>
 
-      {/* Card de Estatísticas */}
+      {/* Card de Estatísticas — apenas dados reais */}
       <Card className="p-6 shadow-lg border-0 bg-linear-to from-purple-600 to-orange-600 text-white rounded-2xl">
-        <h3 className="font-semibold text-lg mb-6 text-center">Meu Desempenho</h3>
-        
+        <h3 className="font-semibold text-lg mb-6 text-center">Atividade na Plataforma</h3>
+
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center p-4 bg-white/15 rounded-xl backdrop-blur-sm">
-            <div className="text-2xl font-bold text-white">{agentStats.propertiesSold}+</div>
-            <div className="text-sm text-purple-100">Imóveis Vendidos</div>
+            <div className="text-2xl font-bold text-white">{agentStats.propertiesListed}</div>
+            <div className="text-sm text-purple-100">Imóveis Publicados</div>
           </div>
           <div className="text-center p-4 bg-white/15 rounded-xl backdrop-blur-sm">
-            <div className="text-2xl font-bold text-white">{agentStats.yearsExperience}+</div>
-            <div className="text-sm text-purple-100">Anos de Experiência</div>
-          </div>
-          <div className="text-center p-4 bg-white/15 rounded-xl backdrop-blur-sm">
-            <div className="text-2xl font-bold text-white">{agentStats.clientSatisfaction}%</div>
-            <div className="text-sm text-purple-100">Satisfação</div>
-          </div>
-          <div className="text-center p-4 bg-white/15 rounded-xl backdrop-blur-sm">
-            <div className="text-2xl font-bold text-white">{agentStats.averageDaysOnMarket}</div>
-            <div className="text-sm text-purple-100">Dias no Mercado</div>
+            <div className="text-2xl font-bold text-white">{agentStats.yearsOnPlatform}</div>
+            <div className="text-sm text-purple-100">Anos na Plataforma</div>
           </div>
         </div>
       </Card>

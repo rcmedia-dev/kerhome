@@ -22,7 +22,7 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { RealEstateListingJsonLd } from "@/components/json-ld";
 import { redirect } from "next/navigation";
 import { PageViewTracker } from "@/components/page-view-tracker";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, BadgeCheck, RefreshCw } from "lucide-react";
 
 function isUUID(value: string): boolean {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -182,6 +182,31 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
 
             {/* Header & Title */}
             <PropertyHeader property={property} />
+
+            {/* Faixa de confiança — disponibilidade, atualização e verificação */}
+            <div className="bg-white rounded-2xl border-2 border-purple-100 shadow-sm p-4 sm:p-5">
+              <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Estado do anúncio</p>
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-sm">
+                <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-bold shadow-sm ${(property as any).is_available === false ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}>
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-60" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white" />
+                  </span>
+                  <BadgeCheck className="w-4 h-4" />
+                  {(property as any).is_available === false ? 'Indisponível' : 'Disponível'}
+                </span>
+                {(property as any).updated_at && (
+                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 text-gray-700 font-semibold">
+                    <RefreshCw className="w-4 h-4" />
+                    Atualizado em {new Date((property as any).updated_at).toLocaleDateString('pt-AO')}
+                  </span>
+                )}
+                <a href="/sobre#verificacao" className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 text-purple-700 font-bold underline underline-offset-2 hover:bg-purple-200 transition-colors" title="Verificação básica: confirmamos contacto do anunciante e coerência do anúncio. Não constitui garantia de titularidade, preço final ou disponibilidade.">
+                  <ShieldCheck className="w-4 h-4" />
+                  Verificação básica — o que significa?
+                </a>
+              </div>
+            </div>
 
             {/* Content Blocks */}
             <div className="space-y-8 md:space-y-12">

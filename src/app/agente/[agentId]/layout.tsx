@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .single();
 
   const name = profile?.full_name || 'Agente Imobiliário';
-  const bio = profile?.bio || 'Especialista imobiliário verificado na Kercasa';
+  const bio = profile?.bio || 'Anunciante de imóveis na plataforma Kercasa';
   const avatar = profile?.avatar_url || `${SITE_URL}/kercasa_logo.png`;
   const fullDescription = `${bio} — Contacte ${name} na Kercasa para comprar, vender ou arrendar imóveis em Angola.`;
   const description = fullDescription.length > 155

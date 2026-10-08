@@ -42,8 +42,8 @@ const FeaturesSection = () => {
     },
     {
       icon: <Home className="w-8 h-8 text-orange-500" />,
-      title: "Imóveis Verificados",
-      description: "Todos os imóveis passam por verificação rigorosa para garantir qualidade"
+      title: "Anúncios com verificação básica",
+      description: "Confirmamos o contacto do anunciante e a coerência do anúncio antes da publicação. O conteúdo é da responsabilidade do anunciante."
     },
     {
       icon: <TrendingUp className="w-8 h-8 text-purple-700" />,
@@ -62,7 +62,7 @@ const FeaturesSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Por que escolher o KerCasa?
+            Por que escolher o Kercasa?
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Conectamos você aos melhores imóveis com tecnologia avançada e processos simplificados
@@ -98,7 +98,7 @@ const AboutSection = () => (
             Revolucionando o Mercado Imobiliário em Angola
           </h2>
           <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-            O KerCasa nasceu com a missão de transformar a experiência de compra e venda de imóveis 
+            O Kercasa nasceu com a missão de transformar a experiência de compra e venda de imóveis 
             em Angola. Combinamos tecnologia inovadora com conhecimento local para oferecer 
             uma plataforma completa e confiável.
           </p>
@@ -109,8 +109,8 @@ const AboutSection = () => (
           
           <div className="space-y-4">
             {[
-              "Processos 100% digitais e transparentes",
-              "Verificação rigorosa de todos os imóveis",
+              "Processos digitais e transparentes",
+              "Verificação básica dos anúncios (contacto do anunciante e coerência do anúncio)",
               "Suporte personalizado em todas as etapas",
               "Expansão contínua para novas províncias"
             ].map((item, index) => (
@@ -149,7 +149,7 @@ const TestimonialsSection = () => {
     {
       name: "Maria Santos",
       role: "Compradora em Luanda",
-      content: "Encontrei minha casa dos sonhos através do KerCasa. O processo foi transparente e seguro.",
+      content: "Encontrei minha casa dos sonhos através do Kercasa. O processo foi transparente e seguro.",
       rating: 5
     },
     {
@@ -161,7 +161,7 @@ const TestimonialsSection = () => {
     {
       name: "Ana Costa",
       role: "Investidora",
-      content: "As ferramentas de análise do KerCasa são excelentes para tomar decisões de investimento.",
+      content: "As ferramentas de análise do Kercasa são excelentes para tomar decisões de investimento.",
       rating: 5
     }
   ];
@@ -174,7 +174,7 @@ const TestimonialsSection = () => {
             O que nossos clientes dizem
           </h2>
           <p className="text-xl text-gray-600">
-            Histórias reais de quem encontrou seu lar com o KerCasa
+            Histórias reais de quem encontrou seu lar com o Kercasa
           </p>
         </div>
         
@@ -206,6 +206,34 @@ export default function AboutUsPage() {
       <StatsSection />
       <FeaturesSection />
       <AboutSection />
+      <section id="verificacao" className="py-16 bg-gray-50 scroll-mt-24">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">O que significa “verificação básica” do anúncio?</h2>
+          <ul className="list-disc pl-6 space-y-2 text-gray-700 leading-relaxed">
+            <li>Confirmamos o contacto do anunciante (telefone/email) antes da publicação.</li>
+            <li>Verificamos a coerência entre título, fotos, localização e preço do anúncio.</li>
+            <li>Não garantimos titularidade, preço final, disponibilidade nem veracidade total do conteúdo — o anúncio é da responsabilidade do anunciante.</li>
+            <li>Encontrou um erro? Fale connosco através da página de contacto.</li>
+          </ul>
+        </div>
+      </section>
+      <section id="verificacao-agente" className="py-16 bg-white scroll-mt-24">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">O que significa “agência verificada”?</h2>
+          <ul className="list-disc pl-6 space-y-2 text-gray-700 leading-relaxed">
+            <li>A equipa Kercasa confirma a identidade da agência e os seus contactos (telefone, email, website) antes de atribuir o selo.</li>
+            <li>Agências verificadas passaram por aprovação e comprometeram-se a manter os seus anúncios atualizados.</li>
+            <li>O selo não garante o resultado de qualquer negócio, preço final ou disponibilidade — confirme sempre os detalhes diretamente com o anunciante e visite o imóvel antes de qualquer pagamento.</li>
+          </ul>
+          <h3 className="text-2xl font-bold text-gray-900 mt-10 mb-4">E os agentes individuais?</h3>
+          <ul className="list-disc pl-6 space-y-2 text-gray-700 leading-relaxed">
+            <li>Todas as contas de agente têm o contacto (telefone/email) confirmado no registo.</li>
+            <li>Quando o agente apresenta a sua licença profissional, exibimos o selo “Licença profissional apresentada” no seu perfil e nos seus cartões.</li>
+            <li>Sem licença apresentada, mostramos apenas “Contacto confirmado” — sem selo de verificação.</li>
+            <li>Tal como nas agências, isto não garante o resultado de qualquer negócio: confirme sempre os detalhes e visite o imóvel antes de qualquer pagamento.</li>
+          </ul>
+        </div>
+      </section>
       <TestimonialsSection />
     </div>
   );

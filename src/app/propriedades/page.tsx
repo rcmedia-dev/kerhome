@@ -22,7 +22,7 @@ import {
 import { PropertyCard } from '@/components/property-card';
 import { PropertyComparison, useCompare } from '@/components/property-comparison';
 import { useQuery } from '@tanstack/react-query';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { getMixedProperties, getProperties } from '@/lib/functions/get-properties';
 import { motion, Variants, Transition, AnimatePresence } from 'framer-motion';
 import LoadingState from './components/loading-state';
@@ -30,6 +30,7 @@ import { RecentlyViewedProperties } from '@/components/recently-viewed-propertie
 import { QuickViewModal } from '@/components/quick-view-modal';
 import { PropertyAiChat } from '@/components/property-ai-chat';
 import { useSavedSearches } from '@/hooks/use-saved-searches';
+import { useTrackEvent } from '@/hooks/use-track-event';
 import { formatPriceWithDots } from '@/lib/format-price';
 
 // Hook personalizado para debounce (sem bibliotecas externas)
@@ -183,12 +184,12 @@ const FilterInput = React.memo(({
     transition={springTransition}
   >
     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors duration-200 group-focus-within:text-purple-600">
-      <Icon size={16} className="text-gray-400 group-focus-within:text-purple-600" />
+      <Icon size={16} className="text-gray-500 group-focus-within:text-purple-600" />
     </div>
     <motion.input
       type={type}
       placeholder={placeholder}
-      className={`w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white text-sm shadow-sm hover:shadow-md group-hover:border-purple-300 ${value ? 'border-purple-200 bg-purple-50' : ''
+      className={`w-full pl-10 pr-4 py-2.5 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 bg-white text-sm shadow-sm hover:shadow-md hover:border-gray-400 ${value ? 'border-purple-400 bg-purple-50' : ''
         } ${className}`}
       value={value}
       onChange={onChange}
@@ -223,10 +224,10 @@ const FilterSelect = React.memo(({
     transition={springTransition}
   >
     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors duration-200 group-focus-within:text-purple-600">
-      <Icon size={16} className="text-gray-400 group-focus-within:text-purple-600" />
+      <Icon size={16} className="text-gray-500 group-focus-within:text-purple-600" />
     </div>
     <motion.select
-      className={`w-full pl-10 pr-8 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 appearance-none bg-white text-sm shadow-sm hover:shadow-md group-hover:border-purple-300 ${value ? 'border-purple-200 bg-purple-50' : ''
+      className={`w-full pl-10 pr-8 py-2.5 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 appearance-none bg-white text-sm shadow-sm hover:shadow-md hover:border-gray-400 ${value ? 'border-purple-400 bg-purple-50' : ''
         } ${className}`}
       value={value}
       onChange={onChange}
@@ -252,7 +253,11 @@ const FilterSelect = React.memo(({
 FilterSelect.displayName = 'FilterSelect';
 
 const PropertyListing = () => {
-  const searchParamsStr = useSearchParams().toString();
+  const searchParams = useSearchParams();
+  const searchParamsStr = searchParams.toString();
+  const router = useRouter();
+  const pathname = usePathname();
+  const isSyncingFromUrl = useRef(false);
   const [filters, setFilters] = useState({
     status: '',
     minPrice: '',
@@ -270,24 +275,26 @@ const PropertyListing = () => {
   const [localLocation, setLocalLocation] = useState(filters.location || '');
   const [localMinPrice, setLocalMinPrice] = useState(filters.minPrice || '');
   const [localMaxPrice, setLocalMaxPrice] = useState(filters.maxPrice || '');
+  const [localQ, setLocalQ] = useState(filters.q || '');
 
   // Estados para os valores formatados (com máscara)
   const [formattedMinPrice, setFormattedMinPrice] = useState('');
   const [formattedMaxPrice, setFormattedMaxPrice] = useState('');
 
-  const [isSticky, setIsSticky] = useState(false);
-  const [isFilterBtnVisible, setIsFilterBtnVisible] = useState(false);
-  const lastScrollY = useRef(0);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [quickViewProperty, setQuickViewProperty] = useState<any>(null);
   const [visibleCount, setVisibleCount] = useState(9);
   const ITEMS_PER_PAGE = 6;
-  const [saveSearchName, setSaveSearchName] = useState('');
-  const { searches: savedSearches, save: saveSearch, remove: removeSearch } = useSavedSearches();
+  const { searches: savedSearches, remove: removeSearch } = useSavedSearches();
+  const { track } = useTrackEvent();
+  const lastTrackedFilters = useRef('');
+
+  // Funil: pesquisa / filtros aplicados (debounced pelo efeito abaixo)
 
   // Sincroniza estados locais quando filters muda externamente (ex: clearFilters)
   useEffect(() => {
     setLocalLocation(filters.location || '');
+    setLocalQ(filters.q || '');
 
     // Atualiza os valores formatados quando os filtros são limpos
     if (filters.minPrice === '') {
@@ -301,33 +308,7 @@ const PropertyListing = () => {
     } else {
       setFormattedMaxPrice(formatCurrencyInput(filters.maxPrice));
     }
-  }, [filters.location, filters.minPrice, filters.maxPrice]);
-
-  // Comportamento de rolagem do botão mobile:
-  // - Aparece quando se faz scroll para baixo
-  // - Desaparece quando se faz scroll para cima
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setIsSticky(currentScrollY > 50);
-
-      if (currentScrollY <= 30) {
-        // No topo absoluto da página -> fica oculto
-        setIsFilterBtnVisible(false);
-      } else if (currentScrollY > lastScrollY.current + 6) {
-        // Rolar para baixo -> aparece
-        setIsFilterBtnVisible(true);
-      } else if (currentScrollY < lastScrollY.current - 6) {
-        // Rolar para cima -> desaparece
-        setIsFilterBtnVisible(false);
-      }
-
-      lastScrollY.current = currentScrollY;
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [filters.location, filters.minPrice, filters.maxPrice, filters.q]);
 
   const [searchBanner, setSearchBanner] = useState<string | null>(null);
 
@@ -336,21 +317,26 @@ const PropertyListing = () => {
     const params = new URLSearchParams(searchParamsStr);
     const tipo = params.get('tipo');
     const cidade = params.get('cidade');
-    const preco_max = params.get('preco_max');
-    const quartos = params.get('quartos');
-    const banheiros = params.get('banheiros');
+    const location = params.get('location') || cidade;
+    const preco_max = params.get('preco_max') || params.get('maxPrice');
+    const preco_min = params.get('preco_min') || params.get('minPrice');
+    const quartos = params.get('quartos') || params.get('bedrooms');
+    const banheiros = params.get('banheiros') || params.get('bathrooms');
     const garagensParam = params.get('garagens');
     const status = params.get('status');
+    const sortBy = params.get('sort');
     const q = params.get('q');
 
     const newFilters: Record<string, string> = {};
     if (tipo) newFilters.tipo = tipo;
-    if (cidade) newFilters.location = cidade;
+    if (location) newFilters.location = location;
     if (preco_max) newFilters.maxPrice = preco_max;
+    if (preco_min) newFilters.minPrice = preco_min;
     if (quartos) newFilters.bedrooms = quartos;
     if (banheiros) newFilters.bathrooms = banheiros;
     if (garagensParam) newFilters.garagens = garagensParam;
     if (status) newFilters.status = status;
+    if (sortBy) newFilters.sortBy = sortBy;
     if (q) newFilters.q = q;
 
     if (Object.keys(newFilters).length === 0) return;
@@ -364,10 +350,45 @@ const PropertyListing = () => {
     const parts: string[] = [];
     if (tipo) parts.push(tipo);
     if (quartos) parts.push(`T${quartos}`);
-    if (cidade) parts.push(`em ${cidade}`);
+    if (location) parts.push(`em ${location}`);
     if (preco_max) parts.push(`até Kz ${formatPriceWithDots(Number(preco_max)).replace(/\.00$/, '')}`);
     if (parts.length > 0) setSearchBanner(parts.join(' '));
+    isSyncingFromUrl.current = true;
+    const t = window.setTimeout(() => { isSyncingFromUrl.current = false; }, 500);
+    return () => window.clearTimeout(t);
   }, [searchParamsStr]);
+
+  // Preserva pesquisa e filtros na URL para partilha (não inclui valores padrão)
+  useEffect(() => {
+    if (isSyncingFromUrl.current) return;
+    const params = new URLSearchParams();
+    if (filters.status) params.set('status', filters.status);
+    if (filters.tipo) params.set('tipo', filters.tipo);
+    if (filters.location) params.set('location', filters.location);
+    if (filters.minPrice) params.set('minPrice', filters.minPrice);
+    if (filters.maxPrice) params.set('maxPrice', filters.maxPrice);
+    if (filters.bedrooms) params.set('bedrooms', filters.bedrooms);
+    if (filters.bathrooms) params.set('bathrooms', filters.bathrooms);
+    if (filters.garagens) params.set('garagens', filters.garagens);
+    if (filters.q) params.set('q', filters.q);
+    if (filters.sortBy && filters.sortBy !== 'recent') params.set('sort', filters.sortBy);
+    const next = params.toString();
+    const current = searchParams.toString();
+    if (next !== current) {
+      router.replace(`${pathname}${next ? `?${next}` : ''}`, { scroll: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.status, filters.tipo, filters.location, filters.minPrice, filters.maxPrice, filters.bedrooms, filters.bathrooms, filters.garagens, filters.q, filters.sortBy]);
+
+  useEffect(() => {
+    const key = JSON.stringify(filters);
+    if (key === lastTrackedFilters.current) return;
+    lastTrackedFilters.current = key;
+    const t = window.setTimeout(() => {
+      track({ event_type: 'search', entity_type: 'pesquisa', entity_id: 'listing', metadata: { ...filters } as any });
+    }, 800);
+    return () => window.clearTimeout(t);
+  }, [filters, track]);
 
   const clearFilters = () => {
     setFilters({
@@ -383,6 +404,8 @@ const PropertyListing = () => {
       q: '',
     });
     setVisibleCount(9);
+    setSearchBanner(null);
+    router.replace(pathname, { scroll: false });
   };
 
   const hasActiveFilters = Object.values(filters).some(value => value !== '' && value !== 'recent');
@@ -404,7 +427,12 @@ const PropertyListing = () => {
     refetchOnMount: false,
   });
 
-  // Ã°Å¸â€Â Funções de debounce para localização e preços
+  // Funções de debounce para pesquisa, localização e preços
+  const updateFilterQ = useDebouncedCallback((value: string) => {
+    setFilters(prev => ({ ...prev, q: value }));
+    setVisibleCount(9);
+  }, 350);
+
   const updateFilterLocation = useDebouncedCallback((value: string) => {
     setFilters(prev => ({ ...prev, location: value }));
     setVisibleCount(9);
@@ -420,7 +448,13 @@ const PropertyListing = () => {
     setVisibleCount(9);
   }, 350);
 
-  // Ã°Å¸Å½Â¯ Handlers para inputs com debounce - useCallback para manter referência estável
+  // Handlers para inputs com debounce - useCallback para manter referência estável
+  const handleLocalQChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLocalQ(value);
+    updateFilterQ(value);
+  }, [updateFilterQ]);
+
   const handleLocalLocationChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLocalLocation(value);
@@ -486,7 +520,7 @@ const PropertyListing = () => {
     setVisibleCount(9);
   }, []);
 
-  // Ã°Å¸â€Â FILTRAGEM NO FRONTEND
+  // FILTRAGEM NO FRONTEND
   const filteredProperties = properties?.data?.filter((property: any) => {
     const {
       status,
@@ -556,7 +590,7 @@ const PropertyListing = () => {
       return keywords.every(kw => text.includes(kw));
     })();
 
-    return (
+  return (
       matchesStatus &&
       matchesTipo &&
       matchesLocation &&
@@ -569,7 +603,7 @@ const PropertyListing = () => {
     );
   });
 
-  // Ã°Å¸Å½Â¯ ORDENAÃ‡ÃƒÆ’O
+  // ORDENAÇÃO
   const sortedProperties = React.useMemo(() => {
     if (!filteredProperties) return [];
 
@@ -601,10 +635,10 @@ const PropertyListing = () => {
         placeholder="Localização (ex: Luanda)"
         value={localLocation}
         onChange={handleLocalLocationChange}
-        className="bg-gray-50 border-gray-100 focus:bg-white"
+        className="bg-white border-gray-300 focus:bg-white"
       />
 
-      <FilterSelect Icon={Building} value={filters.tipo} onChange={handleTipoChange} className="bg-gray-50 border-gray-100">
+      <FilterSelect Icon={Building} value={filters.tipo} onChange={handleTipoChange} className="bg-white border-gray-300">
         <option value="">Tipo de Imóvel (Todos)</option>
         <option value="casa">Casa / Vivenda</option>
         <option value="apartamento">Apartamento</option>
@@ -613,7 +647,7 @@ const PropertyListing = () => {
         <option value="studio">Studio</option>
       </FilterSelect>
 
-      <FilterSelect Icon={TrendingUp} value={filters.status} onChange={handleStatusChange} className="bg-gray-50 border-gray-100">
+      <FilterSelect Icon={TrendingUp} value={filters.status} onChange={handleStatusChange} className="bg-white border-gray-300">
         <option value="">Status (Todos)</option>
         <option value="comprar">Comprar</option>
         <option value="arrendar">Arrendar</option>
@@ -626,7 +660,7 @@ const PropertyListing = () => {
           placeholder="Mín"
           value={formattedMinPrice}
           onChange={handleLocalMinPriceChange}
-          className="bg-gray-50 border-gray-100"
+          className="bg-white border-gray-300"
         />
         <FilterInput
           Icon={DollarSign}
@@ -634,11 +668,11 @@ const PropertyListing = () => {
           placeholder="Máx"
           value={formattedMaxPrice}
           onChange={handleLocalMaxPriceChange}
-          className="bg-gray-50 border-gray-100"
+          className="bg-white border-gray-300"
         />
       </div>
 
-      <FilterSelect Icon={Bed} value={filters.bedrooms} onChange={handleBedroomsChange} className="bg-gray-50 border-gray-100">
+      <FilterSelect Icon={Bed} value={filters.bedrooms} onChange={handleBedroomsChange} className="bg-white border-gray-300">
         <option value="">Quartos</option>
         <option value="1">1+</option>
         <option value="2">2+</option>
@@ -646,25 +680,81 @@ const PropertyListing = () => {
         <option value="4">4+</option>
       </FilterSelect>
 
-      <FilterSelect Icon={Bath} value={filters.bathrooms} onChange={handleBathroomsChange} className="bg-gray-50 border-gray-100">
+      <FilterSelect Icon={Bath} value={filters.bathrooms} onChange={handleBathroomsChange} className="bg-white border-gray-300">
         <option value="">Banheiros</option>
         <option value="1">1+</option>
         <option value="2">2+</option>
         <option value="3">3+</option>
       </FilterSelect>
 
-      <FilterSelect Icon={Car} value={filters.garagens} onChange={handleGaragensChange} className="bg-gray-50 border-gray-100">
+      <FilterSelect Icon={Car} value={filters.garagens} onChange={handleGaragensChange} className="bg-white border-gray-300">
         <option value="">Garagens</option>
         <option value="1">1+</option>
         <option value="2">2+</option>
       </FilterSelect>
 
-      <FilterSelect Icon={SlidersHorizontal} value={filters.sortBy} onChange={handleSortByChange} className="bg-gray-50 border-gray-100">
+      <FilterSelect Icon={SlidersHorizontal} value={filters.sortBy} onChange={handleSortByChange} className="bg-white border-gray-300">
         <option value="recent">Mais Recentes</option>
         <option value="price_asc">Preço: Menor</option>
         <option value="price_desc">Preço: Maior</option>
-        <option value="area">Maior Ãrea</option>
+        <option value="area">Maior Área</option>
       </FilterSelect>
+    </div>
+  );
+
+  // Corpo partilhado do painel de filtros (sidebar desktop + bottom-sheet mobile)
+  const FilterPanelBody = ({ onApply }: { onApply?: () => void }) => (
+    <div className="space-y-4">
+      {/* Pesquisa livre: tipo, título, descrição, bairro, cidade */}
+      <FilterInput
+        Icon={Search}
+        placeholder="Pesquisar (ex: vivenda, Kilamba...)"
+        value={localQ}
+        onChange={handleLocalQChange}
+        className="bg-white border-gray-300"
+      />
+      {savedSearches.length > 0 && (
+        <div className="mb-4">
+          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Pesquisas Salvas</h4>
+          <div className="space-y-1">
+            {savedSearches.map(s => (
+              <div key={s.id} className="flex items-center justify-between bg-orange-50/60 rounded-lg px-3 py-2">
+                <button
+                  onClick={() => {
+                    setFilters(prev => ({ ...prev, ...s.filters }));
+                    onApply?.();
+                  }}
+                  className="text-xs font-medium text-orange-700 hover:text-orange-900 text-left"
+                >
+                  {s.name}
+                </button>
+                <button
+                  onClick={() => removeSearch(s.id)}
+                  className="text-gray-400 hover:text-red-500 transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="border-b border-gray-100 my-3" />
+        </div>
+      )}
+      {/* NOTA: invocado como função (não como <Componente />) para preservar o foco dos inputs —
+          como é redefinido a cada render, usá-lo como componente faria o React desmontar/remontar os campos a cada tecla */}
+      {FilterGrid({ isModal: true })}
+
+      <div className="flex justify-between items-center pt-1">
+        <button
+          onClick={clearFilters}
+          className="text-xs font-semibold text-red-500 hover:bg-red-50 px-2.5 py-1.5 rounded-lg transition-colors"
+        >
+          Limpar filtros
+        </button>
+        <div className="text-xs font-medium text-gray-500">
+          <strong className="text-gray-900 text-sm">{sortedProperties?.length}</strong> imóveis encontrados
+        </div>
+      </div>
     </div>
   );
 
@@ -672,15 +762,69 @@ const PropertyListing = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
 
       <motion.div
-        className="max-w-7xl mx-auto px-4 w-full pb-20 pt-20"
+        className="max-w-[1440px] mx-auto px-4 w-full pb-20 pt-4 lg:pt-20"
       >
-        <div className="w-full">
+        <div className="lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8 lg:items-start">
+          {/* Sidebar de filtros fixa (desktop) */}
+          <aside className="hidden lg:block sticky top-24 h-fit max-h-[calc(100vh-7rem)] overflow-y-auto custom-scrollbar bg-white rounded-2xl border-2 border-gray-400 shadow-md">
+              <div className="flex items-center justify-between p-4 sm:p-5 border-b-2 border-gray-200 bg-gray-50/80 sticky top-0 z-10 rounded-t-2xl">
+                <div className="flex items-center gap-2 font-bold text-gray-800">
+                  <div className="p-1.5 bg-orange-100 rounded-lg text-orange-600">
+                    <SlidersHorizontal size={18} />
+                  </div>
+                  <span>Filtros</span>
+                  {activeFiltersCount > 0 && (
+                    <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-semibold">
+                      {activeFiltersCount} ativo{activeFiltersCount > 1 ? 's' : ''}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="p-5">
+                {FilterPanelBody({})}
+              </div>
+          </aside>
+
+          {/* Coluna de resultados */}
+          <div className="w-full min-w-0">
+            {/* Barra de ferramentas fixa e colada ao topo do viewport (mobile / tablet) */}
+            <div className="lg:hidden sticky top-0 z-50 -mx-4 px-4 py-2 bg-gray-50/95 backdrop-blur-sm flex items-center gap-2 mb-4 border-b border-gray-200">
+              <button
+                onClick={() => setShowFilterModal(true)}
+                aria-label={`Abrir filtros de busca (${sortedProperties?.length || 0} imóveis)`}
+                className="relative flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-white border-2 border-gray-300 rounded-xl font-bold text-sm text-gray-800 shadow-md active:scale-[0.98] transition-all"
+              >
+                <SlidersHorizontal size={16} className="text-orange-600" />
+                <span>Filtros</span>
+                {activeFiltersCount > 0 && (
+                  <span className="bg-orange-600 text-white min-w-5 h-5 px-1 rounded-full flex items-center justify-center text-[10px] font-bold">
+                    {activeFiltersCount}
+                  </span>
+                )}
+              </button>
+              <div className="text-xs font-medium text-gray-600 bg-white border-2 border-gray-300 rounded-xl px-3 py-3 whitespace-nowrap shadow-md">
+                <strong className="text-gray-900">{sortedProperties?.length || 0}</strong> imóveis
+              </div>
+            </div>
+
+            {searchBanner && (
+              <div className="flex items-center justify-between gap-2 mb-4 px-4 py-2.5 bg-purple-50 border border-purple-100 rounded-xl text-sm text-purple-800">
+                <span className="font-medium truncate">{searchBanner}</span>
+                <button
+                  onClick={() => { clearFilters(); setSearchBanner(null); }}
+                  aria-label="Limpar pesquisa"
+                  className="p-1 hover:bg-purple-100 rounded-full transition-colors shrink-0"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            )}
           {properties.isLoading ? (
             <LoadingState.LoadingGrid viewMode="grid" />
           ) : (
             <PropertyComparison properties={sortedProperties || []}>
                   <RecentlyViewedProperties allProperties={sortedProperties || []} />
-                  <div className="flex flex-col items-center md:grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  <div className="flex flex-col items-center sm:grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
                 {displayedProperties?.map((property, index) => (
                   <PropertyCardItem key={property.id} property={property} index={index} onQuickView={setQuickViewProperty} />
                 ))}
@@ -697,7 +841,6 @@ const PropertyListing = () => {
               )}
             </PropertyComparison>
           )}
-        </div>
 
         {/* Empty State */}
         <AnimatePresence>
@@ -724,69 +867,14 @@ const PropertyListing = () => {
             </motion.div>
           )}
         </AnimatePresence>
+          </div>
+        </div>
       </motion.div>
 
-      {/* Botão Flutuante Desktop (Restaurado exatamente conforme o original) */}
-      <AnimatePresence>
-        {isSticky && !showFilterModal && (
-          <motion.button
-            initial={{ x: 100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 100, opacity: 0 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setShowFilterModal(true)}
-            className="hidden md:flex fixed right-6 top-1/2 -translate-y-1/2 z-40 p-3 bg-orange-600 text-white rounded-xl shadow-xl backdrop-blur-md hover:bg-orange-700 transition-all flex-col items-center gap-1.5 cursor-pointer border border-white/20"
-          >
-            <SlidersHorizontal size={20} />
-            <span className="text-[9px] font-bold uppercase tracking-wider">Filtros</span>
-            {sortedProperties?.length > 0 && (
-              <span className="absolute -top-1.5 -left-1.5 bg-purple-500 text-white min-w-5 h-5 px-1 rounded-full flex items-center justify-center text-[10px] font-bold border-2 border-white">
-                {sortedProperties?.length}
-              </span>
-            )}
-          </motion.button>
-        )}
-      </AnimatePresence>
-
-      {/* Botão Flutuante Mobile (Exclusivo para Mobile: Compacto, Docked e com Smart-Hide) */}
-      <AnimatePresence>
-        {isFilterBtnVisible && !showFilterModal && (
-          <motion.button
-            initial={{ x: 70, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 70, opacity: 0 }}
-            whileHover={{ x: -2, scale: 1.02 }}
-            whileTap={{ scale: 0.94 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-            onClick={() => setShowFilterModal(true)}
-            aria-label={`Abrir filtros de busca (${sortedProperties?.length || 0} imóveis)`}
-            className="md:hidden fixed right-0 top-1/2 -translate-y-1/2 z-40 pl-2 pr-1.5 py-2 bg-gradient-to-b from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-l-xl shadow-[-2px_3px_15px_rgba(234,88,12,0.35)] backdrop-blur-md transition-all flex flex-col items-center gap-1 cursor-pointer border-y border-l border-white/30 active:scale-95 group"
-          >
-            <div className="relative flex items-center justify-center">
-              <SlidersHorizontal size={15} className="transition-transform group-hover:rotate-12" />
-              {activeFiltersCount > 0 && (
-                <span className="absolute -top-1 -left-1.5 bg-gray-900 text-white min-w-[15px] h-[15px] px-0.5 rounded-full flex items-center justify-center text-[8px] font-black border border-white shadow-sm ring-1 ring-orange-400">
-                  {activeFiltersCount}
-                </span>
-              )}
-            </div>
-            <span className="text-[8.5px] font-black uppercase tracking-wider [writing-mode:vertical-rl] select-none text-white drop-shadow-xs">
-              Filtros
-            </span>
-            {sortedProperties?.length > 0 && (
-              <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-black/25 text-white border border-white/20">
-                {sortedProperties.length}
-              </span>
-            )}
-          </motion.button>
-        )}
-      </AnimatePresence>
-
-      {/* PAINEL LATERAL DE FILTROS (SEM OVERLAY) */}
+      {/* Bottom-sheet de filtros (mobile / tablet — no desktop usa a sidebar) */}
       <AnimatePresence>
         {showFilterModal && (
-          <>
+          <div className="lg:hidden">
             <motion.button
               type="button"
               aria-label="Fechar filtros"
@@ -794,18 +882,18 @@ const PropertyListing = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowFilterModal(false)}
-              className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-[2px] md:hidden"
+              className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-[2px]"
             />
             <motion.div
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 40 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-x-0 bottom-0 z-[70] bg-white border-t border-gray-100 rounded-t-3xl shadow-2xl w-full max-h-[88vh] flex flex-col overflow-hidden pb-[max(1rem,env(safe-area-inset-bottom))] md:inset-x-auto md:right-6 md:top-1/2 md:bottom-auto md:-translate-y-1/2 md:w-[340px] md:max-h-[85vh] md:rounded-3xl md:bg-white/95 md:backdrop-blur-xl md:border md:border-orange-100 md:shadow-2xl"
+              className="fixed inset-x-0 bottom-0 z-[70] bg-white border-t border-gray-100 rounded-t-3xl shadow-2xl w-full max-h-[88vh] flex flex-col overflow-hidden pb-[max(1rem,env(safe-area-inset-bottom))]"
             >
-              <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-gray-200 md:hidden" />
+              <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-gray-200" />
             {/* Header do Painel */}
-            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100/50 bg-white/80 md:bg-white/50">
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100/50 bg-white/80">
               <div className="flex items-center gap-2 font-bold text-gray-800">
                 <div className="p-1.5 bg-orange-100 rounded-lg text-orange-600">
                   <SlidersHorizontal size={18} />
@@ -826,41 +914,12 @@ const PropertyListing = () => {
             </div>
 
             {/* Conteúdo Scrollavel */}
-            <div className="p-5 overflow-y-auto flex-1 custom-scrollbar space-y-4">
-              {/* Saved Searches */}
-              {savedSearches.length > 0 && (
-                <div className="mb-4">
-                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Pesquisas Salvas</h4>
-                  <div className="space-y-1">
-                    {savedSearches.map(s => (
-                      <div key={s.id} className="flex items-center justify-between bg-orange-50/60 rounded-lg px-3 py-2">
-                        <button
-                          onClick={() => {
-                            setFilters(prev => ({ ...prev, ...s.filters }));
-                            setShowFilterModal(false);
-                          }}
-                          className="text-xs font-medium text-orange-700 hover:text-orange-900 text-left"
-                        >
-                          {s.name}
-                        </button>
-                        <button
-                          onClick={() => removeSearch(s.id)}
-                          className="text-gray-400 hover:text-red-500 transition-colors"
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="border-b border-gray-100 my-3" />
-                </div>
-              )}
-              <FilterGrid isModal={true} />
+            <div className="p-5 overflow-y-auto flex-1 custom-scrollbar">
+              {FilterPanelBody({ onApply: () => setShowFilterModal(false) })}
             </div>
 
-            {/* Footer Compacto com Botão de Ação */}
-            <div className="p-4 border-t border-gray-100 bg-gray-50/80 flex flex-col gap-2.5">
-              {/* Botão Principal para Aplicar/Ver Resultados */}
+            {/* Footer com Botão de Ação */}
+            <div className="p-4 border-t border-gray-100 bg-gray-50/80">
               <button
                 onClick={() => setShowFilterModal(false)}
                 className="w-full py-3 px-4 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white rounded-xl font-bold text-sm shadow-md shadow-orange-600/25 transition-all flex items-center justify-center gap-2"
@@ -868,47 +927,9 @@ const PropertyListing = () => {
                 <SlidersHorizontal size={16} />
                 <span>Ver {sortedProperties?.length || 0} {sortedProperties?.length === 1 ? 'imóvel' : 'imóveis'}</span>
               </button>
-
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={saveSearchName}
-                  onChange={e => setSaveSearchName(e.target.value)}
-                  placeholder="Nome da pesquisa..."
-                  className="flex-1 text-xs px-3 py-2 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-purple-400"
-                />
-                <button
-                  onClick={() => {
-                    if (saveSearchName.trim()) {
-                      const activeFilters: Record<string, string> = {};
-                      Object.entries(filters).forEach(([k, v]) => {
-                        if (v && v !== 'recent') activeFilters[k] = v;
-                      });
-                      saveSearch(saveSearchName.trim(), activeFilters);
-                      setSaveSearchName('');
-                    }
-                  }}
-                  disabled={!saveSearchName.trim()}
-                  className="text-xs font-semibold bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white px-3 py-2 rounded-lg transition-colors"
-                >
-                  Salvar
-                </button>
-              </div>
-
-              <div className="flex justify-between items-center pt-1">
-                <button
-                  onClick={clearFilters}
-                  className="text-xs font-semibold text-red-500 hover:bg-red-50 px-2.5 py-1.5 rounded-lg transition-colors"
-                >
-                  Limpar filtros
-                </button>
-                <div className="text-xs font-medium text-gray-500">
-                  <strong className="text-gray-900 text-sm">{sortedProperties?.length}</strong> imóveis encontrados
-                </div>
-              </div>
             </div>
             </motion.div>
-          </>
+          </div>
         )}
       </AnimatePresence>
 

@@ -547,7 +547,7 @@ export function MobileNavbar({
                                         <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center">
                                             <ArrowLeft className="w-4 h-4 text-slate-500" />
                                         </div>
-                                        <span className="text-[10px] font-extrabold text-slate-500 leading-tight text-center whitespace-nowrap">Portal KerCasa</span>
+                                        <span className="text-[10px] font-extrabold text-slate-500 leading-tight text-center whitespace-nowrap">Portal Kercasa</span>
                                     </button>
 
                                     {/* Terminar Sessão */}

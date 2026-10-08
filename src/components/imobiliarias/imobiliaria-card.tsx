@@ -51,9 +51,9 @@ export function ImobiliariaCard({ imobiliaria }: ImobiliariaCardProps) {
         {/* Badges - Top Left */}
         <div className="absolute top-4 left-4 z-20">
           {imobiliaria.verificada ? (
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#6D28D9]/90 backdrop-blur-md shadow-lg border border-white/20" title="Agência Verificada">
+            <Link href="/sobre#verificacao-agente" onClick={(e) => e.stopPropagation()} title="Agência verificada: identidade e contactos confirmados pela equipa Kercasa. O que significa?" className="flex items-center justify-center w-8 h-8 rounded-full bg-[#6D28D9]/90 backdrop-blur-md shadow-lg border border-white/20 hover:scale-110 transition-transform">
               <BadgeCheck className="w-4 h-4 text-white" />
-            </div>
+            </Link>
           ) : (
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-700/60 backdrop-blur-md text-white text-[10px] font-medium shadow-md border border-white/10">
               Parceira

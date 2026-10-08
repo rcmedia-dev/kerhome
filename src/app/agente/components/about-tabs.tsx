@@ -13,9 +13,9 @@ export function AboutTab({ profile, agentStats }: AboutTabProps) {
           ) : (
             <div className="space-y-4">
               <p>
-                Com mais de {agentStats.yearsExperience} anos de experiência no mercado imobiliário, 
-                tenho o prazer de ajudar famílias e investidores a encontrar o imóvel perfeito 
-                que atenda às suas necessidades e supere suas expectativas.
+                {agentStats.yearsOnPlatform > 0
+                  ? `Com ${agentStats.yearsOnPlatform} ${agentStats.yearsOnPlatform === 1 ? 'ano' : 'anos'} de presença na plataforma Kercasa, tenho o prazer de ajudar famílias e investidores a encontrar o imóvel perfeito que atenda às suas necessidades e supere suas expectativas.`
+                  : `Recentemente registado na plataforma Kercasa, tenho o prazer de ajudar famílias e investidores a encontrar o imóvel perfeito que atenda às suas necessidades e supere suas expectativas.`}
               </p>
               <p>
                 Minha abordagem é baseada em transparência, comunicação constante e um 

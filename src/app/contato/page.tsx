@@ -115,7 +115,7 @@ const ContactForm = () => {
         setTimeout(() => setStatusMessage({ type: null, text: "" }), 4000);
       })
       .catch((error) => {
-        console.error("âŒ Erro ao enviar:", error);
+        console.error("❌ Erro ao enviar:", error);
 
         setStatusMessage({ type: "error", text: "Erro ao enviar mensagem." });
         setTimeout(() => setStatusMessage({ type: null, text: "" }), 4000);
@@ -224,7 +224,7 @@ export default function ContactPage() {
               de cada vez.
             </h1>
             <p className="text-gray-300 text-lg max-w-md leading-relaxed mx-auto lg:mx-0">
-              Nossa equipe está pronta para oferecer a melhor experiência na busca pelo seu novo imóvel. Simplifique sua jornada com a KerCasa.
+              Nossa equipe está pronta para oferecer a melhor experiência na busca pelo seu novo imóvel. Simplifique sua jornada com a Kercasa.
             </p>
 
             <SocialLinks />

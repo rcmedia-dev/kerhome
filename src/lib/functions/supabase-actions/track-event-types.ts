@@ -27,11 +27,15 @@ export const EVENT_TYPES = [
   'view_property',
   'view_agency',
   'view_agent',
+  // Funil de pesquisa e contacto (§4)
+  'search',
+  'apply_filter',
+  'contact_click',
 ] as const;
 
 export type EventType = (typeof EVENT_TYPES)[number];
 
-export const ENTITY_TYPES = ['imovel', 'imobiliaria', 'corretor'] as const;
+export const ENTITY_TYPES = ['imovel', 'imobiliaria', 'corretor', 'pesquisa'] as const;
 export type EntityType = (typeof ENTITY_TYPES)[number];
 
 export const trackEventSchema = z.object({

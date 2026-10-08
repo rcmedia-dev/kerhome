@@ -35,18 +35,25 @@ function ensureHttps(url: string | undefined): string | undefined {
 
 // Chaves
 const serviceKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-// Fallback: Cliente Admin (Service Role)
-const supabaseAdmin = createAdminClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  serviceKey,
-  {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
-    }
+// Cliente Admin (Service Role) com criação lazy: evita crash de `supabaseUrl is required`
+// quando o módulo é importado sem variáveis de ambiente (ex.: `next dev` sem `.env.local`).
+let adminClientCache: ReturnType<typeof createAdminClient> | null = null;
+function getSupabaseAdmin() {
+  if (!adminClientCache) {
+    adminClientCache = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co',
+      serviceKey || 'dummy_key',
+      {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false,
+        }
+      }
+    );
   }
-);
+  return adminClientCache;
+}
 export async function createImobiliariaAction(data: ImobiliariaData) {
   try {
     const supabase = await createClient();
@@ -111,7 +118,7 @@ export async function updateImobiliariaAction(id: string, data: ImobiliariaData)
 export async function toggleImobiliariaVerificationAction(id: string, verificada: boolean) {
   try {
     // Usar diretamente Admin para garantir privilégios de verificação
-    const { error: adminError } = await supabaseAdmin
+    const { error: adminError } = await getSupabaseAdmin()
       .from('imobiliarias')
       .update({ verificada: !verificada })
       .eq('id', id);
@@ -128,7 +135,7 @@ export async function toggleImobiliariaVerificationAction(id: string, verificada
 export async function updateImobiliariaStatusAction(id: string, status: string) {
   try {
     // 1. Buscar owner_id da imobiliária
-    const { data: currentImob, error: fetchError } = await supabaseAdmin
+    const { data: currentImob, error: fetchError } = await getSupabaseAdmin()
       .from('imobiliarias')
       .select('owner_id, nome')
       .eq('id', id)
@@ -137,7 +144,7 @@ export async function updateImobiliariaStatusAction(id: string, status: string) 
     if (fetchError) throw new Error(fetchError.message);
 
     // 2. Atualizar o status da imobiliária
-    const { error: adminError } = await supabaseAdmin
+    const { error: adminError } = await getSupabaseAdmin()
       .from('imobiliarias')
       .update({ status })
       .eq('id', id);
@@ -147,7 +154,7 @@ export async function updateImobiliariaStatusAction(id: string, status: string) 
     // 3. Lógica Adicional por Status
     if (status === 'rejected' && currentImob.owner_id) {
         // Reverter role do usuário para 'profissional'
-        await supabaseAdmin
+        await getSupabaseAdmin()
             .from('profiles')
             .update({ role: 'profissional' })
             .eq('id', currentImob.owner_id);
@@ -155,7 +162,7 @@ export async function updateImobiliariaStatusAction(id: string, status: string) 
 
     if (status === 'approved' && currentImob.owner_id) {
         // Promover o dono da agência para 'agente' (acesso total ao painel de agência)
-        await supabaseAdmin
+        await getSupabaseAdmin()
             .from('profiles')
             .update({ role: 'agent' })
             .eq('id', currentImob.owner_id);
@@ -216,7 +223,7 @@ export async function uploadLogoAction(formData: FormData) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const { error: uploadError } = await supabaseAdmin.storage
+    const { error: uploadError } = await getSupabaseAdmin().storage
       .from('logos-imobiliarias')
       .upload(fileName, buffer, {
         contentType: file.type || 'image/png'
@@ -227,7 +234,7 @@ export async function uploadLogoAction(formData: FormData) {
       throw new Error(uploadError.message);
     }
 
-    const { data: { publicUrl } } = supabaseAdmin.storage
+    const { data: { publicUrl } } = getSupabaseAdmin().storage
       .from('logos-imobiliarias')
       .getPublicUrl(fileName);
 
@@ -254,7 +261,7 @@ export async function requestAgencyUpgradeAction(userId: string, data: Imobiliar
       website: ensureHttps(data.website)
     };
 
-    const { data: imob, error: imobError } = await supabaseAdmin
+    const { data: imob, error: imobError } = await getSupabaseAdmin()
       .from('imobiliarias')
       .insert([processedData])
       .select()
@@ -266,7 +273,7 @@ export async function requestAgencyUpgradeAction(userId: string, data: Imobiliar
     }
 
     // 2. Atualizar o role do utilizador para 'pending_agency'
-    const { error: profileError } = await supabaseAdmin
+    const { error: profileError } = await getSupabaseAdmin()
       .from('profiles')
       .update({ role: 'pending_agency' })
       .eq('id', userId);
@@ -290,7 +297,7 @@ export async function requestAgencyUpgradeAction(userId: string, data: Imobiliar
 
 export async function getImobiliariasWithOwnersAction() {
   try {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
       .from('imobiliarias')
       .select('*')
       .order('created_at', { ascending: false });
@@ -305,7 +312,7 @@ export async function getImobiliariasWithOwnersAction() {
       .map((i: any) => i.owner_id);
 
     if (ownerIds.length > 0) {
-      const { data: profiles } = await supabaseAdmin
+      const { data: profiles } = await getSupabaseAdmin()
         .from('profiles')
         .select('id, primeiro_nome, ultimo_nome, email, telefone, role')
         .in('id', ownerIds);

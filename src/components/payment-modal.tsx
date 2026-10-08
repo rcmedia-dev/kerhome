@@ -102,7 +102,7 @@ export function PaymentModal({
 
             <div className="relative z-10">
               <p className="text-xs opacity-50 font-medium">
-                KerCasa • Experiência Imobiliária Digital
+                Kercasa • Experiência Imobiliária Digital
               </p>
             </div>
           </div>

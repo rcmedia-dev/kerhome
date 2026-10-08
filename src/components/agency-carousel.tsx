@@ -149,7 +149,7 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
             className="inline-flex items-center justify-center gap-2 bg-white rounded-badge px-4 py-2 shadow-card border border-border mb-4"
           >
             <VerifiedIcon className="w-4 h-4 text-[#6D28D9]" />
-            <span className="text-sm font-medium text-gray-700">Agências Verificadas</span>
+            <Link href="/sobre#verificacao-agente" title="Agências com identidade e contactos confirmados pela equipa Kercasa. O que significa?" className="text-sm font-medium text-gray-700 underline underline-offset-2 hover:text-[#6D28D9]">Agências Verificadas — o que significa?</Link>
           </motion.div>
           <motion.h2 
             variants={headerVariants}
@@ -223,12 +223,14 @@ export default function AgencyCarousel({ agencies }: AgencyCarouselProps) {
                           />
                         </motion.div>
                         {agency.verificada && (
-                          <motion.div
-                            whileHover={{ scale: 1.2, rotate: 10 }}
-                            className="absolute bottom-0 right-0 bg-white p-1 rounded-badge shadow-card border z-20"
+                          <Link
+                            href="/sobre#verificacao-agente"
+                            title="Agência verificada: identidade e contactos confirmados pela equipa Kercasa. O que significa?"
+                            onClick={(e) => e.stopPropagation()}
+                            className="absolute bottom-0 right-0 bg-white p-1 rounded-badge shadow-card border z-20 hover:scale-110 transition-transform"
                           >
                             <VerifiedIcon className="w-4 h-4 text-[#6D28D9]" />
-                          </motion.div>
+                          </Link>
                         )}
                       </div>
                     </div>

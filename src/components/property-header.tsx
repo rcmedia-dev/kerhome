@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { TPropertyResponseSchema } from "@/lib/types/property";
 import { MapPin, BedDouble, Ruler, Tag, Bath, CarFront, Share2 } from "lucide-react";
 import { ShareButton } from "@/components/share-button";
+import { formatDate, formatKzPrice } from "@/lib/utils/formatting";
 
 function calculateMonthlyPayment(
   principal: number,
@@ -23,10 +24,7 @@ function calculateMonthlyPayment(
 }
 
 function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('pt-AO', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value) + ' Kz';
+  return formatKzPrice(value);
 }
 
 export function PropertyHeader({ property }: { property: TPropertyResponseSchema }) {
@@ -82,28 +80,24 @@ export function PropertyHeader({ property }: { property: TPropertyResponseSchema
       {/* Price + Estimated Monthly Payment */}
       <div className="pt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
         <div className="text-3xl sm:text-4xl font-bold text-orange-500">
-          {property.price && (
+          {property.price && Number(property.price) > 0 ? (
             <>
-              {property.price.toLocaleString(
-                property.unidade_preco === "dolar" ? "en-US" : "pt-AO",
-                {
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0
-                }
-              )}
-              <span className="text-xl sm:text-2xl ml-1 text-gray-500 font-medium">
-                {property.unidade_preco === "kwanza"
-                  ? "KZ"
-                  : property.unidade_preco === "dolar"
-                    ? "USD"
-                    : property.unidade_preco}
-              </span>
+              {(() => {
+                const base = formatKzPrice(property.price, { isRent: property.status === 'arrendar' });
+                if (property.unidade_preco === 'dolar') return base.replace(' Kz', ' USD');
+                if (property.unidade_preco === 'euro') return base.replace(' Kz', ' €');
+                return base;
+              })()}
             </>
+          ) : (
+            <span className="text-2xl text-gray-500 font-semibold">Sob consulta</span>
           )}
         </div>
 
-        {property.status === "arrendar" && (
-          <span className="text-gray-400 text-lg">/mês</span>
+        {(property as any).updated_at && (
+          <span className="text-xs text-gray-400 font-medium">
+            Atualizado em {formatDate((property as any).updated_at)}
+          </span>
         )}
 
         {estimatedPayment && (

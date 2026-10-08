@@ -2,10 +2,16 @@
 
 import { createClient } from "@supabase/supabase-js"
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY! // ðŸ‘ˆ precisa da chave service_role
-)
+let adminClientCache: ReturnType<typeof createClient> | null = null;
+function getSupabaseAdmin() {
+  if (!adminClientCache) {
+    adminClientCache = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co',
+      process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || 'dummy_key' // precisa da chave service_role
+    );
+  }
+  return adminClientCache;
+}
 
 interface CreateUserInput {
   email: string
@@ -31,7 +37,7 @@ interface CreateUserResponse {
 export async function createUser(data: CreateUserInput): Promise<CreateUserResponse> {
   try {
     // 1. Criar utilizador no Auth
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+    const { data: authData, error: authError } = await getSupabaseAdmin().auth.admin.createUser({
       email: data.email,
       password: data.password,
       email_confirm: true,
@@ -47,7 +53,7 @@ export async function createUser(data: CreateUserInput): Promise<CreateUserRespo
     const userId = authData.user.id
 
     // 2. Inserir dados na tabela profiles
-    const { error: profileError } = await supabaseAdmin.from("profiles").insert({
+    const { error: profileError } = await getSupabaseAdmin().from("profiles").insert({
       id: userId,
       email: data.email,
       primeiro_nome: data.primeiro_nome,
@@ -58,7 +64,7 @@ export async function createUser(data: CreateUserInput): Promise<CreateUserRespo
 
     if (profileError) {
       // rollback â†’ apagar o user no Auth se falhar
-      await supabaseAdmin.auth.admin.deleteUser(userId)
+      await getSupabaseAdmin().auth.admin.deleteUser(userId)
       return {
         success: false,
         error: "Erro ao criar perfil: " + profileError.message,
@@ -86,7 +92,7 @@ export async function createUser(data: CreateUserInput): Promise<CreateUserRespo
 
 export async function deleteUser(userId: string) {
   try {
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId)
+    const { error } = await getSupabaseAdmin().auth.admin.deleteUser(userId)
 
     if (error) throw error
 

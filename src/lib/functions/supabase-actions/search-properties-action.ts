@@ -52,14 +52,14 @@ export async function searchProperties(params: SearchParams) {
         query = query.ilike("tipo", `%${tipo}%`);
     }
 
-    // Banheiros
+    // Banheiros (coluna real: bathrooms)
     if (banheiros) {
-        query = query.gte("banheiros", Number(banheiros));
+        query = query.gte("bathrooms", Number(banheiros));
     }
 
-    // Quartos
+    // Quartos (coluna real: bedrooms)
     if (quartos) {
-        query = query.gte("quartos", Number(quartos));
+        query = query.gte("bedrooms", Number(quartos));
     }
 
     // Garagens
@@ -67,14 +67,14 @@ export async function searchProperties(params: SearchParams) {
         query = query.gte("garagens", Number(garagens));
     }
 
-    // Preço máximo
+    // Preço máximo (coluna real: price)
     if (preco_max) {
-        query = query.lte("preco", Number(preco_max));
+        query = query.lte("price", Number(preco_max));
     }
 
-    // Tamanho mínimo
+    // Tamanho mínimo (coluna real: size — texto; tenta cast numérico via área do terreno como fallback)
     if (tamanho_min) {
-        query = query.gte("tamanho", Number(tamanho_min));
+        query = query.gte("area_terreno", Number(tamanho_min));
     }
 
     const { data: propertiesFoundData, error: propertiesFoundError } = await query;

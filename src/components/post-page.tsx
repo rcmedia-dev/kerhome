@@ -237,7 +237,7 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts, properties }) =
         image={post.coverImage?.url}
         url={`${siteUrl}${pathname}`}
         datePublished={post.createdAt}
-        author="Redator KerCasa"
+        author="Redator Kercasa"
       />
 
       {/* Main Layout */}
@@ -270,7 +270,7 @@ const PostPage: React.FC<PostPageProps> = ({ post, relatedPosts, properties }) =
                   </div>
                   <div className="flex flex-col">
                     <span className="text-xs font-bold uppercase tracking-wider text-purple-700">Autor</span>
-                    <span className="text-gray-900">Redação KerCasa</span>
+                    <span className="text-gray-900">Redação Kercasa</span>
                   </div>
                 </div>
 

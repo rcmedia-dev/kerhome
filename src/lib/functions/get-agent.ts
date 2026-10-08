@@ -40,12 +40,12 @@ export async function getPropertyOwner(ownerId?: string): Promise<PropertyOwner>
       .maybeSingle();
 
     if (ownerError) {
-      console.error('[KerCasa] Erro ao buscar perfil do dono:', ownerError);
+      console.error('[Kercasa] Erro ao buscar perfil do dono:', ownerError);
       throw new Error(`Erro ao buscar perfil: ${ownerError.message}`);
     }
 
     if (!owner) {
-      console.warn(`[KerCasa] Perfil do proprietário ${ownerId} não encontrado`);
+      console.warn(`[Kercasa] Perfil do proprietário ${ownerId} não encontrado`);
       // Retornar um fallback amigável em vez de quebrar a página
       return {
         id: ownerId,

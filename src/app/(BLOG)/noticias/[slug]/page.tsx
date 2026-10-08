@@ -72,7 +72,7 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
       locale: "pt_AO",
       siteName: "Kercasa",
       publishedTime: post.createdAt,
-      authors: ['Redator KerCasa'],
+      authors: ['Redator Kercasa'],
     },
     twitter: {
       card: 'summary_large_image',

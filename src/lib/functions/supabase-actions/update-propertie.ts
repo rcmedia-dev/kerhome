@@ -59,7 +59,7 @@ async function uploadFileToSupabase(supabase: any, file: File, bucket: string, p
   return publicUrl;
 }
 
-// Upload de imagem COM marca d'água KerCasa
+// Upload de imagem COM marca d'água Kercasa
 async function uploadImageWithWatermark(supabase: any, file: File, bucket: string, path: string): Promise<string> {
   // 1. Converter ficheiro para Buffer e aplicar marca d'água
   const rawBuffer = Buffer.from(await file.arrayBuffer());

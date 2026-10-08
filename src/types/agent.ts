@@ -43,10 +43,10 @@ export interface AgentProperty {
 }
 
 export interface AgentStats {
-  propertiesSold: number;
-  yearsExperience: number;
-  clientSatisfaction: number;
-  averageDaysOnMarket: number;
+  /** Nº de imóveis atualmente publicados pelo agente (fonte: tabela properties) */
+  propertiesListed: number;
+  /** Anos completos desde o registo na plataforma (fonte: profiles.created_at) */
+  yearsOnPlatform: number;
 }
 
 export interface AgentContextType {

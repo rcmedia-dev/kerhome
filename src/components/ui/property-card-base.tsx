@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MapPin, BedDouble, Ruler, Tag, ArrowRight } from 'lucide-react';
+import { MapPin, BedDouble, Ruler, Tag, ArrowRight, ShieldCheck, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { formatPriceWithDots } from '@/lib/format-price';
+import { formatArea, formatCount, formatDate, formatKzPrice } from '@/lib/utils/formatting';
 
 export type PropertyCardBaseProps = {
   property: any; // Accept varied property shapes during refactoring
@@ -55,11 +55,21 @@ export function PropertyCardBase({
   }, [isHovering]);
 
   const defaultHref = linkHref || (property.slug ? `/propriedades/${property.slug}` : `/propriedades/${property.propertyid || property.id}`);
-  const parseNumber = (val: any) => {
-    const n = typeof val === "string" ? parseInt(val) : val;
-    return isNaN(Number(n)) ? 0 : Number(n);
-  };
-  const priceParsed = parseNumber(property.price);
+  const isRent = property.status === 'arrendar';
+  const priceLabel =
+    property.unidade_preco === 'dolar'
+      ? formatKzPrice(property.price).replace(' Kz', ' USD').replace('Sob consulta', 'Sob consulta')
+      : property.unidade_preco === 'euro'
+        ? formatKzPrice(property.price).replace(' Kz', ' €').replace('Sob consulta', 'Sob consulta')
+        : formatKzPrice(property.price, { isRent });
+  const bedroomsLabel = formatCount(property.bedrooms, 'Quarto', 'Quartos');
+  const bathroomsLabel = formatCount(property.bathrooms, 'Banheiro', 'Banheiros');
+  const areaLabel = formatArea(property.size ?? property.area_util ?? null);
+  const terrenoLabel = formatArea(property.area_terreno ?? null, 'Terreno');
+  const updatedLabel = property.updated_at || property.updatedAt
+    ? formatDate(property.updated_at || property.updatedAt)
+    : null;
+  const isAvailable = property.is_available !== false;
 
   return (
     <div className="group relative w-full bg-white rounded-3xl shadow-card hover:shadow-card-hover transition-all duration-300 flex flex-col overflow-hidden border border-border pb-2">
@@ -146,27 +156,49 @@ export function PropertyCardBase({
         <div className="flex items-center justify-between text-gray-600 text-xs sm:text-sm mb-1.5 sm:mb-2 border-b border-gray-50 pb-1.5 sm:pb-2">
           <div className="flex items-center gap-1.5 sm:gap-2">
             <BedDouble className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-            <span className="font-medium">{parseNumber(property.bedrooms)} Quartos</span>
+            <span className="font-medium">{bedroomsLabel}</span>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2">
             <Ruler className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
-            <span className="font-medium">{property.size}</span>
+            <span className="font-medium">{areaLabel === 'Não informado' ? terrenoLabel : areaLabel}</span>
           </div>
         </div>
 
         <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500 mb-2 sm:mb-4">
           <span className="capitalize">{property.tipo || property.status}</span>
-          {(parseNumber(property.bathrooms) > 0) ? (
-            <span className="text-gray-500">{parseNumber(property.bathrooms)} Banheiros</span>
-          ) : (
-            <span></span>
+          <span className="text-gray-500">{bathroomsLabel}</span>
+        </div>
+
+        {/* Faixa de confiança — disponibilidade, atualização e verificação */}
+        <div className="flex flex-wrap items-center gap-1.5 mb-2 sm:mb-3 rounded-xl bg-gray-50 border border-gray-100 px-2 py-1.5">
+          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-bold ${isAvailable ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+            <span className="relative flex h-2 w-2">
+              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-60 ${isAvailable ? 'bg-green-500' : 'bg-red-500'}`} />
+              <span className={`relative inline-flex rounded-full h-2 w-2 ${isAvailable ? 'bg-green-600' : 'bg-red-600'}`} />
+            </span>
+            {isAvailable ? 'Disponível' : 'Indisponível'}
+          </span>
+          {updatedLabel && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white border border-gray-200 text-gray-600 text-[11px] font-semibold">
+              <RefreshCw className="w-3 h-3" />
+              Atualizado em {updatedLabel}
+            </span>
           )}
+          <Link
+            href="/sobre#verificacao"
+            onClick={(e) => e.stopPropagation()}
+            title="Verificação básica: confirmamos o contacto do anunciante e a coerência do anúncio. Não constitui garantia de titularidade, preço final ou disponibilidade."
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 text-[11px] font-bold hover:bg-purple-200 transition-colors"
+          >
+            <ShieldCheck className="w-3 h-3" />
+            Verificação básica
+          </Link>
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-4">
           <Tag className="w-4 h-4 sm:w-5 sm:h-5 text-[#F97316] -rotate-90" />
           <span className="text-lg sm:text-2xl font-bold text-[#F97316]">
-            {formatPriceWithDots(priceParsed)} {property.unidade_preco === 'dolar' ? '$' : property.unidade_preco === 'euro' ? '€' : 'Kz'}
+            {priceLabel}
           </span>
         </div>
 

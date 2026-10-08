@@ -128,10 +128,10 @@ export default async function ImobiliariaPerfilPage({ params }: { params: Promis
                       {imobiliaria.nome}
                     </h1>
                     {imobiliaria.verificada && (
-                      <span className="inline-flex items-center justify-center gap-1.5 py-1 px-3 rounded-full bg-orange-50 text-orange-600 border border-orange-100 text-xs font-bold uppercase tracking-wider mx-auto md:mx-0">
+                      <Link href="/sobre#verificacao-agente" title="Agência verificada: identidade e contactos confirmados pela equipa Kercasa. O que significa?" className="inline-flex items-center justify-center gap-1.5 py-1 px-3 rounded-full bg-orange-50 text-orange-600 border border-orange-100 text-xs font-bold uppercase tracking-wider mx-auto md:mx-0 underline underline-offset-2 hover:bg-orange-100 transition-colors">
                         <CheckCircle2 className="w-4 h-4" />
-                        Verificada
-                      </span>
+                        Verificada — o que significa?
+                      </Link>
                     )}
                  </div>
                  

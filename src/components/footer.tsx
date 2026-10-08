@@ -110,7 +110,11 @@ export default function Footer() {
 
         {/* Footer Bottom */}
         <div className="mt-16 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 gap-4">
-          <p>© {new Date().getFullYear()} RC Media. Todos os direitos reservados.</p>
+          <p>© {new Date().getFullYear()} Kercasa — operado por RC Media. Todos os direitos reservados.</p>
+          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-6 text-gray-400">
+            <a href="mailto:geral@rcmedia.ao" className="hover:text-white">geral@rcmedia.ao</a>
+            <a href="tel:+244929884781" className="hover:text-white">+244 929 884 781</a>
+          </div>
         </div>
 
       </div>

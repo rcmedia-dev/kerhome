@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { BedDouble, MapPin, Ruler, Tag, Star, Heart, ArrowRight, ArrowLeft, MoveRight } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { TPropertyResponseSchema } from "@/lib/types/property";
+import { formatArea, formatCount } from "@/lib/utils/formatting";
 
 type FeaturedCarouselProps = {
   property: TPropertyResponseSchema[];
@@ -176,11 +177,11 @@ export default function FeaturedCarousel({ property }: FeaturedCarouselProps) {
                         <div className="flex items-center justify-between text-sm text-gray-200">
                           <span className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full">
                             <BedDouble className="w-4 h-4" />
-                            {property.bedrooms} Quartos
+                            {formatCount(property.bedrooms, 'Quarto', 'Quartos')}
                           </span>
                           <span className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full">
                             <Ruler className="w-4 h-4" />
-                            {property.size}m²
+                            {formatArea(property.size)}
                           </span>
                         </div>
 

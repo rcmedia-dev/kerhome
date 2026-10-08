@@ -133,6 +133,9 @@ export const propertyResponseSchema = z.object({
   slug: z.string().nullable(),
 
   createdAt: z.string().or(z.date()),
+  updated_at: z.string().or(z.date()).nullable().optional(),
+  is_available: z.boolean().nullable().optional(),
+  is_verified: z.boolean().nullable().optional(),
 
   owner: ownerSchema,
   imobiliaria_id: z.string().uuid().nullable().optional(),

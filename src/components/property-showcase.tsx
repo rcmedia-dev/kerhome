@@ -245,7 +245,7 @@ export default function PropertiesShowcase({ property, inline }: PropertiesShowC
           }}
           className="text-gray-600 text-lg max-w-2xl leading-relaxed"
         >
-          Descobre as melhores oportunidades imobiliárias com a KerCasa. 
+          Descobre as melhores oportunidades imobiliárias com a Kercasa. 
           <span className="block text-gray-500 text-base mt-1">
             Qualidade e confiança em cada detalhe
           </span>

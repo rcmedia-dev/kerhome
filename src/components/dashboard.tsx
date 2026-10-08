@@ -243,7 +243,7 @@ function DashboardInner() {
                   <div className="w-26 sm:w-30">
                     <Image
                       src="/kercasa_logo.png"
-                      alt="kerhome logo"
+                      alt="Kercasa logo"
                       width={120}
                       height={30}
                       style={{ width: 'auto', height: 'auto' }}

@@ -631,7 +631,7 @@ const MultiStepForm = ({ userId, agentName, userAgency }: MultiStepFormProps) =>
                 </div>
 
                 <p className="mt-6 text-xs text-gray-400 font-medium">
-                  KerCasa • O seu imóvel em boas mãos
+                  Kercasa • O seu imóvel em boas mãos
                 </p>
               </motion.div>
             </motion.div>

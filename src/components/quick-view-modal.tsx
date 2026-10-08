@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, BedDouble, Bath, Ruler, MapPin, ArrowRight, ChevronLeft, ChevronRight, Tag } from 'lucide-react';
-import { formatPriceWithDots } from '@/lib/format-price';
+import { formatArea, formatCount, formatKzPrice } from '@/lib/utils/formatting';
 
 export function QuickViewModal({
   property,
@@ -30,10 +30,7 @@ export function QuickViewModal({
   }, [onClose]);
 
   const images = [property.image, ...(Array.isArray(property.gallery) ? property.gallery.filter(Boolean) : [])].filter(Boolean);
-  const priceParsed = (() => {
-    const n = typeof property.price === 'string' ? parseInt(property.price) : property.price;
-    return isNaN(Number(n)) ? 0 : Number(n);
-  })();
+  const priceLabel = formatKzPrice(property.price, { isRent: property.status === 'arrendar' });
 
   return (
     <AnimatePresence>
@@ -109,22 +106,35 @@ export function QuickViewModal({
             <div className="flex items-center gap-1.5">
               <Tag className="w-5 h-5 text-orange-500 -rotate-90" />
               <span className="text-2xl font-bold text-orange-600">
-                {formatPriceWithDots(priceParsed)} {property.unidade_preco === 'dolar' ? '$' : property.unidade_preco === 'euro' ? '€' : 'Kz'}
+                {priceLabel}
+              </span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1.5 rounded-xl bg-gray-50 border border-gray-100 px-2 py-1.5">
+              <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-bold ${property.is_available !== false ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                <span className="relative flex h-2 w-2">
+                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-60 ${property.is_available !== false ? 'bg-green-500' : 'bg-red-500'}`} />
+                  <span className={`relative inline-flex rounded-full h-2 w-2 ${property.is_available !== false ? 'bg-green-600' : 'bg-red-600'}`} />
+                </span>
+                {property.is_available !== false ? 'Disponível' : 'Indisponível'}
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 text-[11px] font-bold">
+                Verificação básica
               </span>
             </div>
 
             <div className="flex flex-wrap gap-4 text-sm text-gray-600 border-y border-gray-100 py-4">
               <div className="flex items-center gap-1.5">
                 <BedDouble className="w-4 h-4 text-gray-400" />
-                <span>{property.bedrooms || 0} Quartos</span>
+                <span>{formatCount(property.bedrooms, 'Quarto', 'Quartos')}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Bath className="w-4 h-4 text-gray-400" />
-                <span>{property.bathrooms || 0} Banheiros</span>
+                <span>{formatCount(property.bathrooms, 'Banheiro', 'Banheiros')}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Ruler className="w-4 h-4 text-gray-400" />
-                <span>{property.size || property.area_terreno || '—'}</span>
+                <span>{formatArea(property.size ?? property.area_terreno)}</span>
               </div>
             </div>
 
