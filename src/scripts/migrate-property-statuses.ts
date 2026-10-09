@@ -7,7 +7,7 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
-const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+const supabaseAdmin = createClient<any>(supabaseUrl, serviceRoleKey);
 
 async function migrateStatuses() {
   console.log('--- Migrating Property Statuses ---');

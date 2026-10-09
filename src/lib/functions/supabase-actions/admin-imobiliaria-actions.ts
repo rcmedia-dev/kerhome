@@ -1,7 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
-import { createClient as createAdminClient } from '@supabase/supabase-js';
+import { createClient as createAdminClient, type SupabaseClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 
 // Tipagem básica
@@ -37,10 +37,10 @@ function ensureHttps(url: string | undefined): string | undefined {
 const serviceKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 // Cliente Admin (Service Role) com criação lazy: evita crash de `supabaseUrl is required`
 // quando o módulo é importado sem variáveis de ambiente (ex.: `next dev` sem `.env.local`).
-let adminClientCache: ReturnType<typeof createAdminClient> | null = null;
-function getSupabaseAdmin() {
+let adminClientCache: SupabaseClient<any> | null = null;
+function getSupabaseAdmin(): SupabaseClient<any> {
   if (!adminClientCache) {
-    adminClientCache = createAdminClient(
+    adminClientCache = createAdminClient<any>(
       process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co',
       serviceKey || 'dummy_key',
       {

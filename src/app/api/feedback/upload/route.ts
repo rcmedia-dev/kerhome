@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-let supabaseCache: ReturnType<typeof createClient> | null = null;
-function getSupabase() {
+let supabaseCache: SupabaseClient<any> | null = null;
+function getSupabase(): SupabaseClient<any> {
   if (!supabaseCache) {
-    supabaseCache = createClient(
+    supabaseCache = createClient<any>(
       process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co',
       process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || 'dummy_key'
     );
