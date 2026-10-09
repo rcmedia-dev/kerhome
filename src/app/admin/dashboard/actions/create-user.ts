@@ -1,11 +1,11 @@
 ﻿'use server'
 
-import { createClient } from "@supabase/supabase-js"
+import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 
-let adminClientCache: ReturnType<typeof createClient> | null = null;
-function getSupabaseAdmin() {
+let adminClientCache: SupabaseClient<any> | null = null;
+function getSupabaseAdmin(): SupabaseClient<any> {
   if (!adminClientCache) {
-    adminClientCache = createClient(
+    adminClientCache = createClient<any>(
       process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co',
       process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || 'dummy_key' // precisa da chave service_role
     );
