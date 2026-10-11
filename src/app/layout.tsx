@@ -16,6 +16,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { PageTransition } from "@/components/page-transition";
 import { SplashScreenClient } from "@/components/splash-screen-client";
 import { PwaInstallBanner } from "@/components/pwa-install-banner";
+import MaintenanceOverlay from "@/components/maintenance-overlay";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
 
@@ -72,6 +73,7 @@ export default function RootLayout({
   return (
     <html lang="pt" suppressHydrationWarning>
       <body className="antialiased font-sans" suppressHydrationWarning>
+        <MaintenanceOverlay />
         <SplashScreenClient />
         <OrganizationJsonLd />
         <WebsiteJsonLd />
