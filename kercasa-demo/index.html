@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kercasa — Demo 90s | Apresentação Interativa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://unpkg.com/lucide@0.522.0/dist/umd/lucide.min.js"></script>
+<style>
+  :root{
+    --kc-purple:#6D28D9; --kc-purple-deep:#2E1065; --kc-purple-700:#7E22CE;
+    --kc-orange:#F97316; --kc-orange-deep:#EA580C;
+    --kc-bg:#FAFAF8; --kc-ink:#111827; --kc-muted:#6B7280;
+    --kc-green:#10B981; --kc-gold:#F5A623;
+    --kc-gradient:linear-gradient(100deg,#7E22CE 0%,#6D28D9 45%,#F97316 100%);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',-apple-system,'SF Pro Display',system-ui,sans-serif;background:#0B0713;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px}
+  .lic{width:1em;height:1em;vertical-align:-0.12em;stroke-width:2.2}
+  .kicker .lic{width:1.1em;height:1.1em}
+  .btn .lic,.controls button .lic{width:1.05em;height:1.05em;vertical-align:-0.15em;margin-right:.35em}
+  .topbar{width:min(1240px,100%);display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand img{height:40px;background:#fff;border-radius:10px;padding:4px 8px}
+  .brand .t b{display:block;font-size:18px;letter-spacing:-.02em}
+  .brand .t span{font-size:12px;color:#C4B5FD}
+  .badge{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);padding:7px 12px;border-radius:999px;color:#E9D5FF}
+  .shell{width:min(1240px,100%);background:#14101f;border:1px solid rgba(255,255,255,.1);border-radius:20px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+  .viewport{background:#000;display:flex;justify-content:center;overflow:hidden}
+  #scaler{width:1920px;height:1080px;transform-origin:top left;flex-shrink:0}
+  #stage{width:1920px;height:1080px;position:relative;background:var(--kc-bg);color:var(--kc-ink);overflow:hidden}
+  .scene{position:absolute;inset:0;display:none;padding:110px 130px}
+  .scene.active{display:block}
+  .kicker{display:inline-flex;align-items:center;gap:12px;font-size:26px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--kc-purple);background:#F3E8FF;border:1px solid #DDD6FE;padding:12px 22px;border-radius:999px;margin-bottom:28px}
+  h1{font-size:104px;line-height:1.02;letter-spacing:-.045em;font-weight:900}
+  h1 .grad{background:var(--kc-gradient);-webkit-background-clip:text;background-clip:text;color:transparent}
+  h2{font-size:76px;letter-spacing:-.04em;line-height:1.05;font-weight:900}
+  p.lead{font-size:36px;color:#4B5563;margin-top:22px;max-width:1250px;line-height:1.35}
+  .timer{position:absolute;top:46px;right:60px;display:inline-flex;align-items:center;gap:10px;font-size:24px;font-weight:800;color:#fff;background:#111827;border-radius:12px;padding:10px 18px;letter-spacing:.04em}
+  .timer b{color:var(--kc-gold)}
+  #s1{background:#fff;display:none;text-align:center}
+  #s1.active{display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .house-draw{width:340px;height:240px;margin-bottom:10px}
+  .house-draw path{stroke:var(--kc-purple);stroke-width:10;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .logo-word{font-size:150px;font-weight:900;letter-spacing:-.06em}
+  .logo-word span{display:inline-block}
+  .logo-word .ker{color:var(--kc-purple)} .logo-word .casa{background:var(--kc-gradient);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .tagline{display:inline-flex;align-items:center;gap:12px;font-size:34px;color:var(--kc-muted);margin-top:6px}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:44px}
+  .card{background:#fff;border-radius:28px;overflow:hidden;box-shadow:0 20px 50px rgba(17,24,39,.12);border:1px solid #EEE;text-align:left}
+  .card img{width:100%;height:250px;object-fit:cover;display:block}
+  .card .body{padding:24px 26px}
+  .card .loc{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800;color:var(--kc-purple)}
+  .card .price{font-size:40px;font-weight:900;margin:6px 0}
+  .card .meta{font-size:22px;color:var(--kc-muted)}
+  .pill{display:inline-flex;align-items:center;gap:8px;font-size:20px;font-weight:800;color:#fff;background:var(--kc-green);padding:8px 16px;border-radius:999px;margin-bottom:10px}
+  .pill.orange{background:var(--kc-orange)} .pill.purple{background:var(--kc-purple)}
+  .mock{display:flex;gap:30px;margin-top:40px}
+  .phone{width:430px;background:#111827;border-radius:48px;padding:22px;color:#fff}
+  .phone .bar{display:flex;align-items:center;gap:12px;background:#fff;color:#111;border-radius:16px;padding:20px 22px;font-size:26px;font-weight:600}
+  .phone .bar i{font-style:normal;color:var(--kc-purple)}
+  .phone .row{display:flex;align-items:center;gap:12px;background:#1F2937;border-radius:16px;padding:18px;margin-top:14px;font-size:23px}
+  .desk{flex:1;background:#fff;border-radius:28px;padding:30px;border:1px solid #EEE;box-shadow:0 20px 50px rgba(17,24,39,.1)}
+  .filters{display:flex;gap:14px;margin:18px 0}
+  .filters span{display:inline-flex;align-items:center;gap:8px;font-size:22px;font-weight:700;background:#F3F4F6;padding:12px 20px;border-radius:999px}
+  .filters span.on{background:var(--kc-purple);color:#fff}
+  .agenda{margin-top:20px;background:#F8FAFC;border:2px solid #E2E8F0;border-radius:20px;padding:22px 24px}
+  .agenda-head{display:flex;align-items:center;gap:12px;font-size:24px;font-weight:800;color:#111827}
+  .agenda-head small{font-size:20px;font-weight:600;color:#6B7280}
+  .week{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .week span{font-size:21px;font-weight:700;background:#fff;border:2px solid #E2E8F0;color:#374151;padding:10px 16px;border-radius:14px;transition:all .3s}
+  .week span.sel{background:var(--kc-purple);border-color:var(--kc-purple);color:#fff}
+  .slots{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+  .slots span{display:inline-flex;align-items:center;gap:8px;font-size:21px;font-weight:700;background:#fff;border:2px solid #E2E8F0;color:#374151;padding:10px 16px;border-radius:999px;transition:all .3s}
+  .slots span.sel{background:var(--kc-purple);border-color:var(--kc-purple);color:#fff}
+  .confirm{display:flex;align-items:center;gap:12px;margin-top:16px;background:var(--kc-green);color:#fff;font-size:23px;font-weight:800;padding:14px 20px;border-radius:16px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;margin-top:46px}
+  .stat{background:#fff;border-radius:24px;padding:34px 20px;text-align:center;border:1px solid #EEE}
+  .stat .sic{display:inline-flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:18px;background:#F3E8FF;color:var(--kc-purple);margin-bottom:12px}
+  .stat .sic .lic{width:32px;height:32px}
+  .stat b{font-size:74px;font-weight:900;background:var(--kc-gradient);-webkit-background-clip:text;background-clip:text;color:transparent;display:block}
+  .stat span{font-size:24px;color:var(--kc-muted);font-weight:600}
+  .depos{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:40px}
+  .depo{background:#fff;border-radius:24px;padding:34px;border:1px solid #EEE;font-size:26px;line-height:1.45;color:#374151}
+  .depo .stars{display:flex;gap:6px;color:var(--kc-gold);margin-bottom:14px}
+  .depo .stars .lic{width:26px;height:26px;fill:currentColor}
+  .depo b{display:block;margin-top:16px;font-size:24px;color:#111}
+  #s6{background:linear-gradient(135deg,#1B0B3B 0%,#2E1065 45%,#6D28D9 100%);color:#fff}
+  #s6 h2{color:#fff} #s6 p.lead{color:#DDD6FE}
+  .cta-row{display:flex;gap:24px;margin-top:44px;align-items:center;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;font-size:32px;font-weight:900;padding:26px 54px;border-radius:18px;border:0;cursor:pointer}
+  .btn.primary{background:var(--kc-orange);color:#fff;box-shadow:0 16px 40px rgba(249,115,22,.45)}
+  .btn.ghost{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.3)}
+  .qr{background:#fff;color:#111;border-radius:24px;padding:28px;display:flex;gap:24px;align-items:center;margin-top:36px;max-width:820px}
+  .qr .fake{width:150px;height:150px;flex-shrink:0;background:repeating-linear-gradient(0deg,#111 0 8px,#fff 8px 16px),repeating-linear-gradient(90deg,#111 0 8px,#fff 8px 16px);background-blend-mode:multiply;border:8px solid #fff;outline:4px solid #111;border-radius:12px}
+  .controls{width:min(1240px,100%);display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap}
+  .controls button{display:inline-flex;align-items:center;background:#221a33;color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:12px 18px;font-size:15px;font-weight:700;cursor:pointer}
+  .controls button:hover{background:#2e2350}
+  .controls button.go{background:var(--kc-orange);border-color:transparent}
+  #progress{flex:1;height:10px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;min-width:160px}
+  #bar{height:100%;width:0%;background:var(--kc-gradient)}
+  #tlabel{font-size:14px;color:#C4B5FD;font-variant-numeric:tabular-nums}
+  .dots{display:flex;gap:8px}
+  .dots button{width:44px;justify-content:center}
+  .dots button.on{background:var(--kc-purple);border-color:transparent}
+  .notes{width:min(1240px,100%);margin-top:14px;display:grid;grid-template-columns:1.2fr .8fr;gap:14px}
+  .panel{background:#14101f;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:18px 20px;font-size:14px;line-height:1.6;color:#D1D5DB}
+  .panel h3{display:flex;align-items:center;gap:8px;color:#fff;font-size:14px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+  .panel code{color:#FCD34D}
+  a{color:#FDBA74}
+  @media(max-width:900px){.notes{grid-template-columns:1fr} h1{font-size:64px} h2{font-size:48px} .scene{padding:40px}}
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <img src="../public/kercasa_logo.png" alt="Kercasa" onerror="this.style.display='none'">
+      <div class="t"><b>Kercasa — Demo 90s</b><span>Marketplace imobiliário · Angola · Inter · Roxo + Laranja</span></div>
+    </div>
+    <div class="badge"><i data-lucide="timer" class="lic"></i>6 cenas · 1920×1080 · GSAP power2.inOut · PT-AO</div>
+  </div>
+
+  <div class="shell">
+    <div class="viewport">
+      <div id="scaler">
+        <div id="stage" data-composition-id="kercasa-90s" data-fps="30" data-size="1920x1080">
+
+          <!-- 0–6s LOGO -->
+          <section class="scene" id="s1" data-start="0" data-duration="6">
+            <div class="timer"><i data-lucide="clapperboard" class="lic"></i>0–6s · <b>Logo</b></div>
+            <svg class="house-draw" viewBox="0 0 340 240"><path id="housepath" d="M40 130 L170 40 L300 130 M70 115 V210 H270 V115 M150 210 V150 H190 V210"/></svg>
+            <div class="logo-word" id="logoword"><span class="ker">ker</span><span class="casa">casa</span></div>
+            <div class="tagline"><i data-lucide="home" class="lic"></i>A sua casa, mais perto. · Comprar · Arrendar · Vender em Angola</div>
+          </section>
+
+          <!-- 6–18s EMOÇÃO + MAPA -->
+          <section class="scene" id="s2" data-start="6" data-duration="12">
+            <div class="timer"><i data-lucide="clapperboard" class="lic"></i>6–18s · <b>Emoção</b></div>
+            <div class="kicker"><i data-lucide="home" class="lic"></i>O sonho começa em casa</div>
+            <h2>Família angolana<br><span style="background:var(--kc-gradient);-webkit-background-clip:text;background-clip:text;color:transparent">encontra o seu lar</span></h2>
+            <p class="lead">Da mão na parede ao mapa: pins caem em <b>Talatona · Kilamba · Viana · Benguela · Huíla</b> e um pin expande-se num card de imóvel verificado.</p>
+            <div class="cards">
+              <div class="card"><img src="../public/house1.jpg" alt=""><div class="body"><span class="pill"><i data-lucide="badge-check" class="lic"></i>Verificado</span><div class="loc"><i data-lucide="map-pin" class="lic"></i>Talatona, Luanda</div><div class="price">85.000.000 Kz</div><div class="meta">Vivenda T4 · 320 m² · 2 banhos</div></div></div>
+              <div class="card"><img src="../public/house3.jpg" alt=""><div class="body"><span class="pill orange"><i data-lucide="sparkles" class="lic"></i>Novo</span><div class="loc"><i data-lucide="map-pin" class="lic"></i>Kilamba, Luanda</div><div class="price">32.500.000 Kz</div><div class="meta">Apartamento T3 · 118 m²</div></div></div>
+              <div class="card"><img src="../public/house5.jpg" alt=""><div class="body"><span class="pill purple"><i data-lucide="orbit" class="lic"></i>Tour 360°</span><div class="loc"><i data-lucide="map-pin" class="lic"></i>Benguela</div><div class="price">18.000 Kz/mês</div><div class="meta">Arrendamento T2 · Mobilado</div></div></div>
+            </div>
+          </section>
+
+          <!-- 18–35s PRODUTO -->
+          <section class="scene" id="s3" data-start="18" data-duration="17">
+            <div class="timer"><i data-lucide="clapperboard" class="lic"></i>18–35s · <b>Produto</b></div>
+            <div class="kicker"><i data-lucide="search" class="lic"></i>Busca inteligente</div>
+            <h2>Do search ao <span style="color:var(--kc-orange)">agendamento</span> em segundos</h2>
+            <div class="mock">
+              <div class="phone"><div class="bar"><i data-lucide="search" class="lic"></i><i id="type">T3 em Talatona até 40M…</i></div><div class="row"><i data-lucide="map-pin" class="lic"></i>Mapa · zoom suave até ao pin</div><div class="row"><i data-lucide="orbit" class="lic"></i>Tour VR 360° · Panolens</div><div class="row"><i data-lucide="calendar-check" class="lic"></i><span>Agende a visita em 3 toques</span></div></div>
+              <div class="desk"><div style="display:flex;align-items:center;gap:10px;font-size:26px;font-weight:800"><i data-lucide="home" class="lic"></i>kercasa.com · resultados <span style="display:inline-flex;align-items:center;gap:8px;color:var(--kc-green)"><i data-lucide="badge-check" class="lic"></i>128 verificados</span></div><div class="filters"><span class="on"><i data-lucide="map-pin" class="lic"></i>Talatona</span><span>T3</span><span>≤ 40M Kz</span><span><i data-lucide="badge-check" class="lic"></i>Verificados</span><span><i data-lucide="orbit" class="lic"></i>Com Tour VR</span></div>
+                <div class="agenda" id="d-agenda">
+                  <div class="agenda-head"><i data-lucide="calendar-days" class="lic"></i><span>Agendar visita</span><small>Talatona T3 · com a agente Ana</small></div>
+                  <div class="week" id="d-week"><span>Seg 12</span><span>Ter 13</span><span>Qua 14</span><span>Qui 15</span><span>Sex 16</span></div>
+                  <div class="slots" id="d-slots"><span>09:00</span><span>10:30</span><span>14:00</span><span>16:30</span></div>
+                  <div class="confirm" id="d-confirm" style="display:none"><i data-lucide="check-check" class="lic"></i><span>Visita agendada · Ter 13 às 10:30 · lembrete ativado</span></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 35–50s CONFIANÇA -->
+          <section class="scene" id="s4" data-start="35" data-duration="15">
+            <div class="timer"><i data-lucide="clapperboard" class="lic"></i>35–50s · <b>Confiança</b></div>
+            <div class="kicker"><i data-lucide="handshake" class="lic"></i>Conexão humana + Shield</div>
+            <h2>Agente verificado.<br>Chat real. <span style="color:var(--kc-purple)">Documento assinado.</span></h2>
+            <p class="lead">Check morph em chave, agente e família. Chat em tempo real, assinatura digital e pagamento seguro <b>Kercasa Shield</b>.</p>
+            <div class="cards">
+              <div class="card"><div class="body"><span class="pill"><i data-lucide="message-circle" class="lic"></i>Chat 24/7</span><div class="loc"><i data-lucide="clock" class="lic"></i>Resposta &lt; 1 min</div><div class="meta">“Olá Maria! A T3 na Talatona ainda está disponível?” → “Sim! Quer visitar amanhã?”</div></div></div>
+              <div class="card"><div class="body"><span class="pill orange"><i data-lucide="shield-check" class="lic"></i>Shield</span><div class="loc"><i data-lucide="file-text" class="lic"></i>Docs + pagamento</div><div class="meta">Contrato digital · verificação de titularidade · caução protegida</div></div></div>
+              <div class="card"><div class="body"><span class="pill purple"><i data-lucide="star" class="lic"></i>4.9 Agentes</span><div class="loc"><i data-lucide="building-2" class="lic"></i>Agências verificadas</div><div class="meta">Perfil, avaliações e histórico — processo transparente</div></div></div>
+            </div>
+          </section>
+
+          <!-- 50–70s CLÍMAX -->
+          <section class="scene" id="s5" data-start="50" data-duration="20">
+            <div class="timer"><i data-lucide="clapperboard" class="lic"></i>50–70s · <b>Clímax</b></div>
+            <div class="kicker"><i data-lucide="sparkles" class="lic"></i>O seu próximo lar está aqui</div>
+            <h2>Jantar em família.<br>Casa acesa. <span style="background:var(--kc-gradient);-webkit-background-clip:text;background-clip:text;color:transparent">Futuro aceso.</span></h2>
+            <div class="stats">
+              <div class="stat"><span class="sic"><i data-lucide="building-2" class="lic"></i></span><b data-count="5000">0</b><span>Imóveis disponíveis</span></div>
+              <div class="stat"><span class="sic"><i data-lucide="globe" class="lic"></i></span><b data-count="15">0</b><span>Províncias cobertas</span></div>
+              <div class="stat"><span class="sic"><i data-lucide="trending-up" class="lic"></i></span><b data-count="98">0</b><span>% satisfação</span></div>
+              <div class="stat"><span class="sic"><i data-lucide="headset" class="lic"></i></span><b>24/7</b><span>Suporte em PT-AO</span></div>
+            </div>
+            <div class="depos">
+              <div class="depo"><div class="stars"><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i></div>“Encontrei a casa dos sonhos. Processo transparente e seguro.”<b>Maria S. · Compradora, Luanda</b></div>
+              <div class="depo"><div class="stars"><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i></div>“Vendi o apartamento em semanas, com toda a segurança.”<b>João P. · Vendedor, Benguela</b></div>
+              <div class="depo"><div class="stars"><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i></div>“As análises ajudam-me a investir melhor.”<b>Ana C. · Investidora</b></div>
+            </div>
+          </section>
+
+          <!-- 70–90s CTA -->
+          <section class="scene" id="s6" data-start="70" data-duration="20">
+            <div class="timer"><i data-lucide="clapperboard" class="lic"></i>70–90s · <b>CTA</b></div>
+            <div class="kicker" style="background:rgba(255,255,255,.12);color:#FED7AA;border-color:rgba(255,255,255,.25)"><i data-lucide="rocket" class="lic"></i>Comece hoje — grátis</div>
+            <h2>Kercasa.<br>A sua casa, mais perto.</h2>
+            <p class="lead" id="url">kercasa.com — <span id="urltype"></span></p>
+            <div class="cta-row"><button class="btn primary"><i data-lucide="search" class="lic"></i>Pesquisar imóveis</button><button class="btn ghost"><i data-lucide="message-circle" class="lic"></i>Falar com agente</button><button class="btn ghost"><i data-lucide="download" class="lic"></i>App Store · Google Play</button></div>
+            <div class="qr"><div class="fake"></div><div><div style="display:flex;align-items:center;gap:12px;font-size:30px;font-weight:900"><i data-lucide="qr-code" class="lic"></i>Aponte e entre</div><div style="font-size:24px;color:#4B5563">QR → kercasa.com · PWA instalável · 100% seguro e transparente</div></div></div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="prev"><i data-lucide="chevron-left" class="lic"></i>Cena</button>
+    <button id="play" class="go"><i data-lucide="play" class="lic"></i>Play 90s</button>
+    <button id="next">Cena<i data-lucide="chevron-right" class="lic"></i></button>
+    <div class="dots" id="dots"></div>
+    <div id="progress"><div id="bar"></div></div>
+    <span id="tlabel">0.0s / 90s</span>
+  </div>
+
+  <div class="notes">
+    <div class="panel"><h3><i data-lucide="play" class="lic"></i>Como apresentar (demo viva)</h3>Prima <b>Play 90s</b> para correr as 6 cenas com os tempos reais do vídeo (6/12/17/15/20/20s). Use <b>Cena</b> para pausar e explicar cada bloco ao cliente. O palco é 1920×1080 e escala sozinho ao ecrã — ideal para projetor ou call.<br><br>Transições aplicadas: <code>fade-to-white</code> · match-cut (casa→mapa) · typewriter · stagger · morph check→chave · contadores · blur-reveal no CTA. Eases: <code>power2.inOut</code> / <code>power3.out</code> / <code>back.out</code>. Ícones: <code>lucide-react 0.522.0</code>, a mesma biblioteca do produto.</div>
+    <div class="panel"><h3><i data-lucide="clapperboard" class="lic"></i>Levar para Hyperframes (render mp4)</h3>1) <code>npx skills add heygen-com/hyperframes</code> → Core Skills → reinicie o agent.<br>2) Cole o ficheiro <code>hyperframes.prompt.md</code> com <code>/hyperframes</code>.<br>3) <code>npx hyperframes lint</code> → <code>check</code> → <code>snapshot --at 0,6,18,35,50,70</code> → <code>render --output kercasa-90s.mp4</code>.<br><br>Assets: <a href="../public/kercasa_logo.png">kercasa_logo.png</a> · <a href="../public/">house1…21.jpg</a> · <a href="background-audio.mp3">background-audio.mp3</a> (fundo, ajustado a 90s) + SFX em <code>video/assets/mix.mp3</code> · MP4 em <code>renders/kercasa-90s.mp4</code>.</div>
+  </div>
+
+<script>
+const SCENES=[{id:'s1',d:6},{id:'s2',d:12},{id:'s3',d:17},{id:'s4',d:15},{id:'s5',d:20},{id:'s6',d:20}];
+const TOTAL=90; let idx=0, playing=false, tGlobal=0, raf=null, lastTs=0;
+const bar=document.getElementById('bar'), tlabel=document.getElementById('tlabel');
+const dots=document.getElementById('dots');
+SCENES.forEach((s,i)=>{const b=document.createElement('button');b.textContent=(i+1);b.onclick=()=>go(i);dots.appendChild(b);s.btn=b;});
+function fit(){const w=document.querySelector('.viewport').clientWidth;const sc=Math.min(w/1920,1);const el=document.getElementById('scaler');el.style.transform=`scale(${sc})`;el.style.height=(1080*sc)+'px';}
+window.addEventListener('resize',fit);
+function show(i){idx=i;document.querySelectorAll('.scene').forEach(el=>el.classList.remove('active'));const el=document.getElementById(SCENES[i].id);el.classList.add('active');SCENES.forEach((s,j)=>s.btn.classList.toggle('on',j===i));
+  if(window.gsap){gsap.fromTo(el,{opacity:0,y:30,filter:'blur(8px)'},{opacity:1,y:0,filter:'blur(0px)',duration:.7,ease:'power3.out'});
+    const cards=el.querySelectorAll('.card,.stat,.depo'); if(cards.length) gsap.fromTo(cards,{opacity:0,y:40},{opacity:1,y:0,duration:.6,stagger:.09,ease:'back.out(1.4)',delay:.15});}
+  if(window.lucide) lucide.createIcons();
+  if(SCENES[i].id==='s1') animateLogo();
+  if(SCENES[i].id==='s3') scheduleDemo();
+  if(SCENES[i].id==='s5') counters();
+  if(SCENES[i].id==='s6') urlType();
+}
+let schedToken=0;
+function scheduleDemo(){const my=++schedToken;const week=document.getElementById('d-week'),slots=document.getElementById('d-slots'),cf=document.getElementById('d-confirm');if(!week||!slots||!cf)return;
+  week.querySelectorAll('span').forEach(s=>s.classList.remove('sel'));slots.querySelectorAll('span').forEach(s=>s.classList.remove('sel'));cf.style.display='none';
+  setTimeout(()=>{if(my!==schedToken)return;week.children[1].classList.add('sel');if(window.gsap)gsap.fromTo(week.children[1],{scale:.9},{scale:1,duration:.45,ease:'back.out(2)'});},700);
+  setTimeout(()=>{if(my!==schedToken)return;slots.children[1].classList.add('sel');if(window.gsap)gsap.fromTo(slots.children[1],{scale:.9},{scale:1,duration:.45,ease:'back.out(2)'});},1500);
+  setTimeout(()=>{if(my!==schedToken)return;cf.style.display='flex';if(window.gsap)gsap.fromTo(cf,{opacity:0,y:24,scale:.96},{opacity:1,y:0,scale:1,duration:.6,ease:'back.out(1.4)'});if(window.lucide)lucide.createIcons();},2300);
+}
+function animateLogo(){const p=document.getElementById('housepath');if(!p||!window.gsap)return;const L=p.getTotalLength();gsap.fromTo(p,{strokeDasharray:L,strokeDashoffset:L},{strokeDashoffset:0,duration:1.6,ease:'power2.inOut'});gsap.fromTo('#logoword span',{opacity:0,y:40},{opacity:1,y:0,duration:.5,stagger:.35,ease:'power3.out',delay:.6});}
+function counters(){document.querySelectorAll('[data-count]').forEach(el=>{const end=+el.dataset.count;if(!window.gsap){el.textContent=end+'+';return;}const o={v:0};gsap.to(o,{v:end,duration:1.6,ease:'power2.out',onUpdate:()=>el.textContent=Math.round(o.v)+(end>=100?'+':'%')});});}
+function urlType(){const s='Comprar · Arrendar · Vender — Luanda, Benguela, Huíla…';const el=document.getElementById('urltype');if(!el)return;el.textContent='';let i=0;clearInterval(el._t);el._t=setInterval(()=>{el.textContent=s.slice(0,++i);if(i>=s.length)clearInterval(el._t);},35);}
+function starts(){let a=0;return SCENES.map(s=>{const st=a;a+=s.d;return st;});}
+function tick(ts){if(!playing)return;if(!lastTs)lastTs=ts;const dt=(ts-lastTs)/1000;lastTs=ts;tGlobal+=dt;if(tGlobal>=TOTAL){stop();tGlobal=TOTAL;}const st=starts();let ni=0;st.forEach((v,i)=>{if(tGlobal>=v)ni=i;});if(ni!==idx)show(ni);bar.style.width=(tGlobal/TOTAL*100)+'%';tlabel.textContent=tGlobal.toFixed(1)+'s / 90s';raf=requestAnimationFrame(tick);}
+function play(){playing=true;lastTs=0;document.getElementById('play').innerHTML='<i data-lucide="pause" class="lic"></i>Pausa';if(window.lucide)lucide.createIcons();raf=requestAnimationFrame(tick);}
+function stop(){playing=false;document.getElementById('play').innerHTML='<i data-lucide="play" class="lic"></i>Play 90s';if(window.lucide)lucide.createIcons();}
+function go(i){stop();tGlobal=starts()[i]+0.01;bar.style.width=(tGlobal/TOTAL*100)+'%';tlabel.textContent=tGlobal.toFixed(1)+'s / 90s';show(i);}
+document.getElementById('play').onclick=()=>playing?stop():play();
+document.getElementById('next').onclick=()=>go((idx+1)%SCENES.length);
+document.getElementById('prev').onclick=()=>go((idx-1+SCENES.length)%SCENES.length);
+show(0);fit();setTimeout(fit,300);
+if(window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>

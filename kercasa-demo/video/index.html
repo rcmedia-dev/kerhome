@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="pt-AO" data-resolution="landscape">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920, height=1080">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://unpkg.com/lucide@0.522.0/dist/umd/lucide.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#000}
+  body{font-family:'Inter',-apple-system,'SF Pro Display',system-ui,'Segoe UI',sans-serif}
+  #kercasa{position:relative;width:1920px;height:1080px;background:#FAFAF8;color:#111827;overflow:hidden}
+  .scene{position:absolute;inset:0;padding:100px 120px;opacity:0}
+  .kicker{display:inline-flex;align-items:center;gap:12px;font-size:25px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#6D28D9;background:#F3E8FF;border:2px solid #DDD6FE;padding:12px 24px;border-radius:999px;margin-bottom:26px}
+  h2{font-size:74px;letter-spacing:-.04em;line-height:1.06;font-weight:900;color:#111827}
+  .grad{background:linear-gradient(100deg,#7E22CE 0%,#6D28D9 45%,#F97316 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lead{font-size:34px;color:#4B5563;margin-top:20px;max-width:1300px;line-height:1.35}
+  .timer{position:absolute;top:44px;right:56px;display:inline-flex;align-items:center;gap:10px;font-size:23px;font-weight:800;color:#fff;background:#111827;border-radius:12px;padding:10px 18px}
+  .timer b{color:#F5A623}
+  .lic{width:1em;height:1em;vertical-align:-0.12em}
+  /* S1 */
+  #v-s1{background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  #v-logo{display:flex;flex-direction:column;align-items:center}
+  #v-house{width:330px;height:230px;margin-bottom:8px}
+  #v-house path{stroke:#6D28D9;stroke-width:11;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  #v-wordmark{font-size:148px;font-weight:900;letter-spacing:-.06em;line-height:1}
+  #v-wordmark span{display:inline-block}
+  #v-word .ker{color:#6D28D9}
+  #v-tag{display:inline-flex;align-items:center;gap:12px;font-size:33px;color:#6B7280;margin-top:10px}
+  /* cards */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:42px}
+  .card{background:#fff;border-radius:28px;overflow:hidden;border:1px solid #E9E9EC;text-align:left}
+  .card img{width:100%;height:250px;object-fit:cover;display:block}
+  .card .body{padding:24px 26px}
+  .loc{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800;color:#6D28D9}
+  .price{font-size:40px;font-weight:900;margin:6px 0;color:#111827}
+  .meta{font-size:22px;color:#6B7280}
+  .pill{display:inline-flex;align-items:center;gap:8px;font-size:20px;font-weight:800;color:#fff;background:#10B981;padding:8px 16px;border-radius:999px;margin-bottom:10px}
+  .pill.orange{background:#F97316}.pill.purple{background:#6D28D9}
+  /* S3 */
+  .mock{display:flex;gap:30px;margin-top:38px}
+  .phone{width:440px;background:#111827;border-radius:48px;padding:22px;color:#fff}
+  .phone .bar{display:flex;align-items:center;gap:12px;background:#fff;color:#111827;border-radius:16px;padding:20px 22px;font-size:26px;font-weight:600}
+  .phone .row{display:flex;align-items:center;gap:12px;background:#1F2937;border-radius:16px;padding:18px;margin-top:14px;font-size:23px}
+  .desk{flex:1;background:#fff;border-radius:28px;padding:30px;border:1px solid #E9E9EC}
+  .filters{display:flex;gap:14px;margin:18px 0;flex-wrap:wrap}
+  .filters span{display:inline-flex;align-items:center;gap:8px;font-size:22px;font-weight:700;background:#F3F4F6;padding:12px 20px;border-radius:999px;color:#111827}
+  .filters span.on{background:#6D28D9;color:#fff}
+  .agenda{margin-top:20px;background:#F8FAFC;border:2px solid #E2E8F0;border-radius:20px;padding:22px 24px}
+  .agenda-head{display:flex;align-items:center;gap:12px;font-size:24px;font-weight:800;color:#111827}
+  .agenda-head small{font-size:20px;font-weight:600;color:#6B7280}
+  .week{display:flex;gap:10px;margin-top:16px}
+  .week span{font-size:21px;font-weight:700;background:#fff;border:2px solid #E2E8F0;color:#374151;padding:10px 16px;border-radius:14px}
+  .week span.sel{background:#6D28D9;border-color:#6D28D9;color:#fff}
+  .slots{display:flex;gap:10px;margin-top:12px}
+  .slots span{display:inline-flex;align-items:center;gap:8px;font-size:21px;font-weight:700;background:#fff;border:2px solid #E2E8F0;color:#374151;padding:10px 16px;border-radius:999px}
+  .slots span.sel{background:#6D28D9;border-color:#6D28D9;color:#fff}
+  .confirm{display:flex;align-items:center;gap:12px;margin-top:16px;background:#10B981;color:#fff;font-size:23px;font-weight:800;padding:14px 20px;border-radius:16px}
+  /* S5 */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;margin-top:42px}
+  .stat{background:#fff;border-radius:24px;padding:30px 18px;text-align:center;border:1px solid #E9E9EC}
+  .stat .sic{display:inline-flex;align-items:center;justify-content:center;width:62px;height:62px;border-radius:18px;background:#F3E8FF;color:#6D28D9;margin-bottom:10px}
+  .stat b{font-size:72px;font-weight:900;display:block;line-height:1.1}
+  .stat b.g{background:linear-gradient(100deg,#7E22CE,#6D28D9 45%,#F97316);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat span{font-size:23px;color:#6B7280;font-weight:600}
+  .depos{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:26px}
+  .depo{background:#fff;border-radius:24px;padding:30px;border:1px solid #E9E9EC;font-size:25px;line-height:1.45;color:#374151}
+  .depo .stars{display:flex;gap:6px;color:#F5A623;margin-bottom:12px}
+  .depo .stars .lic{width:24px;height:24px;fill:currentColor}
+  .depo b{display:block;margin-top:14px;font-size:23px;color:#111827}
+  /* S6 */
+  #v-s6{background:linear-gradient(135deg,#1B0B3B 0%,#2E1065 45%,#6D28D9 100%);color:#fff}
+  #v-s6 h2{color:#fff}#v-s6 .lead{color:#DDD6FE}
+  .cta-row{display:flex;gap:24px;margin-top:42px}
+  .btn{display:inline-flex;align-items:center;gap:14px;font-size:31px;font-weight:900;padding:26px 52px;border-radius:18px}
+  .btn.primary{background:#F97316;color:#fff}
+  .btn.ghost{background:rgba(255,255,255,.12);color:#fff;border:2px solid rgba(255,255,255,.35)}
+  .qr{background:#fff;color:#111827;border-radius:24px;padding:28px;display:flex;gap:24px;align-items:center;margin-top:34px;max-width:840px}
+  .qr .fake{width:150px;height:150px;flex-shrink:0;background:repeating-linear-gradient(0deg,#111827 0 8px,#fff 8px 16px),repeating-linear-gradient(90deg,#111827 0 8px,#fff 8px 16px);background-blend-mode:multiply;border:8px solid #fff;outline:4px solid #111827;border-radius:12px}
+</style>
+</head>
+<body>
+<div id="kercasa" data-composition-id="kercasa" data-start="0" data-duration="90" data-width="1920" data-height="1080">
+
+  <audio id="v-audio" class="clip" data-start="0" data-duration="90" data-volume="0.9" data-fade-in="1" data-fade-out="2" src="./assets/mix.mp3"></audio>
+
+  <!-- SCENE 1 · 0-6 LOGO -->
+  <section id="v-s1" class="scene clip" data-start="0" data-duration="6" data-track-index="0">
+    <div id="v-logo">
+      <svg id="v-house" viewBox="0 0 340 240"><path d="M40 130 L170 40 L300 130 M70 115 V210 H270 V115 M150 210 V150 H190 V210"/></svg>
+      <div id="v-wordmark"><span id="v-w1" style="color:#6D28D9">ker</span><span id="v-w2" class="grad">casa</span></div>
+      <div id="v-tag"><i data-lucide="home" class="lic"></i><span>A sua casa, mais perto. · Comprar · Arrendar · Vender em Angola</span></div>
+    </div>
+  </section>
+
+  <!-- SCENE 2 · 6-18 EMOCAO -->
+  <section id="v-s2" class="scene clip" data-start="6" data-duration="12" data-track-index="1">
+    <div class="timer"><i data-lucide="clapperboard" class="lic"></i><span>6–18s · <b>Emoção</b></span></div>
+    <div class="kicker" id="v-k2"><i data-lucide="home" class="lic"></i><span>O sonho começa em casa</span></div>
+    <h2 id="v-h2">Família angolana<br><span class="grad">encontra o seu lar</span></h2>
+    <p class="lead" id="v-l2">Pins caem em <b>Talatona · Kilamba · Viana · Benguela · Huíla</b> e um pin expande-se num card de imóvel verificado.</p>
+    <div class="cards">
+      <div class="card" id="v-c1"><img src="./assets/house1.jpg" alt="Vivenda Talatona"><div class="body"><span class="pill"><i data-lucide="badge-check" class="lic"></i>Verificado</span><div class="loc"><i data-lucide="map-pin" class="lic"></i>Talatona, Luanda</div><div class="price">85.000.000 Kz</div><div class="meta">Vivenda T4 · 320 m²</div></div></div>
+      <div class="card" id="v-c2"><img src="./assets/house3.jpg" alt="Apartamento Kilamba"><div class="body"><span class="pill orange"><i data-lucide="sparkles" class="lic"></i>Novo</span><div class="loc"><i data-lucide="map-pin" class="lic"></i>Kilamba, Luanda</div><div class="price">32.500.000 Kz</div><div class="meta">Apartamento T3 · 118 m²</div></div></div>
+      <div class="card" id="v-c3"><img src="./assets/house5.jpg" alt="Arrendamento Benguela"><div class="body"><span class="pill purple"><i data-lucide="orbit" class="lic"></i>Tour 360°</span><div class="loc"><i data-lucide="map-pin" class="lic"></i>Benguela</div><div class="price">18.000 Kz/mês</div><div class="meta">Arrendamento T2 · Mobilado</div></div></div>
+    </div>
+  </section>
+
+  <!-- SCENE 3 · 18-35 PRODUTO -->
+  <section id="v-s3" class="scene clip" data-start="18" data-duration="17" data-track-index="2">
+    <div class="timer"><i data-lucide="clapperboard" class="lic"></i><span>18–35s · <b>Produto</b></span></div>
+    <div class="kicker" id="v-k3"><i data-lucide="search" class="lic"></i><span>Busca inteligente</span></div>
+    <h2 id="v-h3">Do search ao <span style="color:#F97316">agendamento</span> em segundos</h2>
+    <div class="mock">
+      <div class="phone" id="v-phone">
+        <div class="bar"><i data-lucide="search" class="lic"></i><span>T3 em Talatona até 40M</span></div>
+        <div class="row" id="v-r1"><i data-lucide="map-pin" class="lic"></i><span>Mapa · zoom suave até ao pin</span></div>
+        <div class="row" id="v-r2"><i data-lucide="orbit" class="lic"></i><span>Tour VR 360° · Panolens</span></div>
+        <div class="row" id="v-r3"><i data-lucide="calendar-check" class="lic"></i><span>Agende a visita em 3 toques</span></div>
+      </div>
+      <div class="desk" id="v-desk">
+        <div style="display:flex;align-items:center;gap:10px;font-size:26px;font-weight:800;color:#111827"><i data-lucide="home" class="lic"></i><span>kercasa.com · 128 verificados</span></div>
+        <div class="filters"><span class="on">Talatona</span><span>T3</span><span>≤ 40M Kz</span><span>Verificados</span><span>Com Tour VR</span></div>
+        <div class="agenda" id="v-agenda">
+          <div class="agenda-head"><i data-lucide="calendar-days" class="lic"></i><span>Agendar visita</span><small>Talatona T3 · com a agente Ana</small></div>
+          <div class="week"><span>Seg 12</span><span class="sel" id="v-day">Ter 13</span><span>Qua 14</span><span>Qui 15</span><span>Sex 16</span></div>
+          <div class="slots"><span>09:00</span><span class="sel" id="v-slot">10:30</span><span>14:00</span><span>16:30</span></div>
+          <div class="confirm" id="v-confirm"><i data-lucide="check-check" class="lic"></i><span>Visita agendada · Ter 13 às 10:30 · lembrete ativado</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCENE 4 · 35-50 CONFIANCA -->
+  <section id="v-s4" class="scene clip" data-start="35" data-duration="15" data-track-index="3">
+    <div class="timer"><i data-lucide="clapperboard" class="lic"></i><span>35–50s · <b>Confiança</b></span></div>
+    <div class="kicker" id="v-k4"><i data-lucide="handshake" class="lic"></i><span>Conexão humana + Shield</span></div>
+    <h2 id="v-h4">Agente verificado.<br>Chat real. <span style="color:#6D28D9">Documento assinado.</span></h2>
+    <p class="lead" id="v-l4">Chat em tempo real, assinatura digital e pagamento seguro <b>Kercasa Shield</b>.</p>
+    <div class="cards">
+      <div class="card" id="v-t1"><div class="body"><span class="pill"><i data-lucide="message-circle" class="lic"></i>Chat 24/7</span><div class="loc"><i data-lucide="clock" class="lic"></i>Resposta &lt; 1 min</div><div class="meta">Agente responde em tempo real, em PT-AO.</div></div></div>
+      <div class="card" id="v-t2"><div class="body"><span class="pill orange"><i data-lucide="shield-check" class="lic"></i>Shield</span><div class="loc"><i data-lucide="file-text" class="lic"></i>Docs + pagamento</div><div class="meta">Contrato digital · titularidade · caução protegida.</div></div></div>
+      <div class="card" id="v-t3"><div class="body"><span class="pill purple"><i data-lucide="star" class="lic"></i>4.9 Agentes</span><div class="loc"><i data-lucide="building-2" class="lic"></i>Agências verificadas</div><div class="meta">Perfil, avaliações e histórico transparente.</div></div></div>
+    </div>
+  </section>
+
+  <!-- SCENE 5 · 50-70 CLIMAX -->
+  <section id="v-s5" class="scene clip" data-start="50" data-duration="20" data-track-index="4">
+    <div class="timer"><i data-lucide="clapperboard" class="lic"></i><span>50–70s · <b>Clímax</b></span></div>
+    <div class="kicker" id="v-k5"><i data-lucide="sparkles" class="lic"></i><span>O seu próximo lar está aqui</span></div>
+    <h2 id="v-h5">Jantar em família.<br>Casa acesa. <span class="grad">Futuro aceso.</span></h2>
+    <div class="stats">
+      <div class="stat" id="v-n1"><span class="sic"><i data-lucide="building-2" class="lic"></i></span><b class="g">5000+</b><span>Imóveis disponíveis</span></div>
+      <div class="stat" id="v-n2"><span class="sic"><i data-lucide="globe" class="lic"></i></span><b class="g">15</b><span>Províncias cobertas</span></div>
+      <div class="stat" id="v-n3"><span class="sic"><i data-lucide="trending-up" class="lic"></i></span><b class="g">98%</b><span>Satisfação</span></div>
+      <div class="stat" id="v-n4"><span class="sic"><i data-lucide="headset" class="lic"></i></span><b class="g">24/7</b><span>Suporte em PT-AO</span></div>
+    </div>
+    <div class="depos">
+      <div class="depo" id="v-d1"><div class="stars"><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i></div>“Encontrei a casa dos sonhos. Processo transparente e seguro.”<b>Maria S. · Luanda</b></div>
+      <div class="depo" id="v-d2"><div class="stars"><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i></div>“Vendi o apartamento em semanas, com segurança.”<b>João P. · Benguela</b></div>
+      <div class="depo" id="v-d3"><div class="stars"><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i><i data-lucide="star" class="lic"></i></div>“As análises ajudam-me a investir melhor.”<b>Ana C. · Investidora</b></div>
+    </div>
+  </section>
+
+  <!-- SCENE 6 · 70-90 CTA -->
+  <section id="v-s6" class="scene clip" data-start="70" data-duration="20" data-track-index="5">
+    <div class="kicker" id="v-k6" style="background:rgba(255,255,255,.12);color:#FED7AA;border-color:rgba(255,255,255,.3)"><i data-lucide="rocket" class="lic"></i><span>Comece hoje — grátis</span></div>
+    <h2 id="v-h6">Kercasa.<br>A sua casa, mais perto.</h2>
+    <p class="lead" id="v-l6">kercasa.com — Comprar · Arrendar · Vender em Luanda, Benguela, Huíla.</p>
+    <div class="cta-row">
+      <div class="btn primary" id="v-b1"><i data-lucide="search" class="lic"></i><span>Pesquisar imóveis</span></div>
+      <div class="btn ghost" id="v-b2"><i data-lucide="message-circle" class="lic"></i><span>Falar com agente</span></div>
+      <div class="btn ghost" id="v-b3"><i data-lucide="download" class="lic"></i><span>App Store · Google Play</span></div>
+    </div>
+    <div class="qr" id="v-qr"><div class="fake"></div><div><div style="display:flex;align-items:center;gap:12px;font-size:30px;font-weight:900;color:#111827"><i data-lucide="qr-code" class="lic"></i><span>Aponte e entre</span></div><div style="font-size:24px;color:#4B5563">QR → kercasa.com · PWA instalável · 100% seguro</div></div></div>
+  </section>
+
+</div>
+<script>
+(function(){
+  if (window.lucide) lucide.createIcons();
+  var tl = gsap.timeline({ paused: true });
+  function fadeIn(sel, at, dur){ tl.fromTo(sel, {opacity:0, y:36}, {opacity:1, y:0, duration:dur||0.7, ease:"power3.out"}, at); }
+  function fadeOut(sel, at, dur){ tl.to(sel, {opacity:0, y:-24, duration:dur||0.6, ease:"power2.inOut"}, at); }
+  function pop(sel, at){ tl.fromTo(sel, {opacity:0, y:44, scale:0.96}, {opacity:1, y:0, scale:1, duration:0.6, ease:"back.out(1.4)"}, at); }
+  function tap(sel, at){ tl.fromTo(sel, {scale:0.9}, {scale:1, duration:0.45, ease:"back.out(2)"}, at); }
+
+  // S1 0-6
+  tl.fromTo("#v-s1", {opacity:0}, {opacity:1, duration:0.5, ease:"power2.inOut"}, 0);
+  fadeIn("#v-house", 0.1, 0.8);
+  tl.fromTo("#v-w1", {opacity:0, y:44}, {opacity:1, y:0, duration:0.5, ease:"power3.out"}, 0.6);
+  tl.fromTo("#v-w2", {opacity:0, y:44}, {opacity:1, y:0, duration:0.5, ease:"power3.out"}, 0.95);
+  fadeIn("#v-tag", 1.5, 0.7);
+  fadeOut("#v-s1", 5.4);
+
+  // S2 6-18
+  tl.fromTo("#v-s2", {opacity:0}, {opacity:1, duration:0.6, ease:"power2.inOut"}, 5.7);
+  fadeIn("#v-k2", 6.1); fadeIn("#v-h2", 6.35); fadeIn("#v-l2", 6.7);
+  pop("#v-c1", 7.2); pop("#v-c2", 7.45); pop("#v-c3", 7.7);
+  fadeOut("#v-s2", 17.4);
+
+  // S3 18-35
+  tl.fromTo("#v-s3", {opacity:0}, {opacity:1, duration:0.6, ease:"power2.inOut"}, 17.7);
+  fadeIn("#v-k3", 18.1); fadeIn("#v-h3", 18.35);
+  fadeIn("#v-phone", 19.0); pop("#v-r1", 19.6); pop("#v-r2", 20.1); pop("#v-r3", 20.7);
+  fadeIn("#v-desk", 21.4, 0.8);
+  fadeIn("#v-agenda", 22.4, 0.7);
+  tl.set("#v-confirm", {opacity:0}, 0);
+  tap("#v-day", 26.5); tap("#v-slot", 28.5); pop("#v-confirm", 30.5);
+  fadeOut("#v-s3", 34.4);
+
+  // S4 35-50
+  tl.fromTo("#v-s4", {opacity:0}, {opacity:1, duration:0.6, ease:"power2.inOut"}, 34.7);
+  fadeIn("#v-k4", 35.1); fadeIn("#v-h4", 35.35); fadeIn("#v-l4", 35.7);
+  pop("#v-t1", 36.4); pop("#v-t2", 36.65); pop("#v-t3", 36.9);
+  fadeOut("#v-s4", 49.4);
+
+  // S5 50-70
+  tl.fromTo("#v-s5", {opacity:0}, {opacity:1, duration:0.7, ease:"power2.inOut"}, 49.7);
+  fadeIn("#v-k5", 50.1); fadeIn("#v-h5", 50.35);
+  pop("#v-n1", 51.4); pop("#v-n2", 51.6); pop("#v-n3", 51.8); pop("#v-n4", 52.0);
+  pop("#v-d1", 53.0); pop("#v-d2", 53.2); pop("#v-d3", 53.4);
+  fadeOut("#v-s5", 69.4);
+
+  // S6 70-90
+  tl.fromTo("#v-s6", {opacity:0}, {opacity:1, duration:0.8, ease:"power2.inOut"}, 69.7);
+  fadeIn("#v-k6", 70.2); fadeIn("#v-h6", 70.5); fadeIn("#v-l6", 71.0);
+  pop("#v-b1", 71.8); pop("#v-b2", 72.0); pop("#v-b3", 72.2);
+  tl.fromTo("#v-qr", {opacity:0, y:30, scale:0.97}, {opacity:1, y:0, scale:1, duration:0.7, ease:"back.out(1.4)"}, 73.0);
+  tl.to("#v-s6", {opacity:0, duration:1.0, ease:"power2.inOut"}, 89.0);
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines["kercasa"] = tl;
+  tl.seek(0);
+})();
+</script>
+</body>
+</html>
