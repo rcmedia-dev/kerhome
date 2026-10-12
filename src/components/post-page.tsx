@@ -23,6 +23,7 @@ import { Noticias } from '@/lib/types/noticia';
 import { TPropertyResponseSchema } from '@/lib/types/property';
 import { ArticleJsonLd } from '@/components/json-ld';
 import { Breadcrumbs } from '@/components/breadcrumbs';
+import { sanitizeHtml } from '@/lib/utils/formatting';
 import {
   motion,
   useScroll,
@@ -124,8 +125,9 @@ const PropertyAd = ({ property, layout = 'horizontal' }: { property: TPropertyRe
 
 // Safely inject ad after the 2nd paragraph
 const injectAdAtParagraph = (html: string, ad: React.ReactNode, paragraphIndex: number = 2) => {
-  const parts = html.split('</p>');
-  if (parts.length <= paragraphIndex) return <div dangerouslySetInnerHTML={{ __html: html }} />;
+  const safeHtml = sanitizeHtml(html);
+  const parts = safeHtml.split('</p>');
+  if (parts.length <= paragraphIndex) return <div dangerouslySetInnerHTML={{ __html: safeHtml }} />;
 
   const before = parts.slice(0, paragraphIndex).join('</p>') + '</p>';
   const after = parts.slice(paragraphIndex).join('</p>');

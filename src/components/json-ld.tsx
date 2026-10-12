@@ -1,3 +1,5 @@
+import { escapeJsonForScript } from '@/lib/utils/formatting';
+
 export function OrganizationJsonLd() {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kercasa.com';
   const schema = {
@@ -21,7 +23,7 @@ export function OrganizationJsonLd() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: escapeJsonForScript(JSON.stringify(schema)) }}
     />
   );
 }
@@ -46,7 +48,7 @@ export function WebsiteJsonLd() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: escapeJsonForScript(JSON.stringify(schema)) }}
     />
   );
 }
@@ -90,7 +92,7 @@ export function RealEstateListingJsonLd({
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: escapeJsonForScript(JSON.stringify(schema)) }}
     />
   );
 }
@@ -110,7 +112,7 @@ export function BreadcrumbListJsonLd({ items }: { items: { name: string; url: st
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: escapeJsonForScript(JSON.stringify(schema)) }}
     />
   );
 }
@@ -142,7 +144,7 @@ export function ArticleJsonLd({ title, description, image, url, datePublished, a
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: escapeJsonForScript(JSON.stringify(schema)) }}
     />
   );
 }
@@ -164,7 +166,7 @@ export function FaqPageJsonLd({ items }: { items: { question: string; answer: st
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: escapeJsonForScript(JSON.stringify(schema)) }}
     />
   );
 }

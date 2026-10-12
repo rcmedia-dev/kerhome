@@ -6,6 +6,20 @@ import { X, ArrowLeftRight, Check, BarChart3, Sparkles, Loader2, ArrowRight, Rul
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+const formatInlineMarkdown = (text: string) => {
+  const parts = text.split(/(\*\*.+?\*\*|\*.+?\*)/g).filter(Boolean);
+
+  return parts.map((part, index) => {
+    const boldMatch = part.match(/^\*\*(.+)\*\*$/) || part.match(/^\*(.+)\*$/);
+
+    if (boldMatch) {
+      return <strong key={`${part}-${index}`}>{boldMatch[1]}</strong>;
+    }
+
+    return <span key={`${part}-${index}`}>{part}</span>;
+  });
+};
+
 interface CompareContextType {
   selectionMode: boolean;
   selectedIds: string[];
@@ -671,7 +685,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
                                         <ScenarioIcon size={18} />
                                       </div>
                                       <h4 className="text-sm font-bold text-gray-800 mt-3">{scenario.label}</h4>
-                                      <p className="text-xs text-gray-600 mt-1 leading-relaxed flex-1" dangerouslySetInnerHTML={{ __html: sentence.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<strong>$1</strong>') }} />
+                                      <p className="text-xs text-gray-600 mt-1 leading-relaxed flex-1">{formatInlineMarkdown(sentence)}</p>
                                       <span className="mt-3 text-[10px] font-extrabold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full w-fit">
                                         Vencedor: Imóvel {String.fromCharCode(65 + scenario.winner)}
                                       </span>
@@ -825,9 +839,7 @@ export function PropertyComparison({ properties, children }: PropertyComparisonP
                   </div>
                                       <p className="text-[10px] text-gray-700 leading-relaxed">
                       {comparisonResult.summary.split(/(?<=[.!?])\s+/).map((sentence: string, i: number) => (
-                        <span key={i} className="block mb-1 pl-2 border-l-2 border-purple-200" dangerouslySetInnerHTML={{
-                          __html: sentence.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<strong>$1</strong>')
-                        }} />
+                        <span key={i} className="block mb-1 pl-2 border-l-2 border-purple-200">{formatInlineMarkdown(sentence)}</span>
                       ))}
                     </p>
                   </div>

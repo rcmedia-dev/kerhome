@@ -1,0 +1,10 @@
+{
+  "name": "kercasa-90s",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes hyperframes@0.8.71 preview",
+    "check": "npx --yes hyperframes@0.8.71 check",
+    "render": "npx --yes hyperframes@0.8.71 render --output renders/kercasa-90s.mp4"
+  }
+}

@@ -73,12 +73,14 @@ const faqJsonLd = {
   ],
 };
 
+import { escapeJsonForScript } from '@/lib/utils/formatting';
+
 export default function SobreLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: escapeJsonForScript(JSON.stringify(faqJsonLd)) }}
       />
       {children}
     </>
