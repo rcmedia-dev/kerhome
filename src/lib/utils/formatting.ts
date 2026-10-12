@@ -3,6 +3,52 @@
  * Centralizar funções reutilizáveis
  */
 
+export const escapeJsonForScript = (value: string): string => {
+  return value
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/`/g, '\\u0060');
+};
+
+export const sanitizeHtml = (value: string): string => {
+  if (!value) return '';
+
+  if (typeof window === 'undefined') {
+    return value
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[\s\S]*?\/style>/gi, '')
+      .replace(/on[a-z]+\s*=\s*(["']).*?\1/gi, '')
+      .replace(/javascript\s*:/gi, '');
+  }
+
+  const container = document.createElement('div');
+  container.innerHTML = value;
+
+  const dangerousTags = container.querySelectorAll('script, style, iframe, object, embed, svg, math');
+  dangerousTags.forEach((node) => node.remove());
+
+  container.querySelectorAll('*').forEach((node) => {
+    Array.from(node.attributes).forEach((attribute) => {
+      const name = attribute.name.toLowerCase();
+
+      if (name.startsWith('on') || name === 'srcdoc') {
+        node.removeAttribute(attribute.name);
+        return;
+      }
+
+      if (name === 'href' || name === 'src' || name === 'xlink:href') {
+        const attrValue = attribute.value.trim().toLowerCase();
+        if (attrValue.startsWith('javascript:') || attrValue.startsWith('data:text/html')) {
+          node.removeAttribute(attribute.name);
+        }
+      }
+    });
+  });
+
+  return container.innerHTML;
+};
+
 /**
  * Formata um preço numérico para string com separadores de milhar
  * 
