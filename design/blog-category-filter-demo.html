@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demonstração — Filtro de categorias do blog Kercasa</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #191522;
+      background: #f8f7fb;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    button, input { font: inherit; }
+
+    .site-header {
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 max(5vw, 24px);
+      background: #fff;
+      border-bottom: 1px solid #eeeaf3;
+    }
+
+    .brand { color: #6e13bd; font-size: 26px; font-weight: 850; letter-spacing: -1.4px; }
+    .nav { display: flex; gap: 34px; align-items: center; color: #514d59; font-size: 13px; font-weight: 700; }
+    .nav .active { color: #7512c7; }
+    .account { padding: 12px 18px; border-radius: 12px; color: #fff; background: #ed4b0b; font-size: 13px; font-weight: 750; }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 74px 24px 150px;
+      text-align: center;
+      color: white;
+      background:
+        radial-gradient(ellipse at 15% 12%, rgba(124, 10, 209, .42), transparent 34%),
+        radial-gradient(ellipse at 90% 90%, rgba(249, 115, 22, .22), transparent 34%),
+        #080511;
+    }
+
+    .hero::before {
+      position: absolute;
+      inset: 0;
+      content: "";
+      opacity: .32;
+      background-image: radial-gradient(rgba(255,255,255,.18) .8px, transparent .8px);
+      background-size: 20px 20px;
+      mask-image: linear-gradient(to bottom, #000, transparent);
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; max-width: 880px; margin: 0 auto; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 25px;
+      padding: 9px 16px;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      color: #e1dce7;
+      font-size: 13px;
+      font-weight: 650;
+    }
+    .eyebrow::before { width: 8px; height: 8px; border-radius: 50%; background: #f97316; content: ""; }
+    h1 { margin: 0; font-size: clamp(42px, 7vw, 68px); line-height: 1.06; letter-spacing: -2.6px; }
+    h1 span {
+      color: #c789ff;
+      background: linear-gradient(90deg, #fb923c, #d38aff 58%, #8912df);
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .intro { max-width: 650px; margin: 24px auto 0; color: #aaa5b2; font-size: 17px; line-height: 1.7; }
+
+    main { position: relative; max-width: 1120px; margin: -88px auto 80px; padding: 0 24px; }
+    .search-panel {
+      max-width: 820px;
+      margin: 0 auto 45px;
+      padding: 30px;
+      border: 1px solid rgba(255,255,255,.8);
+      border-radius: 20px;
+      background: rgba(255,255,255,.94);
+      box-shadow: 0 22px 60px rgba(35, 16, 55, .13);
+      backdrop-filter: blur(18px);
+    }
+    .search-panel h2 { margin: 0 0 22px; text-align: center; font-size: 23px; letter-spacing: -.5px; }
+    .search-box { position: relative; }
+    .search-icon { position: absolute; left: 17px; top: 50%; color: #96909f; transform: translateY(-50%); font-size: 20px; }
+    .search-box input {
+      width: 100%;
+      height: 58px;
+      padding: 0 20px 0 50px;
+      border: 1px solid #efedf2;
+      border-radius: 12px;
+      outline: none;
+      background: #f8f7fa;
+      color: #27222f;
+      font-size: 15px;
+      transition: border-color .18s, box-shadow .18s, background .18s;
+    }
+    .search-box input:focus { border-color: #9b55d5; background: #fff; box-shadow: 0 0 0 4px rgba(126, 34, 206, .09); }
+    .category-heading { margin: 23px 0 12px; color: #393341; text-align: center; font-size: 13px; font-weight: 750; }
+    .category-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; }
+    .category {
+      min-height: 38px;
+      padding: 8px 16px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      background: #f2f0f5;
+      color: #504b59;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 650;
+      transition: color .18s, background .18s, box-shadow .18s, transform .18s;
+    }
+    .category:hover { color: #7418bb; background: #f2e8fc; transform: translateY(-1px); }
+    .category[aria-pressed="true"] { background: #7417bd; color: #fff; box-shadow: 0 5px 12px rgba(116, 23, 189, .2); }
+    .result-count { margin: 19px 0 0; color: #77717f; text-align: center; font-size: 13px; }
+
+    .posts-heading { display: flex; justify-content: space-between; align-items: end; margin: 0 0 20px; }
+    .posts-heading h2 { margin: 0; font-size: 25px; letter-spacing: -.7px; }
+    .posts-heading span { color: #817b89; font-size: 13px; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+    .card { overflow: hidden; border: 1px solid #efedf1; border-radius: 17px; background: #fff; box-shadow: 0 7px 22px rgba(30, 22, 40, .045); }
+    .card-image { height: 178px; display: grid; place-items: center; color: rgba(255,255,255,.9); font-size: 42px; }
+    .image-one { background: linear-gradient(135deg, #b17655, #e4bc8e 52%, #5c756d); }
+    .image-two { background: linear-gradient(135deg, #334964, #7f9ba5 55%, #d5b899); }
+    .image-three { background: linear-gradient(135deg, #8b5976, #d59ca0 54%, #eed3ac); }
+    .image-four { background: linear-gradient(135deg, #47726a, #9ebc9b 52%, #eed9ae); }
+    .card-body { padding: 19px; }
+    .tag { display: inline-block; margin-bottom: 10px; padding: 5px 9px; border-radius: 6px; background: #f4eafe; color: #7417bd; font-size: 10px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase; }
+    .date { margin: 0 0 9px; color: #898391; font-size: 11px; font-weight: 650; text-transform: uppercase; }
+    .card h3 { margin: 0; color: #25212c; font-size: 17px; line-height: 1.4; letter-spacing: -.25px; }
+    .excerpt { margin: 9px 0 0; color: #77717e; font-size: 13px; line-height: 1.55; }
+    .empty { display: none; padding: 50px 20px; border: 1px dashed #dcd5e4; border-radius: 16px; color: #77717e; text-align: center; }
+    .empty strong { display: block; margin-bottom: 7px; color: #342c3d; font-size: 20px; }
+    .demo-note { margin: 28px 0 0; color: #898391; text-align: center; font-size: 12px; }
+
+    @media (max-width: 760px) {
+      .site-header { height: 65px; }
+      .nav { display: none; }
+      .hero { padding-top: 58px; padding-bottom: 128px; }
+      .hero h1 { letter-spacing: -1.5px; }
+      .intro { font-size: 15px; }
+      main { margin-top: -76px; padding: 0 16px; }
+      .search-panel { padding: 24px 18px; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+      .card-image { height: 145px; }
+      .card-body { padding: 15px; }
+      .card h3 { font-size: 15px; }
+      .excerpt { display: none; }
+    }
+
+    @media (max-width: 480px) {
+      .brand { font-size: 23px; }
+      .account { padding: 10px 12px; font-size: 11px; }
+      .hero { padding-right: 18px; padding-left: 18px; }
+      .hero h1 { font-size: 43px; }
+      .search-panel h2 { font-size: 20px; }
+      .category { padding: 8px 12px; font-size: 12px; }
+      .grid { grid-template-columns: 1fr; }
+      .card { display: grid; grid-template-columns: 115px 1fr; min-height: 128px; }
+      .card-image { height: 100%; min-height: 128px; font-size: 30px; }
+      .card-body { padding: 14px; }
+      .posts-heading h2 { font-size: 21px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">◀ Kercasa</div>
+    <nav class="nav" aria-label="Navegação principal">
+      <span>INÍCIO</span><span>PROPRIEDADES</span><span>IMOBILIÁRIAS</span><span class="active">NOTÍCIAS</span><span>CONTACTO</span>
+    </nav>
+    <div class="account">Entrar</div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <div class="eyebrow">Insights do Mercado</div>
+      <h1>Notícias &amp;<br><span>Tendências do Mercado</span></h1>
+      <p class="intro">Seu guia definitivo para investimentos inteligentes, decoração e tendências do mercado imobiliário em Angola.</p>
+    </div>
+  </section>
+
+  <main>
+    <section class="search-panel" aria-labelledby="search-title">
+      <h2 id="search-title">Explore nosso acervo</h2>
+      <label class="search-box">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <input id="search" type="search" placeholder="O que você quer descobrir hoje?" autocomplete="off">
+      </label>
+      <p class="category-heading">Categorias</p>
+      <div class="category-list" role="group" aria-label="Filtrar artigos por categoria">
+        <button class="category" type="button" data-category="" aria-pressed="true">Todas</button>
+        <button class="category" type="button" data-category="Mercado Imobiliário" aria-pressed="false">Mercado Imobiliário</button>
+        <button class="category" type="button" data-category="Investimento" aria-pressed="false">Investimento</button>
+        <button class="category" type="button" data-category="Decoração" aria-pressed="false">Decoração</button>
+        <button class="category" type="button" data-category="Dicas" aria-pressed="false">Dicas</button>
+      </div>
+      <p class="result-count" id="result-count" aria-live="polite">4 artigos encontrados</p>
+    </section>
+
+    <section aria-labelledby="posts-title">
+      <div class="posts-heading">
+        <h2 id="posts-title">Todos os Artigos</h2>
+        <span>Mais recentes</span>
+      </div>
+      <div class="grid" id="posts">
+        <article class="card" data-category="Mercado Imobiliário">
+          <div class="card-image image-one" aria-hidden="true">⌂</div>
+          <div class="card-body">
+            <span class="tag">Mercado Imobiliário</span>
+            <p class="date">12 out, 2026 · 5 min de leitura</p>
+            <h3>O que esperar do mercado imobiliário em Luanda</h3>
+            <p class="excerpt">Uma visão geral das tendências e oportunidades atuais no mercado angolano.</p>
+          </div>
+        </article>
+        <article class="card" data-category="Investimento">
+          <div class="card-image image-two" aria-hidden="true">⌂</div>
+          <div class="card-body">
+            <span class="tag">Investimento</span>
+            <p class="date">8 out, 2026 · 7 min de leitura</p>
+            <h3>Como avaliar um imóvel antes de investir</h3>
+            <p class="excerpt">Os fatores essenciais para tomar decisões de investimento mais informadas.</p>
+          </div>
+        </article>
+        <article class="card" data-category="Decoração">
+          <div class="card-image image-three" aria-hidden="true">✳</div>
+          <div class="card-body">
+            <span class="tag">Decoração</span>
+            <p class="date">2 out, 2026 · 4 min de leitura</p>
+            <h3>Ideias simples para transformar a sua sala</h3>
+            <p class="excerpt">Pequenas mudanças que podem renovar o ambiente da sua casa.</p>
+          </div>
+        </article>
+        <article class="card" data-category="Dicas">
+          <div class="card-image image-four" aria-hidden="true">⌂</div>
+          <div class="card-body">
+            <span class="tag">Dicas</span>
+            <p class="date">28 set, 2026 · 6 min de leitura</p>
+            <h3>O que verificar antes de arrendar uma casa</h3>
+            <p class="excerpt">Uma lista prática para ajudar na escolha do próximo imóvel.</p>
+          </div>
+        </article>
+      </div>
+      <div class="empty" id="empty">
+        <strong>Nenhum artigo encontrado</strong>
+        Experimente outra pesquisa ou selecione uma categoria diferente.
+      </div>
+      <p class="demo-note">Demonstração visual com artigos e categorias de exemplo — não ligada ao Hygraph.</p>
+    </section>
+  </main>
+
+  <script>
+    const searchInput = document.querySelector("#search");
+    const categoryButtons = [...document.querySelectorAll(".category")];
+    const cards = [...document.querySelectorAll(".card")];
+    const resultCount = document.querySelector("#result-count");
+    const emptyState = document.querySelector("#empty");
+    let selectedCategory = "";
+
+    function updateResults() {
+      const term = searchInput.value.trim().toLocaleLowerCase("pt");
+      let visibleCount = 0;
+
+      for (const card of cards) {
+        const matchesCategory = !selectedCategory || card.dataset.category === selectedCategory;
+        const matchesSearch = card.textContent.toLocaleLowerCase("pt").includes(term);
+        const isVisible = matchesCategory && matchesSearch;
+        card.hidden = !isVisible;
+        if (isVisible) visibleCount += 1;
+      }
+
+      resultCount.textContent = `${visibleCount} ${visibleCount === 1 ? "artigo encontrado" : "artigos encontrados"}`;
+      emptyState.style.display = visibleCount === 0 ? "block" : "none";
+    }
+
+    categoryButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        selectedCategory = button.dataset.category;
+        categoryButtons.forEach((item) => {
+          item.setAttribute("aria-pressed", String(item === button));
+        });
+        updateResults();
+      });
+    });
+
+    searchInput.addEventListener("input", updateResults);
+  </script>
+</body>
+</html>

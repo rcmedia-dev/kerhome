@@ -15,6 +15,9 @@ interface SearchBarProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
   resultsCount: number;
+  categories: string[];
+  selectedCategory: string;
+  setSelectedCategory: (category: string) => void;
 }
 
 interface PostInfoProps {
@@ -92,7 +95,14 @@ const Header: React.FC = () => (
 );
 
 // Componente para a barra de pesquisa
-const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, setSearchTerm, resultsCount }) => (
+const SearchBar: React.FC<SearchBarProps> = ({
+  searchTerm,
+  setSearchTerm,
+  resultsCount,
+  categories,
+  selectedCategory,
+  setSelectedCategory,
+}) => (
   <div className="container mx-auto px-4 -mt-24 relative z-20">
     <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-white/20 max-w-3xl mx-auto">
       <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
@@ -119,6 +129,34 @@ const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, setSearchTerm, result
           </button>
         </div>
       </div>
+      {categories.length > 0 && (
+        <div className="mt-6" role="group" aria-label="Filtrar artigos por categoria">
+          <p className="text-sm font-semibold text-gray-700 mb-3">Categorias</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {["Todas", ...categories].map((category) => {
+              const isSelected = category === "Todas"
+                ? selectedCategory === ""
+                : selectedCategory.toLocaleLowerCase() === category.toLocaleLowerCase();
+
+              return (
+                <button
+                  key={category}
+                  type="button"
+                  aria-pressed={isSelected}
+                  onClick={() => setSelectedCategory(category === "Todas" ? "" : category)}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                    isSelected
+                      ? "bg-purple-600 text-white shadow-sm"
+                      : "bg-gray-100 text-gray-700 hover:bg-purple-50 hover:text-purple-700"
+                  }`}
+                >
+                  {category}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
       <p className="text-sm text-gray-500 mt-4 text-center font-medium">
         {resultsCount} artigos encontrados para sua busca
       </p>
@@ -453,6 +491,7 @@ const PostsGridSkeleton = () => (
 
 const KercasaBlog: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   const stripHtml = (html?: string) => html ? html.replace(/<[^>]*>/g, "") : "";
 
@@ -472,12 +511,22 @@ const KercasaBlog: React.FC = () => {
   });
 
   const allPosts = data?.pages.flat() || [];
+  const categories = Array.from(
+    new Map(
+      allPosts
+        .map((post) => post.categoria?.trim())
+        .filter((category): category is string => Boolean(category))
+        .map((category) => [category.toLocaleLowerCase(), category])
+    ).values()
+  ).sort((a, b) => a.localeCompare(b, "pt-AO"));
 
   const filteredPosts = allPosts.filter((post) => {
     const matchesSearch =
       post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       stripHtml(post.excerpt?.html).toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
+    const matchesCategory = !selectedCategory ||
+      post.categoria?.trim().toLocaleLowerCase() === selectedCategory.toLocaleLowerCase();
+    return matchesSearch && matchesCategory;
   });
 
   return (
@@ -487,6 +536,9 @@ const KercasaBlog: React.FC = () => {
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         resultsCount={filteredPosts.length}
+        categories={categories}
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
       />
 
       <main className="container mx-auto px-4 py-6">
@@ -528,4 +580,3 @@ const KercasaBlog: React.FC = () => {
 };
 
 export default KercasaBlog;
-
