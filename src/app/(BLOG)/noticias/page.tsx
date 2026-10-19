@@ -14,7 +14,6 @@ import readingTime from 'reading-time';
 interface SearchBarProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
-  resultsCount: number;
 }
 
 interface PostInfoProps {
@@ -92,7 +91,7 @@ const Header: React.FC = () => (
 );
 
 // Componente para a barra de pesquisa
-const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, setSearchTerm, resultsCount }) => (
+const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, setSearchTerm }) => (
   <div className="container mx-auto px-4 -mt-24 relative z-20">
     <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-white/20 max-w-3xl mx-auto">
       <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
@@ -119,9 +118,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, setSearchTerm, result
           </button>
         </div>
       </div>
-      <p className="text-sm text-gray-500 mt-4 text-center font-medium">
-        {resultsCount} artigos encontrados para sua busca
-      </p>
     </div>
   </div>
 );
@@ -453,6 +449,7 @@ const PostsGridSkeleton = () => (
 
 const KercasaBlog: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   const stripHtml = (html?: string) => html ? html.replace(/<[^>]*>/g, "") : "";
 
@@ -472,12 +469,22 @@ const KercasaBlog: React.FC = () => {
   });
 
   const allPosts = data?.pages.flat() || [];
+  const categories = Array.from(
+    new Map(
+      allPosts
+        .map((post) => post.categoria?.trim())
+        .filter((category): category is string => Boolean(category))
+        .map((category) => [category.toLocaleLowerCase(), category])
+    ).values()
+  ).sort((a, b) => a.localeCompare(b, "pt-AO"));
 
   const filteredPosts = allPosts.filter((post) => {
     const matchesSearch =
       post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       stripHtml(post.excerpt?.html).toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
+    const matchesCategory = !selectedCategory ||
+      post.categoria?.trim().toLocaleLowerCase() === selectedCategory.toLocaleLowerCase();
+    return matchesSearch && matchesCategory;
   });
 
   return (
@@ -486,7 +493,6 @@ const KercasaBlog: React.FC = () => {
       <SearchBar
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
-        resultsCount={filteredPosts.length}
       />
 
       <main className="container mx-auto px-4 py-6">
@@ -503,7 +509,41 @@ const KercasaBlog: React.FC = () => {
             <FeaturedSection posts={filteredPosts.slice(0, 3)} />
 
             <div className="mb-12">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Todos os Artigos</h2>
+              <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <h2 className="shrink-0 text-2xl font-bold text-gray-800">Todos os Artigos</h2>
+                {categories.length > 0 && (
+                  <div
+                    className="-mx-1 flex w-full flex-nowrap gap-2 overflow-x-auto px-1 pb-2 lg:mx-0 lg:w-auto lg:flex-wrap lg:justify-end lg:overflow-visible lg:px-0 lg:pb-0"
+                    role="group"
+                    aria-label="Filtrar artigos por categoria"
+                  >
+                    {["Todas", ...categories].map((category) => {
+                      const isSelected = category === "Todas"
+                        ? selectedCategory === ""
+                        : selectedCategory.toLocaleLowerCase() === category.toLocaleLowerCase();
+
+                      return (
+                        <button
+                          key={category}
+                          type="button"
+                          aria-pressed={isSelected}
+                          onClick={() => setSelectedCategory(category === "Todas" ? "" : category)}
+                          className={`shrink-0 rounded-xl px-3 py-2 text-xs font-medium transition-colors ${
+                            isSelected
+                              ? "bg-purple-600 text-white shadow-sm"
+                              : "bg-gray-100 text-gray-700 hover:bg-purple-50 hover:text-purple-700"
+                          }`}
+                        >
+                          {category}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+              <p className="mb-4 -mt-3 text-xs text-gray-500 lg:text-right">
+                {filteredPosts.length} artigos encontrados
+              </p>
               <PostsGrid posts={filteredPosts} isLoading={isLoading} />
 
           {hasNextPage && (
@@ -528,4 +568,3 @@ const KercasaBlog: React.FC = () => {
 };
 
 export default KercasaBlog;
-

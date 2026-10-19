@@ -6,6 +6,7 @@ export const GET_POSTS = gql`
       id
       title
       slug
+      categoria
       excerpt {
         html
       }
@@ -27,6 +28,7 @@ export const GET_POST_BY_SLUG = gql`
       id
       title
       slug
+      categoria
       excerpt {
         html
       }
