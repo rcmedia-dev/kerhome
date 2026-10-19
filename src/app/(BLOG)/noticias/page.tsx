@@ -189,7 +189,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
 // Componente para o card de post individual
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const stripHtml = (html?: string): string => {
-    return html ? html.replace(/<[^>]*>/g, '') : '';
+    return html ? html.replace(/<[^>]*>/g, ' ') : '';
   };
 
   // Sanitize title: replace non-breaking spaces (U+00A0 / &nbsp;) with regular spaces
@@ -198,6 +198,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     text.replace(/\u00A0/g, ' ').trim();
 
   const cleanTitle = sanitizeTitle(post.title);
+  const excerpt = stripHtml(post.excerpt?.html).replace(/\s+/g, ' ').trim();
   const estimatedTime = readingTime(post.content?.html || '')
 
   return (
@@ -243,6 +244,11 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 {cleanTitle}
               </h3>
             </div>
+            {excerpt && (
+              <p className="text-sm leading-relaxed text-gray-500 line-clamp-2">
+                {excerpt}
+              </p>
+            )}
           </div>
 
 
@@ -261,7 +267,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 // Componente para o post em destaque
 const FeaturedPost: React.FC<FeaturedPostProps> = ({ post }) => {
   const stripHtml = (html?: string): string => {
-    return html ? html.replace(/<[^>]*>/g, '') : '';
+    return html ? html.replace(/<[^>]*>/g, ' ') : '';
   };
 
   // Same &nbsp; sanitization as PostCard to prevent mid-word line breaks
@@ -269,6 +275,7 @@ const FeaturedPost: React.FC<FeaturedPostProps> = ({ post }) => {
     text.replace(/\u00A0/g, ' ').trim();
 
   const cleanTitle = sanitizeTitle(post.title);
+  const excerpt = stripHtml(post.excerpt?.html).replace(/\s+/g, ' ').trim();
   const estimatedTime = readingTime(post.content?.html || '')
 
   return (
@@ -300,6 +307,11 @@ const FeaturedPost: React.FC<FeaturedPostProps> = ({ post }) => {
           >
             {cleanTitle}
           </h2>
+          {excerpt && (
+            <p className="mb-6 max-w-2xl text-sm leading-relaxed text-gray-200 sm:text-base line-clamp-3">
+              {excerpt}
+            </p>
+          )}
           <div className="flex flex-wrap items-center gap-6 mb-8 text-sm font-medium text-gray-300">
             <div className="flex items-center gap-2">
               <Calendar className="w-5 h-5" />
